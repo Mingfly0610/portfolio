@@ -132,7 +132,7 @@
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-modal-img="images/prog-beast-full.jpg"
-                     data-external-link="#">
+                     data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/">
                     <img src="images/prog-beast-thumb.jpg" alt="職場神獸縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -144,7 +144,7 @@
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-modal-img="images/prog-animal-full.jpg"
-                     data-external-link="#">
+                     data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/">
                     <img src="images/prog-animal-thumb.jpg" alt="職場動物縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -156,7 +156,7 @@
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-modal-img="images/prog-career-full.jpg"
-                     data-external-link="#">
+                     data-external-link="https://design-your-life-studio.github.io/career-diagnosis/">
                     <img src="images/prog-career-thumb.jpg" alt="職業適性診斷縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -168,7 +168,7 @@
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-modal-img="images/prog-lottery-full.jpg"
-                     data-external-link="#">
+                     data-external-link=""> <!-- 若有抽獎程式網址請填入此處 -->
                     <img src="images/prog-lottery-thumb.jpg" alt="電子抽獎縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1553481235-696411a91af0?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -180,7 +180,7 @@
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-modal-img="images/prog-web-full.jpg"
-                     data-external-link="#">
+                     data-external-link=""> <!-- 若有網頁體驗網址請填入此處 -->
                     <img src="images/prog-web-thumb.jpg" alt="網頁開發縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -315,7 +315,7 @@
                         
                         <!-- 「前往程式網頁」按鈕 -->
                         <div id="external-link-container" class="hidden pt-4">
-                            <a id="modal-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all">
+                            <a id="modal-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1">
                                 前往程式網頁
                                 <i class="ph ph-arrow-up-right"></i>
                             </a>
@@ -384,6 +384,7 @@
 
                 mediaError.classList.add('hidden');
 
+                // 處理影片或圖片
                 if (videoSrc) {
                     modalImg.classList.add('hidden');
                     modalVideo.classList.remove('hidden');
@@ -419,7 +420,8 @@
                     };
                 }
 
-                if (projectLink && projectLink !== "#") {
+                // 處理外部連結按鈕
+                if (projectLink && projectLink.trim() !== "") {
                     linkContainer.classList.remove('hidden');
                     externalLink.href = projectLink;
                 } else {
