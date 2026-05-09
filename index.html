@@ -44,7 +44,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
-</head>
+ head>
 <body class="bg-white text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
 
     <!-- 導覽列 -->
@@ -313,12 +313,21 @@
                     <div class="text-gray-600 leading-relaxed space-y-6 text-lg max-w-3xl">
                         <p id="modal-description">專案詳細介紹內容。這裡可以寫下您的設計思維、使用的軟體以及專案背景。</p>
                         
-                        <!-- 「前往程式網頁」按鈕 -->
-                        <div id="external-link-container" class="hidden pt-4">
-                            <a id="modal-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1">
+                        <!-- 連結與 QR Code 容器 -->
+                        <div id="external-link-container" class="hidden pt-8 flex flex-col md:flex-row items-start md:items-center gap-8 border-t border-gray-100 mt-8">
+                            <!-- 前往程式網頁按鈕 -->
+                            <a id="modal-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1 shrink-0">
                                 前往程式網頁
                                 <i class="ph ph-arrow-up-right"></i>
                             </a>
+                            
+                            <!-- QR Code 區塊 -->
+                            <div id="qr-container" class="flex flex-col items-center gap-2">
+                                <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                                    <img id="modal-qr" src="" alt="QR Code" class="w-24 h-24 md:w-32 md:h-32">
+                                </div>
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan to Preview</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -341,6 +350,7 @@
         const modalTitle = document.getElementById('modal-title');
         const linkContainer = document.getElementById('external-link-container');
         const externalLink = document.getElementById('modal-external-link');
+        const modalQr = document.getElementById('modal-qr');
 
         // 作品篩選
         filterBtns.forEach(btn => {
@@ -420,10 +430,14 @@
                     };
                 }
 
-                // 處理外部連結按鈕
+                // 處理外部連結與 QR Code
                 if (projectLink && projectLink.trim() !== "") {
                     linkContainer.classList.remove('hidden');
                     externalLink.href = projectLink;
+                    
+                    // 動態產生 QR Code 網址 (使用 QR Server API)
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(projectLink)}`;
+                    modalQr.src = qrUrl;
                 } else {
                     linkContainer.classList.add('hidden');
                 }
