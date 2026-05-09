@@ -217,9 +217,11 @@
                     <video id="modal-video" src="" class="w-full h-full object-cover hidden" controls autoplay muted playsinline></video>
                     <!-- 載入錯誤提示 -->
                     <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4">
-                        <div>
+                        <div class="px-4">
                             <i class="ph ph-warning-circle text-4xl mb-2"></i>
-                            <p>檔案載入失敗，請檢查 GitHub 路徑與檔名大小寫。</p>
+                            <p class="font-bold">檔案載入失敗</p>
+                            <p class="text-xs mt-4 opacity-70 break-all max-w-md mx-auto" id="error-path"></p>
+                            <p class="text-xs mt-2 text-brand-accent">請確認上方網址與 GitHub 檔名完全一致（含大小寫）</p>
                         </div>
                     </div>
                 </div>
@@ -244,6 +246,7 @@
         const modalImg = document.getElementById('modal-img');
         const modalVideo = document.getElementById('modal-video');
         const mediaError = document.getElementById('media-error');
+        const errorPathText = document.getElementById('error-path');
         const modalCategory = document.getElementById('modal-category');
         const modalTitle = document.getElementById('modal-title');
 
@@ -271,7 +274,7 @@
             });
         });
 
-        // 彈窗開啟
+        // 彈窗功能
         portfolioItems.forEach(item => {
             item.addEventListener('click', () => {
                 const category = item.querySelector('span').innerText;
@@ -284,20 +287,36 @@
                 if (videoSrc) {
                     modalImg.classList.add('hidden');
                     modalVideo.classList.remove('hidden');
-                    modalVideo.src = videoSrc;
-                    modalVideo.load();
-                    modalVideo.play().catch(e => console.warn("Autoplay blocked or file not found:", e));
                     
-                    // 偵測影片錯誤
-                    modalVideo.onerror = () => { mediaError.classList.remove('hidden'); modalVideo.classList.add('hidden'); };
+                    // 為了避免快取，給網址加一個隨機參數
+                    const finalVideoSrc = videoSrc + "?v=" + new Date().getTime();
+                    modalVideo.src = finalVideoSrc;
+                    
+                    modalVideo.load();
+                    modalVideo.play().catch(e => {
+                        console.error("Autoplay blocked:", e);
+                    });
+                    
+                    modalVideo.onerror = () => { 
+                        mediaError.classList.remove('hidden'); 
+                        modalVideo.classList.add('hidden'); 
+                        // 顯示絕對路徑幫助偵錯
+                        const absoluteUrl = new URL(videoSrc, window.location.href).href;
+                        errorPathText.innerText = absoluteUrl;
+                    };
                 } else {
                     modalVideo.classList.add('hidden');
                     modalVideo.pause();
                     modalImg.classList.remove('hidden');
-                    modalImg.src = modalImgSrc || item.querySelector('img').src;
+                    const finalImg = modalImgSrc || item.querySelector('img').src;
+                    modalImg.src = finalImg;
                     
-                    // 偵測圖片錯誤
-                    modalImg.onerror = () => { mediaError.classList.remove('hidden'); modalImg.classList.add('hidden'); };
+                    modalImg.onerror = () => { 
+                        mediaError.classList.remove('hidden'); 
+                        modalImg.classList.add('hidden'); 
+                        const absoluteUrl = new URL(finalImg, window.location.href).href;
+                        errorPathText.innerText = absoluteUrl;
+                    };
                 }
 
                 modalCategory.innerText = category;
@@ -317,7 +336,7 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modalVideo.pause();
-                modalVideo.src = ""; // 清空路徑釋放資源
+                modalVideo.src = ""; 
                 document.body.style.overflow = ''; 
             }, 300);
         };
