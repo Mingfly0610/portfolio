@@ -73,7 +73,7 @@
                 <a href="#contact" class="hover:text-gray-500 transition-colors">聯絡 Contact</a>
             </nav>
 
-            <!-- 手機版漢堡選單按鈕 (這裡為簡化僅作裝飾，可加入JS實現展開) -->
+            <!-- 手機版漢堡選單按鈕 -->
             <button class="md:hidden text-2xl">
                 <i class="ph ph-list"></i>
             </button>
@@ -121,20 +121,23 @@
             <!-- 作品網格 (Grid) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="portfolio-grid">
                 
-                <!-- 專案項目 1 -->
-                <!-- 新增 data-link 屬性，未來可替換成實際的專案網址，例如 project-1.html -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="event" data-link="#project-1">
-                    <img src="https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&q=80&w=1200" alt="專案圖片" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://via.placeholder.com/1200x900?text=Project+1'">
-                    <!-- 懸停遮罩 -->
+                <!-- 專案項目 1: 圖片範例 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
+                     data-category="event" 
+                     data-modal-img="images/event-exhibition-full.jpg">
+                    <img src="images/event-exhibition-thumb.jpg" alt="縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">展覽主視覺設計</h3>
                     </div>
                 </div>
 
-                <!-- 專案項目 2 -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="animation" data-link="#project-2">
-                    <img src="images/2025-animation-job-fair.jpg" alt="專案圖片" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://via.placeholder.com/1200x900?text=Project+2'">
+                <!-- 專案項目 2: 影片範例 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
+                     data-category="animation" 
+                     data-video="videos/2025-animation-job-fair.mp4"
+                     data-modal-img="images/2025-animation-job-fair-full.jpg">
+                    <video src="videos/2025-animation-job-fair.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-job-fair.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年僑生就業博覽會 啟動儀式動畫</h3>
@@ -142,8 +145,10 @@
                 </div>
 
                 <!-- 專案項目 3 -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="programming" data-link="#project-3">
-                    <img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=1200" alt="專案圖片" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://via.placeholder.com/1200x900?text=Project+3'">
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
+                     data-category="programming"
+                     data-modal-img="images/web-exp-full.jpg">
+                    <img src="images/web-exp-thumb.jpg" alt="縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">互動式網頁體驗開發</h3>
@@ -151,24 +156,65 @@
                 </div>
 
                 <!-- 專案項目 4 -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="event" data-link="#project-4">
-                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200" alt="專案圖片" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://via.placeholder.com/1200x900?text=Project+4'">
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
+                     data-category="event"
+                     data-modal-img="images/music-fest-full.jpg">
+                    <img src="images/music-fest-thumb.jpg" alt="縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">音樂祭視覺統籌</h3>
                     </div>
                 </div>
 
-                <!-- 專案項目 5 -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="animation" data-link="#project-5">
-                    <!-- 先幫您放一張有科技氛圍的暫代圖，之後再換成您的真實設計圖 -->
-                    <img src="images/2025-animation-kaohsiung-forum.jpg" alt="專案圖片" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://via.placeholder.com/1200x900?text=Project+5'">
+                <!-- 專案項目 5: 影片範例 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
+                     data-category="animation" 
+                     data-video="videos/2025-animation-kaohsiung-forum.mp4"
+                     data-modal-img="images/2025-animation-kaohsiung-forum-full.jpg">
+                    <video src="videos/2025-animation-kaohsiung-forum.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-kaohsiung-forum.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年高雄市政府-智慧港都 幸福永續-論壇展示活動 啟動儀式動畫</h3>
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </section>
+
+    <!-- 關於我 (About) -->
+    <section id="about" class="py-32 px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
+            <!-- 肖像/形象圖 -->
+            <div class="w-full lg:w-1/2">
+                <div class="relative w-full aspect-[4/5] rounded-2xl overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&q=80&w=1000" alt="設計師肖像" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" onerror="this.src='https://via.placeholder.com/1000x1250?text=Profile+Photo'">
+                </div>
+            </div>
+            
+            <!-- 文字介紹 -->
+            <div class="w-full lg:w-1/2 space-y-8">
+                <h2 class="text-4xl md:text-5xl font-bold">About Me</h2>
+                <div class="space-y-6 text-lg text-gray-600 leading-relaxed">
+                    <p>
+                        你好，我是 MingFly。擁有超過五年的視覺設計經驗。我深信好的設計不僅是視覺上的美感，更是解決問題、傳遞品牌核心價值的橋樑。
+                    </p>
+                    <p>
+                        過去我曾參與過科技、文創、餐飲等不同領域的設計專案。從前期的概念發想、品牌定位，到後期的 UI/UX 規劃與視覺產出，我熱衷於參與每個讓概念成真的環節。
+                    </p>
+                </div>
+                
+                <div class="pt-6 border-t border-gray-200">
+                    <h3 class="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">Core Skills</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Art Direction</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Brand Identity</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">UI / UX Design</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Typography</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Figma</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Adobe Creative Suite</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -201,58 +247,44 @@
 
     <!-- 專案詳情彈窗 (Modal) -->
     <div id="project-modal" class="fixed inset-0 z-[100] hidden">
-        <!-- 背景遮罩 -->
         <div id="modal-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity cursor-pointer"></div>
         
-        <!-- 彈窗內容 -->
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl max-h-full overflow-y-auto pointer-events-auto flex flex-col scale-95 opacity-0 transition-all duration-300 relative">
                 
-                <!-- 關閉按鈕 -->
                 <button id="modal-close" class="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full transition-colors z-10 backdrop-blur-md">
                     <i class="ph ph-x text-xl md:text-2xl"></i>
                 </button>
                 
-                <!-- 圖片區 -->
-                <div class="w-full aspect-[4/3] md:aspect-[21/9] overflow-hidden bg-gray-100">
+                <!-- 媒體區：動態切換影片或圖片 -->
+                <div class="w-full aspect-[4/3] md:aspect-[21/9] overflow-hidden bg-gray-100 flex items-center justify-center">
                     <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-cover">
+                    <video id="modal-video" src="" class="w-full h-full object-cover hidden" controls autoplay muted></video>
                 </div>
                 
-                <!-- 文字區 -->
-                <div class="p-8 md:p-12">
+                <div class="p-8 md:p-12 pb-16">
                     <span id="modal-category" class="text-brand-accent text-sm font-bold tracking-widest uppercase mb-3 block">Category</span>
                     <h3 id="modal-title" class="text-3xl md:text-4xl lg:text-5xl font-black mb-6">Project Title</h3>
                     
                     <div class="text-gray-600 leading-relaxed space-y-4 md:text-lg">
                         <p>這是一個專案的詳細介紹區塊。您可以在這裡寫下這個專案的背景、您的設計理念、面臨的挑戰以及最終的解決方案。</p>
-                        <p>未來當您有完整的案例分析 (Case Study) 時，可以將這些內容替換成真實的文字，甚至在下方繼續加入更多細節圖片、設計規範或網頁設計稿。</p>
-                    </div>
-                    
-                    <div class="mt-10 pt-8 border-t border-gray-100">
-                        <!-- 加上 ID 以便 JS 控制 -->
-                        <a id="modal-link" href="#" class="inline-flex items-center gap-2 bg-brand-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors">
-                            觀看完整專案 <i class="ph ph-arrow-up-right"></i>
-                        </a>
+                        <p>您可以詳細描述色彩計畫、字體選用，以及這個設計如何幫助客戶達成其目標。</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 簡單的交互腳本 -->
     <script>
-        // 專案分類篩選邏輯
         const filterBtns = document.querySelectorAll('.filter-btn');
         const portfolioItems = document.querySelectorAll('.portfolio-item');
 
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // 移除所有按鈕的 active 樣式
                 filterBtns.forEach(b => {
                     b.classList.remove('bg-brand-black', 'text-white');
                     b.classList.add('bg-transparent', 'text-brand-black');
                 });
-                // 為點擊的按鈕加入 active 樣式
                 btn.classList.remove('bg-transparent', 'text-brand-black');
                 btn.classList.add('bg-brand-black', 'text-white');
 
@@ -261,7 +293,6 @@
                 portfolioItems.forEach(item => {
                     if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
                         item.style.display = 'block';
-                        // 稍微加點動畫延遲感
                         setTimeout(() => {
                             item.style.opacity = '1';
                             item.style.transform = 'scale(1)';
@@ -271,13 +302,12 @@
                         item.style.transform = 'scale(0.95)';
                         setTimeout(() => {
                             item.style.display = 'none';
-                        }, 300); // 對應 CSS 動畫時間
+                        }, 300);
                     }
                 });
             });
         });
 
-        // 導覽列滾動陰影效果
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) {
@@ -287,72 +317,61 @@
             }
         });
 
-        // --- 專案點擊彈窗邏輯 (Modal) ---
         const modal = document.getElementById('project-modal');
         const modalBackdrop = document.getElementById('modal-backdrop');
         const modalContent = document.getElementById('modal-content');
         const modalClose = document.getElementById('modal-close');
         
         const modalImg = document.getElementById('modal-img');
+        const modalVideo = document.getElementById('modal-video');
         const modalCategory = document.getElementById('modal-category');
         const modalTitle = document.getElementById('modal-title');
-        const modalLink = document.getElementById('modal-link'); // 新增取得按鈕元素
 
-        // 開啟彈窗
         portfolioItems.forEach(item => {
             item.addEventListener('click', () => {
-                // 獲取當前點擊項目的圖片、分類、標題與連結
-                const imgSrc = item.querySelector('img').src;
                 const category = item.querySelector('span').innerText;
                 const title = item.querySelector('h3').innerText;
-                const projectLink = item.getAttribute('data-link'); // 取得專案連結
+                const videoSrc = item.getAttribute('data-video');
+                const modalImgSrc = item.getAttribute('data-modal-img'); // 取得彈窗專用大圖路徑
 
-                // 將資料填入彈窗對應的位置
-                modalImg.src = imgSrc;
-                modalCategory.innerText = category;
-                modalTitle.innerText = title;
-                
-                // 設定「觀看完整專案」按鈕的網址
-                if (projectLink) {
-                    modalLink.href = projectLink;
-                    modalLink.style.display = 'inline-flex'; // 如果有連結就顯示按鈕
+                // 切換顯示模式
+                if (videoSrc) {
+                    modalImg.classList.add('hidden');
+                    modalVideo.classList.remove('hidden');
+                    modalVideo.src = videoSrc;
+                    modalVideo.load();
                 } else {
-                    modalLink.style.display = 'none'; // 如果沒設定連結就隱藏按鈕
+                    modalVideo.classList.add('hidden');
+                    modalImg.classList.remove('hidden');
+                    // 如果有設定彈窗大圖則使用大圖，否則回退到縮圖
+                    modalImg.src = modalImgSrc || item.querySelector('img').src;
+                    modalVideo.src = "";
                 }
 
-                // 顯示彈窗結構
+                modalCategory.innerText = category;
+                modalTitle.innerText = title;
+
                 modal.classList.remove('hidden');
-                
-                // 強制重繪以確保過渡動畫能順利執行
                 void modal.offsetWidth;
-                
-                // 加上動畫 class
                 modalContent.classList.remove('scale-95', 'opacity-0');
                 modalContent.classList.add('scale-100', 'opacity-100');
-                
-                // 鎖定背景滾動，避免看彈窗時背景跟著滑動
                 document.body.style.overflow = 'hidden';
             });
         });
 
-        // 關閉彈窗函數
         const closeModal = () => {
-            // 移除動畫 class
             modalContent.classList.remove('scale-100', 'opacity-100');
             modalContent.classList.add('scale-95', 'opacity-0');
             
-            // 等待動畫結束後隱藏結構
             setTimeout(() => {
                 modal.classList.add('hidden');
-                // 恢復背景滾動
+                modalVideo.pause();
                 document.body.style.overflow = ''; 
-            }, 300); // 300ms 與 Tailwind 的 duration-300 對應
+            }, 300);
         };
 
-        // 點擊關閉按鈕或背景遮罩時關閉彈窗
         modalClose.addEventListener('click', closeModal);
         modalBackdrop.addEventListener('click', closeModal);
-
     </script>
 </body>
 </html>
