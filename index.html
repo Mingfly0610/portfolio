@@ -45,18 +45,22 @@
         }
     </style>
 </head>
-<body class="bg-white text-brand-black font-sans antialiased">
+<body class="bg-white text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
 
     <!-- 導覽列 -->
     <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
             <a href="#" class="font-serif text-2xl font-bold tracking-tighter">MingFly.</a>
+            
             <nav class="hidden md:flex gap-8 text-sm font-medium tracking-wide">
                 <a href="#work" class="hover:text-gray-500 transition-colors">作品 Work</a>
                 <a href="#about" class="hover:text-gray-500 transition-colors">關於 About</a>
                 <a href="#contact" class="hover:text-gray-500 transition-colors">聯絡 Contact</a>
             </nav>
-            <button class="md:hidden text-2xl"><i class="ph ph-list"></i></button>
+
+            <button class="md:hidden text-2xl">
+                <i class="ph ph-list"></i>
+            </button>
         </div>
     </header>
 
@@ -73,7 +77,8 @@
             </p>
             <div class="pt-8">
                 <a href="#work" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1">
-                    觀看作品 <i class="ph ph-arrow-down-right"></i>
+                    觀看作品
+                    <i class="ph ph-arrow-down-right"></i>
                 </a>
             </div>
         </div>
@@ -87,6 +92,8 @@
                     <h2 class="text-4xl md:text-5xl font-bold mb-4">Selected Works</h2>
                     <p class="text-gray-500 text-lg">近期精選的設計專案與視覺實驗。</p>
                 </div>
+                
+                <!-- 分類篩選按鈕 -->
                 <div class="flex flex-wrap gap-2 md:gap-4" id="filter-btns">
                     <button class="filter-btn active px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-brand-black text-white transition-colors" data-filter="all">全部</button>
                     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="event">活動視覺設計</button>
@@ -98,64 +105,72 @@
             <!-- 作品網格 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="portfolio-grid">
                 
-                <!-- 專案 1 -->
+                <!-- 專案 1: 活動視覺 -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="event" 
                      data-modal-img="images/event-exhibition-full.jpg">
-                    <img src="images/event-exhibition-thumb.jpg" alt="展覽主視覺" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&q=80&w=1200'">
+                    <img src="images/event-exhibition-thumb.jpg" alt="縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">展覽主視覺設計</h3>
                     </div>
                 </div>
 
-                <!-- 專案 2 (影片) -->
+                <!-- 專案 2: 動畫設計 (僑生就業博覽會) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2025-animation-job-fair.mp4"
                      data-modal-img="images/2025-animation-job-fair-full.jpg">
-                    <video class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-job-fair.jpg">
-                        <source src="videos/2025-animation-job-fair.mp4" type="video/mp4">
-                    </video>
+                    <video src="videos/2025-animation-job-fair.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-job-fair.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年僑生就業博覽會 啟動儀式動畫</h3>
                     </div>
                 </div>
 
-                <!-- 專案 3 -->
+                <!-- 專案 3: 程式設計 -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-modal-img="images/web-exp-full.jpg">
-                    <img src="images/web-exp-thumb.jpg" alt="網頁體驗" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=1200'">
+                    <img src="images/web-exp-thumb.jpg" alt="縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">互動式網頁體驗開發</h3>
                     </div>
                 </div>
 
-                <!-- 專案 4 -->
+                <!-- 專案 4: 活動視覺 -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="event"
                      data-modal-img="images/music-fest-full.jpg">
-                    <img src="images/music-fest-thumb.jpg" alt="音樂祭" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200'">
+                    <img src="images/music-fest-thumb.jpg" alt="縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">音樂祭視覺統籌</h3>
                     </div>
                 </div>
 
-                <!-- 專案 5 (影片) -->
+                <!-- 專案 5: 動畫設計 (智慧港都) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2025-animation-kaohsiung-forum.mp4"
                      data-modal-img="images/2025-animation-kaohsiung-forum-full.jpg">
-                    <video class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-kaohsiung-forum.jpg">
-                        <source src="videos/2025-animation-kaohsiung-forum.mp4" type="video/mp4">
-                    </video>
+                    <video src="videos/2025-animation-kaohsiung-forum.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-kaohsiung-forum.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年高雄市政府-智慧港都 幸福永續-論壇展示活動 啟動儀式動畫</h3>
+                    </div>
+                </div>
+
+                <!-- 專案 6: 動畫設計 (職安衛生日) - NEW -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
+                     data-category="animation" 
+                     data-video="videos/2026-animation-labor-safety.mp4"
+                     data-modal-img="images/2026-animation-labor-safety-full.jpg">
+                    <video src="videos/2026-animation-labor-safety.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2026-animation-labor-safety-thumb.jpg"></video>
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                        <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
+                        <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年高雄市政府職業安全衛生日安全體感觀摩暨展示活動 啟動儀式動畫</h3>
                     </div>
                 </div>
 
@@ -168,20 +183,25 @@
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
             <div class="w-full lg:w-1/2">
                 <div class="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100">
-                    <img src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&q=80&w=1000" alt="MingFly" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" onerror="this.src='https://via.placeholder.com/1000x1250?text=Profile+Photo'">
+                    <img src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&q=80&w=1000" alt="設計師肖像" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" onerror="this.src='https://via.placeholder.com/1000x1250?text=Profile+Photo'">
                 </div>
             </div>
+            
             <div class="w-full lg:w-1/2 space-y-8">
                 <h2 class="text-4xl md:text-5xl font-bold">About Me</h2>
                 <div class="space-y-6 text-lg text-gray-600 leading-relaxed">
-                    <p>你好，我是 MingFly。我深信好的設計不僅是視覺上的美感，更是解決問題、傳遞品牌核心價值的橋樑。</p>
-                    <p>我擅長將抽象的概念轉化為具備衝擊力的視覺語言，並在多媒體互動與動態影像中尋找創新的表現方式。</p>
+                    <p>你好，我是 MingFly。擁有超過五年的視覺設計經驗。我深信好的設計不僅是視覺上的美感，更是解決問題、傳遞品牌核心價值的橋樑。</p>
+                    <p>過去我曾參與過科技、文創、餐飲等不同領域的設計專案。從前期的概念發想、品牌定位，到後期的 UI/UX 規劃與視覺產出，我熱衷於參與每個讓概念成真的環節。</p>
                 </div>
-                <div class="pt-6 border-t border-gray-200 flex flex-wrap gap-3">
-                    <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Art Direction</span>
-                    <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Brand Identity</span>
-                    <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">UI / UX Design</span>
-                    <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Motion Graphics</span>
+                
+                <div class="pt-6 border-t border-gray-200">
+                    <h3 class="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">Core Skills</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Art Direction</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Brand Identity</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">UI / UX Design</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Motion Graphics</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -191,15 +211,23 @@
     <footer id="contact" class="bg-brand-black text-white py-32 px-6 lg:px-12 text-center">
         <div class="max-w-4xl mx-auto space-y-12">
             <h2 class="font-serif text-5xl md:text-7xl font-bold italic">Let's work together.</h2>
-            <a href="mailto:qwe33885@gmail.com" class="inline-block text-3xl md:text-5xl font-bold border-b-2 border-transparent hover:border-white transition-colors pb-2">qwe33885@gmail.com</a>
-            <div class="pt-16 flex justify-center gap-8 text-3xl text-gray-400">
-                <a href="#" class="hover:text-white transition-colors"><i class="ph ph-instagram-logo"></i></a>
-                <a href="#" class="hover:text-white transition-colors"><i class="ph ph-behance-logo"></i></a>
-                <a href="#" class="hover:text-white transition-colors"><i class="ph ph-linkedin-logo"></i></a>
+            <p class="text-xl text-gray-400">目前開放接案中。如果您有任何專案想法，歡迎隨時與我聯繫。</p>
+            
+            <a href="mailto:qwe33885@gmail.com" class="inline-block text-3xl md:text-5xl font-bold border-b-2 border-transparent hover:border-white transition-colors pb-2">
+                qwe33885@gmail.com
+            </a>
+
+            <div class="pt-16 flex justify-center gap-8 text-3xl">
+                <a href="#" class="hover:text-brand-accent transition-colors"><i class="ph ph-instagram-logo"></i></a>
+                <a href="#" class="hover:text-brand-accent transition-colors"><i class="ph ph-behance-logo"></i></a>
+                <a href="#" class="hover:text-brand-accent transition-colors"><i class="ph ph-linkedin-logo"></i></a>
             </div>
-            <div class="pt-16 text-sm text-gray-500 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+            
+            <div class="pt-16 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center border-t border-gray-800">
                 <p>&copy; 2026 MingFly. All rights reserved.</p>
-                <a href="#top" class="mt-4 md:mt-0 hover:text-white transition-colors flex items-center gap-2">Back to top <i class="ph ph-arrow-up"></i></a>
+                <a href="#top" class="mt-4 md:mt-0 hover:text-white transition-colors flex items-center gap-2">
+                    Back to top <i class="ph ph-arrow-up"></i>
+                </a>
             </div>
         </div>
     </footer>
@@ -209,27 +237,32 @@
         <div id="modal-backdrop" class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto pointer-events-auto flex flex-col scale-95 opacity-0 transition-all duration-300 relative shadow-2xl">
+                
                 <button id="modal-close" class="absolute top-6 right-6 bg-black/50 hover:bg-black text-white p-3 rounded-full transition-all z-[110] backdrop-blur-md">
                     <i class="ph ph-x text-2xl"></i>
                 </button>
+                
+                <!-- 媒體區 -->
                 <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative">
-                    <img id="modal-img" src="" class="w-full h-full object-cover">
+                    <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-cover">
                     <video id="modal-video" src="" class="w-full h-full object-cover hidden" controls autoplay muted playsinline></video>
                     <!-- 載入錯誤提示 -->
                     <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4">
                         <div class="px-4">
                             <i class="ph ph-warning-circle text-4xl mb-2"></i>
                             <p class="font-bold">檔案載入失敗</p>
-                            <p class="text-xs mt-4 opacity-70 break-all max-w-md mx-auto" id="error-path"></p>
-                            <p class="text-xs mt-2 text-brand-accent">請確認上方網址與 GitHub 檔名完全一致（含大小寫）</p>
+                            <p class="text-xs mt-2 opacity-70">請確認檔案名稱與路徑大小寫是否正確。</p>
                         </div>
                     </div>
                 </div>
-                <div class="p-8 md:p-12">
+                
+                <div class="p-8 md:p-12 pb-16">
                     <span id="modal-category" class="text-brand-accent text-sm font-bold tracking-widest uppercase mb-3 block">Category</span>
                     <h3 id="modal-title" class="text-3xl md:text-5xl font-black mb-8 leading-tight">Project Title</h3>
-                    <div class="text-gray-600 leading-relaxed space-y-4 text-lg max-w-3xl">
+                    
+                    <div class="text-gray-600 leading-relaxed space-y-4 md:text-lg">
                         <p>專案詳細介紹內容。這裡可以寫下您的設計思維、使用的軟體以及專案背景。</p>
+                        <p>您可以詳細描述色彩計畫、字體選用，以及這個設計如何幫助客戶達成其目標。</p>
                     </div>
                 </div>
             </div>
@@ -246,7 +279,6 @@
         const modalImg = document.getElementById('modal-img');
         const modalVideo = document.getElementById('modal-video');
         const mediaError = document.getElementById('media-error');
-        const errorPathText = document.getElementById('error-path');
         const modalCategory = document.getElementById('modal-category');
         const modalTitle = document.getElementById('modal-title');
 
@@ -274,6 +306,13 @@
             });
         });
 
+        // 滾動效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) navbar.classList.add('shadow-sm');
+            else navbar.classList.remove('shadow-sm');
+        });
+
         // 彈窗功能
         portfolioItems.forEach(item => {
             item.addEventListener('click', () => {
@@ -287,35 +326,22 @@
                 if (videoSrc) {
                     modalImg.classList.add('hidden');
                     modalVideo.classList.remove('hidden');
-                    
-                    // 為了避免快取，給網址加一個隨機參數
-                    const finalVideoSrc = videoSrc + "?v=" + new Date().getTime();
-                    modalVideo.src = finalVideoSrc;
-                    
+                    // 隨機參數防止快取
+                    modalVideo.src = videoSrc + "?v=" + new Date().getTime();
                     modalVideo.load();
-                    modalVideo.play().catch(e => {
-                        console.error("Autoplay blocked:", e);
-                    });
-                    
-                    modalVideo.onerror = () => { 
-                        mediaError.classList.remove('hidden'); 
-                        modalVideo.classList.add('hidden'); 
-                        // 顯示絕對路徑幫助偵錯
-                        const absoluteUrl = new URL(videoSrc, window.location.href).href;
-                        errorPathText.innerText = absoluteUrl;
+                    modalVideo.play().catch(e => console.error("Playback Error:", e));
+                    modalVideo.onerror = () => {
+                        mediaError.classList.remove('hidden');
+                        modalVideo.classList.add('hidden');
                     };
                 } else {
                     modalVideo.classList.add('hidden');
                     modalVideo.pause();
                     modalImg.classList.remove('hidden');
-                    const finalImg = modalImgSrc || item.querySelector('img').src;
-                    modalImg.src = finalImg;
-                    
-                    modalImg.onerror = () => { 
-                        mediaError.classList.remove('hidden'); 
-                        modalImg.classList.add('hidden'); 
-                        const absoluteUrl = new URL(finalImg, window.location.href).href;
-                        errorPathText.innerText = absoluteUrl;
+                    modalImg.src = modalImgSrc || item.querySelector('img').src;
+                    modalImg.onerror = () => {
+                        mediaError.classList.remove('hidden');
+                        modalImg.classList.add('hidden');
                     };
                 }
 
@@ -336,8 +362,8 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modalVideo.pause();
-                modalVideo.src = ""; 
-                document.body.style.overflow = ''; 
+                modalVideo.src = "";
+                document.body.style.overflow = '';
             }, 300);
         };
 
