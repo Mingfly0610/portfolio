@@ -44,7 +44,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
- head>
+</head>
 <body class="bg-white text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
 
     <!-- 導覽列 -->
@@ -168,7 +168,8 @@
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-modal-img="images/prog-lottery-full.jpg"
-                     data-external-link=""> <!-- 若有抽獎程式網址請填入此處 -->
+                     data-external-link="https://design-your-life-studio.github.io/lucky-draw/"
+                     data-no-qr="true"> <!-- 加入此屬性以隱藏 QR Code -->
                     <img src="images/prog-lottery-thumb.jpg" alt="電子抽獎縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1553481235-696411a91af0?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -180,7 +181,7 @@
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-modal-img="images/prog-web-full.jpg"
-                     data-external-link=""> <!-- 若有網頁體驗網址請填入此處 -->
+                     data-external-link=""> 
                     <img src="images/prog-web-thumb.jpg" alt="網頁開發縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -351,6 +352,7 @@
         const linkContainer = document.getElementById('external-link-container');
         const externalLink = document.getElementById('modal-external-link');
         const modalQr = document.getElementById('modal-qr');
+        const qrContainer = document.getElementById('qr-container');
 
         // 作品篩選
         filterBtns.forEach(btn => {
@@ -391,39 +393,46 @@
                 const videoSrc = item.getAttribute('data-video');
                 const modalImgSrc = item.getAttribute('data-modal-img');
                 const projectLink = item.getAttribute('data-external-link');
+                const noQr = item.getAttribute('data-no-qr') === 'true'; // 檢查是否需要隱藏 QR Code
 
                 mediaError.classList.add('hidden');
+                
+                // 重置影片狀態
+                modalVideo.pause();
+                modalVideo.src = "";
 
                 // 處理影片或圖片
-                if (videoSrc) {
+                if (videoSrc && videoSrc.trim() !== "") {
                     modalImg.classList.add('hidden');
                     modalVideo.classList.remove('hidden');
                     const finalVideoSrc = videoSrc + "?v=" + new Date().getTime();
                     modalVideo.src = finalVideoSrc;
-                    modalVideo.load();
-                    modalVideo.play().catch(e => console.error("Playback Error:", e));
+                    
+                    modalVideo.oncanplay = () => {
+                        modalVideo.play().catch(e => console.warn("Playback prevented:", e));
+                        modalVideo.oncanplay = null;
+                    };
+
                     modalVideo.onerror = () => {
                         mediaError.classList.remove('hidden');
                         modalVideo.classList.add('hidden');
                         try {
-                            const absoluteUrl = new URL(videoSrc, window.location.href).href;
-                            errorPathText.innerText = absoluteUrl;
+                            errorPathText.innerText = new URL(videoSrc, window.location.href).href;
                         } catch (e) {
                             errorPathText.innerText = videoSrc;
                         }
                     };
                 } else {
                     modalVideo.classList.add('hidden');
-                    modalVideo.pause();
                     modalImg.classList.remove('hidden');
                     const finalImg = modalImgSrc || item.querySelector('img').src;
                     modalImg.src = finalImg;
+                    
                     modalImg.onerror = () => {
                         mediaError.classList.remove('hidden');
                         modalImg.classList.add('hidden');
                         try {
-                            const absoluteUrl = new URL(finalImg, window.location.href).href;
-                            errorPathText.innerText = absoluteUrl;
+                            errorPathText.innerText = new URL(finalImg, window.location.href).href;
                         } catch (e) {
                             errorPathText.innerText = finalImg;
                         }
@@ -435,9 +444,13 @@
                     linkContainer.classList.remove('hidden');
                     externalLink.href = projectLink;
                     
-                    // 動態產生 QR Code 網址 (使用 QR Server API)
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(projectLink)}`;
-                    modalQr.src = qrUrl;
+                    if (noQr) {
+                        qrContainer.classList.add('hidden');
+                    } else {
+                        qrContainer.classList.remove('hidden');
+                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(projectLink)}`;
+                        modalQr.src = qrUrl;
+                    }
                 } else {
                     linkContainer.classList.add('hidden');
                 }
