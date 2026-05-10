@@ -71,11 +71,21 @@
                 <a href="#contact" class="hover:text-gray-500 transition-colors">聯絡 Contact</a>
             </nav>
 
-            <button class="md:hidden text-2xl">
+            <button id="mobile-menu-btn" class="md:hidden text-2xl">
                 <i class="ph ph-list"></i>
             </button>
         </div>
     </header>
+
+    <!-- 手機版選單覆蓋層 -->
+    <div id="mobile-menu" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center gap-10 opacity-0 pointer-events-none transition-all duration-300">
+        <button id="mobile-menu-close" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-brand-black rounded-full transition-all">
+            <i class="ph ph-x text-2xl"></i>
+        </button>
+        <a href="#work" class="mobile-link text-3xl font-bold hover:text-[#EB5568] transition-colors">作品 Work</a>
+        <a href="#about" class="mobile-link text-3xl font-bold hover:text-[#EB5568] transition-colors">關於 About</a>
+        <a href="#contact" class="mobile-link text-3xl font-bold hover:text-[#EB5568] transition-colors">聯絡 Contact</a>
+    </div>
 
     <!-- 首圖區 -->
     <section class="min-h-screen flex items-center justify-center px-6 lg:px-12 pt-20">
@@ -119,11 +129,11 @@
                     <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 transition-colors" data-filter="programming">
                         程式設計
                         
-                        <!-- 彩蛋對話框 -->
-                        <div id="prog-tooltip" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-5 py-2 bg-brand-black text-white text-[13px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
+                        <!-- 彩蛋對話框：修正手機版會超出左側螢幕的問題 -->
+                        <div id="prog-tooltip" class="absolute bottom-full left-0 md:left-1/2 md:-translate-x-1/2 mb-3 px-5 py-2 bg-brand-black text-white text-[13px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
                             這個作品集網站也是<br>程式設計的作品喔！
-                            <!-- 對話框下方的倒三角形 -->
-                            <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-brand-black"></div>
+                            <!-- 對話框下方的倒三角形：手機版固定在按鈕中間 (left-11)，電腦版則置中 (md:left-1/2) -->
+                            <div class="absolute top-full left-11 md:left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-brand-black"></div>
                         </div>
                     </button>
                 </div>
@@ -405,9 +415,31 @@
         const modalQr = document.getElementById('modal-qr');
         const qrContainer = document.getElementById('qr-container');
 
-        // 作品篩選 (平滑遞補動畫 FLIP Technique)
+        // 手機版選單控制邏輯
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        function toggleMobileMenu() {
+            const isHidden = mobileMenu.classList.contains('opacity-0');
+            if (isHidden) {
+                mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
+                document.body.style.overflow = 'hidden'; // 防止背景滾動
+            } else {
+                mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+                document.body.style.overflow = ''; // 恢復背景滾動
+            }
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        mobileMenuClose.addEventListener('click', toggleMobileMenu);
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', toggleMobileMenu);
+        });
+
         let isAnimating = false;
-        let tooltipTimer; // 用於控制彩蛋對話框的時間
+        let tooltipTimer;
 
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
