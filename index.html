@@ -11,7 +11,7 @@
     
     <!-- 社群分享預覽設定 (Open Graph) -->
     <meta property="og:title" content="MingFly | 視覺設計作品集">
-    <meta property="og:description" content="跨領域設計師 MingFly 的作品集。涵蓋活動視覺設計、動態影像 (Motion Graphics) 與互動式網頁體驗開發。">
+    <meta property="og:description" content="跨領域設計師 MingFly 的作品集。涵蓋活動視覺設計、動態影像與互動式網頁體驗開發。">
     <meta property="og:image" content="https://mingfly0610.github.io/portfolio/images/share-thumb.jpg">
     <meta property="og:url" content="https://mingfly0610.github.io/portfolio/">
     <meta property="og:type" content="website">
@@ -564,9 +564,14 @@
                 const projectLink = item.getAttribute('data-external-link');
                 const noQr = item.getAttribute('data-no-qr') === 'true';
 
+                // 修復幽靈錯誤漏洞：清除前一次點擊遺留的錯誤觸發器
+                modalVideo.onerror = null;
+                modalImg.onerror = null;
+                
                 mediaError.classList.add('hidden');
                 modalVideo.pause();
-                modalVideo.src = "";
+                modalVideo.removeAttribute('src'); // 移除舊的 src="" 寫法，改用更安全的 removeAttribute
+                modalVideo.load(); // 徹底重置播放器狀態
 
                 if (videoSrc && videoSrc.trim() !== "") {
                     modalImg.classList.add('hidden');
@@ -627,7 +632,12 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modalVideo.pause();
-                modalVideo.src = "";
+                
+                // 關閉時也同樣重置，確保萬無一失
+                modalVideo.onerror = null;
+                modalVideo.removeAttribute('src');
+                modalVideo.load();
+                
                 document.body.style.overflow = '';
             }, 300);
         };
