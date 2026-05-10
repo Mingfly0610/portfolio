@@ -234,24 +234,27 @@
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
             <div class="w-full lg:w-1/2">
                 <div class="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100">
-                    <img src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&q=80&w=1000" alt="設計師肖像" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" onerror="this.src='https://via.placeholder.com/1000x1250?text=Profile+Photo'">
+                    <!-- 這裡修改了 src 為 images/profile.jpg，並將原本的線上圖片移到 onerror 當作備用 -->
+                    <img src="images/profile.jpg" alt="設計師肖像" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" onerror="this.src='https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&q=80&w=1000'">
                 </div>
             </div>
             
             <div class="w-full lg:w-1/2 space-y-8">
                 <h2 class="text-4xl md:text-5xl font-bold">About Me</h2>
                 <div class="space-y-6 text-lg text-gray-600 leading-relaxed">
-                    <p>你好，我是 MingFly。擁有超過五年的視覺設計經驗。我深信好的設計不僅是視覺上的美感，更是解決問題、傳遞品牌核心價值的橋樑。</p>
-                    <p>過去我曾參與過科技、文創、餐飲等不同領域的設計專案。從前期的概念發想、品牌定位，到後期的 UI/UX 規劃與視覺產出，我熱衷於參與每個讓概念成真的環節。</p>
+                    <p>你好，我是 MingFly，一位熱衷於探索多元媒介的跨領域設計師。我深信好的設計不僅是視覺上的美感，更是解決問題、傳遞品牌核心價值的橋樑。</p>
+                    <p>從靜態的活動主視覺、充滿張力的動態影像（Motion Graphics），到結合程式邏輯的互動式網頁體驗，我致力於為每一個專案量身打造最合適且沉浸的數位呈現方式。</p>
+                    <p>過去我曾主導多場大型展覽與公部門活動（如高雄市政府論壇、就業博覽會等）的視覺統籌與啟動儀式動畫。同時，我也跨足 UI/UX 與前端程式開發，獨立完成「職場適性診斷」、「活動電子抽獎系統」等兼具趣味與實用性的互動專案。從概念發想到落地產出，我享受參與每一個讓創意成真的環節。</p>
                 </div>
                 
                 <div class="pt-6 border-t border-gray-200">
                     <h3 class="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">Core Skills</h3>
                     <div class="flex flex-wrap gap-3">
                         <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Art Direction</span>
-                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Brand Identity</span>
-                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">UI / UX Design</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Event Visual Design</span>
                         <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Motion Graphics</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">UI / UX Design</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Interactive Web Dev</span>
                     </div>
                 </div>
             </div>
