@@ -112,10 +112,10 @@
                     <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="programming">
                         程式設計
                         
-                        <!-- 彩蛋對話框 (更新自訂黃色 #F7E04C) -->
+                        <!-- 彩蛋對話框 -->
                         <div id="prog-tooltip" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-5 py-2 bg-[#F7E04C] text-black text-[13px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
                             這個作品集網頁也是<br>程式設計的作品喔！
-                            <!-- 對話框下方的倒三角形 (同步更新黃色 #F7E04C) -->
+                            <!-- 對話框下方的倒三角形 -->
                             <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-[#F7E04C]"></div>
                         </div>
                     </button>
@@ -318,7 +318,8 @@
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto pointer-events-auto flex flex-col scale-95 opacity-0 transition-all duration-300 relative shadow-2xl">
                 
-                <button id="modal-close" class="absolute top-6 right-6 bg-black/50 hover:bg-black text-white p-3 rounded-full transition-all z-[110] backdrop-blur-md">
+                <!-- 修改為完美的圓形叉叉按鈕 -->
+                <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
                     <i class="ph ph-x text-2xl"></i>
                 </button>
                 
