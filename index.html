@@ -169,7 +169,7 @@
                      data-category="programming"
                      data-modal-img="images/prog-lottery-full.jpg"
                      data-external-link="https://design-your-life-studio.github.io/lucky-draw/"
-                     data-no-qr="true"> <!-- 加入此屬性以隱藏 QR Code -->
+                     data-no-qr="true">
                     <img src="images/prog-lottery-thumb.jpg" alt="電子抽獎縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1553481235-696411a91af0?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -177,19 +177,7 @@
                     </div>
                 </div>
 
-                <!-- 專案 7: 程式設計 5 (網頁體驗開發) -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="programming"
-                     data-modal-img="images/prog-web-full.jpg"
-                     data-external-link=""> 
-                    <img src="images/prog-web-thumb.jpg" alt="網頁開發縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=1200'">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
-                        <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                        <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">互動式網頁體驗開發</h3>
-                    </div>
-                </div>
-
-                <!-- 專案 8: 動畫設計 (智慧港都) -->
+                <!-- 專案 7: 動畫設計 (智慧港都) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2025-animation-kaohsiung-forum.mp4"
@@ -201,7 +189,7 @@
                     </div>
                 </div>
 
-                <!-- 專案 9: 動畫設計 (職安衛生日) -->
+                <!-- 專案 8: 動畫設計 (職安衛生日) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2026-animation-labor-safety.mp4"
@@ -213,7 +201,7 @@
                     </div>
                 </div>
 
-                <!-- 專案 10: 動畫設計 (雲嘉南就業博覽會) -->
+                <!-- 專案 9: 動畫設計 (雲嘉南就業博覽會 啟動儀式) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2025-animation-taiwan-jobs.mp4"
@@ -222,6 +210,18 @@
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年台灣就業通雲嘉南區就業博覽會 啟動儀式動畫</h3>
+                    </div>
+                </div>
+
+                <!-- 專案 10: 動畫設計 (雲嘉南就業博覽會 活動懶人包) - NEW -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
+                     data-category="animation" 
+                     data-video="videos/2025-animation-taiwan-jobs-info.mp4"
+                     data-modal-img="images/2025-animation-taiwan-jobs-info-full.jpg">
+                    <video src="videos/2025-animation-taiwan-jobs-info.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-taiwan-jobs-info-thumb.jpg"></video>
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                        <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
+                        <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年台灣就業通雲嘉南區就業博覽會 活動懶人包</h3>
                     </div>
                 </div>
 
@@ -393,7 +393,7 @@
                 const videoSrc = item.getAttribute('data-video');
                 const modalImgSrc = item.getAttribute('data-modal-img');
                 const projectLink = item.getAttribute('data-external-link');
-                const noQr = item.getAttribute('data-no-qr') === 'true'; // 檢查是否需要隱藏 QR Code
+                const noQr = item.getAttribute('data-no-qr') === 'true';
 
                 mediaError.classList.add('hidden');
                 
