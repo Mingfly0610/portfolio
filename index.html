@@ -323,52 +323,57 @@
     <div id="project-modal" class="fixed inset-0 z-[100] hidden">
         <div id="modal-backdrop" class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
-            <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto pointer-events-auto flex flex-col scale-95 opacity-0 transition-all duration-300 relative shadow-2xl">
+            <!-- 外層負責遮罩與圓角 (移除原有的 max-h 與 overflow-auto，新增 overflow-hidden) -->
+            <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl scale-95 opacity-0 transition-all duration-300 relative shadow-2xl overflow-hidden pointer-events-auto">
                 
-                <!-- 完美的圓形叉叉按鈕 -->
-                <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
-                    <i class="ph ph-x text-2xl"></i>
-                </button>
-                
-                <!-- 媒體區：加入 shrink-0 防止被系統自動壓扁，強制維持 16:9 比例 -->
-                <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
-                    <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-cover">
-                    <video id="modal-video" src="" class="w-full h-full object-cover hidden" controls autoplay muted playsinline></video>
-                    <!-- 載入錯誤提示 -->
-                    <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4">
-                        <div class="px-4">
-                            <i class="ph ph-warning-circle text-4xl mb-2"></i>
-                            <p class="font-bold">檔案載入失敗</p>
-                            <p class="text-xs mt-2 opacity-70 break-all max-w-md mx-auto" id="error-path"></p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="p-8 md:p-12 pb-16">
-                    <span id="modal-category" class="text-brand-accent text-sm font-bold tracking-widest uppercase mb-3 block">Category</span>
-                    <h3 id="modal-title" class="text-3xl md:text-5xl font-black mb-8 leading-tight">Project Title</h3>
+                <!-- 內層負責滾動 (這層才加上 max-h-[90vh] 與 overflow-y-auto) -->
+                <div class="w-full max-h-[90vh] overflow-y-auto relative flex flex-col">
                     
-                    <div class="text-gray-600 leading-relaxed space-y-6 text-lg max-w-3xl">
-                        <p id="modal-description">專案詳細介紹內容。這裡可以寫下您的設計思維、使用的軟體以及專案背景。</p>
-                        
-                        <!-- 連結與 QR Code 容器 -->
-                        <div id="external-link-container" class="hidden pt-8 flex flex-col md:flex-row items-start md:items-center gap-8 border-t border-gray-100 mt-8">
-                            <!-- 前往程式網頁按鈕 -->
-                            <a id="modal-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1 shrink-0">
-                                前往程式網頁
-                                <i class="ph ph-arrow-up-right"></i>
-                            </a>
-                            
-                            <!-- QR Code 區塊 -->
-                            <div id="qr-container" class="flex flex-col items-center gap-2">
-                                <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                                    <img id="modal-qr" src="" alt="QR Code" class="w-24 h-24 md:w-32 md:h-32">
-                                </div>
-                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan to Preview</span>
+                    <!-- 完美的圓形叉叉按鈕 -->
+                    <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
+                        <i class="ph ph-x text-2xl"></i>
+                    </button>
+                    
+                    <!-- 媒體區：加入 shrink-0 防止被系統自動壓扁，強制維持 16:9 比例 -->
+                    <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
+                        <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-cover">
+                        <video id="modal-video" src="" class="w-full h-full object-cover hidden" controls autoplay muted playsinline></video>
+                        <!-- 載入錯誤提示 -->
+                        <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4">
+                            <div class="px-4">
+                                <i class="ph ph-warning-circle text-4xl mb-2"></i>
+                                <p class="font-bold">檔案載入失敗</p>
+                                <p class="text-xs mt-2 opacity-70 break-all max-w-md mx-auto" id="error-path"></p>
                             </div>
                         </div>
                     </div>
-                </div>
+                    
+                    <div class="p-8 md:p-12 pb-16">
+                        <span id="modal-category" class="text-brand-accent text-sm font-bold tracking-widest uppercase mb-3 block">Category</span>
+                        <h3 id="modal-title" class="text-3xl md:text-5xl font-black mb-8 leading-tight">Project Title</h3>
+                        
+                        <div class="text-gray-600 leading-relaxed space-y-6 text-lg max-w-3xl">
+                            <p id="modal-description">專案詳細介紹內容。這裡可以寫下您的設計思維、使用的軟體以及專案背景。</p>
+                            
+                            <!-- 連結與 QR Code 容器 -->
+                            <div id="external-link-container" class="hidden pt-8 flex flex-col md:flex-row items-start md:items-center gap-8 border-t border-gray-100 mt-8">
+                                <!-- 前往程式網頁按鈕 -->
+                                <a id="modal-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1 shrink-0">
+                                    前往程式網頁
+                                    <i class="ph ph-arrow-up-right"></i>
+                                </a>
+                                
+                                <!-- QR Code 區塊 -->
+                                <div id="qr-container" class="flex flex-col items-center gap-2">
+                                    <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                                        <img id="modal-qr" src="" alt="QR Code" class="w-24 h-24 md:w-32 md:h-32">
+                                    </div>
+                                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan to Preview</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- 結束內層滾動區塊 -->
             </div>
         </div>
     </div>
