@@ -283,9 +283,7 @@
                     Back to top <i class="ph ph-arrow-up"></i>
                 </a>
             </div>
-        </div>
-    </footer>
-
+    <!-- 專案詳情彈窗 -->
     <div id="project-modal" class="fixed inset-0 z-[100] hidden">
         <div id="modal-backdrop" class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
@@ -295,9 +293,11 @@
                     <i class="ph ph-x text-2xl"></i>
                 </button>
                 
-                <div class="media-container w-full aspect-video bg-black overflow-hidden relative">
+                <!-- 媒體區：更改 bg 回灰色 bg-gray-200 -->
+                <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative">
                     <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-contain">
                     <video id="modal-video" src="" class="w-full h-full object-contain hidden" controls autoplay muted playsinline></video>
+                    <!-- 載入錯誤提示 -->
                     <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-900 text-gray-400 text-center p-4">
                         <div class="px-4">
                             <i class="ph ph-warning-circle text-4xl mb-2"></i>
