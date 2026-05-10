@@ -107,7 +107,18 @@
                     <button class="filter-btn active px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-brand-black text-white transition-colors" data-filter="all">全部</button>
                     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="event">活動視覺設計</button>
                     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="animation">動畫設計</button>
-                    <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="programming">程式設計</button>
+                    
+                    <!-- 程式設計按鈕加上 relative 屬性與彩蛋 Tooltip -->
+                    <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="programming">
+                        程式設計
+                        
+                        <!-- 彩蛋對話框 (預設隱藏) -->
+                        <div id="prog-tooltip" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-6 py-2.5 bg-[#F2C94C] text-black text-[15px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
+                            這個網頁也是<br>程式設計的作品喔！
+                            <!-- 對話框下方的倒三角形 -->
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-[#F2C94C]"></div>
+                        </div>
+                    </button>
                 </div>
             </div>
 
@@ -374,6 +385,7 @@
 
         // 作品篩選 (平滑遞補動畫 FLIP Technique)
         let isAnimating = false;
+        let tooltipTimer; // 用於控制彩蛋對話框的時間
 
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -385,7 +397,29 @@
 
                 isAnimating = true;
 
-                // 切換按鈕樣式
+                // --- 處理「程式設計」的彩蛋對話框 ---
+                const filterValue = btn.getAttribute('data-filter');
+                const progTooltip = document.getElementById('prog-tooltip');
+                
+                if (filterValue === 'programming' && progTooltip) {
+                    clearTimeout(tooltipTimer);
+                    // 顯示對話框
+                    progTooltip.classList.remove('opacity-0', 'translate-y-2');
+                    progTooltip.classList.add('opacity-100', 'translate-y-0');
+                    
+                    // 設定 4 秒後自動隱藏
+                    tooltipTimer = setTimeout(() => {
+                        progTooltip.classList.remove('opacity-100', 'translate-y-0');
+                        progTooltip.classList.add('opacity-0', 'translate-y-2');
+                    }, 4000);
+                } else if (progTooltip) {
+                    // 若點擊其他分類，強制提早隱藏對話框
+                    clearTimeout(tooltipTimer);
+                    progTooltip.classList.remove('opacity-100', 'translate-y-0');
+                    progTooltip.classList.add('opacity-0', 'translate-y-2');
+                }
+
+                // --- 切換按鈕樣式 ---
                 filterBtns.forEach(b => {
                     b.classList.remove('bg-brand-black', 'text-white');
                     b.classList.add('bg-transparent', 'text-brand-black');
@@ -393,7 +427,6 @@
                 btn.classList.remove('bg-transparent', 'text-brand-black');
                 btn.classList.add('bg-brand-black', 'text-white');
 
-                const filterValue = btn.getAttribute('data-filter');
                 let hasHidingItems = false;
 
                 // 階段 1：將不符合分類的專案淡出並微微縮小
