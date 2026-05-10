@@ -372,9 +372,20 @@
         const modalQr = document.getElementById('modal-qr');
         const qrContainer = document.getElementById('qr-container');
 
-        // 作品篩選
+        // 作品篩選 (平滑遞補動畫 FLIP Technique)
+        let isAnimating = false;
+
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
+                // 避免動畫過程中重複點擊產生破圖
+                if (isAnimating) return;
+                
+                // 如果點擊的是當前已選中的分類，則不動作
+                if (btn.classList.contains('bg-brand-black')) return;
+
+                isAnimating = true;
+
+                // 切換按鈕樣式
                 filterBtns.forEach(b => {
                     b.classList.remove('bg-brand-black', 'text-white');
                     b.classList.add('bg-transparent', 'text-brand-black');
@@ -383,16 +394,94 @@
                 btn.classList.add('bg-brand-black', 'text-white');
 
                 const filterValue = btn.getAttribute('data-filter');
+                let hasHidingItems = false;
+
+                // 階段 1：將不符合分類的專案淡出並微微縮小
                 portfolioItems.forEach(item => {
-                    if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
-                        item.style.display = 'block';
-                        setTimeout(() => { item.style.opacity = '1'; item.style.transform = 'scale(1)'; }, 50);
-                    } else {
+                    const category = item.getAttribute('data-category');
+                    const isMatch = filterValue === 'all' || category === filterValue;
+
+                    if (!isMatch && item.style.display !== 'none') {
+                        item.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                         item.style.opacity = '0';
                         item.style.transform = 'scale(0.95)';
-                        setTimeout(() => { item.style.display = 'none'; }, 300);
+                        item.setAttribute('data-target-state', 'hidden');
+                        hasHidingItems = true;
+                    } else if (isMatch) {
+                        item.setAttribute('data-target-state', 'visible');
                     }
                 });
+
+                // 階段 2：等待淡出後，執行佈局平滑遞補動畫
+                setTimeout(() => {
+                    // 1. First (記錄遞補前的位置)
+                    const firstRects = new Map();
+                    portfolioItems.forEach(item => {
+                        if (item.getAttribute('data-target-state') === 'visible' && item.style.display !== 'none') {
+                            firstRects.set(item, item.getBoundingClientRect());
+                        }
+                    });
+
+                    // 2. 變更 DOM 佈局 (瞬間隱藏不需要的專案)
+                    portfolioItems.forEach(item => {
+                        if (item.getAttribute('data-target-state') === 'hidden') {
+                            item.style.display = 'none';
+                        } else {
+                            item.style.display = ''; 
+                        }
+                    });
+
+                    // 3. Last (記錄遞補後的新位置)
+                    const lastRects = new Map();
+                    portfolioItems.forEach(item => {
+                        if (item.getAttribute('data-target-state') === 'visible') {
+                            lastRects.set(item, item.getBoundingClientRect());
+                        }
+                    });
+
+                    // 4. Invert & Play (計算差異並以動畫滑動)
+                    portfolioItems.forEach(item => {
+                        if (item.getAttribute('data-target-state') === 'visible') {
+                            const first = firstRects.get(item);
+                            const last = lastRects.get(item);
+
+                            if (first && last) {
+                                // 專案原本就在畫面上，計算位移差
+                                const deltaX = first.left - last.left;
+                                const deltaY = first.top - last.top;
+
+                                // Invert：瞬間把它們退回舊位置
+                                item.style.transition = 'none';
+                                item.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1)`;
+                                item.style.opacity = '1';
+
+                                // 強制瀏覽器重繪 (Reflow)
+                                item.getBoundingClientRect();
+
+                                // Play：平滑滑動到新位置 (使用 cubic-bezier 讓滑動有減速的優雅感)
+                                item.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease';
+                                item.style.transform = 'translate(0, 0) scale(1)';
+                            } else {
+                                // 專案原本隱藏，現在要重新顯示 (淡入與放大)
+                                item.style.transition = 'none';
+                                item.style.opacity = '0';
+                                item.style.transform = 'translate(0, 0) scale(0.95)';
+
+                                item.getBoundingClientRect();
+
+                                item.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease';
+                                item.style.transform = 'translate(0, 0) scale(1)';
+                                item.style.opacity = '1';
+                            }
+                        }
+                    });
+
+                    // 動畫結束後解除鎖定，允許再次點擊
+                    setTimeout(() => {
+                        isAnimating = false;
+                    }, 600);
+
+                }, hasHidingItems ? 300 : 0); // 只有當有東西需要隱藏時，才等待 0.3 秒淡出
             });
         });
 
