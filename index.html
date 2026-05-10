@@ -5,21 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>視覺設計作品集 | MingFly</title>
     
-    <!-- 社群分享預覽設定 (Open Graph) -->
     <meta property="og:title" content="MingFly | 視覺設計作品集">
     <meta property="og:description" content="跨領域設計師 MingFly 的作品集。涵蓋活動視覺設計、動態影像 (Motion Graphics) 與互動式網頁體驗開發。">
-    <!-- 這裡的網址必須是「絕對路徑」，已為您設定為您的 GitHub Pages 網址 -->
     <meta property="og:image" content="https://mingfly0610.github.io/design/images/share-thumb.jpg">
     <meta property="og:url" content="https://mingfly0610.github.io/design/">
     <meta property="og:type" content="website">
 
-    <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Google Fonts: Noto Sans TC 與 Playfair Display -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <!-- 引入 Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
@@ -56,7 +51,6 @@
 </head>
 <body class="bg-white text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
 
-    <!-- 導覽列 -->
     <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
             <a href="#" class="font-serif text-2xl font-bold tracking-tighter">MingFly.</a>
@@ -73,7 +67,6 @@
         </div>
     </header>
 
-    <!-- 首圖區 -->
     <section class="min-h-screen flex items-center justify-center px-6 lg:px-12 pt-20">
         <div class="max-w-5xl mx-auto text-center space-y-8 fade-in">
             <h2 class="text-sm md:text-base font-bold tracking-[0.2em] text-gray-400 uppercase">Visual Designer & Art Director</h2>
@@ -94,7 +87,6 @@
         </div>
     </section>
 
-    <!-- 作品展示區 -->
     <section id="work" class="py-24 px-6 lg:px-12 bg-brand-gray">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
@@ -103,32 +95,24 @@
                     <p class="text-gray-500 text-lg">近期精選的設計專案與視覺實驗。</p>
                 </div>
                 
-                <!-- 分類篩選按鈕 -->
                 <div class="flex flex-wrap gap-2 md:gap-4" id="filter-btns">
                     <button class="filter-btn active px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-brand-black text-white transition-colors" data-filter="all">全部</button>
                     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="event">活動視覺設計</button>
                     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="animation">動畫設計</button>
                     
-                    <!-- 程式設計按鈕加上 relative 屬性與彩蛋 Tooltip -->
                     <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="programming">
                         程式設計
                         
-                        <!-- 彩蛋對話框 -->
                         <div id="prog-tooltip" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-5 py-2 bg-[#F7E04C] text-black text-[13px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
                             這個作品集網頁也是<br>程式設計的作品喔！
-                            <!-- 對話框下方的倒三角形 -->
                             <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-[#F7E04C]"></div>
                         </div>
                     </button>
                 </div>
             </div>
 
-            <!-- 作品網格 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="portfolio-grid">
                 
-                <!-- =============== 分類 1: 活動視覺設計 =============== -->
-                
-                <!-- 專案 1: 活動視覺 (2026 職業安全衛生日) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="event" 
                      data-modal-img="images/2026-event-labor-safety-full.jpg">
@@ -139,9 +123,6 @@
                     </div>
                 </div>
 
-                <!-- =============== 分類 2: 動畫設計 =============== -->
-
-                <!-- 專案 2: 動畫設計 (僑生就業博覽會) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2025-animation-job-fair.mp4"
@@ -153,7 +134,6 @@
                     </div>
                 </div>
 
-                <!-- 專案 3: 動畫設計 (智慧港都) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2025-animation-kaohsiung-forum.mp4"
@@ -165,7 +145,6 @@
                     </div>
                 </div>
 
-                <!-- 專案 4: 動畫設計 (職安衛生日啟動動畫) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2026-animation-labor-safety.mp4"
@@ -177,7 +156,6 @@
                     </div>
                 </div>
 
-                <!-- 專案 5: 動畫設計 (雲嘉南就業博覽會 啟動儀式) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2025-animation-taiwan-jobs.mp4"
@@ -189,7 +167,6 @@
                     </div>
                 </div>
 
-                <!-- 專案 6: 動畫設計 (雲嘉南就業博覽會 活動懶人包) -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="animation" 
                      data-video="videos/2025-animation-taiwan-jobs-info.mp4"
@@ -201,9 +178,6 @@
                     </div>
                 </div>
 
-                <!-- =============== 分類 3: 程式設計 =============== -->
-
-                <!-- 專案 7: 程式設計 1 (職場神獸) - 新增 data-video -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-video="videos/prog-beast-full.mp4"
@@ -216,7 +190,6 @@
                     </div>
                 </div>
 
-                <!-- 專案 8: 程式設計 2 (職場動物風格) - 新增 data-video -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-video="videos/prog-animal-full.mp4"
@@ -229,7 +202,6 @@
                     </div>
                 </div>
 
-                <!-- 專案 9: 程式設計 3 (職業適性診斷) - 新增 data-video -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-video="videos/prog-career-full.mp4"
@@ -242,7 +214,6 @@
                     </div>
                 </div>
 
-                <!-- 專案 10: 程式設計 4 (電子抽獎程式) - 新增 data-video -->
                 <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
                      data-category="programming"
                      data-video="videos/prog-lottery-full.mp4"
@@ -260,7 +231,6 @@
         </div>
     </section>
 
-    <!-- 關於我 -->
     <section id="about" class="py-32 px-6 lg:px-12">
         <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
             
@@ -292,7 +262,6 @@
         </div>
     </section>
 
-    <!-- 聯絡與頁尾 -->
     <footer id="contact" class="bg-brand-black text-white py-32 px-6 lg:px-12 text-center">
         <div class="max-w-4xl mx-auto space-y-12">
             <h2 class="font-serif text-5xl md:text-7xl font-bold italic">Let's work together.</h2>
@@ -303,10 +272,8 @@
             </a>
 
             <div class="pt-16 flex justify-center gap-8 text-3xl text-gray-400">
-                <!-- 更新 Instagram 與 Behance 連結 -->
                 <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="hover:text-white transition-colors"><i class="ph ph-instagram-logo"></i></a>
                 <a href="https://www.behance.net/fangmingyu" target="_blank" class="hover:text-white transition-colors"><i class="ph ph-behance-logo"></i></a>
-                <!-- 保留預設的 Linkedin 連結，可視需求更換或刪除 -->
                 <a href="#" class="hover:text-white transition-colors"><i class="ph ph-linkedin-logo"></i></a>
             </div>
             
@@ -319,22 +286,19 @@
         </div>
     </footer>
 
-    <!-- 專案詳情彈窗 -->
     <div id="project-modal" class="fixed inset-0 z-[100] hidden">
         <div id="modal-backdrop" class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto pointer-events-auto flex flex-col scale-95 opacity-0 transition-all duration-300 relative shadow-2xl">
                 
-                <!-- 完美的圓形叉叉按鈕 -->
                 <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
                     <i class="ph ph-x text-2xl"></i>
                 </button>
                 
-                <!-- 媒體區 -->
                 <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative">
                     <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-cover">
-                    <video id="modal-video" src="" class="w-full h-full object-cover hidden" controls autoplay muted playsinline></video>
-                    <!-- 載入錯誤提示 -->
+                    <video id="modal-video" src="" class="w-full h-full object-contain bg-[#111111] hidden" controls autoplay muted playsinline></video>
+                    
                     <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4">
                         <div class="px-4">
                             <i class="ph ph-warning-circle text-4xl mb-2"></i>
@@ -351,15 +315,12 @@
                     <div class="text-gray-600 leading-relaxed space-y-6 text-lg max-w-3xl">
                         <p id="modal-description">專案詳細介紹內容。這裡可以寫下您的設計思維、使用的軟體以及專案背景。</p>
                         
-                        <!-- 連結與 QR Code 容器 -->
                         <div id="external-link-container" class="hidden pt-8 flex flex-col md:flex-row items-start md:items-center gap-8 border-t border-gray-100 mt-8">
-                            <!-- 前往程式網頁按鈕 -->
                             <a id="modal-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1 shrink-0">
                                 前往程式網頁
                                 <i class="ph ph-arrow-up-right"></i>
                             </a>
                             
-                            <!-- QR Code 區塊 -->
                             <div id="qr-container" class="flex flex-col items-center gap-2">
                                 <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
                                     <img id="modal-qr" src="" alt="QR Code" class="w-24 h-24 md:w-32 md:h-32">
@@ -393,41 +354,33 @@
 
         // 作品篩選 (平滑遞補動畫 FLIP Technique)
         let isAnimating = false;
-        let tooltipTimer; // 用於控制彩蛋對話框的時間
+        let tooltipTimer;
 
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // 避免動畫過程中重複點擊產生破圖
                 if (isAnimating) return;
-                
-                // 如果點擊的是當前已選中的分類，則不動作
                 if (btn.classList.contains('bg-brand-black')) return;
 
                 isAnimating = true;
 
-                // --- 處理「程式設計」的彩蛋對話框 ---
                 const filterValue = btn.getAttribute('data-filter');
                 const progTooltip = document.getElementById('prog-tooltip');
                 
                 if (filterValue === 'programming' && progTooltip) {
                     clearTimeout(tooltipTimer);
-                    // 顯示對話框
                     progTooltip.classList.remove('opacity-0', 'translate-y-2');
                     progTooltip.classList.add('opacity-100', 'translate-y-0');
                     
-                    // 設定 4 秒後自動隱藏
                     tooltipTimer = setTimeout(() => {
                         progTooltip.classList.remove('opacity-100', 'translate-y-0');
                         progTooltip.classList.add('opacity-0', 'translate-y-2');
                     }, 4000);
                 } else if (progTooltip) {
-                    // 若點擊其他分類，強制提早隱藏對話框
                     clearTimeout(tooltipTimer);
                     progTooltip.classList.remove('opacity-100', 'translate-y-0');
                     progTooltip.classList.add('opacity-0', 'translate-y-2');
                 }
 
-                // --- 切換按鈕樣式 ---
                 filterBtns.forEach(b => {
                     b.classList.remove('bg-brand-black', 'text-white');
                     b.classList.add('bg-transparent', 'text-brand-black');
@@ -437,7 +390,6 @@
 
                 let hasHidingItems = false;
 
-                // 階段 1：將不符合分類的專案淡出並微微縮小
                 portfolioItems.forEach(item => {
                     const category = item.getAttribute('data-category');
                     const isMatch = filterValue === 'all' || category === filterValue;
@@ -453,9 +405,7 @@
                     }
                 });
 
-                // 階段 2：等待淡出後，執行佈局平滑遞補動畫
                 setTimeout(() => {
-                    // 1. First (記錄遞補前的位置)
                     const firstRects = new Map();
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'visible' && item.style.display !== 'none') {
@@ -463,7 +413,6 @@
                         }
                     });
 
-                    // 2. 變更 DOM 佈局 (瞬間隱藏不需要的專案)
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'hidden') {
                             item.style.display = 'none';
@@ -472,7 +421,6 @@
                         }
                     });
 
-                    // 3. Last (記錄遞補後的新位置)
                     const lastRects = new Map();
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'visible') {
@@ -480,30 +428,24 @@
                         }
                     });
 
-                    // 4. Invert & Play (計算差異並以動畫滑動)
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'visible') {
                             const first = firstRects.get(item);
                             const last = lastRects.get(item);
 
                             if (first && last) {
-                                // 專案原本就在畫面上，計算位移差
                                 const deltaX = first.left - last.left;
                                 const deltaY = first.top - last.top;
 
-                                // Invert：瞬間把它們退回舊位置
                                 item.style.transition = 'none';
                                 item.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1)`;
                                 item.style.opacity = '1';
 
-                                // 強制瀏覽器重繪 (Reflow)
                                 item.getBoundingClientRect();
 
-                                // Play：平滑滑動到新位置 (使用 cubic-bezier 讓滑動有減速的優雅感)
                                 item.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease';
                                 item.style.transform = 'translate(0, 0) scale(1)';
                             } else {
-                                // 專案原本隱藏，現在要重新顯示 (淡入與放大)
                                 item.style.transition = 'none';
                                 item.style.opacity = '0';
                                 item.style.transform = 'translate(0, 0) scale(0.95)';
@@ -517,23 +459,20 @@
                         }
                     });
 
-                    // 動畫結束後解除鎖定，允許再次點擊
                     setTimeout(() => {
                         isAnimating = false;
                     }, 600);
 
-                }, hasHidingItems ? 300 : 0); // 只有當有東西需要隱藏時，才等待 0.3 秒淡出
+                }, hasHidingItems ? 300 : 0);
             });
         });
 
-        // 滾動效果
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) navbar.classList.add('shadow-sm');
             else navbar.classList.remove('shadow-sm');
         });
 
-        // 彈窗功能
         portfolioItems.forEach(item => {
             item.addEventListener('click', () => {
                 const category = item.querySelector('span').innerText;
@@ -545,11 +484,9 @@
 
                 mediaError.classList.add('hidden');
                 
-                // 重置影片狀態
                 modalVideo.pause();
                 modalVideo.src = "";
 
-                // 處理影片或圖片
                 if (videoSrc && videoSrc.trim() !== "") {
                     modalImg.classList.add('hidden');
                     modalVideo.classList.remove('hidden');
@@ -587,7 +524,6 @@
                     };
                 }
 
-                // 處理外部連結與 QR Code
                 if (projectLink && projectLink.trim() !== "") {
                     linkContainer.classList.remove('hidden');
                     externalLink.href = projectLink;
