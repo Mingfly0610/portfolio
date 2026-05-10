@@ -231,15 +231,17 @@
 
     <!-- 關於我 -->
     <section id="about" class="py-32 px-6 lg:px-12">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
-            <div class="w-full lg:w-1/2">
-                <div class="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100">
-                    <!-- 這裡修改了 src 為 images/profile.jpg，並將原本的線上圖片移到 onerror 當作備用 -->
-                    <img src="images/profile.jpg" alt="設計師肖像" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" onerror="this.src='https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&q=80&w=1000'">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center justify-between">
+            <!-- 修改這裡：縮小圖片佔比 (5/12)，並限制最大寬度 (max-w-[400px])，增加淡淡的陰影提升質感 -->
+            <div class="w-full lg:w-5/12 flex justify-center lg:justify-start">
+                <div class="relative w-full max-w-[400px] aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg">
+                    <!-- 加上 ?v=1 來強制瀏覽器抓取最新上傳的圖片 -->
+                    <img src="images/profile.jpg?v=1" alt="設計師肖像" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&q=80&w=1000'">
                 </div>
             </div>
             
-            <div class="w-full lg:w-1/2 space-y-8">
+            <!-- 修改這裡：給予文字更多空間 (7/12) -->
+            <div class="w-full lg:w-7/12 space-y-8">
                 <h2 class="text-4xl md:text-5xl font-bold">About Me</h2>
                 <div class="space-y-6 text-lg text-gray-600 leading-relaxed">
                     <p>你好，我是 MingFly，一位熱衷於探索多元媒介的跨領域設計師。我深信好的設計不僅是視覺上的美感，更是解決問題、傳遞品牌核心價值的橋樑。</p>
