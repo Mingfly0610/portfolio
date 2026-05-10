@@ -60,6 +60,10 @@
         .img-error-placeholder {
             @apply flex flex-col items-center justify-center bg-gray-100 text-gray-400 text-xs p-4 text-center;
         }
+
+        /* 輪播指示點樣式 */
+        .dot.active { @apply bg-white scale-125; }
+        .dot { @apply bg-white/40; }
     </style>
 
     <script>
@@ -157,8 +161,8 @@
             <!-- 作品網格 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="portfolio-grid">
                 
-                <!-- 專案 1：2026消防局啟用典禮 -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="event" data-modal-img="images/2026-event-fire-station-opening-full.jpg">
+                <!-- 專案 1：2026消防局啟用典禮 (新增多圖) -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="event" data-modal-img="images/2026-event-fire-station-opening-full.jpg,images/2026-event-fire-station-opening-full-2.jpg,images/2026-event-fire-station-opening-full-3.jpg">
                     <img src="images/2026-event-fire-station-opening-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2026-event-fire-station-opening-thumb.jpg')">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -170,7 +174,7 @@
                 </div>
 
                 <!-- 專案 2：2026職安日 -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="event" data-modal-img="images/2026-event-labor-safety-full.jpg">
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="event" data-modal-img="images/2026-event-labor-safety-full.jpg,images/2026-event-labor-safety-full-2.jpg">
                     <img src="images/2026-event-labor-safety-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2026-event-labor-safety-thumb.jpg')">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -289,7 +293,7 @@
                         <p class="mb-6">在徵才活動或社群互動中，為了打破傳統職涯測驗的沉悶感，特別企劃開發這款「測測你是哪種職場神獸」互動網頁。透過將適性測驗「遊戲化」，以輕鬆幽默的方式吸引年輕族群參與，不僅能作為實體活動的數位亮點，更具備高度的社群傳播潛力。</p>
                         
                         <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
-                        <p class="mb-6">視覺介面大膽採用普普風與 Y2K 復古潮流元素，透過高對比的色彩、半色調網點背景與粗黑俐落的線條，打造出極具個性與記憶點的視覺風格。測驗流程精簡至 5 道情境題，降低測驗門檻；結果頁面則以具象化的神獸角色結合精準的 Hashtag，讓求職者能快速抓到自身特質，並提高將結果截圖分享至社群的動機。</p>
+                        <p class="mb-6">視覺介面大膽採用普普風與 Y2K 復古潮流元素，透過高對比的色彩、半色調網點背景與粗黑線條，打造出極具個性與記憶點的視覺風格。測驗流程精簡至 5 道情境題，降低測驗門檻；結果頁面則以具象化的神獸角色結合精準的 Hashtag，讓求職者能快速抓到自身特質，並提高將結果截圖分享至社群的動機。</p>
                         
                         <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
                         <ul class="space-y-2 list-disc list-outside ml-5">
@@ -435,9 +439,23 @@
                     <i class="ph ph-x text-2xl"></i>
                 </button>
                 <div class="w-full max-h-[90vh] overflow-y-auto relative flex flex-col">
-                    <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
+                    <!-- 媒體展示區 (Carousel 容器) -->
+                    <div id="modal-media-container" class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
                         <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-contain">
                         <video id="modal-video" src="" class="w-full h-full object-contain hidden" controls autoplay muted playsinline></video>
+                        
+                        <!-- 導覽箭頭 (預設隱藏) -->
+                        <button id="prev-img" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
+                            <i class="ph ph-caret-left text-xl"></i>
+                        </button>
+                        <button id="next-img" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
+                            <i class="ph ph-caret-right text-xl"></i>
+                        </button>
+                        
+                        <!-- 圓點指示器 (預設隱藏) -->
+                        <div id="gallery-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20 hidden"></div>
+
+                        <!-- 錯誤提示 -->
                         <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4">
                             <div class="px-4">
                                 <i class="ph ph-warning-circle text-4xl mb-2"></i>
@@ -446,6 +464,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     <div class="p-8 md:p-12 pb-16">
                         <span id="modal-category" class="text-brand-accent text-sm font-bold tracking-widest uppercase mb-3 block">Category</span>
                         <h3 id="modal-title" class="text-3xl md:text-5xl font-black mb-8 leading-tight">Project Title</h3>
@@ -491,6 +510,15 @@
         const modalQr = document.getElementById('modal-qr');
         const qrContainer = document.getElementById('qr-container');
 
+        // 輪播相關變數
+        const prevBtn = document.getElementById('prev-img');
+        const nextBtn = document.getElementById('next-img');
+        const dotsContainer = document.getElementById('gallery-dots');
+        const mediaContainer = document.getElementById('modal-media-container');
+        let currentGallery = [];
+        let currentImgIndex = 0;
+
+        // 手機版選單控制
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileMenuClose = document.getElementById('mobile-menu-close');
@@ -509,115 +537,30 @@
 
         mobileMenuBtn.addEventListener('click', toggleMobileMenu);
         mobileMenuClose.addEventListener('click', toggleMobileMenu);
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', toggleMobileMenu);
-        });
+        mobileLinks.forEach(link => link.addEventListener('click', toggleMobileMenu));
 
-        let isAnimating = false;
-        let tooltipTimer;
+        // 輪播更新函式
+        function updateGalleryView() {
+            mediaError.classList.add('hidden');
+            modalImg.classList.remove('hidden');
+            const currentPath = currentGallery[currentImgIndex].trim();
+            modalImg.src = currentPath;
+            
+            modalImg.onerror = () => {
+                mediaError.classList.remove('hidden');
+                modalImg.classList.add('hidden');
+                errorPathText.innerText = `檔案路徑: ${currentPath}`;
+            };
 
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (isAnimating) return;
-                if (btn.classList.contains('bg-[#EB5568]')) return;
-                isAnimating = true;
-
-                const filterValue = btn.getAttribute('data-filter');
-                const progTooltip = document.getElementById('prog-tooltip');
-                
-                if (filterValue === 'programming' && progTooltip) {
-                    clearTimeout(tooltipTimer);
-                    progTooltip.classList.remove('opacity-0', 'translate-y-2');
-                    progTooltip.classList.add('opacity-100', 'translate-y-0');
-                    tooltipTimer = setTimeout(() => {
-                        progTooltip.classList.remove('opacity-100', 'translate-y-0');
-                        progTooltip.classList.add('opacity-0', 'translate-y-2');
-                    }, 4000);
-                } else if (progTooltip) {
-                    clearTimeout(tooltipTimer);
-                    progTooltip.classList.remove('opacity-100', 'translate-y-0');
-                    progTooltip.classList.add('opacity-0', 'translate-y-2');
-                }
-
-                filterBtns.forEach(b => {
-                    b.classList.remove('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
-                    b.classList.add('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
-                });
-                btn.classList.remove('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
-                btn.classList.add('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
-
-                let hasHidingItems = false;
-                portfolioItems.forEach(item => {
-                    const category = item.getAttribute('data-category');
-                    const isMatch = filterValue === 'all' || category === filterValue;
-                    if (!isMatch && item.style.display !== 'none') {
-                        item.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-                        item.style.opacity = '0';
-                        item.style.transform = 'scale(0.95)';
-                        item.setAttribute('data-target-state', 'hidden');
-                        hasHidingItems = true;
-                    } else if (isMatch) {
-                        item.setAttribute('data-target-state', 'visible');
-                    }
-                });
-
-                setTimeout(() => {
-                    const firstRects = new Map();
-                    portfolioItems.forEach(item => {
-                        if (item.getAttribute('data-target-state') === 'visible' && item.style.display !== 'none') {
-                            firstRects.set(item, item.getBoundingClientRect());
-                        }
-                    });
-                    portfolioItems.forEach(item => {
-                        if (item.getAttribute('data-target-state') === 'hidden') {
-                            item.style.display = 'none';
-                        } else {
-                            item.style.display = ''; 
-                        }
-                    });
-                    const lastRects = new Map();
-                    portfolioItems.forEach(item => {
-                        if (item.getAttribute('data-target-state') === 'visible') {
-                            lastRects.set(item, item.getBoundingClientRect());
-                        }
-                    });
-                    portfolioItems.forEach(item => {
-                        if (item.getAttribute('data-target-state') === 'visible') {
-                            const first = firstRects.get(item);
-                            const last = lastRects.get(item);
-                            if (first && last) {
-                                const deltaX = first.left - last.left;
-                                const deltaY = first.top - last.top;
-                                item.style.transition = 'none';
-                                item.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1)`;
-                                item.style.opacity = '1';
-                                item.getBoundingClientRect();
-                                item.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease';
-                                item.style.transform = 'translate(0, 0) scale(1)';
-                            } else {
-                                item.style.transition = 'none';
-                                item.style.opacity = '0';
-                                item.style.transform = 'translate(0, 0) scale(0.95)';
-                                item.getBoundingClientRect();
-                                item.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease';
-                                item.style.transform = 'translate(0, 0) scale(1)';
-                                item.style.opacity = '1';
-                            }
-                        }
-                    });
-                    setTimeout(() => {
-                        isAnimating = false;
-                    }, 600);
-                }, hasHidingItems ? 300 : 0);
+            // 更新指示點
+            const dots = dotsContainer.querySelectorAll('.dot');
+            dots.forEach((dot, idx) => {
+                if (idx === currentImgIndex) dot.classList.add('active');
+                else dot.classList.remove('active');
             });
-        });
+        }
 
-        window.addEventListener('scroll', () => {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 50) navbar.classList.add('shadow-sm');
-            else navbar.classList.remove('shadow-sm');
-        });
-
+        // 點擊作品
         portfolioItems.forEach(item => {
             item.addEventListener('click', () => {
                 const category = item.querySelector('span').innerText;
@@ -629,54 +572,68 @@
 
                 modalVideo.onerror = null;
                 modalImg.onerror = null;
-                
                 mediaError.classList.add('hidden');
                 modalVideo.pause();
                 modalVideo.removeAttribute('src');
                 modalVideo.load();
 
+                // 檢查是否為影片專案
                 if (videoSrc && videoSrc.trim() !== "") {
                     modalImg.classList.add('hidden');
                     modalVideo.classList.remove('hidden');
+                    prevBtn.classList.add('hidden');
+                    nextBtn.classList.add('hidden');
+                    dotsContainer.classList.add('hidden');
                     modalVideo.src = videoSrc + "?v=" + new Date().getTime();
-                    modalVideo.oncanplay = () => {
-                        modalVideo.play().catch(e => {});
-                        modalVideo.oncanplay = null;
-                    };
+                    modalVideo.oncanplay = () => { modalVideo.play().catch(e => {}); modalVideo.oncanplay = null; };
                     modalVideo.onerror = () => {
                         mediaError.classList.remove('hidden');
                         modalVideo.classList.add('hidden');
                         errorPathText.innerText = `檔案路徑: ${videoSrc}`;
                     };
                 } else {
+                    // 圖片展示邏輯 (含輪播)
                     modalVideo.classList.add('hidden');
-                    modalImg.classList.remove('hidden');
-                    const finalImg = modalImgSrc || item.querySelector('img').src;
-                    modalImg.src = finalImg;
-                    modalImg.onerror = () => {
-                        mediaError.classList.remove('hidden');
-                        modalImg.classList.add('hidden');
-                        errorPathText.innerText = `檔案路徑: ${finalImg}`;
-                    };
+                    currentGallery = modalImgSrc ? modalImgSrc.split(',') : [item.querySelector('img').src];
+                    currentImgIndex = 0;
+
+                    if (currentGallery.length > 1) {
+                        prevBtn.classList.remove('hidden');
+                        nextBtn.classList.remove('hidden');
+                        dotsContainer.classList.remove('hidden');
+                        
+                        // 生成指示點
+                        dotsContainer.innerHTML = '';
+                        currentGallery.forEach((_, idx) => {
+                            const dot = document.createElement('div');
+                            dot.className = 'dot w-2 h-2 rounded-full transition-all cursor-pointer';
+                            dot.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                currentImgIndex = idx;
+                                updateGalleryView();
+                            });
+                            dotsContainer.appendChild(dot);
+                        });
+                    } else {
+                        prevBtn.classList.add('hidden');
+                        nextBtn.classList.add('hidden');
+                        dotsContainer.classList.add('hidden');
+                    }
+                    updateGalleryView();
                 }
 
                 if (projectLink && projectLink.trim() !== "") {
                     linkContainer.classList.remove('hidden');
                     externalLink.href = projectLink;
-                    if (noQr) {
-                        qrContainer.classList.add('hidden');
-                    } else {
+                    if (noQr) qrContainer.classList.add('hidden');
+                    else {
                         qrContainer.classList.remove('hidden');
-                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(projectLink)}`;
-                        modalQr.src = qrUrl;
+                        modalQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(projectLink)}`;
                     }
-                } else {
-                    linkContainer.classList.add('hidden');
-                }
+                } else linkContainer.classList.add('hidden');
 
                 const detailsNode = item.querySelector('.project-details');
                 modalDescription.innerHTML = detailsNode ? detailsNode.innerHTML : '<p>專案詳細介紹內容正在準備中...</p>';
-
                 modalCategory.innerText = category;
                 modalTitle.innerText = title;
                 modal.classList.remove('hidden');
@@ -686,6 +643,76 @@
                 }, 10);
                 document.body.style.overflow = 'hidden';
             });
+        });
+
+        // 輪播切換按鈕事件
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentImgIndex = (currentImgIndex - 1 + currentGallery.length) % currentGallery.length;
+            updateGalleryView();
+        });
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentImgIndex = (currentImgIndex + 1) % currentGallery.length;
+            updateGalleryView();
+        });
+
+        // 手機右滑/左滑支援
+        let touchStartX = 0;
+        mediaContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        mediaContainer.addEventListener('touchend', (e) => {
+            if (currentGallery.length <= 1) return;
+            let touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) {
+                // 向左滑 -> 看下一張
+                currentImgIndex = (currentImgIndex + 1) % currentGallery.length;
+                updateGalleryView();
+            } else if (touchEndX - touchStartX > 50) {
+                // 向右滑 -> 看上一張
+                currentImgIndex = (currentImgIndex - 1 + currentGallery.length) % currentGallery.length;
+                updateGalleryView();
+            }
+        }, { passive: true });
+
+        // 分類篩選邏輯
+        let isAnimating = false;
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (isAnimating || btn.classList.contains('bg-[#EB5568]')) return;
+                isAnimating = true;
+                const filterValue = btn.getAttribute('data-filter');
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
+                    b.classList.add('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
+                });
+                btn.classList.remove('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
+                btn.classList.add('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
+
+                portfolioItems.forEach(item => {
+                    const isMatch = filterValue === 'all' || item.getAttribute('data-category') === filterValue;
+                    if (!isMatch) {
+                        item.style.opacity = '0';
+                        item.style.transform = 'scale(0.95)';
+                        setTimeout(() => item.style.display = 'none', 300);
+                    } else {
+                        item.style.display = '';
+                        setTimeout(() => {
+                            item.style.opacity = '1';
+                            item.style.transform = 'scale(1)';
+                        }, 10);
+                    }
+                });
+                setTimeout(() => isAnimating = false, 400);
+            });
+        });
+
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) navbar.classList.add('shadow-sm');
+            else navbar.classList.remove('shadow-sm');
         });
 
         const closeModal = () => {
