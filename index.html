@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>視覺設計作品集 | MingFly</title>
+    
+    <!-- 社群分享預覽設定 (Open Graph) -->
+    <meta property="og:title" content="MingFly | 視覺設計作品集">
+    <meta property="og:description" content="跨領域設計師 MingFly 的作品集。涵蓋活動視覺設計、動態影像 (Motion Graphics) 與互動式網頁體驗開發。">
+    <!-- 這裡的網址必須是「絕對路徑」，已為您設定為您的 GitHub Pages 網址 -->
+    <meta property="og:image" content="https://mingfly0610.github.io/design/images/share-thumb.jpg">
+    <meta property="og:url" content="https://mingfly0610.github.io/design/">
+    <meta property="og:type" content="website">
+
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Google Fonts: Noto Sans TC 與 Playfair Display -->
@@ -231,18 +240,14 @@
 
     <!-- 關於我 -->
     <section id="about" class="py-32 px-6 lg:px-12">
-        <!-- 修改這裡：將 max-w-7xl 調整為 6xl 集中視覺，取消 justify-between，並用 flex-1 讓右側文字自動貼合 -->
         <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
             
-            <!-- 圖片區塊：設定為不壓縮(shrink-0)，並在 lg 尺寸固定寬度，確保比例精緻 -->
             <div class="w-full lg:w-auto shrink-0 flex justify-center">
                 <div class="relative w-full max-w-[360px] lg:w-[400px] aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg">
-                    <!-- 加上 ?v=1 來強制瀏覽器抓取最新上傳的圖片 -->
                     <img src="images/profile.jpg?v=1" alt="設計師肖像" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&q=80&w=1000'">
                 </div>
             </div>
             
-            <!-- 文字區塊：使用 flex-1 填滿剩餘空間，讓文字自然往左靠，減少中間多餘的留白 -->
             <div class="w-full lg:flex-1 space-y-8">
                 <h2 class="text-4xl md:text-5xl font-bold">About Me</h2>
                 <div class="space-y-6 text-lg text-gray-600 leading-relaxed">
