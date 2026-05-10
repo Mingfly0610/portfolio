@@ -78,7 +78,7 @@
         <div class="max-w-5xl mx-auto text-center space-y-8 fade-in">
             <h2 class="text-sm md:text-base font-bold tracking-[0.2em] text-gray-400 uppercase">Visual Designer & Art Director</h2>
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight">
-                Crafting <span class="font-serif italic font-normal text-gray-500">beautiful</span><br>
+                Crafting <span class="font-serif italic font-normal text-[#EB5568]">beautiful</span><br>
                 digital experiences.
             </h1>
             <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
@@ -86,7 +86,8 @@
                 為複雜的問題尋找創新的解答。
             </p>
             <div class="pt-8">
-                <a href="#work" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1">
+                <!-- 更新 Hover 顏色為 #EB5568 -->
+                <a href="#work" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-[#EB5568] transition-all transform hover:-translate-y-1">
                     觀看作品
                     <i class="ph ph-arrow-down-right"></i>
                 </a>
@@ -105,12 +106,13 @@
                 
                 <!-- 分類篩選按鈕 -->
                 <div class="flex flex-wrap gap-2 md:gap-4" id="filter-btns">
-                    <button class="filter-btn active px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-brand-black text-white transition-colors" data-filter="all">全部</button>
-                    <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="event">活動視覺設計</button>
-                    <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="animation">動畫設計</button>
+                    <!-- 更新預設選中的「全部」按鈕樣式，加入相近粉色懸浮 hover:bg-[#D94F60] -->
+                    <button class="filter-btn active px-4 py-2 rounded-full border border-[#EB5568] text-sm font-medium bg-[#EB5568] hover:bg-[#D94F60] text-white transition-colors" data-filter="all">全部</button>
+                    <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 transition-colors" data-filter="event">活動視覺設計</button>
+                    <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 transition-colors" data-filter="animation">動畫設計</button>
                     
                     <!-- 程式設計按鈕加上 relative 屬性與彩蛋 Tooltip -->
-                    <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-200 transition-colors" data-filter="programming">
+                    <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 transition-colors" data-filter="programming">
                         程式設計
                         
                         <!-- 彩蛋對話框 -->
@@ -282,10 +284,11 @@
                     <h3 class="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">Core Skills</h3>
                     <div class="flex flex-wrap gap-3">
                         <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Art Direction</span>
-                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Event Visual Design</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Key Visual Design</span>
                         <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Motion Graphics</span>
                         <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">UI / UX Design</span>
-                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Interactive Web Dev</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Front-End Development</span>
+                        <span class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium">Creative Coding</span>
                     </div>
                 </div>
             </div>
@@ -326,13 +329,13 @@
             <!-- 外層負責遮罩與圓角 (移除原有的 max-h 與 overflow-auto，新增 overflow-hidden) -->
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl scale-95 opacity-0 transition-all duration-300 relative shadow-2xl overflow-hidden pointer-events-auto">
                 
+                <!-- 把叉叉按鈕往外移到這層！這樣它就不會跟著裡面的內容一起滾動了 -->
+                <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
+                    <i class="ph ph-x text-2xl"></i>
+                </button>
+                
                 <!-- 內層負責滾動 (這層才加上 max-h-[90vh] 與 overflow-y-auto) -->
                 <div class="w-full max-h-[90vh] overflow-y-auto relative flex flex-col">
-                    
-                    <!-- 完美的圓形叉叉按鈕 -->
-                    <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
-                        <i class="ph ph-x text-2xl"></i>
-                    </button>
                     
                     <!-- 媒體區：加入 shrink-0 防止被系統自動壓扁，強制維持 16:9 比例 -->
                     <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
@@ -368,7 +371,9 @@
                                     <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
                                         <img id="modal-qr" src="" alt="QR Code" class="w-24 h-24 md:w-32 md:h-32">
                                     </div>
-                                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Scan to Preview</span>
+                                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center leading-relaxed">
+                                        Scan to Preview<br>手機體驗效果更佳
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -405,8 +410,8 @@
                 // 避免動畫過程中重複點擊產生破圖
                 if (isAnimating) return;
                 
-                // 如果點擊的是當前已選中的分類，則不動作
-                if (btn.classList.contains('bg-brand-black')) return;
+                // 如果點擊的是當前已選中的分類，則不動作 (改為判斷粉色)
+                if (btn.classList.contains('bg-[#EB5568]')) return;
 
                 isAnimating = true;
 
@@ -432,13 +437,13 @@
                     progTooltip.classList.add('opacity-0', 'translate-y-2');
                 }
 
-                // --- 切換按鈕樣式 ---
+                // --- 切換按鈕樣式 (更新為粉色切換，並正確處理 hover 狀態) ---
                 filterBtns.forEach(b => {
-                    b.classList.remove('bg-brand-black', 'text-white');
-                    b.classList.add('bg-transparent', 'text-brand-black');
+                    b.classList.remove('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
+                    b.classList.add('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
                 });
-                btn.classList.remove('bg-transparent', 'text-brand-black');
-                btn.classList.add('bg-brand-black', 'text-white');
+                btn.classList.remove('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
+                btn.classList.add('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
 
                 let hasHidingItems = false;
 
