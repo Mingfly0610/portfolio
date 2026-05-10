@@ -130,7 +130,7 @@
                     <video src="videos/2025-animation-job-fair.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-job-fair.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
-                        <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年僑生就業博覽會 啟動儀式動畫</h3>
+                        <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年僑生就業博覽會 啟提儀式動畫</h3>
                     </div>
                 </div>
 
@@ -295,11 +295,10 @@
                     <i class="ph ph-x text-2xl"></i>
                 </button>
                 
-                <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative">
-                    <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-cover">
-                    <video id="modal-video" src="" class="w-full h-full object-contain bg-[#111111] hidden" controls autoplay muted playsinline></video>
-                    
-                    <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4">
+                <div class="media-container w-full aspect-video bg-black overflow-hidden relative">
+                    <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-contain">
+                    <video id="modal-video" src="" class="w-full h-full object-contain hidden" controls autoplay muted playsinline></video>
+                    <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-900 text-gray-400 text-center p-4">
                         <div class="px-4">
                             <i class="ph ph-warning-circle text-4xl mb-2"></i>
                             <p class="font-bold">檔案載入失敗</p>
@@ -354,33 +353,41 @@
 
         // 作品篩選 (平滑遞補動畫 FLIP Technique)
         let isAnimating = false;
-        let tooltipTimer;
+        let tooltipTimer; // 用於控制彩蛋對話框的時間
 
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
+                // 避免動畫過程中重複點擊產生破圖
                 if (isAnimating) return;
+                
+                // 如果點擊的是當前已選中的分類，則不動作
                 if (btn.classList.contains('bg-brand-black')) return;
 
                 isAnimating = true;
 
+                // --- 處理「程式設計」的彩蛋對話框 ---
                 const filterValue = btn.getAttribute('data-filter');
                 const progTooltip = document.getElementById('prog-tooltip');
                 
                 if (filterValue === 'programming' && progTooltip) {
                     clearTimeout(tooltipTimer);
+                    // 顯示對話框
                     progTooltip.classList.remove('opacity-0', 'translate-y-2');
                     progTooltip.classList.add('opacity-100', 'translate-y-0');
                     
+                    // 設定 4 秒後自動隱藏
                     tooltipTimer = setTimeout(() => {
                         progTooltip.classList.remove('opacity-100', 'translate-y-0');
                         progTooltip.classList.add('opacity-0', 'translate-y-2');
                     }, 4000);
                 } else if (progTooltip) {
+                    // 若點擊其他分類，強制提早隱藏對話框
                     clearTimeout(tooltipTimer);
                     progTooltip.classList.remove('opacity-100', 'translate-y-0');
                     progTooltip.classList.add('opacity-0', 'translate-y-2');
                 }
 
+                // --- 切換按鈕樣式 ---
                 filterBtns.forEach(b => {
                     b.classList.remove('bg-brand-black', 'text-white');
                     b.classList.add('bg-transparent', 'text-brand-black');
@@ -390,6 +397,7 @@
 
                 let hasHidingItems = false;
 
+                // 階段 1：將不符合分類的專案淡出並微微縮小
                 portfolioItems.forEach(item => {
                     const category = item.getAttribute('data-category');
                     const isMatch = filterValue === 'all' || category === filterValue;
@@ -405,7 +413,9 @@
                     }
                 });
 
+                // 階段 2：等待淡出後，執行佈局平滑遞補動畫
                 setTimeout(() => {
+                    // 1. First (記錄遞補前的位置)
                     const firstRects = new Map();
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'visible' && item.style.display !== 'none') {
@@ -413,6 +423,7 @@
                         }
                     });
 
+                    // 2. 變更 DOM 佈局 (瞬間隱藏不需要的專案)
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'hidden') {
                             item.style.display = 'none';
@@ -421,6 +432,7 @@
                         }
                     });
 
+                    // 3. Last (記錄遞補後的新位置)
                     const lastRects = new Map();
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'visible') {
@@ -428,24 +440,30 @@
                         }
                     });
 
+                    // 4. Invert & Play (計算差異並以動畫滑動)
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'visible') {
                             const first = firstRects.get(item);
                             const last = lastRects.get(item);
 
                             if (first && last) {
+                                // 專案原本就在畫面上，計算位移差
                                 const deltaX = first.left - last.left;
                                 const deltaY = first.top - last.top;
 
+                                // Invert：瞬間把它們退回舊位置
                                 item.style.transition = 'none';
                                 item.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1)`;
                                 item.style.opacity = '1';
 
+                                // 強制瀏覽器重繪 (Reflow)
                                 item.getBoundingClientRect();
 
+                                // Play：平滑滑動到新位置 (使用 cubic-bezier 讓滑動有減速的優雅感)
                                 item.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease';
                                 item.style.transform = 'translate(0, 0) scale(1)';
                             } else {
+                                // 專案原本隱藏，現在要重新顯示 (淡入與放大)
                                 item.style.transition = 'none';
                                 item.style.opacity = '0';
                                 item.style.transform = 'translate(0, 0) scale(0.95)';
@@ -459,20 +477,23 @@
                         }
                     });
 
+                    // 動畫結束後解除鎖定，允許再次點擊
                     setTimeout(() => {
                         isAnimating = false;
                     }, 600);
 
-                }, hasHidingItems ? 300 : 0);
+                }, hasHidingItems ? 300 : 0); // 只有當有東西需要隱藏時，才等待 0.3 秒淡出
             });
         });
 
+        // 滾動效果
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) navbar.classList.add('shadow-sm');
             else navbar.classList.remove('shadow-sm');
         });
 
+        // 彈窗功能
         portfolioItems.forEach(item => {
             item.addEventListener('click', () => {
                 const category = item.querySelector('span').innerText;
@@ -484,9 +505,11 @@
 
                 mediaError.classList.add('hidden');
                 
+                // 重置影片狀態
                 modalVideo.pause();
                 modalVideo.src = "";
 
+                // 處理影片或圖片
                 if (videoSrc && videoSrc.trim() !== "") {
                     modalImg.classList.add('hidden');
                     modalVideo.classList.remove('hidden');
@@ -524,6 +547,7 @@
                     };
                 }
 
+                // 處理外部連結與 QR Code
                 if (projectLink && projectLink.trim() !== "") {
                     linkContainer.classList.remove('hidden');
                     externalLink.href = projectLink;
