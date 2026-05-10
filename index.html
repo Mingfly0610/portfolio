@@ -87,7 +87,7 @@
         <a href="#contact" class="mobile-link text-3xl font-bold hover:text-[#EB5568] transition-colors">聯絡 Contact</a>
     </div>
 
-    <!-- 首圖區：更新手機版的動態高度 (dvh) 與間距微調，將按鈕往上拉 -->
+    <!-- 首圖區 -->
     <section class="min-h-[100dvh] flex items-center justify-center px-6 lg:px-12 pt-20 pb-12 md:pb-0">
         <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in">
             <h2 class="text-sm md:text-base font-bold tracking-[0.2em] text-gray-400 uppercase">Visual Designer & Art Director</h2>
@@ -100,7 +100,6 @@
                 為複雜的問題尋找創新的解答。
             </p>
             <div class="pt-2 md:pt-8">
-                <!-- 更新 Hover 顏色為 #EB5568 -->
                 <a href="#work" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-[#EB5568] transition-all transform hover:-translate-y-1">
                     觀看作品
                     <i class="ph ph-arrow-down-right"></i>
@@ -120,19 +119,14 @@
                 
                 <!-- 分類篩選按鈕 -->
                 <div class="flex flex-wrap gap-2 md:gap-4" id="filter-btns">
-                    <!-- 更新預設選中的「全部」按鈕樣式，加入相近粉色懸浮 hover:bg-[#D94F60] -->
                     <button class="filter-btn active px-4 py-2 rounded-full border border-[#EB5568] text-sm font-medium bg-[#EB5568] hover:bg-[#D94F60] text-white transition-colors" data-filter="all">全部</button>
                     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 transition-colors" data-filter="event">活動視覺設計</button>
                     <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 transition-colors" data-filter="animation">動畫設計</button>
                     
-                    <!-- 程式設計按鈕加上 relative 屬性與彩蛋 Tooltip -->
                     <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 transition-colors" data-filter="programming">
                         程式設計
-                        
-                        <!-- 彩蛋對話框：手機版移至下方 (top-full, mt-3)，電腦版維持上方 (md:bottom-full, md:mb-3) -->
                         <div id="prog-tooltip" class="absolute top-full md:top-auto md:bottom-full left-0 md:left-1/2 md:-translate-x-1/2 mt-3 md:mt-0 md:mb-3 px-5 py-2 bg-brand-black text-white text-[13px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
                             這個作品集網站也是<br>程式設計的作品喔！
-                            <!-- 倒三角形：手機版朝上並放在對話框頂部，電腦版朝下並放在底部 -->
                             <div class="absolute bottom-full md:bottom-auto md:top-full left-11 md:left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-brand-black border-t-0 md:border-b-0 md:border-t-[8px] md:border-t-brand-black"></div>
                         </div>
                     </button>
@@ -142,133 +136,134 @@
             <!-- 作品網格 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="portfolio-grid">
                 
-                <!-- =============== 分類 1: 活動視覺設計 =============== -->
-                
-                <!-- 專案 1: 活動視覺 (2026 職業安全衛生日) -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="event" 
-                     data-modal-img="images/2026-event-labor-safety-full.jpg">
+                <!-- 專案 1 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="event" data-modal-img="images/2026-event-labor-safety-full.jpg">
                     <img src="images/2026-event-labor-safety-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年高雄市政府職業安全衛生日安全體感觀摩暨展示活動</h3>
                     </div>
+                    <div class="project-details hidden">
+                        <p>請在此輸入專案 1 的介紹文字...</p>
+                    </div>
                 </div>
 
-                <!-- =============== 分類 2: 動畫設計 =============== -->
-
-                <!-- 專案 2: 動畫設計 (僑生就業博覽會) -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="animation" 
-                     data-video="videos/2025-animation-job-fair.mp4"
-                     data-modal-img="images/2025-animation-job-fair-full.jpg">
+                <!-- 專案 2 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="animation" data-video="videos/2025-animation-job-fair.mp4" data-modal-img="images/2025-animation-job-fair-full.jpg">
                     <video src="videos/2025-animation-job-fair.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-job-fair.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年僑生就業博覽會 啟動儀式動畫</h3>
                     </div>
+                    <div class="project-details hidden">
+                        <p>請在此輸入專案 2 的介紹文字...</p>
+                    </div>
                 </div>
 
-                <!-- 專案 3: 動畫設計 (智慧港都) -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="animation" 
-                     data-video="videos/2025-animation-kaohsiung-forum.mp4"
-                     data-modal-img="images/2025-animation-kaohsiung-forum-full.jpg">
+                <!-- 專案 3 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="animation" data-video="videos/2025-animation-kaohsiung-forum.mp4" data-modal-img="images/2025-animation-kaohsiung-forum-full.jpg">
                     <video src="videos/2025-animation-kaohsiung-forum.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-kaohsiung-forum.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年高雄市政府-智慧港都 幸福永續-論壇展示活動 啟動儀式動畫</h3>
                     </div>
+                    <div class="project-details hidden">
+                        <p>請在此輸入專案 3 的介紹文字...</p>
+                    </div>
                 </div>
 
-                <!-- 專案 4: 動畫設計 (職安衛生日啟動動畫) -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="animation" 
-                     data-video="videos/2026-animation-labor-safety.mp4"
-                     data-modal-img="images/2026-animation-labor-safety-full.jpg">
+                <!-- 專案 4 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="animation" data-video="videos/2026-animation-labor-safety.mp4" data-modal-img="images/2026-animation-labor-safety-full.jpg">
                     <video src="videos/2026-animation-labor-safety.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2026-animation-labor-safety-thumb.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年高雄市政府職業安全衛生日安全體感觀摩暨展示活動 啟動儀式動畫</h3>
                     </div>
+                    <div class="project-details hidden">
+                        <p>請在此輸入專案 4 的介紹文字...</p>
+                    </div>
                 </div>
 
-                <!-- 專案 5: 動畫設計 (雲嘉南就業博覽會 啟動儀式) -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="animation" 
-                     data-video="videos/2025-animation-taiwan-jobs.mp4"
-                     data-modal-img="images/2025-animation-taiwan-jobs-full.jpg">
+                <!-- 專案 5 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="animation" data-video="videos/2025-animation-taiwan-jobs.mp4" data-modal-img="images/2025-animation-taiwan-jobs-full.jpg">
                     <video src="videos/2025-animation-taiwan-jobs.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-taiwan-jobs-thumb.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年台灣就業通雲嘉南區就業博覽會 啟動儀式動畫</h3>
                     </div>
+                    <div class="project-details hidden">
+                        <p>請在此輸入專案 5 的介紹文字...</p>
+                    </div>
                 </div>
 
-                <!-- 專案 6: 動畫設計 (雲嘉南就業博覽會 活動懶人包) -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="animation" 
-                     data-video="videos/2025-animation-taiwan-jobs-info.mp4"
-                     data-modal-img="images/2025-animation-taiwan-jobs-info-full.jpg">
+                <!-- 專案 6 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="animation" data-video="videos/2025-animation-taiwan-jobs-info.mp4" data-modal-img="images/2025-animation-taiwan-jobs-info-full.jpg">
                     <video src="videos/2025-animation-taiwan-jobs-info.mp4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline poster="images/2025-animation-taiwan-jobs-info-thumb.jpg"></video>
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動畫設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年台灣就業通雲嘉南區就業博覽會 活動懶人包</h3>
                     </div>
+                    <div class="project-details hidden">
+                        <p>請在此輸入專案 6 的介紹文字...</p>
+                    </div>
                 </div>
 
-                <!-- =============== 分類 3: 程式設計 =============== -->
-
-                <!-- 專案 7: 程式設計 1 (職場神獸) - 新增 data-video -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="programming"
-                     data-video="videos/prog-beast-full.mp4"
-                     data-modal-img="images/prog-beast-full.jpg"
-                     data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/">
+                <!-- 專案 7 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.jpg" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/">
                     <img src="images/prog-beast-thumb.jpg" alt="職場神獸縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">測測你是哪種職場神獸</h3>
                     </div>
+                    <div class="project-details hidden">
+                        <p>請在此輸入專案 7 的介紹文字...</p>
+                    </div>
                 </div>
 
-                <!-- 專案 8: 程式設計 2 (職場動物風格) - 新增 data-video -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="programming"
-                     data-video="videos/prog-animal-full.mp4"
-                     data-modal-img="images/prog-animal-full.jpg"
-                     data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/">
+                <!-- 專案 8 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.jpg" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/">
                     <img src="images/prog-animal-thumb.jpg" alt="職場動物縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">探索你的職場動物風格</h3>
                     </div>
+                    <div class="project-details hidden">
+                        <p>請在此輸入專案 8 的介紹文字...</p>
+                    </div>
                 </div>
 
-                <!-- 專案 9: 程式設計 3 (職業適性診斷) - 新增 data-video -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="programming"
-                     data-video="videos/prog-career-full.mp4"
-                     data-modal-img="images/prog-career-full.jpg"
-                     data-external-link="https://design-your-life-studio.github.io/career-diagnosis/">
+                <!-- 專案 9 -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.jpg" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/">
                     <img src="images/prog-career-thumb.jpg" alt="職業適性診斷縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">職業發展適性診斷</h3>
                     </div>
+                    <div class="project-details hidden">
+                        <p>請在此輸入專案 9 的介紹文字...</p>
+                    </div>
                 </div>
 
-                <!-- 專案 10: 程式設計 4 (電子抽獎程式) - 新增 data-video -->
-                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" 
-                     data-category="programming"
-                     data-video="videos/prog-lottery-full.mp4"
-                     data-modal-img="images/prog-lottery-full.jpg"
-                     data-external-link="https://design-your-life-studio.github.io/lucky-draw/"
-                     data-no-qr="true">
+                <!-- 專案 10 (已填入抽獎程式範例) -->
+                <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.jpg" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true">
                     <img src="images/prog-lottery-thumb.jpg" alt="電子抽獎縮圖" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1553481235-696411a91af0?auto=format&fit=crop&q=80&w=1200'">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                         <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                         <h3 class="text-white text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">活動電子抽獎程式</h3>
+                    </div>
+                    <!-- 專屬專案介紹 -->
+                    <div class="project-details hidden">
+                        <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
+                        <p class="mb-6">本專案為 2026 年台橡 (TSRC) 企業尾牙量身打造的專屬電子抽獎系統。為了解決傳統紙本抽獎的繁瑣流程，並提升活動現場的互動氛圍，特別開發此款具備高度視覺張力與流暢體驗的網頁程式。</p>
+                        
+                        <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                        <p class="mb-6">在視覺風格上，融入了充滿童趣的經典動畫元素，以明亮的色彩、雲朵與玩具點綴，營造出活潑歡樂的節慶感。介面設計注重直覺性與使用者體驗，讓台上主持人與台下參與者都能輕鬆聚焦於「立即抽獎」的期待感。</p>
+                        
+                        <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
+                        <ul class="space-y-2 list-disc list-outside ml-5">
+                            <li><strong>程式開發：</strong>結合 AI 輔助生成技術，進行前端互動網頁開發，確保抽獎邏輯的公平性與流暢的過場動畫。</li>
+                            <li><strong>視覺與動畫：</strong>專注於 2D 視覺設計、版面編排以及動態效果製作，打造兼具美感與實用性的數位活動體驗。</li>
+                        </ul>
                     </div>
                 </div>
 
@@ -279,7 +274,6 @@
     <!-- 關於我 -->
     <section id="about" class="py-32 px-6 lg:px-12">
         <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
-            
             <div class="w-full lg:w-auto shrink-0 flex justify-center">
                 <div class="relative w-full max-w-[360px] lg:w-[400px] aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg">
                     <img src="images/profile.jpg?v=1" alt="設計師肖像" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" onerror="this.src='https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&q=80&w=1000'">
@@ -320,10 +314,8 @@
             </a>
 
             <div class="pt-16 flex justify-center gap-8 text-3xl text-gray-400">
-                <!-- 更新 Instagram 與 Behance 連結 -->
                 <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="hover:text-white transition-colors"><i class="ph ph-instagram-logo"></i></a>
                 <a href="https://www.behance.net/fangmingyu" target="_blank" class="hover:text-white transition-colors"><i class="ph ph-behance-logo"></i></a>
-                <!-- 保留預設的 Linkedin 連結，可視需求更換或刪除 -->
                 <a href="#" class="hover:text-white transition-colors"><i class="ph ph-linkedin-logo"></i></a>
             </div>
             
@@ -340,22 +332,14 @@
     <div id="project-modal" class="fixed inset-0 z-[100] hidden">
         <div id="modal-backdrop" class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
-            <!-- 外層負責遮罩與圓角 (移除原有的 max-h 與 overflow-auto，新增 overflow-hidden) -->
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl scale-95 opacity-0 transition-all duration-300 relative shadow-2xl overflow-hidden pointer-events-auto">
-                
-                <!-- 把叉叉按鈕往外移到這層！這樣它就不會跟著裡面的內容一起滾動了 -->
                 <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
                     <i class="ph ph-x text-2xl"></i>
                 </button>
-                
-                <!-- 內層負責滾動 (這層才加上 max-h-[90vh] 與 overflow-y-auto) -->
                 <div class="w-full max-h-[90vh] overflow-y-auto relative flex flex-col">
-                    
-                    <!-- 媒體區：加入 shrink-0 防止被系統自動壓扁，強制維持 16:9 比例 -->
                     <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
                         <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-cover">
                         <video id="modal-video" src="" class="w-full h-full object-cover hidden" controls autoplay muted playsinline></video>
-                        <!-- 載入錯誤提示 -->
                         <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4">
                             <div class="px-4">
                                 <i class="ph ph-warning-circle text-4xl mb-2"></i>
@@ -364,23 +348,17 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div class="p-8 md:p-12 pb-16">
                         <span id="modal-category" class="text-brand-accent text-sm font-bold tracking-widest uppercase mb-3 block">Category</span>
                         <h3 id="modal-title" class="text-3xl md:text-5xl font-black mb-8 leading-tight">Project Title</h3>
-                        
                         <div class="text-gray-600 leading-relaxed space-y-6 text-lg max-w-3xl">
-                            <p id="modal-description">專案詳細介紹內容。這裡可以寫下您的設計思維、使用的軟體以及專案背景。</p>
-                            
-                            <!-- 連結與 QR Code 容器 -->
+                            <!-- 改為 div 以支援複雜排版 -->
+                            <div id="modal-description">專案詳細介紹內容。</div>
                             <div id="external-link-container" class="hidden pt-8 flex flex-col md:flex-row items-start md:items-center gap-8 border-t border-gray-100 mt-8">
-                                <!-- 前往程式網頁按鈕 -->
                                 <a id="modal-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1 shrink-0">
                                     前往程式網頁
                                     <i class="ph ph-arrow-up-right"></i>
                                 </a>
-                                
-                                <!-- QR Code 區塊 -->
                                 <div id="qr-container" class="flex flex-col items-center gap-2">
                                     <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
                                         <img id="modal-qr" src="" alt="QR Code" class="w-24 h-24 md:w-32 md:h-32">
@@ -392,7 +370,7 @@
                             </div>
                         </div>
                     </div>
-                </div> <!-- 結束內層滾動區塊 -->
+                </div>
             </div>
         </div>
     </div>
@@ -410,6 +388,7 @@
         const errorPathText = document.getElementById('error-path');
         const modalCategory = document.getElementById('modal-category');
         const modalTitle = document.getElementById('modal-title');
+        const modalDescription = document.getElementById('modal-description');
         const linkContainer = document.getElementById('external-link-container');
         const externalLink = document.getElementById('modal-external-link');
         const modalQr = document.getElementById('modal-qr');
@@ -425,55 +404,43 @@
             const isHidden = mobileMenu.classList.contains('opacity-0');
             if (isHidden) {
                 mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
-                document.body.style.overflow = 'hidden'; // 防止背景滾動
+                document.body.style.overflow = 'hidden';
             } else {
                 mobileMenu.classList.add('opacity-0', 'pointer-events-none');
-                document.body.style.overflow = ''; // 恢復背景滾動
+                document.body.style.overflow = '';
             }
         }
 
         mobileMenuBtn.addEventListener('click', toggleMobileMenu);
         mobileMenuClose.addEventListener('click', toggleMobileMenu);
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', toggleMobileMenu);
-        });
+        mobileLinks.forEach(link => link.addEventListener('click', toggleMobileMenu));
 
         let isAnimating = false;
         let tooltipTimer;
 
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // 避免動畫過程中重複點擊產生破圖
                 if (isAnimating) return;
-                
-                // 如果點擊的是當前已選中的分類，則不動作 (改為判斷粉色)
                 if (btn.classList.contains('bg-[#EB5568]')) return;
-
                 isAnimating = true;
 
-                // --- 處理「程式設計」的彩蛋對話框 ---
                 const filterValue = btn.getAttribute('data-filter');
                 const progTooltip = document.getElementById('prog-tooltip');
                 
                 if (filterValue === 'programming' && progTooltip) {
                     clearTimeout(tooltipTimer);
-                    // 顯示對話框
                     progTooltip.classList.remove('opacity-0', 'translate-y-2');
                     progTooltip.classList.add('opacity-100', 'translate-y-0');
-                    
-                    // 設定 4 秒後自動隱藏
                     tooltipTimer = setTimeout(() => {
                         progTooltip.classList.remove('opacity-100', 'translate-y-0');
                         progTooltip.classList.add('opacity-0', 'translate-y-2');
                     }, 4000);
                 } else if (progTooltip) {
-                    // 若點擊其他分類，強制提早隱藏對話框
                     clearTimeout(tooltipTimer);
                     progTooltip.classList.remove('opacity-100', 'translate-y-0');
                     progTooltip.classList.add('opacity-0', 'translate-y-2');
                 }
 
-                // --- 切換按鈕樣式 (更新為粉色切換，並正確處理 hover 狀態) ---
                 filterBtns.forEach(b => {
                     b.classList.remove('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
                     b.classList.add('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
@@ -482,26 +449,19 @@
                 btn.classList.add('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
 
                 let hasHidingItems = false;
-
-                // 階段 1：將不符合分類的專案淡出並微微縮小
                 portfolioItems.forEach(item => {
                     const category = item.getAttribute('data-category');
                     const isMatch = filterValue === 'all' || category === filterValue;
-
                     if (!isMatch && item.style.display !== 'none') {
                         item.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                         item.style.opacity = '0';
                         item.style.transform = 'scale(0.95)';
                         item.setAttribute('data-target-state', 'hidden');
                         hasHidingItems = true;
-                    } else if (isMatch) {
-                        item.setAttribute('data-target-state', 'visible');
-                    }
+                    } else if (isMatch) item.setAttribute('data-target-state', 'visible');
                 });
 
-                // 階段 2：等待淡出後，執行佈局平滑遞補動畫
                 setTimeout(() => {
-                    // 1. First (記錄遞補前的位置)
                     const firstRects = new Map();
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'visible' && item.style.display !== 'none') {
@@ -509,77 +469,52 @@
                         }
                     });
 
-                    // 2. 變更 DOM 佈局 (瞬間隱藏不需要的專案)
                     portfolioItems.forEach(item => {
-                        if (item.getAttribute('data-target-state') === 'hidden') {
-                            item.style.display = 'none';
-                        } else {
-                            item.style.display = ''; 
-                        }
+                        if (item.getAttribute('data-target-state') === 'hidden') item.style.display = 'none';
+                        else item.style.display = ''; 
                     });
 
-                    // 3. Last (記錄遞補後的新位置)
                     const lastRects = new Map();
                     portfolioItems.forEach(item => {
-                        if (item.getAttribute('data-target-state') === 'visible') {
-                            lastRects.set(item, item.getBoundingClientRect());
-                        }
+                        if (item.getAttribute('data-target-state') === 'visible') lastRects.set(item, item.getBoundingClientRect());
                     });
 
-                    // 4. Invert & Play (計算差異並以動畫滑動)
                     portfolioItems.forEach(item => {
                         if (item.getAttribute('data-target-state') === 'visible') {
                             const first = firstRects.get(item);
                             const last = lastRects.get(item);
-
                             if (first && last) {
-                                // 專案原本就在畫面上，計算位移差
                                 const deltaX = first.left - last.left;
                                 const deltaY = first.top - last.top;
-
-                                // Invert：瞬間把它們退回舊位置
                                 item.style.transition = 'none';
                                 item.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1)`;
                                 item.style.opacity = '1';
-
-                                // 強制瀏覽器重繪 (Reflow)
                                 item.getBoundingClientRect();
-
-                                // Play：平滑滑動到新位置 (使用 cubic-bezier 讓滑動有減速的優雅感)
                                 item.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease';
                                 item.style.transform = 'translate(0, 0) scale(1)';
                             } else {
-                                // 專案原本隱藏，現在要重新顯示 (淡入與放大)
                                 item.style.transition = 'none';
                                 item.style.opacity = '0';
                                 item.style.transform = 'translate(0, 0) scale(0.95)';
-
                                 item.getBoundingClientRect();
-
                                 item.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease';
                                 item.style.transform = 'translate(0, 0) scale(1)';
                                 item.style.opacity = '1';
                             }
                         }
                     });
-
-                    // 動畫結束後解除鎖定，允許再次點擊
-                    setTimeout(() => {
-                        isAnimating = false;
-                    }, 600);
-
-                }, hasHidingItems ? 300 : 0); // 只有當有東西需要隱藏時，才等待 0.3 秒淡出
+                    setTimeout(() => isAnimating = false, 600);
+                }, hasHidingItems ? 300 : 0);
             });
         });
 
-        // 滾動效果
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) navbar.classList.add('shadow-sm');
             else navbar.classList.remove('shadow-sm');
         });
 
-        // 彈窗功能
+        // 彈窗功能核心
         portfolioItems.forEach(item => {
             item.addEventListener('click', () => {
                 const category = item.querySelector('span').innerText;
@@ -590,64 +525,36 @@
                 const noQr = item.getAttribute('data-no-qr') === 'true';
 
                 mediaError.classList.add('hidden');
-                
-                // 重置影片狀態
                 modalVideo.pause();
                 modalVideo.src = "";
 
-                // 處理影片或圖片
                 if (videoSrc && videoSrc.trim() !== "") {
                     modalImg.classList.add('hidden');
                     modalVideo.classList.remove('hidden');
-                    const finalVideoSrc = videoSrc + "?v=" + new Date().getTime();
-                    modalVideo.src = finalVideoSrc;
-                    
-                    modalVideo.oncanplay = () => {
-                        modalVideo.play().catch(e => console.warn("Playback prevented:", e));
-                        modalVideo.oncanplay = null;
-                    };
-
-                    modalVideo.onerror = () => {
-                        mediaError.classList.remove('hidden');
-                        modalVideo.classList.add('hidden');
-                        try {
-                            errorPathText.innerText = new URL(videoSrc, window.location.href).href;
-                        } catch (e) {
-                            errorPathText.innerText = videoSrc;
-                        }
-                    };
+                    modalVideo.src = videoSrc + "?v=" + new Date().getTime();
+                    modalVideo.oncanplay = () => { modalVideo.play().catch(e => {}); modalVideo.oncanplay = null; };
+                    modalVideo.onerror = () => { mediaError.classList.remove('hidden'); modalVideo.classList.add('hidden'); };
                 } else {
                     modalVideo.classList.add('hidden');
                     modalImg.classList.remove('hidden');
                     const finalImg = modalImgSrc || item.querySelector('img').src;
                     modalImg.src = finalImg;
-                    
-                    modalImg.onerror = () => {
-                        mediaError.classList.remove('hidden');
-                        modalImg.classList.add('hidden');
-                        try {
-                            errorPathText.innerText = new URL(finalImg, window.location.href).href;
-                        } catch (e) {
-                            errorPathText.innerText = finalImg;
-                        }
-                    };
+                    modalImg.onerror = () => { mediaError.classList.remove('hidden'); modalImg.classList.add('hidden'); };
                 }
 
-                // 處理外部連結與 QR Code
                 if (projectLink && projectLink.trim() !== "") {
                     linkContainer.classList.remove('hidden');
                     externalLink.href = projectLink;
-                    
-                    if (noQr) {
-                        qrContainer.classList.add('hidden');
-                    } else {
+                    if (noQr) qrContainer.classList.add('hidden');
+                    else {
                         qrContainer.classList.remove('hidden');
-                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(projectLink)}`;
-                        modalQr.src = qrUrl;
+                        modalQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(projectLink)}`;
                     }
-                } else {
-                    linkContainer.classList.add('hidden');
-                }
+                } else linkContainer.classList.add('hidden');
+
+                // 動態抓取個別專案的介紹文字
+                const detailsNode = item.querySelector('.project-details');
+                modalDescription.innerHTML = detailsNode ? detailsNode.innerHTML : '<p>專案詳細介紹內容正在準備中...</p>';
 
                 modalCategory.innerText = category;
                 modalTitle.innerText = title;
