@@ -330,8 +330,8 @@
                     <i class="ph ph-x text-2xl"></i>
                 </button>
                 
-                <!-- 媒體區 -->
-                <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative">
+                <!-- 媒體區：加入 shrink-0 防止被系統自動壓扁，強制維持 16:9 比例 -->
+                <div class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
                     <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-cover">
                     <video id="modal-video" src="" class="w-full h-full object-cover hidden" controls autoplay muted playsinline></video>
                     <!-- 載入錯誤提示 -->
