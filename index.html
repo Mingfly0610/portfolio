@@ -654,18 +654,39 @@
         mobileLinks.forEach(link => link.addEventListener('click', toggleMobileMenu));
 
         let isFilterAnimating = false;
+        let tooltipTimer;
         const filterBtns_el = document.querySelectorAll('.filter-btn');
+        
         filterBtns_el.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (isFilterAnimating || btn.classList.contains('bg-[#EB5568]')) return;
                 isFilterAnimating = true;
                 const filterValue = btn.getAttribute('data-filter');
+                
+                // --- 補回的小彩蛋邏輯 ---
+                const progTooltip = document.getElementById('prog-tooltip');
+                if (filterValue === 'programming' && progTooltip) {
+                    clearTimeout(tooltipTimer);
+                    progTooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+                    progTooltip.classList.add('opacity-100', 'translate-y-0');
+                    tooltipTimer = setTimeout(() => {
+                        progTooltip.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+                        progTooltip.classList.remove('opacity-100', 'translate-y-0');
+                    }, 4000);
+                } else if (progTooltip) {
+                    clearTimeout(tooltipTimer);
+                    progTooltip.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+                    progTooltip.classList.remove('opacity-100', 'translate-y-0');
+                }
+                // --- 彩蛋邏輯結束 ---
+
                 filterBtns_el.forEach(b => {
                     b.classList.remove('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
                     b.classList.add('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
                 });
                 btn.classList.remove('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
                 btn.classList.add('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
+                
                 portfolioItems.forEach(item => {
                     const isMatch = filterValue === 'all' || item.getAttribute('data-category') === filterValue;
                     if (!isMatch) {
