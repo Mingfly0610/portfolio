@@ -105,6 +105,15 @@
         .btn-bounce:hover {
             transform: translateY(-5px);
         }
+
+        /* 探照燈揭示層 (About Me 照片特效) */
+        .layer-reveal {
+            clip-path: circle(0px at 50% 50%);
+            transition: clip-path 0.3s ease-out;
+        }
+        .layer-reveal.active {
+            transition: none; /* 滑鼠移動時取消過渡，讓遮罩緊跟游標 */
+        }
     </style>
 
     <script>
@@ -455,8 +464,11 @@
             <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
                 
                 <div class="w-full lg:w-auto shrink-0 flex justify-center">
-                    <div class="relative w-full max-w-[360px] lg:w-[400px] aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg">
-                        <img src="images/profile.jpg?v=1" alt="設計師肖像" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105" onerror="handleImageError(this, 'images/profile.jpg')">
+                    <div id="profile-spotlight" class="group relative w-full max-w-[360px] lg:w-[400px] aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg cursor-crosshair">
+                        <!-- 底層：原本的照片 -->
+                        <img src="images/profile.jpg?v=1" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/profile.jpg')">
+                        <!-- 頂層：要揭示的隱藏照片 (第二張照片) -->
+                        <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 layer-reveal pointer-events-none" onerror="this.style.display='none'">
                     </div>
                 </div>
                 
@@ -787,6 +799,29 @@
                 setTimeout(() => isFilterAnimating = false, 400);
             });
         });
+
+        // About Me 照片探照燈特效
+        const profileSpotlight = document.getElementById('profile-spotlight');
+        const profileReveal = document.getElementById('profile-reveal-img');
+        
+        if (profileSpotlight && profileReveal) {
+            profileSpotlight.addEventListener('mousemove', (e) => {
+                // 取得容器邊界與座標
+                const rect = profileSpotlight.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // 開啟遮罩並追蹤滑鼠 (半徑設定為 120px)
+                profileReveal.classList.add('active');
+                profileReveal.style.clipPath = `circle(120px at ${x}px ${y}px)`;
+            });
+
+            profileSpotlight.addEventListener('mouseleave', () => {
+                // 滑鼠移出時，圓圈平滑縮小至消失
+                profileReveal.classList.remove('active');
+                profileReveal.style.clipPath = `circle(0px at 50% 50%)`;
+            });
+        }
 
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
