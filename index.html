@@ -32,7 +32,7 @@
                         brand: {
                             black: '#111111',
                             gray: '#f4f4f5',
-                            accent: '#FF3366'
+                            accent: '#3B82F6' /* 品牌主色改為藍色 */
                         }
                     }
                 }
@@ -52,7 +52,8 @@
         }
 
         /* 網格漸層背景效果 - 升級為極光流動 (Aurora) 特效 */
-        @property --c1 { syntax: '<color>'; initial-value: rgba(255, 102, 153, 0.15); inherits: false; }
+        /* 將原本的粉色替換為天空藍/青色 (56, 189, 248) 配合整體藍色調 */
+        @property --c1 { syntax: '<color>'; initial-value: rgba(56, 189, 248, 0.15); inherits: false; }
         @property --c2 { syntax: '<color>'; initial-value: rgba(253, 224, 71, 0.15); inherits: false; }
         @property --c3 { syntax: '<color>'; initial-value: rgba(168, 85, 247, 0.15); inherits: false; }
         @property --c4 { syntax: '<color>'; initial-value: rgba(59, 130, 246, 0.15); inherits: false; }
@@ -60,7 +61,7 @@
         .mesh-background {
             background-color: #fafafa;
             /* 預設極光色彩變數 */
-            --c1: rgba(255, 102, 153, 0.15);
+            --c1: rgba(56, 189, 248, 0.15);
             --c2: rgba(253, 224, 71, 0.15);
             --c3: rgba(168, 85, 247, 0.15);
             --c4: rgba(59, 130, 246, 0.15);
@@ -146,16 +147,16 @@
         <button id="mobile-menu-close" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-brand-black rounded-full transition-all">
             <i class="ph ph-x text-2xl"></i>
         </button>
-        <a href="#work" class="mobile-link text-3xl font-bold hover:text-[#EB5568] transition-colors">作品 Work</a>
-        <a href="#about" class="mobile-link text-3xl font-bold hover:text-[#EB5568] transition-colors">關於 About</a>
-        <a href="#contact" class="mobile-link text-3xl font-bold hover:text-[#EB5568] transition-colors">聯絡 Contact</a>
+        <a href="#work" class="mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">作品 Work</a>
+        <a href="#about" class="mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">關於 About</a>
+        <a href="#contact" class="mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">聯絡 Contact</a>
     </div>
 
     <section class="min-h-[100dvh] flex items-center justify-center px-6 lg:px-12 pt-20 pb-12 md:pb-0">
         <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in">
             <h2 class="text-sm md:text-base font-bold tracking-[0.2em] text-gray-400 uppercase">Visual Designer & Art Director</h2>
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight">
-                Crafting <span class="font-serif italic font-normal text-[#EB5568]">beautiful</span><br>
+                Crafting <span class="font-serif italic font-normal text-[#3B82F6]">beautiful</span><br>
                 digital experiences.
             </h1>
             <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
@@ -163,7 +164,7 @@
                 為複雜的問題尋找創新的解答。
             </p>
             <div class="pt-2 md:pt-8">
-                <a href="#work" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-[#EB5568] transition-all transform hover:-translate-y-1">
+                <a href="#work" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-[#3B82F6] transition-all transform hover:-translate-y-1">
                     觀看作品
                     <i class="ph ph-arrow-down-right"></i>
                 </a>
@@ -182,15 +183,15 @@
                     </div>
                     
                     <div class="flex flex-wrap gap-2 md:gap-4" id="filter-btns">
-                        <button class="filter-btn active px-4 py-2 rounded-full border border-[#EB5568] text-sm font-medium bg-[#EB5568] hover:bg-[#D94F60] text-white btn-bounce hover:shadow-md" data-filter="all">全部</button>
+                        <button class="filter-btn active px-4 py-2 rounded-full border border-[#3B82F6] text-sm font-medium bg-[#3B82F6] hover:bg-[#2563EB] text-white btn-bounce hover:shadow-md" data-filter="all">全部</button>
                         <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 btn-bounce hover:shadow-md" data-filter="event">活動視覺設計</button>
                         <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 btn-bounce hover:shadow-md" data-filter="animation">動態設計</button>
                         
                         <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 btn-bounce hover:shadow-md" data-filter="programming">
                             程式設計
-                            <div id="prog-tooltip" class="absolute top-full md:top-auto md:bottom-full left-0 md:left-1/2 md:-translate-x-1/2 mt-3 md:mt-0 md:mb-3 px-5 py-2 bg-brand-black text-white text-[13px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
+                            <div id="prog-tooltip" class="absolute top-full md:top-auto md:bottom-full left-0 md:left-1/2 md:-translate-x-1/2 mt-3 md:mt-0 md:mb-3 px-5 py-2 bg-[#3B82F6] text-white text-[13px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
                                 這個作品集網站也是<br>程式設計的作品喔！
-                                <div class="absolute bottom-full md:bottom-auto md:top-full left-11 md:left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-brand-black border-t-0 md:border-b-0 md:border-t-[8px] md:border-t-brand-black"></div>
+                                <div class="absolute bottom-full md:bottom-auto md:top-full left-11 md:left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#3B82F6] border-t-0 md:border-b-0 md:border-t-[8px] md:border-t-[#3B82F6]"></div>
                             </div>
                         </button>
                     </div>
@@ -198,7 +199,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10" id="portfolio-grid">
                     
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-full.jpg">
                         <img src="images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -209,7 +210,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-fire-station-opening-full.jpg,images/2026-event-fire-station-opening-full-2.jpg,images/2026-event-fire-station-opening-full-3.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-fire-station-opening-full.jpg,images/2026-event-fire-station-opening-full-2.jpg,images/2026-event-fire-station-opening-full-3.jpg">
                         <img src="images/2026-event-fire-station-opening-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2026-event-fire-station-opening-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -220,7 +221,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-labor-safety-full.jpg,images/2026-event-labor-safety-full-2.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-labor-safety-full.jpg,images/2026-event-labor-safety-full-2.jpg">
                         <img src="images/2026-event-labor-safety-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2026-event-labor-safety-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -231,7 +232,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-chiayi-job-part1-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-chiayi-job-part1-full.jpg">
                         <img src="images/2026-event-chiayi-job-part1-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2026-event-chiayi-job-part1-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -242,7 +243,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tsrc-year-end-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tsrc-year-end-full.jpg">
                         <img src="images/2025-event-tsrc-year-end-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2025-event-tsrc-year-end-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -253,7 +254,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-large-p1-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-large-p1-full.jpg">
                         <img src="images/2025-event-tainan-job-fair-large-p1-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2025-event-tainan-job-fair-large-p1-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -264,7 +265,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-medium-p1-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-medium-p1-full.jpg">
                         <img src="images/2025-event-tainan-job-fair-medium-p1-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2025-event-tainan-job-fair-medium-p1-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -275,7 +276,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2024-event-tainan-job-fair-large-p4-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2024-event-tainan-job-fair-large-p4-full.jpg">
                         <img src="images/2024-event-tainan-job-fair-large-p4-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/2024-event-tainan-job-fair-large-p4-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
@@ -286,7 +287,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tsrc-elt.mp4" data-modal-img="images/2026-animation-tsrc-elt-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tsrc-elt.mp4" data-modal-img="images/2026-animation-tsrc-elt-full.jpg">
                         <video src="videos/2026-animation-tsrc-elt.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'videos/2026-animation-tsrc-elt.mp4')"></video>
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
@@ -297,7 +298,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-job-fair.mp4" data-modal-img="images/2025-animation-job-fair-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-job-fair.mp4" data-modal-img="images/2025-animation-job-fair-full.jpg">
                         <video src="videos/2025-animation-job-fair.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'videos/2025-animation-job-fair.mp4')"></video>
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
@@ -308,7 +309,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-kaohsiung-forum.mp4" data-modal-img="images/2025-animation-kaohsiung-forum-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-kaohsiung-forum.mp4" data-modal-img="images/2025-animation-kaohsiung-forum-full.jpg">
                         <video src="videos/2025-animation-kaohsiung-forum.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'videos/2025-animation-kaohsiung-forum.mp4')"></video>
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
@@ -319,7 +320,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-labor-safety.mp4" data-modal-img="images/2026-animation-labor-safety-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-labor-safety.mp4" data-modal-img="images/2026-animation-labor-safety-full.jpg">
                         <video src="videos/2026-animation-labor-safety.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'videos/2026-animation-labor-safety.mp4')"></video>
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
@@ -330,7 +331,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs.mp4" data-modal-img="images/2025-animation-taiwan-jobs-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs.mp4" data-modal-img="images/2025-animation-taiwan-jobs-full.jpg">
                         <video src="videos/2025-animation-taiwan-jobs.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'videos/2025-animation-taiwan-jobs.mp4')"></video>
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
@@ -341,7 +342,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs-info.mp4" data-modal-img="images/2025-animation-taiwan-jobs-info-full.jpg">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs-info.mp4" data-modal-img="images/2025-animation-taiwan-jobs-info-full.jpg">
                         <video src="videos/2025-animation-taiwan-jobs-info.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'videos/2025-animation-taiwan-jobs-info.mp4')"></video>
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
@@ -352,7 +353,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-road-animal-full.mp4" data-modal-img="images/prog-road-animal-full.jpg" data-external-link="https://design-your-life-studio.github.io/115-traffic-hero.tw/">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-road-animal-full.mp4" data-modal-img="images/prog-road-animal-full.jpg" data-external-link="https://design-your-life-studio.github.io/115-traffic-hero.tw/">
                         <img src="images/prog-road-animal-thumb.jpg" alt="馬路動物人格" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/prog-road-animal-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -363,7 +364,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.jpg" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.jpg" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/">
                         <img src="images/prog-beast-thumb.jpg" alt="職場神獸" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/prog-beast-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -384,7 +385,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.jpg" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.jpg" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/">
                         <img src="images/prog-animal-thumb.jpg" alt="職場動物" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/prog-animal-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -395,7 +396,7 @@
                             <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，希望能打破傳統徵才活動的嚴肅感，特別企劃了這款「職場動物風格」適性診斷測驗。透過遊戲化的數位互動，作為活動前導預熱與現場互動亮點，吸引年輕求職者參與並探索適合自己的職涯方向。</p>
                             
                             <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
-                            <p class="mb-6">視覺上採用高飽和度的對比色彩與粗黑線條，打造出具備強烈現代感與流行指標的介面。文案以「職場叢林」為包裝，將原本枯燥的性向測驗轉化為趣味問答。求職者只需回答 5 道情境題，即可測出代表自己的職場動物角色與生存法則，大幅降低參與門檻並提高社群分享的動機。</p>
+                            <p class="mb-6">視覺上採用高飽Headers的對比色彩與粗黑線條，打造出具備強烈現代感與流行指標的介面。文案以「職場叢林」為包裝，將原本枯燥的性向測驗轉化為趣味問答。求職者只需回答 5 道情境題，即可測出代表自己的職場動物角色與生存法則，大幅降低參與門檻並提高社群分享的動機。</p>
                             
                             <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
                             <ul class="space-y-2 list-disc list-outside ml-5">
@@ -405,7 +406,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.jpg" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.jpg" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/">
                         <img src="images/prog-career-thumb.jpg" alt="適性診斷" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/prog-career-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -426,7 +427,7 @@
                         </div>
                     </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-black/20 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.jpg" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true">
+                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.jpg" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true">
                         <img src="images/prog-lottery-thumb.jpg" alt="電子抽獎" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/prog-lottery-thumb.jpg')">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -469,13 +470,55 @@
                     
                     <div class="pt-6 border-t border-gray-200">
                         <h3 class="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">Core Skills</h3>
-                        <div class="flex flex-wrap gap-3">
-                            <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 btn-bounce hover:shadow-md cursor-default">Art Direction</span>
-                            <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 btn-bounce hover:shadow-md cursor-default">Key Visual Design</span>
-                            <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 btn-bounce hover:shadow-md cursor-default">Motion Graphics</span>
-                            <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 btn-bounce hover:shadow-md cursor-default">UI / UX Design</span>
-                            <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 btn-bounce hover:shadow-md cursor-default">Front-End Development</span>
-                            <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 btn-bounce hover:shadow-md cursor-default">Creative Coding</span>
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <!-- Skill 1 -->
+                            <div class="group relative flex justify-center">
+                                <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:shadow-md cursor-default relative z-10">Art Direction</span>
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6]/90 backdrop-blur-sm text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                                    藝術指導
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]/90"></div>
+                                </div>
+                            </div>
+                            <!-- Skill 2 -->
+                            <div class="group relative flex justify-center">
+                                <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:shadow-md cursor-default relative z-10">Key Visual Design</span>
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6]/90 backdrop-blur-sm text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                                    主視覺設計
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]/90"></div>
+                                </div>
+                            </div>
+                            <!-- Skill 3 -->
+                            <div class="group relative flex justify-center">
+                                <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:shadow-md cursor-default relative z-10">Motion Graphics</span>
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6]/90 backdrop-blur-sm text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                                    動態影像
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]/90"></div>
+                                </div>
+                            </div>
+                            <!-- Skill 4 -->
+                            <div class="group relative flex justify-center">
+                                <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:shadow-md cursor-default relative z-10">UI / UX Design</span>
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6]/90 backdrop-blur-sm text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                                    介面與體驗設計
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]/90"></div>
+                                </div>
+                            </div>
+                            <!-- Skill 5 -->
+                            <div class="group relative flex justify-center">
+                                <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:shadow-md cursor-default relative z-10">Front-End Development</span>
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6]/90 backdrop-blur-sm text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                                    前端網頁開發
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]/90"></div>
+                                </div>
+                            </div>
+                            <!-- Skill 6 -->
+                            <div class="group relative flex justify-center">
+                                <span class="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm border border-gray-100 transition-all duration-300 transform group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:shadow-md cursor-default relative z-10">Creative Coding</span>
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6]/90 backdrop-blur-sm text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                                    互動程式設計
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]/90"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -566,7 +609,7 @@
         const samplerCtx = colorSampler.getContext('2d', { willReadFrequently: true });
         
         const defaultColors = {
-            c1: 'rgba(255, 102, 153, 0.15)',
+            c1: 'rgba(56, 189, 248, 0.15)',
             c2: 'rgba(253, 224, 71, 0.15)',
             c3: 'rgba(168, 85, 247, 0.15)',
             c4: 'rgba(59, 130, 246, 0.15)'
@@ -705,7 +748,7 @@
         
         filterBtns_el.forEach(btn => {
             btn.addEventListener('click', () => {
-                if (isFilterAnimating || btn.classList.contains('bg-[#EB5568]')) return;
+                if (isFilterAnimating || btn.classList.contains('bg-[#3B82F6]')) return;
                 isFilterAnimating = true;
                 const filterValue = btn.getAttribute('data-filter');
                 
@@ -725,11 +768,11 @@
                 }
 
                 filterBtns_el.forEach(b => {
-                    b.classList.remove('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
+                    b.classList.remove('bg-[#3B82F6]', 'border-[#3B82F6]', 'text-white', 'hover:bg-[#2563EB]');
                     b.classList.add('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
                 });
                 btn.classList.remove('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
-                btn.classList.add('bg-[#EB5568]', 'border-[#EB5568]', 'text-white', 'hover:bg-[#D94F60]');
+                btn.classList.add('bg-[#3B82F6]', 'border-[#3B82F6]', 'text-white', 'hover:bg-[#2563EB]');
                 
                 portfolioItems.forEach(item => {
                     const isMatch = filterValue === 'all' || item.getAttribute('data-category') === filterValue;
