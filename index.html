@@ -114,6 +114,60 @@
         .layer-reveal.active {
             transition: none; /* 滑鼠移動時取消過渡，讓遮罩緊跟游標 */
         }
+
+        /* 首圖拖曳物件專用樣式 */
+        .drag-item {
+            position: absolute;
+            cursor: grab;
+            user-select: none;
+            touch-action: none; /* 防止手機拖曳時畫面捲動 */
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+        /* 預設漂浮動畫 */
+        .float-anim {
+            animation: floating 6s ease-in-out infinite;
+        }
+        .float-anim-delayed {
+            animation: floating 7s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(3deg); }
+        }
+        /* 拖曳中的狀態 */
+        .is-dragging {
+            /* 由於改用全域設定，此處保留 fallback，實際套用下方 SVG */
+            cursor: grabbing !important;
+            animation: none !important;
+            transform: scale(1.15) !important;
+            /* 去除 box-shadow，改用針對 Emoji 輪廓發光的 drop-shadow (藍色光暈) */
+            filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 10px rgba(59, 130, 246, 0.4)) !important;
+            z-index: 40 !important;
+        }
+
+        /* ----------------------------------
+           全域自訂鼠標 (Custom Cursors) 外部檔案連結
+           ---------------------------------- */
+        /* 1. 預設鼠標 */
+        body {
+            cursor: url('images/cursor-default.png') 4 2, auto;
+        }
+
+        /* 2. 連結與可點擊物件鼠標 */
+        a, button, .cursor-pointer, .portfolio-item, .mobile-link, #modal-backdrop, .dot {
+            cursor: url('images/cursor-pointer.png') 4 2, pointer !important;
+        }
+
+        /* 3. 拖曳物件懸停 (展開的手掌) */
+        .drag-item {
+            cursor: url('images/cursor-grab.png') 16 16, grab !important;
+        }
+
+        /* 4. 正在拖曳狀態 (緊握的手掌) */
+        .is-dragging {
+            cursor: url('images/cursor-grabbing.png') 16 16, grabbing !important;
+        }
+
     </style>
 
     <script>
@@ -161,8 +215,30 @@
         <a href="#contact" class="mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">聯絡 Contact</a>
     </div>
 
-    <section class="min-h-[100dvh] flex items-center justify-center px-6 lg:px-12 pt-20 pb-12 md:pb-0">
-        <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in">
+    <!-- 加入 id="hero-section" 與 relative overflow-hidden 用於限制拖曳範圍 -->
+    <section id="hero-section" class="min-h-[100dvh] flex items-center justify-center px-6 lg:px-12 pt-20 pb-12 md:pb-0 relative overflow-hidden">
+        
+        <!-- 拖曳互動小物件 1 (左上) -->
+        <div class="drag-item float-anim z-30 w-16 h-16 md:w-24 md:h-24 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" style="top: 18%; left: 8%;" data-anim="normal">
+            <img src="images/hero-icon-1.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
+        </div>
+        
+        <!-- 拖曳互動小物件 2 (右上) -->
+        <div class="drag-item float-anim-delayed z-30 w-16 h-16 md:w-24 md:h-24 rotate-[10deg] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" style="top: 25%; right: 10%;" data-anim="delayed">
+            <img src="images/hero-icon-2.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
+        </div>
+
+        <!-- 拖曳互動小物件 3 (左下) -->
+        <div class="drag-item float-anim-delayed z-30 w-14 h-14 md:w-20 md:h-20 -rotate-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" style="bottom: 25%; left: 12%;" data-anim="delayed">
+            <img src="images/hero-icon-3.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
+        </div>
+
+        <!-- 拖曳互動小物件 4 (右下) -->
+        <div class="drag-item float-anim z-30 w-16 h-16 md:w-24 md:h-24 rotate-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" style="bottom: 20%; right: 15%;" data-anim="normal">
+            <img src="images/hero-icon-4.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
+        </div>
+
+        <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in relative z-20 pointer-events-none">
             <h2 class="text-sm md:text-base font-bold tracking-[0.2em] text-gray-400 uppercase">Visual Designer & Art Director</h2>
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight">
                 Crafting <span class="font-serif italic font-normal text-[#3B82F6]">beautiful</span><br>
@@ -172,7 +248,7 @@
                 你好，我是 MingFly。我致力於透過視覺設計、動態呈現與使用者體驗，<br>
                 為複雜的問題尋找創新的解答。
             </p>
-            <div class="pt-2 md:pt-8">
+            <div class="pt-2 md:pt-8 pointer-events-auto">
                 <a href="#work" class="inline-flex items-center gap-2 bg-brand-black text-white px-8 py-4 rounded-full font-medium hover:bg-[#3B82F6] transition-all transform hover:-translate-y-1">
                     觀看作品
                     <i class="ph ph-arrow-down-right"></i>
@@ -822,6 +898,89 @@
                 profileReveal.style.clipPath = `circle(0px at 50% 50%)`;
             });
         }
+
+        // 首圖拖曳物件互動邏輯
+        const dragItems = document.querySelectorAll('.drag-item');
+        let activeDragItem = null;
+        let initialX, initialY, offsetX = 0, offsetY = 0;
+
+        function dragStart(e) {
+            activeDragItem = this;
+            const event = e.type === 'touchstart' ? e.touches[0] : e;
+            
+            const heroSection = document.getElementById('hero-section');
+            const heroRect = heroSection.getBoundingClientRect();
+            const rect = activeDragItem.getBoundingClientRect();
+            
+            // 修正拉伸問題：將當前位置轉換為絕對的 left/top 像素值
+            activeDragItem.style.left = `${rect.left - heroRect.left}px`;
+            activeDragItem.style.top = `${rect.top - heroRect.top}px`;
+            
+            // 關鍵修復：清除 right 與 bottom，避免 CSS 定位衝突導致元件被無限拉伸
+            activeDragItem.style.right = 'auto';
+            activeDragItem.style.bottom = 'auto';
+            
+            // 計算滑鼠點擊在物件內的相對位置
+            offsetX = event.clientX - rect.left;
+            offsetY = event.clientY - rect.top;
+            
+            // 加入拖曳中樣式，取消原本漂浮動畫
+            activeDragItem.classList.add('is-dragging');
+            activeDragItem.classList.remove('float-anim', 'float-anim-delayed');
+            
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('touchmove', dragMove, {passive: false});
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeDragItem) return;
+            // 防止手機端拖曳時觸發畫面捲動
+            if (e.type === 'touchmove') e.preventDefault();
+            
+            const event = e.type === 'touchmove' ? e.touches[0] : e;
+            const heroSection = document.getElementById('hero-section');
+            const heroRect = heroSection.getBoundingClientRect();
+            
+            // 計算新座標 (限制在 Hero 區塊內)
+            let newX = event.clientX - heroRect.left - offsetX;
+            let newY = event.clientY - heroRect.top - offsetY;
+
+            // 設定範圍限制避免物件飛出畫面
+            const maxX = heroRect.width - activeDragItem.offsetWidth;
+            const maxY = heroRect.height - activeDragItem.offsetHeight;
+
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+
+            activeDragItem.style.left = `${newX}px`;
+            activeDragItem.style.top = `${newY}px`;
+        }
+
+        function dragEnd() {
+            if (!activeDragItem) return;
+            // 恢復物件樣式與漂浮動畫
+            activeDragItem.classList.remove('is-dragging');
+            
+            // 根據 data-anim 屬性來精準加回對應的動畫
+            if (activeDragItem.getAttribute('data-anim') === 'delayed') {
+                activeDragItem.classList.add('float-anim-delayed');
+            } else {
+                activeDragItem.classList.add('float-anim');
+            }
+
+            activeDragItem = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('touchmove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchend', dragEnd);
+        }
+
+        dragItems.forEach(item => {
+            item.addEventListener('mousedown', dragStart);
+            item.addEventListener('touchstart', dragStart, {passive: false});
+        });
 
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
