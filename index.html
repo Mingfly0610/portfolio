@@ -106,13 +106,16 @@
             transform: translateY(-5px);
         }
 
-        /* 探照燈揭示層 (About Me 照片特效) */
+        /* 探照燈揭示層 (About Me 照片特效 - 柔邊追蹤版) */
         .layer-reveal {
-            clip-path: circle(0px at 50% 50%);
-            transition: clip-path 0.3s ease-out;
+            opacity: 0;
+            transition: opacity 0.4s ease-out;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
         }
         .layer-reveal.active {
-            transition: none; /* 滑鼠移動時取消過渡，讓遮罩緊跟游標 */
+            opacity: 1;
+            transition: opacity 0.1s ease-out; /* 快速顯示，避免滑鼠進入時有延遲感 */
         }
 
         /* 首圖拖曳物件專用樣式 */
@@ -885,7 +888,7 @@
             });
         });
 
-        // About Me 照片探照燈特效
+        // About Me 照片探照燈特效 (柔化邊緣追蹤版)
         const profileSpotlight = document.getElementById('profile-spotlight');
         const profileReveal = document.getElementById('profile-reveal-img');
         
@@ -896,15 +899,18 @@
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 
-                // 開啟遮罩並追蹤滑鼠 (半徑設定為 120px)
+                // 使用 radial-gradient 達成邊緣羽化的探照燈追蹤遮罩
+                const maskStyle = `radial-gradient(circle 140px at ${x}px ${y}px, black 30%, transparent 80%)`;
+                profileReveal.style.webkitMaskImage = maskStyle;
+                profileReveal.style.maskImage = maskStyle;
+                
+                // 顯示遮罩層
                 profileReveal.classList.add('active');
-                profileReveal.style.clipPath = `circle(120px at ${x}px ${y}px)`;
             });
 
             profileSpotlight.addEventListener('mouseleave', () => {
-                // 滑鼠移出時，圓圈平滑縮小至消失
+                // 滑鼠移出時，透過 opacity 淡出
                 profileReveal.classList.remove('active');
-                profileReveal.style.clipPath = `circle(0px at 50% 50%)`;
             });
         }
 
