@@ -232,7 +232,7 @@
             <img src="images/hero-icon-3.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
 
-        <!-- 拖曳互動小物件 4 (右下)：手機版尺寸不變，電腦版大幅放大 -->
+        <!-- 拖曳互動小物件 4 (right下)：手機版尺寸不變，電腦版大幅放大 -->
         <div class="drag-item float-anim z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 rotate-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[10%] right-[2%] md:bottom-[12%] md:right-[8%] lg:bottom-[15%] lg:right-[10%]" data-anim="normal">
             <img src="images/hero-icon-4.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
@@ -583,7 +583,7 @@
                 <div class="w-full lg:flex-1 space-y-8">
                     <h2 class="text-4xl md:text-5xl font-bold">About Me</h2>
                     <div class="space-y-6 text-lg text-gray-600 leading-relaxed">
-                        <p>你好，我是 MingFly，一位熱衷於探索多元媒介的跨領域設計師。我深信好的設計傾心於視覺上的美感，更是解決問題、傳遞品牌核心價值的橋樑。</p>
+                        <p>你好，我是 MingFly，一位熱衷於探索多元媒介的跨領域設計師。我深信好的設計傾心於視覺上的美感，更是解決問題、傳遞 brand 核心價值的橋樑。</p>
                         <p>從靜態的活動主視覺、充滿張力的動態影像，到結合程式邏輯的互動式網頁體驗，我致力於為每一個專案量身打造最合適且沉浸的數位呈現方式。</p>
                         <p>過去我曾主導多場大型展覽與公部門活動的視覺統籌與啟動儀式動畫。同時我也跨足 UI/UX 與前端程式開發，獨立完成「求職適性測驗」、「活動電子抽獎系統」等互動專案實踐。從概念發想到落地產出，我享受每一個讓創意成真的瞬間。</p>
                     </div>
@@ -672,22 +672,22 @@
         <div id="modal-backdrop" class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl scale-95 opacity-0 transition-all duration-300 relative shadow-2xl overflow-hidden pointer-events-auto">
-                <!-- 右上角關閉按鍵：縮小 50% 調整 -->
-                <button id="modal-close" class="absolute top-2 right-2 md:top-3 md:right-3 w-6 h-6 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
-                    <i class="ph ph-x text-[12px]"></i>
+                <!-- 右上角關閉按鍵：調整至 36x36 尺寸 -->
+                <button id="modal-close" class="absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
+                    <i class="ph ph-x text-[18px]"></i>
                 </button>
                 <div class="w-full max-h-[90vh] overflow-y-auto relative flex flex-col">
                     <div id="modal-media-container" class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
                         <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-contain">
                         <video id="modal-video" src="" class="w-full h-full object-contain hidden" controls autoplay muted playsinline></video>
-                        <!-- 左右換頁按鍵：縮小 50% 調整 -->
-                        <button id="prev-img" class="absolute left-2 top-1/2 -translate-y-1/2 w-5 h-5 bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
-                            <i class="ph ph-caret-left text-[10px]"></i>
+                        <!-- 左右換頁按鍵：調整至 30x30 尺寸 -->
+                        <button id="prev-img" class="absolute left-3 top-1/2 -translate-y-1/2 w-[30px] h-[30px] bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
+                            <i class="ph ph-caret-left text-[14px]"></i>
                         </button>
-                        <button id="next-img" class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
-                            <i class="ph ph-caret-right text-[10px]"></i>
+                        <button id="next-img" class="absolute right-3 top-1/2 -translate-y-1/2 w-[30px] h-[30px] bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
+                            <i class="ph ph-caret-right text-[14px]"></i>
                         </button>
-                        <!-- 圖片頁碼標示：縮小 50% 調整 -->
+                        <!-- 圖片頁碼標示：維持原設計縮小版 -->
                         <div id="gallery-indicator" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center bg-black/60 backdrop-blur-md text-white text-[10px] tracking-widest px-2 py-0.5 rounded-full z-20 hidden shadow-lg">
                             <span id="current-page">1</span><span class="mx-1">/</span><span id="total-pages">3</span>
                         </div>
