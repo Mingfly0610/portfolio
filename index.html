@@ -507,7 +507,7 @@
                         </div>
                         <div class="project-details hidden">
                             <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
-                            <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，本專案致力於將傳統的職業性向測驗數位化、現代化。透過結構化的測驗流程，不僅作為展場的數位互動亮點，更能實質幫助求職者在短時間內釐清個人優勢，對接合適的職涯發展路徑。</p>
+                            <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，本專案致力於將傳統的職業性向測驗數位化、現代化。透過結構化的測驗流程，性能作為展場的數位互動亮點，更能實質幫助求職者在短時間內釐清個人優勢，對接合適的職涯發展路徑。</p>
                             
                             <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
                             <p class="mb-6">在視覺介面上，捨棄繁複的裝飾，採用俐開的網格排版、對比鮮明的重點色彩與字體層級規劃，營造出具備現代感與公信力的視覺體驗。測驗結果頁面經過精心設計，將複雜的「內在性格」與「外在形象」評估結果，轉化為直覺的標籤與圖卡人物設計，有助於求職者理解自己的職場角色設定，掌握自身核心職能。</p>
@@ -672,22 +672,24 @@
         <div id="modal-backdrop" class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl scale-95 opacity-0 transition-all duration-300 relative shadow-2xl overflow-hidden pointer-events-auto">
-                <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
-                    <i class="ph ph-x text-2xl"></i>
+                <!-- 右上角關閉按鍵：縮小 50% 調整 -->
+                <button id="modal-close" class="absolute top-2 right-2 md:top-3 md:right-3 w-6 h-6 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
+                    <i class="ph ph-x text-[12px]"></i>
                 </button>
                 <div class="w-full max-h-[90vh] overflow-y-auto relative flex flex-col">
                     <div id="modal-media-container" class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
                         <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-contain">
                         <video id="modal-video" src="" class="w-full h-full object-contain hidden" controls autoplay muted playsinline></video>
-                        <button id="prev-img" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
-                            <i class="ph ph-caret-left text-xl"></i>
+                        <!-- 左右換頁按鍵：縮小 50% 調整 -->
+                        <button id="prev-img" class="absolute left-2 top-1/2 -translate-y-1/2 w-5 h-5 bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
+                            <i class="ph ph-caret-left text-[10px]"></i>
                         </button>
-                        <button id="next-img" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
-                            <i class="ph ph-caret-right text-xl"></i>
+                        <button id="next-img" class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
+                            <i class="ph ph-caret-right text-[10px]"></i>
                         </button>
-                        <!-- 圖片頁碼標示 -->
-                        <div id="gallery-indicator" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center justify-center bg-black/60 backdrop-blur-md text-white text-sm tracking-widest px-4 py-1.5 rounded-full z-20 hidden shadow-lg">
-                            <span id="current-page">1</span><span class="mx-1.5">/</span><span id="total-pages">3</span>
+                        <!-- 圖片頁碼標示：縮小 50% 調整 -->
+                        <div id="gallery-indicator" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center bg-black/60 backdrop-blur-md text-white text-[10px] tracking-widest px-2 py-0.5 rounded-full z-20 hidden shadow-lg">
+                            <span id="current-page">1</span><span class="mx-1">/</span><span id="total-pages">3</span>
                         </div>
                         <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4">
                             <div class="px-4">
