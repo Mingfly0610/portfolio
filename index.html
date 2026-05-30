@@ -621,23 +621,23 @@
                         </div>
 
                         <!-- 修正重點 2：精準設定 bottom 數值，形成完美的 50% 緊密堆疊 -->
-                        <!-- 裝飾物件 1 (第一排左) -->
+                        <!-- 裝飾物件 1 (第一排左)：整體下移，脫離照片區域 -->
                         <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-12 md:-bottom-16 lg:-bottom-20 left-2 md:left-4" data-anim="none">
                             <img src="images/dress-1.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-1.png')">
                         </div>
                         
-                        <!-- 裝飾物件 2 (第一排右) -->
+                        <!-- 裝飾物件 2 (第一排右)：整體下移，脫離照片區域 -->
                         <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-12 md:-bottom-16 lg:-bottom-20 right-2 md:right-4" data-anim="none">
                             <img src="images/dress-2.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-2.png')">
                         </div>
 
-                        <!-- 裝飾物件 3 (第二排左)：向上拉近，產生堆疊感 -->
-                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-28 md:-bottom-36 lg:-bottom-44 left-6 md:left-8" data-anim="none">
+                        <!-- 裝飾物件 3 (第二排左)：向上拉近與第一排產生堆疊，並確保 left 值與第一排對齊 -->
+                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-28 md:-bottom-36 lg:-bottom-44 left-2 md:left-4" data-anim="none">
                             <img src="images/dress-3.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-3.png')">
                         </div>
                         
-                        <!-- 裝飾物件 4 (第二排右)：向上拉近，產生堆疊感 -->
-                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-28 md:-bottom-36 lg:-bottom-44 right-6 md:right-8" data-anim="none">
+                        <!-- 裝飾物件 4 (第二排右)：向上拉近與第一排產生堆疊，並確保 right 值與第一排對齊 -->
+                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-28 md:-bottom-36 lg:-bottom-44 right-2 md:right-4" data-anim="none">
                             <img src="images/dress-4.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-4.png')">
                         </div>
                     </div>
