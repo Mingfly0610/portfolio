@@ -609,35 +609,35 @@
                 </div>
             </div>
         <!-- 修正重點 1：在這裡補上 relative，這是解決拖曳亂飛、跳動的關鍵！ -->
+        <!-- 關於我：現在包含在 mesh-background 容器內 -->
         <section id="about" class="py-32 px-6 lg:px-12 relative">
             <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
                 
                 <div class="w-full lg:w-auto shrink-0 flex justify-center">
-                    <!-- 調整 mb (底邊距) 來容納緊密疊加的紙娃娃 -->
-                    <div class="relative w-full max-w-[360px] lg:w-[400px] mb-40 md:mb-48 lg:mb-56">
+                    <!-- 進一步加大底邊距 (mb)，預留給下方 4 個裝飾物件 -->
+                    <div class="relative w-full max-w-[360px] lg:w-[400px] mb-48 md:mb-56 lg:mb-64">
                         <div id="profile-spotlight" class="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg cursor-crosshair lg:mt-2">
                             <img src="images/profile.jpg?v=1" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="window.handleImageError(this, 'images/profile.jpg')">
                             <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 layer-reveal pointer-events-none" onerror="this.style.display='none'">
                         </div>
 
-                        <!-- 修正重點 2：精準設定 bottom 數值，形成完美的 50% 緊密堆疊 -->
-                        <!-- 裝飾物件 1 (第一排左)：整體下移，脫離照片區域 -->
-                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-12 md:-bottom-16 lg:-bottom-20 left-2 md:left-4" data-anim="none">
+                        <!-- 裝飾物件 1 (第一排左)：整體再次下移 -->
+                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-20 md:-bottom-24 lg:-bottom-28 left-2 md:left-4" data-anim="none">
                             <img src="images/dress-1.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-1.png')">
                         </div>
                         
-                        <!-- 裝飾物件 2 (第一排右)：整體下移，脫離照片區域 -->
-                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-12 md:-bottom-16 lg:-bottom-20 right-2 md:right-4" data-anim="none">
+                        <!-- 裝飾物件 2 (第一排右)：整體再次下移 -->
+                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-20 md:-bottom-24 lg:-bottom-28 right-2 md:right-4" data-anim="none">
                             <img src="images/dress-2.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-2.png')">
                         </div>
 
-                        <!-- 裝飾物件 3 (第二排左)：向上拉近與第一排產生堆疊，並確保 left 值與第一排對齊 -->
-                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-28 md:-bottom-36 lg:-bottom-44 left-2 md:left-4" data-anim="none">
+                        <!-- 裝飾物件 3 (第二排左)：與第一排保持堆疊間距，整體下移 -->
+                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-36 md:-bottom-44 lg:-bottom-52 left-2 md:left-4" data-anim="none">
                             <img src="images/dress-3.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-3.png')">
                         </div>
                         
-                        <!-- 裝飾物件 4 (第二排右)：向上拉近與第一排產生堆疊，並確保 right 值與第一排對齊 -->
-                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-28 md:-bottom-36 lg:-bottom-44 right-2 md:right-4" data-anim="none">
+                        <!-- 裝飾物件 4 (第二排右)：與第一排保持堆疊間距，整體下移 -->
+                        <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-36 md:-bottom-44 lg:-bottom-52 right-2 md:right-4" data-anim="none">
                             <img src="images/dress-4.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-4.png')">
                         </div>
                     </div>
