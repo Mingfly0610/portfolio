@@ -133,27 +133,27 @@
         /* 無限跑馬燈 (Marquee) 動畫設定 */
         @keyframes marquee-scroll {
             0% { transform: translateX(0); }
-            100% { transform: translateX(calc(-50% - 1.25rem)); } /* 1.25rem 是 gap-10 (2.5rem) 的一半，確保無縫接軌 */
+            100% { transform: translateX(-50%); } /* 精準移動剛好 50% 達成完美首尾相連 */
         }
         .track-marquee {
             display: flex;
-            gap: 2.5rem; /* 對應 gap-10 */
             width: max-content;
             animation: marquee-scroll 45s linear infinite;
+            will-change: transform; /* 提升手機端動畫效能 */
         }
         .track-marquee:hover {
             animation-play-state: paused;
         }
         .grid-marquee {
             display: flex;
-            gap: 2.5rem; /* 對應 gap-10 */
-            min-width: 100%;
+            gap: 2.5rem; 
+            padding-right: 2.5rem; /* 尾部預留與 gap 相同的間距，讓頭尾無縫接軌 */
             flex-shrink: 0;
         }
         .item-marquee {
             width: 85vw !important;
             max-width: 500px !important;
-            flex-shrink: 0 !important;
+            flex-shrink: 0 !important; /* 防止項目被壓縮 */
         }
 
         /* 全域自訂鼠標 */
@@ -277,7 +277,6 @@
 
     <div class="mesh-background" id="dynamic-content-area">
         
-        <!-- 將 padding 從 section 移到內部，讓跑馬燈能突破邊界延伸到螢幕邊緣 -->
         <section id="work" class="py-24">
             <div class="max-w-7xl mx-auto px-6 lg:px-12">
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
@@ -303,6 +302,7 @@
             </div>
 
             <!-- 無限捲動與網格切換容器 -->
+            <!-- 移除原本限制寬度的 max-w-7xl，讓跑馬燈可以突破邊界 -->
             <div id="portfolio-track-container" class="overflow-x-hidden w-full pb-10 pt-4 -mt-4">
                 <div id="portfolio-track" class="w-full transition-opacity duration-300 opacity-0">
                     
@@ -580,7 +580,7 @@
                         </div>
 
                         <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-graffiti-wall-full.mp4" data-modal-img="images/prog-graffiti-wall-full.jpg">
-                            <video src="images/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'images/prog-graffiti-wall-thumb.mp4')"></video>
+                            <video src="videos/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'videos/prog-graffiti-wall-thumb.mp4')"></video>
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">互動展示塗鴉牆</h3>
@@ -599,7 +599,6 @@
                                 </ul>
                             </div>
                         </div>
-
                     </div>
                     
                     <!-- 用於存放跑馬燈備用拷貝項目的容器 -->
@@ -807,14 +806,23 @@
         const allOriginalItems = Array.from(document.querySelectorAll('#portfolio-grid .portfolio-item'));
 
         function enableMarquee() {
-            // 如果還沒複製項目，則進行拷貝
+            // 如果還沒複製過項目，進行深度拷貝
             if (portfolioClone.innerHTML === '') {
                 allOriginalItems.forEach(item => {
-                    portfolioClone.appendChild(item.cloneNode(true));
+                    const clonedItem = item.cloneNode(true);
+                    // 為了確保拷貝出來的影片也能自動播放，重置一下
+                    const video = clonedItem.querySelector('video');
+                    const originalVideo = item.querySelector('video');
+                    if (video && originalVideo && originalVideo.src) {
+                        video.removeAttribute('src');
+                        video.setAttribute('src', originalVideo.src);
+                        video.load();
+                    }
+                    portfolioClone.appendChild(clonedItem);
                 });
             }
             
-            // 套用跑馬燈外部容器樣式 (使用 ml-6/ml-12 起始對齊，並啟用捲動動畫)
+            // 套用跑馬燈外部容器樣式 (移除外部 gap，依靠內層的 padding-right 無縫接合)
             portfolioTrack.className = 'track-marquee transition-opacity duration-300 ml-6 lg:ml-12 py-4';
             portfolioGrid.className = 'grid-marquee';
             portfolioClone.className = 'grid-marquee'; // 顯示備份集
@@ -841,6 +849,7 @@
         }
 
         // --- 全局事件委派 (處理點擊彈窗與懸停取色，確保拷貝出來的項目也能正常運作) ---
+        // 1. 懸停取色
         portfolioTrack.addEventListener('mouseover', (e) => {
             const item = e.target.closest('.portfolio-item');
             if (item) {
@@ -885,9 +894,10 @@
             }
         }
 
+        // 2. 點擊彈窗邏輯
         portfolioTrack.addEventListener('click', (e) => {
             const item = e.target.closest('.portfolio-item');
-            if (!item) return;
+            if (!item) return; // 點擊到空白處不反應
 
             const videoSrc = item.getAttribute('data-video');
             const modalImgSrc = item.getAttribute('data-modal-img');
@@ -1026,106 +1036,6 @@
             enableMarquee();
             portfolioTrack.style.opacity = '1';
         }, 100);
-
-        // About Me 照片探照燈特效
-        const profileSpotlight = document.getElementById('profile-spotlight');
-        const profileReveal = document.getElementById('profile-reveal-img');
-        
-        if (profileSpotlight && profileReveal) {
-            profileSpotlight.addEventListener('mousemove', (e) => {
-                const rect = profileSpotlight.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const maskStyle = `radial-gradient(circle 140px at ${x}px ${y}px, black 30%, transparent 80%)`;
-                profileReveal.style.webkitMaskImage = maskStyle;
-                profileReveal.style.maskImage = maskStyle;
-                
-                profileReveal.classList.add('active');
-            });
-
-            profileSpotlight.addEventListener('mouseleave', () => {
-                profileReveal.classList.remove('active');
-            });
-        }
-
-        // 首圖拖曳物件互動邏輯
-        const dragItems = document.querySelectorAll('.drag-item');
-        let activeDragItem = null;
-        let initialX, initialY, offsetX = 0, offsetY = 0;
-
-        function dragStart(e) {
-            activeDragItem = this;
-            const event = e.type === 'touchstart' ? e.touches[0] : e;
-            
-            const heroSection = document.getElementById('hero-section');
-            const heroRect = heroSection.getBoundingClientRect();
-            const rect = activeDragItem.getBoundingClientRect();
-            
-            if (activeDragItem.parentElement !== heroSection) {
-                heroSection.appendChild(activeDragItem);
-            }
-            
-            activeDragItem.style.left = `${rect.left - heroRect.left}px`;
-            activeDragItem.style.top = `${rect.top - heroRect.top}px`;
-            
-            activeDragItem.style.right = 'auto';
-            activeDragItem.style.bottom = 'auto';
-            
-            offsetX = event.clientX - rect.left;
-            offsetY = event.clientY - rect.top;
-            
-            activeDragItem.classList.add('is-dragging');
-            activeDragItem.classList.remove('float-anim', 'float-anim-delayed');
-            
-            document.addEventListener('mousemove', dragMove);
-            document.addEventListener('touchmove', dragMove, {passive: false});
-            document.addEventListener('mouseup', dragEnd);
-            document.addEventListener('touchend', dragEnd);
-        }
-
-        function dragMove(e) {
-            if (!activeDragItem) return;
-            if (e.type === 'touchmove') e.preventDefault();
-            
-            const event = e.type === 'touchmove' ? e.touches[0] : e;
-            const heroSection = document.getElementById('hero-section');
-            const heroRect = heroSection.getBoundingClientRect();
-            
-            let newX = event.clientX - heroRect.left - offsetX;
-            let newY = event.clientY - heroRect.top - offsetY;
-
-            const maxX = heroRect.width - activeDragItem.offsetWidth;
-            const maxY = heroRect.height - activeDragItem.offsetHeight;
-
-            newX = Math.max(0, Math.min(newX, maxX));
-            newY = Math.max(0, Math.min(newY, maxY));
-
-            activeDragItem.style.left = `${newX}px`;
-            activeDragItem.style.top = `${newY}px`;
-        }
-
-        function dragEnd() {
-            if (!activeDragItem) return;
-            activeDragItem.classList.remove('is-dragging');
-            
-            if (activeDragItem.getAttribute('data-anim') === 'delayed') {
-                activeDragItem.classList.add('float-anim-delayed');
-            } else {
-                activeDragItem.classList.add('float-anim');
-            }
-
-            activeDragItem = null;
-            document.removeEventListener('mousemove', dragMove);
-            document.removeEventListener('touchmove', dragMove);
-            document.removeEventListener('mouseup', dragEnd);
-            document.removeEventListener('touchend', dragEnd);
-        }
-
-        dragItems.forEach(item => {
-            item.addEventListener('mousedown', dragStart);
-            item.addEventListener('touchstart', dragStart, {passive: false});
-        });
 
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
