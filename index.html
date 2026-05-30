@@ -196,32 +196,32 @@
     <!-- 加入 id="hero-section" 與 relative overflow-hidden 用於限制拖曳範圍 -->
     <section id="hero-section" class="min-h-[100dvh] flex items-center justify-center px-6 lg:px-12 pt-20 pb-12 md:pb-0 relative overflow-hidden">
         
-        <!-- 拖曳互動小物件 1 (左上) -->
-        <div class="drag-item float-anim z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[10%] left-[2%] md:top-[12%] md:left-[5%] lg:top-[15%] lg:left-[8%]" data-anim="normal">
+        <!-- 拖曳互動小物件 1 (左上)：手機版縮小為 w-20 且向內推移 left-6% -->
+        <div class="drag-item float-anim z-30 w-20 h-20 md:w-40 md:h-40 lg:w-56 lg:h-56 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[15%] left-[6%] md:top-[12%] md:left-[5%] lg:top-[15%] lg:left-[8%]" data-anim="normal">
             <img src="images/hero-icon-1.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
         
-        <!-- 拖曳互動小物件 2 (右上) -->
-        <div class="drag-item float-anim-delayed z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 rotate-[10deg] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[8%] right-[2%] md:top-[15%] md:right-[5%] lg:top-[18%] lg:right-[8%]" data-anim="delayed">
+        <!-- 拖曳互動小物件 2 (右上)：手機版縮小為 w-20 且向內推移 right-6% -->
+        <div class="drag-item float-anim-delayed z-30 w-20 h-20 md:w-40 md:h-40 lg:w-56 lg:h-56 rotate-[10deg] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[12%] right-[6%] md:top-[15%] md:right-[5%] lg:top-[18%] lg:right-[8%]" data-anim="delayed">
             <img src="images/hero-icon-2.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
 
-        <!-- 拖曳互動小物件 3 (左下) -->
-        <div class="drag-item float-anim-delayed z-30 w-20 h-20 md:w-36 md:h-36 lg:w-52 lg:h-52 -rotate-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[22%] left-[2%] md:bottom-[15%] md:left-[5%] lg:bottom-[18%] lg:left-[8%]" data-anim="delayed">
+        <!-- 拖曳互動小物件 3 (左下)：手機版縮小為 w-16 且往上向內推移 -->
+        <div class="drag-item float-anim-delayed z-30 w-16 h-16 md:w-36 md:h-36 lg:w-52 lg:h-52 -rotate-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[25%] left-[8%] md:bottom-[15%] md:left-[5%] lg:bottom-[18%] lg:left-[8%]" data-anim="delayed">
             <img src="images/hero-icon-3.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
 
-        <!-- 拖曳互動小物件 4 (右下) -->
-        <div class="drag-item float-anim z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 rotate-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[10%] right-[2%] md:bottom-[12%] md:right-[8%] lg:bottom-[15%] lg:right-[10%]" data-anim="normal">
+        <!-- 拖曳互動小物件 4 (右下)：手機版縮小為 w-20 且往上向內推移 -->
+        <div class="drag-item float-anim z-30 w-20 h-20 md:w-40 md:h-40 lg:w-56 lg:h-56 rotate-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[15%] right-[6%] md:bottom-[12%] md:right-[8%] lg:bottom-[15%] lg:right-[10%]" data-anim="normal">
             <img src="images/hero-icon-4.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
 
         <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in relative z-20 pointer-events-none">
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight relative inline-block">
-                <!-- 年份標示貼紙：修正加上 pointer-events-auto 喚醒點擊，並微調 RWD 寬度 -->
-                <div class="drag-item float-anim-delayed z-30 -rotate-2 pointer-events-auto w-[180px] md:w-[250px]" style="top: -30px; left: -10px;" data-anim="delayed">
-                    <svg class="overflow-visible w-full drop-shadow-sm pointer-events-none" viewBox="0 0 250 60">
-                        <text x="50%" y="50%" dy="0.32em" text-anchor="middle" 
+                <!-- 年份標示貼紙：擴展 viewBox 根除裁切，並使用 Tailwind RWD 獨立設定手機/電腦的預設位置 -->
+                <div class="drag-item float-anim-delayed z-30 -rotate-2 pointer-events-auto -top-[25px] left-[5px] md:-top-[30px] md:-left-[10px] w-[160px] md:w-[270px]" data-anim="delayed">
+                    <svg class="w-full drop-shadow-sm pointer-events-none" viewBox="0 0 280 80">
+                        <text x="140" y="40" dy="0.32em" text-anchor="middle" 
                               font-family="'Playfair Display', serif" font-size="48" font-weight="700" letter-spacing="-1px"
                               fill="#111111" stroke="#EAFF62" stroke-width="16" stroke-linejoin="round" paint-order="stroke fill">
                             2024-2026
