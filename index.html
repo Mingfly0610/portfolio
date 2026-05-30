@@ -275,8 +275,9 @@
         </div>
     </section>
 
-    <div class="mesh-background" id="dynamic-content-area">
+    <div class="mesh-background transition-colors duration-[1500ms] ease-out" id="dynamic-content-area">
         
+        <!-- 將 padding 從 section 移到內部，讓跑馬燈能突破邊界延伸到螢幕邊緣 -->
         <section id="work" class="py-24">
             <div class="max-w-7xl mx-auto px-6 lg:px-12">
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
@@ -302,7 +303,6 @@
             </div>
 
             <!-- 無限捲動與網格切換容器 -->
-            <!-- 移除原本限制寬度的 max-w-7xl，讓跑馬燈可以突破邊界 -->
             <div id="portfolio-track-container" class="overflow-x-hidden w-full pb-10 pt-4 -mt-4">
                 <div id="portfolio-track" class="w-full transition-opacity duration-300 opacity-0">
                     
@@ -545,7 +545,7 @@
                             </div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
-                                <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，本專案致力於將傳統的職業性向測驗數位化、現代化。透過結構化的測驗流程，性能作為展場的數位互動亮點，更能實質幫助求職者在短時間內釐清個人優勢，對接合適的職涯發展路徑。</p>
+                                <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，本專案致力於將傳統的職業性向測驗數位化、現代化。透過結構化的測驗流程，不僅作為展場的數位互動亮點，更能實質幫助求職者在短時間內釐清個人優勢，對接合適的職涯發展路徑。</p>
                                 
                                 <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
                                 <p class="mb-6">在視覺介面上，捨棄繁複的裝飾，採用俐開的網格排版、對比鮮明的重點色彩與字體層級規劃，營造出具備現代感與公信力的視覺體驗。測驗結果頁面經過精心設計，將複雜的「內在性格」與「外在形象」評估結果，轉化為直覺的標籤與圖卡人物設計，有助於求職者理解自己的職場角色設定，掌握自身核心職能。</p>
@@ -559,7 +559,7 @@
                         </div>
 
                         <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.jpg" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true">
-                            <video src="images/prog-lottery-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'images/prog-lottery-thumb.mp4')"></video>
+                            <video src="videos/prog-lottery-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-lottery-thumb.mp4')"></video>
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">活動電子抽獎程式</h3>
@@ -579,8 +579,9 @@
                             </div>
                         </div>
 
+                        <!-- 互動展示塗鴉牆 -->
                         <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-graffiti-wall-full.mp4" data-modal-img="images/prog-graffiti-wall-full.jpg">
-                            <video src="videos/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'videos/prog-graffiti-wall-thumb.mp4')"></video>
+                            <video src="videos/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-graffiti-wall-thumb.mp4')"></video>
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">互動展示塗鴉牆</h3>
@@ -599,6 +600,7 @@
                                 </ul>
                             </div>
                         </div>
+
                     </div>
                     
                     <!-- 用於存放跑馬燈備用拷貝項目的容器 -->
@@ -697,6 +699,7 @@
             <div class="pt-16 flex justify-center gap-8 text-3xl text-gray-400">
                 <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="hover:text-white transition-colors"><i class="ph ph-instagram-logo"></i></a>
                 <a href="https://www.behance.net/fangmingyu" target="_blank" class="hover:text-white transition-colors"><i class="ph ph-behance-logo"></i></a>
+                <a href="https://www.linkedin.com/" target="_blank" class="hover:text-white transition-colors"><i class="ph ph-linkedin-logo"></i></a>
             </div>
             
             <div class="pt-16 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center border-t border-gray-800">
@@ -806,11 +809,9 @@
         const allOriginalItems = Array.from(document.querySelectorAll('#portfolio-grid .portfolio-item'));
 
         function enableMarquee() {
-            // 如果還沒複製過項目，進行深度拷貝
             if (portfolioClone.innerHTML === '') {
                 allOriginalItems.forEach(item => {
                     const clonedItem = item.cloneNode(true);
-                    // 為了確保拷貝出來的影片也能自動播放，重置一下
                     const video = clonedItem.querySelector('video');
                     const originalVideo = item.querySelector('video');
                     if (video && originalVideo && originalVideo.src) {
@@ -822,12 +823,10 @@
                 });
             }
             
-            // 套用跑馬燈外部容器樣式 (移除外部 gap，依靠內層的 padding-right 無縫接合)
             portfolioTrack.className = 'track-marquee transition-opacity duration-300 ml-6 lg:ml-12 py-4';
             portfolioGrid.className = 'grid-marquee';
-            portfolioClone.className = 'grid-marquee'; // 顯示備份集
+            portfolioClone.className = 'grid-marquee'; 
             
-            // 修改所有項目 (包含原版與拷貝版) 的寬度為跑馬燈模式
             document.querySelectorAll('.portfolio-item').forEach(item => {
                 item.classList.add('item-marquee');
                 item.style.display = '';
@@ -838,18 +837,15 @@
 
         function disableMarquee() {
             portfolioTrack.className = 'w-full transition-opacity duration-300 py-4';
-            // 恢復原本的雙欄網格樣式與內距
             portfolioGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-10 max-w-7xl mx-auto px-6 lg:px-12';
-            portfolioClone.className = 'hidden'; // 隱藏備份集
+            portfolioClone.className = 'hidden'; 
             
-            // 移除跑馬燈專屬的寬度限制
             document.querySelectorAll('.portfolio-item').forEach(item => {
                 item.classList.remove('item-marquee');
             });
         }
 
-        // --- 全局事件委派 (處理點擊彈窗與懸停取色，確保拷貝出來的項目也能正常運作) ---
-        // 1. 懸停取色
+        // --- 全局事件委派 ---
         portfolioTrack.addEventListener('mouseover', (e) => {
             const item = e.target.closest('.portfolio-item');
             if (item) {
@@ -894,10 +890,9 @@
             }
         }
 
-        // 2. 點擊彈窗邏輯
         portfolioTrack.addEventListener('click', (e) => {
             const item = e.target.closest('.portfolio-item');
-            if (!item) return; // 點擊到空白處不反應
+            if (!item) return;
 
             const videoSrc = item.getAttribute('data-video');
             const modalImgSrc = item.getAttribute('data-modal-img');
@@ -1003,10 +998,8 @@
                 
                 setTimeout(() => {
                     if (filterValue === 'all') {
-                        // 切換回跑馬燈模式
                         enableMarquee();
                     } else {
-                        // 切換回常規網格模式，並過濾項目
                         disableMarquee();
                         allOriginalItems.forEach(item => {
                             const isMatch = item.getAttribute('data-category') === filterValue;
@@ -1022,7 +1015,6 @@
                         });
                     }
                     
-                    // 等待 DOM 重繪後，將容器淡入
                     setTimeout(() => {
                         portfolioTrack.style.opacity = '1';
                         isFilterAnimating = false;
@@ -1036,6 +1028,106 @@
             enableMarquee();
             portfolioTrack.style.opacity = '1';
         }, 100);
+
+        // About Me 照片探照燈特效 (柔化邊緣追蹤版)
+        const profileSpotlight = document.getElementById('profile-spotlight');
+        const profileReveal = document.getElementById('profile-reveal-img');
+        
+        if (profileSpotlight && profileReveal) {
+            profileSpotlight.addEventListener('mousemove', (e) => {
+                const rect = profileSpotlight.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const maskStyle = `radial-gradient(circle 140px at ${x}px ${y}px, black 30%, transparent 80%)`;
+                profileReveal.style.webkitMaskImage = maskStyle;
+                profileReveal.style.maskImage = maskStyle;
+                
+                profileReveal.classList.add('active');
+            });
+
+            profileSpotlight.addEventListener('mouseleave', () => {
+                profileReveal.classList.remove('active');
+            });
+        }
+
+        // 首圖拖曳物件互動邏輯
+        const dragItems = document.querySelectorAll('.drag-item');
+        let activeDragItem = null;
+        let initialX, initialY, offsetX = 0, offsetY = 0;
+
+        function dragStart(e) {
+            activeDragItem = this;
+            const event = e.type === 'touchstart' ? e.touches[0] : e;
+            
+            const heroSection = document.getElementById('hero-section');
+            const heroRect = heroSection.getBoundingClientRect();
+            const rect = activeDragItem.getBoundingClientRect();
+            
+            if (activeDragItem.parentElement !== heroSection) {
+                heroSection.appendChild(activeDragItem);
+            }
+            
+            activeDragItem.style.left = `${rect.left - heroRect.left}px`;
+            activeDragItem.style.top = `${rect.top - heroRect.top}px`;
+            
+            activeDragItem.style.right = 'auto';
+            activeDragItem.style.bottom = 'auto';
+            
+            offsetX = event.clientX - rect.left;
+            offsetY = event.clientY - rect.top;
+            
+            activeDragItem.classList.add('is-dragging');
+            activeDragItem.classList.remove('float-anim', 'float-anim-delayed');
+            
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('touchmove', dragMove, {passive: false});
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+        }
+
+        function dragMove(e) {
+            if (!activeDragItem) return;
+            if (e.type === 'touchmove') e.preventDefault();
+            
+            const event = e.type === 'touchmove' ? e.touches[0] : e;
+            const heroSection = document.getElementById('hero-section');
+            const heroRect = heroSection.getBoundingClientRect();
+            
+            let newX = event.clientX - heroRect.left - offsetX;
+            let newY = event.clientY - heroRect.top - offsetY;
+
+            const maxX = heroRect.width - activeDragItem.offsetWidth;
+            const maxY = heroRect.height - activeDragItem.offsetHeight;
+
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+
+            activeDragItem.style.left = `${newX}px`;
+            activeDragItem.style.top = `${newY}px`;
+        }
+
+        function dragEnd() {
+            if (!activeDragItem) return;
+            activeDragItem.classList.remove('is-dragging');
+            
+            if (activeDragItem.getAttribute('data-anim') === 'delayed') {
+                activeDragItem.classList.add('float-anim-delayed');
+            } else {
+                activeDragItem.classList.add('float-anim');
+            }
+
+            activeDragItem = null;
+            document.removeEventListener('mousemove', dragMove);
+            document.removeEventListener('touchmove', dragMove);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchend', dragEnd);
+        }
+
+        dragItems.forEach(item => {
+            item.addEventListener('mousedown', dragStart);
+            item.addEventListener('touchstart', dragStart, {passive: false});
+        });
 
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
