@@ -610,34 +610,35 @@
             </div>
         <!-- 修正重點 1：在這裡補上 relative，這是解決拖曳亂飛、跳動的關鍵！ -->
         <!-- 關於我：現在包含在 mesh-background 容器內 -->
-        <section id="about" class="py-32 px-6 lg:px-12 relative">
-            <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
+        <section id="about" class="py-32 px-6 lg:px-12 relative overflow-hidden">
+            
+            <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-start relative z-10">
                 
                 <div class="w-full lg:w-auto shrink-0 flex justify-center">
-                    <!-- 進一步加大底邊距 (mb)，預留給下方 4 個裝飾物件 -->
-                    <div class="relative w-full max-w-[360px] lg:w-[400px] mb-48 md:mb-56 lg:mb-64">
+                    <!-- 加大手機版底部的 margin (mb)，確保裝飾品不會疊到下方文字 -->
+                    <div class="relative w-full max-w-[360px] lg:w-[400px] mb-80 md:mb-[304px] lg:mb-[336px]">
                         <div id="profile-spotlight" class="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg cursor-crosshair lg:mt-2">
                             <img src="images/profile.jpg?v=1" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="window.handleImageError(this, 'images/profile.jpg')">
                             <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 layer-reveal pointer-events-none" onerror="this.style.display='none'">
                         </div>
 
-                        <!-- 裝飾物件 1 (第一排左)：整體再次下移 -->
-                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-20 md:-bottom-24 lg:-bottom-28 left-2 md:left-4" data-anim="none">
+                        <!-- 裝飾物件 1 (第一排左)：手機版下推至 -bottom-40，電腦版不變 -->
+                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-40 md:-bottom-32 lg:-bottom-36 left-2 md:left-4" data-anim="none">
                             <img src="images/dress-1.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-1.png')">
                         </div>
                         
-                        <!-- 裝飾物件 2 (第一排右)：整體再次下移 -->
-                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-20 md:-bottom-24 lg:-bottom-28 right-2 md:right-4" data-anim="none">
+                        <!-- 裝飾物件 2 (第一排右)：手機版下推至 -bottom-40，電腦版不變 -->
+                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-40 md:-bottom-32 lg:-bottom-36 right-2 md:right-4" data-anim="none">
                             <img src="images/dress-2.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-2.png')">
                         </div>
 
-                        <!-- 裝飾物件 3 (第二排左)：與第一排保持堆疊間距，整體下移 -->
-                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-36 md:-bottom-44 lg:-bottom-52 left-2 md:left-4" data-anim="none">
+                        <!-- 裝飾物件 3 (第二排左)：手機版下推至 -bottom-[280px]，電腦版不變 -->
+                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[280px] md:-bottom-[272px] lg:-bottom-[304px] left-2 md:left-4" data-anim="none">
                             <img src="images/dress-3.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-3.png')">
                         </div>
                         
-                        <!-- 裝飾物件 4 (第二排右)：與第一排保持堆疊間距，整體下移 -->
-                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-36 md:-bottom-44 lg:-bottom-52 right-2 md:right-4" data-anim="none">
+                        <!-- 裝飾物件 4 (第二排右)：手機版下推至 -bottom-[280px]，電腦版不變 -->
+                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[280px] md:-bottom-[272px] lg:-bottom-[304px] right-2 md:right-4" data-anim="none">
                             <img src="images/dress-4.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-4.png')">
                         </div>
                     </div>
