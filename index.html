@@ -136,7 +136,7 @@
             visibility: hidden !important;
         }
 
-        /* 觀看作品：手繪雜亂圈圈動畫 (修正為絕對長度，確保萬無一失) */
+        /* 觀看作品：手繪雜亂圈圈動畫 */
         .scribble-circle {
             stroke-dasharray: 1200;
             stroke-dashoffset: 1200;
@@ -330,7 +330,8 @@
     <div class="mesh-background" id="dynamic-content-area">
         
         <!-- 將 padding 從 section 移到內部，讓跑馬燈能突破邊界延伸到螢幕邊緣 -->
-        <section id="work" class="py-24">
+        <!-- 修正重點：加上了 scroll-mt-20 屬性，讓滾動對齊時能完美預留導覽列的高度，對齊變色背景邊界 -->
+        <section id="work" class="py-24 scroll-mt-20">
             <div class="max-w-7xl mx-auto px-6 lg:px-12">
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                     <div>
@@ -666,8 +667,9 @@
         </section>
 
         <!-- 修正重點 1：在這裡補上 relative，這是解決拖曳亂飛、跳動的關鍵！ -->
-        <!-- 關於我：新增了 mt-32 md:mt-48 lg:mt-80 大幅增加上方間距，避免與作品集同時出現在畫面上 -->
-        <section id="about" class="py-32 mt-32 md:mt-48 lg:mt-80 px-6 lg:px-12 relative overflow-hidden">
+        <!-- 關於我：上移一點點，將原先超大的 mt-80 縮減為 mt-12 md:mt-20 lg:mt-32，找到剛好的視覺平衡 -->
+        <!-- 修正重點：保留了 scroll-mt-20 屬性，同步解決關於我的導航列對齊問題 -->
+        <section id="about" class="py-32 mt-12 md:mt-20 lg:mt-32 px-6 lg:px-12 relative overflow-hidden scroll-mt-20">
             
             <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-start relative z-10">
                 
@@ -785,7 +787,7 @@
 
     </div> 
     
-    <footer id="contact" class="bg-brand-black text-white py-32 px-6 lg:px-12 text-center">
+    <footer id="contact" class="bg-brand-black text-white py-32 px-6 lg:px-12 text-center scroll-mt-20">
         <div class="max-w-4xl mx-auto space-y-12">
             <h2 class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
                 Start your <span class="font-serif italic font-normal text-[#3B82F6]">creative</span><br>
