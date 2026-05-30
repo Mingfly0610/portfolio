@@ -51,8 +51,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 網格漸層背景效果 - 升級為極光流動 (Aurora) 特效 */
-        /* 將原本的粉色替換為天空藍/青色 (56, 189, 248) 配合整體藍色調 */
+        /* 網格漸層背景效果 - 極光流動 (Aurora) 特效 */
         @property --c1 { syntax: '<color>'; initial-value: rgba(56, 189, 248, 0.15); inherits: false; }
         @property --c2 { syntax: '<color>'; initial-value: rgba(253, 224, 71, 0.15); inherits: false; }
         @property --c3 { syntax: '<color>'; initial-value: rgba(168, 85, 247, 0.15); inherits: false; }
@@ -60,7 +59,6 @@
 
         .mesh-background {
             background-color: #fafafa;
-            /* 預設極光色彩變數 */
             --c1: rgba(56, 189, 248, 0.15);
             --c2: rgba(253, 224, 71, 0.15);
             --c3: rgba(168, 85, 247, 0.15);
@@ -72,15 +70,11 @@
                 radial-gradient(ellipse at 85% 85%, var(--c3) 0%, transparent 60%),
                 radial-gradient(ellipse at 15% 80%, var(--c4) 0%, transparent 60%);
             
-            /* 將背景放大並加入極光循環動畫 */
             background-size: 200% 200%;
             animation: aurora-move 20s ease-in-out infinite;
-            
-            /* 色彩連動變換時保持柔和過渡 */
             transition: --c1 1.5s ease, --c2 1.5s ease, --c3 1.5s ease, --c4 1.5s ease;
         }
 
-        /* 無縫環形平移，創造有機的流動感 */
         @keyframes aurora-move {
             0%   { background-position: 0% 0%; }
             25%  { background-position: 100% 30%; }
@@ -89,12 +83,10 @@
             100% { background-position: 0% 0%; }
         }
 
-        /* 縮圖失敗時的樣式 */
         .img-error-placeholder {
             @apply flex flex-col items-center justify-center bg-gray-100 text-gray-400 text-xs p-4 text-center;
         }
 
-        /* 按鈕與標籤的彈跳懸停效果 */
         .btn-bounce {
             transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
         }
@@ -102,7 +94,6 @@
             transform: translateY(-5px);
         }
 
-        /* 探照燈揭示層 (About Me 照片特效 - 柔邊追蹤版) */
         .layer-reveal {
             opacity: 0;
             transition: opacity 0.4s ease-out;
@@ -111,18 +102,16 @@
         }
         .layer-reveal.active {
             opacity: 1;
-            transition: opacity 0.1s ease-out; /* 快速顯示，避免滑鼠進入時有延遲感 */
+            transition: opacity 0.1s ease-out;
         }
 
-        /* 首圖拖曳物件專用樣式 */
         .drag-item {
             position: absolute;
             cursor: grab;
             user-select: none;
-            touch-action: none; /* 防止手機拖曳時畫面捲動 */
+            touch-action: none;
             transition: filter 0.3s ease, transform 0.3s ease;
         }
-        /* 預設漂浮動畫 */
         .float-anim {
             animation: floating 6s ease-in-out infinite;
         }
@@ -133,44 +122,31 @@
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-12px) rotate(3deg); }
         }
-        /* 拖曳中的狀態 */
         .is-dragging {
-            /* 由於改用全域設定，此處保留 fallback，實際套用下方 SVG */
             cursor: grabbing !important;
             animation: none !important;
             transform: scale(1.15) !important;
-            /* 去除 box-shadow，改用針對 Emoji 輪廓發光的 drop-shadow (藍色光暈) */
             filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 10px rgba(59, 130, 246, 0.4)) !important;
             z-index: 40 !important;
         }
 
-        /* ----------------------------------
-           全域自訂鼠標 (Custom Cursors) 外部檔案連結
-           ---------------------------------- */
-        /* 1. 預設鼠標 */
+        /* 全域自訂鼠標 */
         body {
             cursor: url('images/cursor-default.png') 4 2, auto;
         }
-
-        /* 2. 連結與可點擊物件鼠標 */
         a, button, .cursor-pointer, .portfolio-item, .mobile-link, #modal-backdrop, .dot {
             cursor: url('images/cursor-pointer.png') 4 2, pointer !important;
         }
-
-        /* 3. 拖曳物件懸停 (展開的手掌) */
         .drag-item {
             cursor: url('images/cursor-grab.png') 16 16, grab !important;
         }
-
-        /* 4. 正在拖曳狀態 (緊握的手掌) */
         .is-dragging {
             cursor: url('images/cursor-grabbing.png') 16 16, grabbing !important;
         }
-
     </style>
 
     <script>
-        /* 錯誤處理函式 */
+        /* 錯誤處理函式 - 修復 ReferenceError 確保全域可呼叫 */
         function handleImageError(img, path) {
             img.style.display = 'none';
             const placeholder = document.createElement('div');
@@ -189,7 +165,7 @@
 </head>
 <body class="bg-white text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
 
-    <!-- 新增：滑鼠拖尾專用 Canvas (完全不影響下方點擊) -->
+    <!-- 滑鼠拖尾專用 Canvas -->
     <canvas id="trail-canvas" class="fixed inset-0 pointer-events-none z-[9999] w-full h-full"></canvas>
 
     <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300" id="navbar">
@@ -220,28 +196,38 @@
     <!-- 加入 id="hero-section" 與 relative overflow-hidden 用於限制拖曳範圍 -->
     <section id="hero-section" class="min-h-[100dvh] flex items-center justify-center px-6 lg:px-12 pt-20 pb-12 md:pb-0 relative overflow-hidden">
         
-        <!-- 拖曳互動小物件 1 (左上)：手機版尺寸不變，電腦版大幅放大 -->
+        <!-- 拖曳互動小物件 1 (左上) -->
         <div class="drag-item float-anim z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[10%] left-[2%] md:top-[12%] md:left-[5%] lg:top-[15%] lg:left-[8%]" data-anim="normal">
             <img src="images/hero-icon-1.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
         
-        <!-- 拖曳互動小物件 2 (右上)：手機版尺寸不變，電腦版大幅放大 -->
+        <!-- 拖曳互動小物件 2 (右上) -->
         <div class="drag-item float-anim-delayed z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 rotate-[10deg] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[8%] right-[2%] md:top-[15%] md:right-[5%] lg:top-[18%] lg:right-[8%]" data-anim="delayed">
             <img src="images/hero-icon-2.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
 
-        <!-- 拖曳互動小物件 3 (左下)：手機版尺寸不變，電腦版大幅放大 -->
+        <!-- 拖曳互動小物件 3 (左下) -->
         <div class="drag-item float-anim-delayed z-30 w-20 h-20 md:w-36 md:h-36 lg:w-52 lg:h-52 -rotate-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[22%] left-[2%] md:bottom-[15%] md:left-[5%] lg:bottom-[18%] lg:left-[8%]" data-anim="delayed">
             <img src="images/hero-icon-3.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
 
-        <!-- 拖曳互動小物件 4 (right下)：手機版尺寸不變，電腦版大幅放大 -->
+        <!-- 拖曳互動小物件 4 (右下) -->
         <div class="drag-item float-anim z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 rotate-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[10%] right-[2%] md:bottom-[12%] md:right-[8%] lg:bottom-[15%] lg:right-[10%]" data-anim="normal">
             <img src="images/hero-icon-4.png" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="this.style.display='none'">
         </div>
 
         <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in relative z-20 pointer-events-none">
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight">
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight relative inline-block">
+                <!-- 年份標示貼紙：改為相對於標題文字定位 -->
+                <div class="drag-item float-anim-delayed z-30 -rotate-2" style="top: -30px; left: -10px; width: 250px;" data-anim="delayed">
+                    <svg class="overflow-visible w-full drop-shadow-sm pointer-events-none" viewBox="0 0 250 60">
+                        <text x="50%" y="50%" dy="0.32em" text-anchor="middle" 
+                              font-family="'Playfair Display', serif" font-size="48" font-weight="700" letter-spacing="-1px"
+                              fill="#111111" stroke="#EAFF62" stroke-width="16" stroke-linejoin="round" paint-order="stroke fill">
+                            2024-2026
+                        </text>
+                    </svg>
+                </div>
                 Crafting <span class="font-serif italic font-normal text-[#3B82F6]">beautiful</span><br>
                 digital experiences.
             </h1>
@@ -524,7 +510,6 @@
                     </div>
 
                     <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.jpg" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true">
-                        <!-- 縮圖更新：影片格式改為 images/prog-lottery-thumb.mp4 -->
                         <video src="images/prog-lottery-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'images/prog-lottery-thumb.mp4')"></video>
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -545,9 +530,7 @@
                         </div>
                     </div>
 
-                    <!-- 新增：互動展示塗鴉牆 (移除 data-external-link) -->
                     <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-graffiti-wall-full.mp4" data-modal-img="images/prog-graffiti-wall-full.jpg">
-                        <!-- 縮圖更新：影片格式改為 images/prog-graffiti-wall-thumb.mp4 -->
                         <video src="images/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="handleVideoError(this, 'images/prog-graffiti-wall-thumb.mp4')"></video>
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                             <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -572,13 +555,11 @@
         </section>
 
         <section id="about" class="py-32 px-6 lg:px-12">
-            <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
+            <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
                 
                 <div class="w-full lg:w-auto shrink-0 flex justify-center">
-                    <div id="profile-spotlight" class="group relative w-full max-w-[360px] lg:w-[400px] aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg cursor-crosshair">
-                        <!-- 底層：原本的照片 -->
+                    <div id="profile-spotlight" class="group relative w-full max-w-[360px] lg:w-[400px] aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg cursor-crosshair lg:mt-2">
                         <img src="images/profile.jpg?v=1" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="handleImageError(this, 'images/profile.jpg')">
-                        <!-- 頂層：要揭示的隱藏照片 (第二張照片) -->
                         <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 layer-reveal pointer-events-none" onerror="this.style.display='none'">
                     </div>
                 </div>
@@ -648,7 +629,9 @@
             </div>
         </section>
 
-    </div> <footer id="contact" class="bg-brand-black text-white py-32 px-6 lg:px-12 text-center">
+    </div> 
+    
+    <footer id="contact" class="bg-brand-black text-white py-32 px-6 lg:px-12 text-center">
         <div class="max-w-4xl mx-auto space-y-12">
             <h2 class="font-serif text-5xl md:text-7xl font-bold italic">Let's work together.</h2>
             <p class="text-xl text-gray-400">如果您有任何專案想法，歡迎隨時與我聯繫。</p>
@@ -675,7 +658,6 @@
         <div id="modal-backdrop" class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-full max-w-5xl scale-95 opacity-0 transition-all duration-300 relative shadow-2xl overflow-hidden pointer-events-auto">
-                <!-- 右上角關閉按鍵：調整至 36x36 尺寸 -->
                 <button id="modal-close" class="absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
                     <i class="ph ph-x text-[18px]"></i>
                 </button>
@@ -683,14 +665,12 @@
                     <div id="modal-media-container" class="media-container w-full aspect-video bg-gray-200 overflow-hidden relative shrink-0">
                         <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-contain">
                         <video id="modal-video" src="" class="w-full h-full object-contain hidden" controls autoplay muted playsinline></video>
-                        <!-- 左右換頁按鍵：調整至 30x30 尺寸 -->
                         <button id="prev-img" class="absolute left-3 top-1/2 -translate-y-1/2 w-[30px] h-[30px] bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
                             <i class="ph ph-caret-left text-[14px]"></i>
                         </button>
                         <button id="next-img" class="absolute right-3 top-1/2 -translate-y-1/2 w-[30px] h-[30px] bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-20 hidden">
                             <i class="ph ph-caret-right text-[14px]"></i>
                         </button>
-                        <!-- 圖片頁碼標示：維持原設計縮小版 -->
                         <div id="gallery-indicator" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center bg-black/60 backdrop-blur-md text-white text-[10px] tracking-widest px-2 py-0.5 rounded-full z-20 hidden shadow-lg">
                             <span id="current-page">1</span><span class="mx-1">/</span><span id="total-pages">3</span>
                         </div>
@@ -919,28 +899,24 @@
             });
         });
 
-        // About Me 照片探照燈特效 (柔化邊緣追蹤版)
+        // About Me 照片探照燈特效
         const profileSpotlight = document.getElementById('profile-spotlight');
         const profileReveal = document.getElementById('profile-reveal-img');
         
         if (profileSpotlight && profileReveal) {
             profileSpotlight.addEventListener('mousemove', (e) => {
-                // 取得容器邊界與座標
                 const rect = profileSpotlight.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 
-                // 使用 radial-gradient 達成邊緣羽化的探照燈追蹤遮罩
                 const maskStyle = `radial-gradient(circle 140px at ${x}px ${y}px, black 30%, transparent 80%)`;
                 profileReveal.style.webkitMaskImage = maskStyle;
                 profileReveal.style.maskImage = maskStyle;
                 
-                // 顯示遮罩層
                 profileReveal.classList.add('active');
             });
 
             profileSpotlight.addEventListener('mouseleave', () => {
-                // 滑鼠移出時，透過 opacity 淡出
                 profileReveal.classList.remove('active');
             });
         }
@@ -958,19 +934,15 @@
             const heroRect = heroSection.getBoundingClientRect();
             const rect = activeDragItem.getBoundingClientRect();
             
-            // 修正拉伸問題：將當前位置轉換為絕對的 left/top 像素值
             activeDragItem.style.left = `${rect.left - heroRect.left}px`;
             activeDragItem.style.top = `${rect.top - heroRect.top}px`;
             
-            // 關鍵修復：清除 right 與 bottom，避免 CSS 定位衝突導致元件被無限拉伸
             activeDragItem.style.right = 'auto';
             activeDragItem.style.bottom = 'auto';
             
-            // 計算滑鼠點擊在物件內的相對位置
             offsetX = event.clientX - rect.left;
             offsetY = event.clientY - rect.top;
             
-            // 加入拖曳中樣式，取消原本漂浮動畫
             activeDragItem.classList.add('is-dragging');
             activeDragItem.classList.remove('float-anim', 'float-anim-delayed');
             
@@ -982,18 +954,15 @@
 
         function dragMove(e) {
             if (!activeDragItem) return;
-            // 防止手機端拖曳時觸發畫面捲動
             if (e.type === 'touchmove') e.preventDefault();
             
             const event = e.type === 'touchmove' ? e.touches[0] : e;
             const heroSection = document.getElementById('hero-section');
             const heroRect = heroSection.getBoundingClientRect();
             
-            // 計算新座標 (限制在 Hero 區塊內)
             let newX = event.clientX - heroRect.left - offsetX;
             let newY = event.clientY - heroRect.top - offsetY;
 
-            // 設定範圍限制避免物件飛出畫面
             const maxX = heroRect.width - activeDragItem.offsetWidth;
             const maxY = heroRect.height - activeDragItem.offsetHeight;
 
@@ -1006,10 +975,8 @@
 
         function dragEnd() {
             if (!activeDragItem) return;
-            // 恢復物件樣式與漂浮動畫
             activeDragItem.classList.remove('is-dragging');
             
-            // 根據 data-anim 屬性來精準加回對應的動畫
             if (activeDragItem.getAttribute('data-anim') === 'delayed') {
                 activeDragItem.classList.add('float-anim-delayed');
             } else {
@@ -1034,7 +1001,7 @@
             else navbar.classList.remove('shadow-sm');
         });
 
-        // --- 新增：滑鼠拖尾線條效果 ---
+        // --- 滑鼠拖尾線條效果 (1px, 平滑曲線) ---
         const trailCanvas = document.getElementById('trail-canvas');
         const trailCtx = trailCanvas.getContext('2d');
         let trailPoints = [];
@@ -1044,9 +1011,8 @@
             trailCanvas.height = window.innerHeight;
         }
         window.addEventListener('resize', resizeTrailCanvas);
-        resizeTrailCanvas(); // 初始化畫布大小
+        resizeTrailCanvas();
 
-        // 紀錄滑鼠與觸控的軌跡座標
         function addTrailPoint(x, y) {
             trailPoints.push({ x, y, age: 0 });
         }
@@ -1059,39 +1025,32 @@
         function animateTrail() {
             trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
             
-            // 讓點隨著時間「老化」，超過一定數值就消失，形成拖尾感
             for (let i = 0; i < trailPoints.length; i++) {
                 trailPoints[i].age += 1;
             }
-            // 這裡的 35 決定了尾巴的長度，數字越大線條停留越久
             trailPoints = trailPoints.filter(p => p.age < 35);
 
             if (trailPoints.length > 1) {
                 trailCtx.beginPath();
                 trailCtx.moveTo(trailPoints[0].x, trailPoints[0].y);
                 
-                // 使用二次貝茲曲線 (Quadratic Curve) 讓軌跡平滑化
                 for (let i = 1; i < trailPoints.length - 1; i++) {
                     const xc = (trailPoints[i].x + trailPoints[i + 1].x) / 2;
                     const yc = (trailPoints[i].y + trailPoints[i + 1].y) / 2;
-                    // 使用當前點作為控制點，並拉出曲線至下一個中點
                     trailCtx.quadraticCurveTo(trailPoints[i].x, trailPoints[i].y, xc, yc);
                 }
-                // 完美收尾：連向陣列中的最後一個真實座標點
                 const lastP = trailPoints[trailPoints.length - 1];
                 trailCtx.lineTo(lastP.x, lastP.y);
                 
-                trailCtx.strokeStyle = '#3B82F6'; // 品牌藍色
-                trailCtx.lineWidth = 1;           // 線條粗細調整為 1px
-                trailCtx.lineCap = 'round';       // 圓滑端點
-                trailCtx.lineJoin = 'round';      // 圓滑轉角
+                trailCtx.strokeStyle = '#3B82F6'; 
+                trailCtx.lineWidth = 1;           
+                trailCtx.lineCap = 'round';       
+                trailCtx.lineJoin = 'round';      
                 trailCtx.stroke();
             }
             requestAnimationFrame(animateTrail);
         }
         animateTrail();
-        // --- 結束：滑鼠拖尾線條效果 ---
-
     </script>
 </body>
 </html>
