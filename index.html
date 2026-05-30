@@ -622,23 +622,23 @@
                             <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 layer-reveal pointer-events-none" onerror="this.style.display='none'">
                         </div>
 
-                        <!-- 裝飾物件 1 (第一排左)：手機版下推至 -bottom-40，電腦版不變 -->
+                        <!-- 裝飾物件 1 (第一排左)：手機版下推至 -bottom-40，電腦版恢復較小的負值 -bottom-32 -->
                         <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-40 md:-bottom-32 lg:-bottom-36 left-2 md:left-4" data-anim="none">
                             <img src="images/dress-1.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-1.png')">
                         </div>
                         
-                        <!-- 裝飾物件 2 (第一排右)：手機版下推至 -bottom-40，電腦版不變 -->
+                        <!-- 裝飾物件 2 (第一排右)：手機版下推至 -bottom-40，電腦版恢復較小的負值 -bottom-32 -->
                         <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-40 md:-bottom-32 lg:-bottom-36 right-2 md:right-4" data-anim="none">
                             <img src="images/dress-2.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-2.png')">
                         </div>
 
-                        <!-- 裝飾物件 3 (第二排左)：手機版下推至 -bottom-[280px]，電腦版不變 -->
-                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[280px] md:-bottom-[272px] lg:-bottom-[304px] left-2 md:left-4" data-anim="none">
+                        <!-- 裝飾物件 3 (第二排左)：手機版維持 -bottom-[280px]，電腦版調整至 -bottom-[220px] 測試間距 -->
+                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[280px] md:-bottom-[220px] lg:-bottom-[220px] left-2 md:left-4" data-anim="none">
                             <img src="images/dress-3.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-3.png')">
                         </div>
                         
-                        <!-- 裝飾物件 4 (第二排右)：手機版下推至 -bottom-[280px]，電腦版不變 -->
-                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[280px] md:-bottom-[272px] lg:-bottom-[304px] right-2 md:right-4" data-anim="none">
+                        <!-- 裝飾物件 4 (第二排右)：手機版維持 -bottom-[280px]，電腦版調整至 -bottom-[220px] 測試間距 -->
+                        <div class="drag-item z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[280px] md:-bottom-[220px] lg:-bottom-[220px] right-2 md:right-4" data-anim="none">
                             <img src="images/dress-4.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-4.png')">
                         </div>
                     </div>
@@ -726,7 +726,7 @@
             <div class="pt-16 flex justify-center gap-8 text-3xl text-gray-400">
                 <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="hover:text-[#3B82F6] transition-colors"><i class="ph ph-instagram-logo"></i></a>
                 <a href="https://www.behance.net/fangmingyu" target="_blank" class="hover:text-[#3B82F6] transition-colors"><i class="ph ph-behance-logo"></i></a>
-                <a href="https://www.linkedin.com/" target="_blank" class="hover:text-[#3B82F6] transition-colors"><i class="ph ph-linkedin-logo"></i></a>
+                <a href="www.linkedin.com/in/frank-yu-" target="_blank" class="hover:text-[#3B82F6] transition-colors"><i class="ph ph-linkedin-logo"></i></a>
             </div>
             
             <div class="pt-16 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center border-t border-gray-800">
