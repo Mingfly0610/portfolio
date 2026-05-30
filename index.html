@@ -218,8 +218,8 @@
 
         <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in relative z-20 pointer-events-none">
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight relative inline-block">
-                <!-- 年份標示貼紙：改為相對於標題文字定位 -->
-                <div class="drag-item float-anim-delayed z-30 -rotate-2" style="top: -30px; left: -10px; width: 250px;" data-anim="delayed">
+                <!-- 年份標示貼紙：修正加上 pointer-events-auto 喚醒點擊，並微調 RWD 寬度 -->
+                <div class="drag-item float-anim-delayed z-30 -rotate-2 pointer-events-auto w-[180px] md:w-[250px]" style="top: -30px; left: -10px;" data-anim="delayed">
                     <svg class="overflow-visible w-full drop-shadow-sm pointer-events-none" viewBox="0 0 250 60">
                         <text x="50%" y="50%" dy="0.32em" text-anchor="middle" 
                               font-family="'Playfair Display', serif" font-size="48" font-weight="700" letter-spacing="-1px"
@@ -933,6 +933,12 @@
             const heroSection = document.getElementById('hero-section');
             const heroRect = heroSection.getBoundingClientRect();
             const rect = activeDragItem.getBoundingClientRect();
+            
+            // 【修復關鍵】：如果拖曳的物件是嵌套在別的容器中（例如年份貼紙在標題內），
+            // 在拖曳開始瞬間將其移動到 heroSection 下，確保移動時的座標運算正確無誤。
+            if (activeDragItem.parentElement !== heroSection) {
+                heroSection.appendChild(activeDragItem);
+            }
             
             activeDragItem.style.left = `${rect.left - heroRect.left}px`;
             activeDragItem.style.top = `${rect.top - heroRect.top}px`;
