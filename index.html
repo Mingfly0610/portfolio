@@ -201,12 +201,12 @@
 
     <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
-            <a href="#" class="font-serif text-2xl font-bold tracking-tighter">MingFly.</a>
+            <a href="#" class="font-serif text-2xl font-bold tracking-tighter text-brand-black hover:text-[#3B82F6] transition-colors duration-300">MingFly.</a>
             
             <nav class="hidden md:flex gap-8 text-sm font-medium tracking-wide">
-                <a class="cursor-pointer" href="#work" class="hover:text-gray-500 transition-colors">作品 Work</a>
-                <a class="cursor-pointer" href="#about" class="hover:text-gray-500 transition-colors">關於 About</a>
-                <a class="cursor-pointer" href="#contact" class="hover:text-gray-500 transition-colors">聯絡 Contact</a>
+                <a class="cursor-pointer hover:text-[#3B82F6] transition-colors" href="#work">作品 Work</a>
+                <a class="cursor-pointer hover:text-[#3B82F6] transition-colors" href="#about">關於 About</a>
+                <a class="cursor-pointer hover:text-[#3B82F6] transition-colors" href="#contact">聯絡 Contact</a>
             </nav>
 
             <button id="mobile-menu-btn" class="md:hidden text-2xl">
@@ -219,9 +219,9 @@
         <button id="mobile-menu-close" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-brand-black rounded-full transition-all">
             <i class="ph ph-x text-2xl"></i>
         </button>
-        <a class="cursor-pointer" href="#work" class="mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">作品 Work</a>
-        <a class="cursor-pointer" href="#about" class="mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">關於 About</a>
-        <a class="cursor-pointer" href="#contact" class="mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">聯絡 Contact</a>
+        <a href="#work" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">作品 Work</a>
+        <a href="#about" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">關於 About</a>
+        <a href="#contact" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">聯絡 Contact</a>
     </div>
 
     <!-- 加入 id="hero-section" 與 relative overflow-hidden 用於限制拖曳範圍 -->
@@ -250,7 +250,7 @@
         <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in relative z-20 pointer-events-none">
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight relative inline-block">
                 <!-- 年份標示貼紙：擴展 viewBox 並加上 overflow-visible 根除裁切，並套用新的手機版預設位置 -->
-                <div class="drag-item float-anim-delayed z-30 -rotate-2 pointer-events-auto -top-[45px] -left-[10px] md:-top-[30px] md:-left-[10px] w-[150px] md:w-[270px]" data-anim="delayed">
+                <div class="drag-item float-anim-delayed z-30 -rotate-2 pointer-events-auto -top-[45px] -left-[10px] md:-top-[30px] md:-left-[10px] w-[160px] md:w-[270px]" data-anim="delayed">
                     <svg class="w-full drop-shadow-sm pointer-events-none overflow-visible" viewBox="0 0 280 80">
                         <text x="140" y="40" dy="0.32em" text-anchor="middle" 
                               font-family="'Playfair Display', serif" font-size="48" font-weight="700" letter-spacing="-1px"
@@ -275,7 +275,7 @@
         </div>
     </section>
 
-    <div class="mesh-background transition-colors duration-[1500ms] ease-out" id="dynamic-content-area">
+    <div class="mesh-background" id="dynamic-content-area">
         
         <!-- 將 padding 從 section 移到內部，讓跑馬燈能突破邊界延伸到螢幕邊緣 -->
         <section id="work" class="py-24">
@@ -294,7 +294,7 @@
                         <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 btn-bounce hover:shadow-md" data-filter="programming">
                             程式設計
                             <div id="prog-tooltip" class="absolute top-full md:top-auto md:bottom-full left-0 md:left-1/2 md:-translate-x-1/2 mt-3 md:mt-0 md:mb-3 px-5 py-2 bg-[#3B82F6] text-white text-[13px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
-                                這個網站本身也是<br>程式設計的作品喔！
+                                這個作品集網站也是<br>程式設計的作品喔！
                                 <div class="absolute bottom-full md:bottom-auto md:top-full left-11 md:left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#3B82F6] border-t-0 md:border-b-0 md:border-t-[8px] md:border-t-[#3B82F6]"></div>
                             </div>
                         </button>
@@ -545,7 +545,7 @@
                             </div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
-                                <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，本專案致力於將傳統的職業性向測驗數位化、現代化。透過結構化的測驗流程，不僅作為展場的數位互動亮點，更能實質幫助求職者在短時間內釐清個人優勢，對接合適的職涯發展路徑。</p>
+                                <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，本專案致力於將傳統的職業性向測驗數位化、現代化。透過結構化的測驗流程，性能作為展場的數位互動亮點，更能實質幫助求職者在短時間內釐清個人優勢，對接合適的職涯發展路徑。</p>
                                 
                                 <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
                                 <p class="mb-6">在視覺介面上，捨棄繁複的裝飾，採用俐開的網格排版、對比鮮明的重點色彩與字體層級規劃，營造出具備現代感與公信力的視覺體驗。測驗結果頁面經過精心設計，將複雜的「內在性格」與「外在形象」評估結果，轉化為直覺的標籤與圖卡人物設計，有助於求職者理解自己的職場角色設定，掌握自身核心職能。</p>
@@ -559,7 +559,7 @@
                         </div>
 
                         <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.jpg" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true">
-                            <video src="videos/prog-lottery-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-lottery-thumb.mp4')"></video>
+                            <video src="images/prog-lottery-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'images/prog-lottery-thumb.mp4')"></video>
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">活動電子抽獎程式</h3>
@@ -581,7 +581,7 @@
 
                         <!-- 互動展示塗鴉牆 -->
                         <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-graffiti-wall-full.mp4" data-modal-img="images/prog-graffiti-wall-full.jpg">
-                            <video src="videos/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-graffiti-wall-thumb.mp4')"></video>
+                            <video src="images/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'images/prog-graffiti-wall-thumb.mp4')"></video>
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">互動展示塗鴉牆</h3>
@@ -615,29 +615,28 @@
             <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-start relative z-10">
                 
                 <div class="w-full lg:w-auto shrink-0 flex justify-center">
-                    <!-- 加大底部的 margin (mb) 以容納兩排裝飾物件 -->
                     <div class="relative w-full max-w-[360px] lg:w-[400px] mb-72 md:mb-[304px] lg:mb-[336px]">
                         <div id="profile-spotlight" class="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg cursor-crosshair lg:mt-2">
                             <img src="images/profile.jpg?v=1" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="window.handleImageError(this, 'images/profile.jpg')">
                             <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 layer-reveal pointer-events-none" onerror="this.style.display='none'">
                         </div>
 
-                        <!-- 裝飾物件 1 (第一排左)：手機版調整為 120px，電腦版維持不變 -->
+                        <!-- 裝飾物件 1 -->
                         <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-32 md:-bottom-32 lg:-bottom-36 left-2 md:left-4" data-anim="none">
                             <img src="images/dress-1.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-1.png')">
                         </div>
                         
-                        <!-- 裝飾物件 2 (第一排右)：手機版調整為 120px，電腦版維持不變 -->
+                        <!-- 裝飾物件 2 -->
                         <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-32 md:-bottom-32 lg:-bottom-36 right-2 md:right-4" data-anim="none">
                             <img src="images/dress-2.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-2.png')">
                         </div>
 
-                        <!-- 裝飾物件 3 (第二排左)：新增並精準定位於第一排下方 -->
+                        <!-- 裝飾物件 3 -->
                         <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-64 md:-bottom-[272px] lg:-bottom-[304px] left-2 md:left-4" data-anim="none">
                             <img src="images/dress-3.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-3.png')">
                         </div>
                         
-                        <!-- 裝飾物件 4 (第二排右)：新增並精準定位於第一排下方 -->
+                        <!-- 裝飾物件 4 -->
                         <div class="drag-item z-40 w-[120px] h-[120px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-64 md:-bottom-[272px] lg:-bottom-[304px] right-2 md:right-4" data-anim="none">
                             <img src="images/dress-4.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-4.png')">
                         </div>
@@ -647,9 +646,9 @@
                 <div class="w-full lg:flex-1 space-y-8">
                     <h2 class="text-4xl md:text-5xl font-bold">About Me</h2>
                     <div class="space-y-6 text-lg text-gray-600 leading-relaxed">
-                        <p>你好，我是 MingFly，一位熱衷於探索多元媒介的跨領域設計師。我深信好的設計傾心於視覺上的美感，更是解決問題、傳遞 brand 核心價值的橋樑。</p>
-                        <p>從靜態的活動主視覺、充滿張力的動態影像，到結合程式邏輯的互動式網頁體驗，我致力於為每一個專案量身打造最合適且沉浸的數位呈現方式。</p>
-                        <p>過去我曾主導多場大型展覽與公部門活動的視覺統籌與啟動儀式動畫。同時我也跨足 UI/UX 與前端程式開發，獨立完成「求職適性測驗」、「活動電子抽獎系統」等互動專案實踐。從概念發想到落地產出，我享受每一個讓創意成真的瞬間。</p>
+                        <p>你好，我是 MingFly。對我而言，設計不只是美感的體現，更是為了解決問題，把想說的故事好好傳達出去。</p>
+                        <p>我平時的創作範圍很廣，從平面的活動主視覺、生動的動態影像，到具備互動與可玩性的網頁，我都很有興趣。我也非常喜歡透過 AI 協作工具來輔助創作，為每一個專案找出最適合的呈現方式。</p>
+                        <p>過去，我負責過不少展示活動和公部門的視覺設計與啟動儀式動畫。除了平面和動態設計，我也嘗試 UI/UX 和前端開發，獨立完成「線上人格測驗」和「活動電子抽獎系統」這類的互動專案。從一開始的腦力激盪，到最後看著作品實際上線，把想像變成現實的過程，是我做設計最大的成就感！</p>
                     </div>
                     
                     <div class="pt-6 border-t border-gray-200">
@@ -713,14 +712,13 @@
     
     <footer id="contact" class="bg-brand-black text-white py-32 px-6 lg:px-12 text-center">
         <div class="max-w-4xl mx-auto space-y-12">
-            <!-- 替換此處的標題文字與樣式 -->
             <h2 class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
                 Start your <span class="font-serif italic font-normal text-[#3B82F6]">creative</span><br>
                 journey with me.
             </h2>
             <p class="text-xl text-gray-400">如果您有任何專案想法，歡迎隨時與我聯繫。</p>
             
-            <a href="mailto:qwe33885@gmail.com" class="inline-block text-3xl md:text-5xl font-bold hover:text-[#3B82F6] transition-colors">
+            <a href="mailto:qwe33885@gmail.com" class="inline-block text-3xl md:text-5xl font-bold hover:text-[#3B82F6] transition-colors pb-2">
                 qwe33885@gmail.com
             </a>
 
@@ -813,11 +811,13 @@
             try {
                 samplerCtx.drawImage(imgElement, 0, 0, 5, 5);
                 const p = samplerCtx.getImageData(0, 0, 5, 5).data;
-                const getRGBA = (idx) => `rgba(${p[idx]}, ${p[idx+1]}, ${p[idx+2]}, 0.15)`;
+                const getRGBA = (idx) => `rgba(${p[idx]}, ${p[idx+1]}, ${p[idx+2]}, 0.35)`;
                 dynamicBg.style.setProperty('--c1', getRGBA(0));
                 dynamicBg.style.setProperty('--c2', getRGBA(16 * 4));
                 dynamicBg.style.setProperty('--c3', getRGBA(24 * 4));
                 dynamicBg.style.setProperty('--c4', getRGBA(20 * 4));
+                // 背景底色連動
+                dynamicBg.style.backgroundColor = `rgba(${p[0]}, ${p[1]}, ${p[2]}, 0.05)`;
             } catch (e) {
                 console.warn("無法提取顏色");
             }
@@ -828,6 +828,7 @@
             dynamicBg.style.setProperty('--c2', defaultColors.c2);
             dynamicBg.style.setProperty('--c3', defaultColors.c3);
             dynamicBg.style.setProperty('--c4', defaultColors.c4);
+            dynamicBg.style.backgroundColor = '#fafafa';
         }
 
         // --- 無限跑馬燈與網格切換邏輯 ---
@@ -873,7 +874,7 @@
             });
         }
 
-        // --- 全局事件委派 ---
+        // 全局事件委派 (處理懸停取色)
         portfolioTrack.addEventListener('mouseover', (e) => {
             const item = e.target.closest('.portfolio-item');
             if (item) {
@@ -918,6 +919,7 @@
             }
         }
 
+        // 點擊開啟 Modal 邏輯 (支援原版與拷貝版)
         portfolioTrack.addEventListener('click', (e) => {
             const item = e.target.closest('.portfolio-item');
             if (!item) return;
@@ -1026,8 +1028,10 @@
                 
                 setTimeout(() => {
                     if (filterValue === 'all') {
+                        // 切換回跑馬燈模式
                         enableMarquee();
                     } else {
+                        // 切換回常規網格模式，並過濾項目
                         disableMarquee();
                         allOriginalItems.forEach(item => {
                             const isMatch = item.getAttribute('data-category') === filterValue;
@@ -1043,6 +1047,7 @@
                         });
                     }
                     
+                    // 等待 DOM 重繪後，將容器淡入
                     setTimeout(() => {
                         portfolioTrack.style.opacity = '1';
                         isFilterAnimating = false;
@@ -1057,7 +1062,7 @@
             portfolioTrack.style.opacity = '1';
         }, 100);
 
-        // About Me 照片探照燈特效 (柔化邊緣追蹤版)
+        // About Me 照片探照燈特效
         const profileSpotlight = document.getElementById('profile-spotlight');
         const profileReveal = document.getElementById('profile-reveal-img');
         
@@ -1079,7 +1084,7 @@
             });
         }
 
-        // 拖曳物件互動邏輯 (升級版：支援多區塊自適應)
+        // 拖曳物件互動邏輯
         const dragItems = document.querySelectorAll('.drag-item');
         let activeDragItem = null;
         let initialX, initialY, offsetX = 0, offsetY = 0;
@@ -1088,7 +1093,6 @@
             activeDragItem = this;
             const event = e.type === 'touchstart' ? e.touches[0] : e;
             
-            // 動態取得物件所在的 section 容器，取代原本寫死的 hero-section
             const container = activeDragItem.closest('section') || document.body;
             const containerRect = container.getBoundingClientRect();
             const rect = activeDragItem.getBoundingClientRect();
@@ -1120,7 +1124,6 @@
             if (e.type === 'touchmove') e.preventDefault();
             
             const event = e.type === 'touchmove' ? e.touches[0] : e;
-            // 動態取得物件所在的 section 容器
             const container = activeDragItem.closest('section') || document.body;
             const containerRect = container.getBoundingClientRect();
             
@@ -1141,7 +1144,6 @@
             if (!activeDragItem) return;
             activeDragItem.classList.remove('is-dragging');
             
-            // 更新判斷邏輯：如果 data-anim 是 'none'，就不會加回飄浮動畫
             const animType = activeDragItem.getAttribute('data-anim');
             if (animType === 'delayed') {
                 activeDragItem.classList.add('float-anim-delayed');
