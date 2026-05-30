@@ -136,21 +136,6 @@
             visibility: hidden !important;
         }
 
-        /* 觀看作品：手繪雜亂圈圈動畫 */
-        .scribble-circle {
-            stroke-dasharray: 1200;
-            stroke-dashoffset: 1200;
-            animation: scribbleAnim 3.5s ease-in-out infinite;
-        }
-        @keyframes scribbleAnim {
-            0% { stroke-dashoffset: 1200; opacity: 0; }
-            5% { opacity: 1; }
-            45% { stroke-dashoffset: 0; opacity: 1; }
-            75% { stroke-dashoffset: 0; opacity: 1; }
-            90% { stroke-dashoffset: 0; opacity: 0; }
-            100% { stroke-dashoffset: 1200; opacity: 0; } /* 重置以備下一次循環 */
-        }
-
         /* 無限跑馬燈 (Marquee) 動畫設定 */
         @keyframes marquee-scroll {
             0% { transform: translateX(0); }
@@ -659,7 +644,7 @@
 
                     </div>
                     
-                    <!-- 用於存放跑馬燈備用拷貝項目的容器 -->
+                    <!-- 用於存放跑馬燈備用拷令人項目的容器 -->
                     <div id="portfolio-clone" class="hidden"></div>
 
                 </div>
@@ -677,7 +662,7 @@
                     <!-- 加大手機版底部的 margin (mb)，確保裝飾品不會疊到下方文字 -->
                     <div class="relative w-full max-w-[360px] lg:w-[400px] mb-80 md:mb-[304px] lg:mb-[336px]">
                         <div id="profile-spotlight" class="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg cursor-crosshair lg:mt-2">
-                            <img src="images/profile.jpg?v=1" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="window.handleImageError(this, 'images/profile.jpg')">
+                            <img id="profile-base-img" src="images/profile.jpg?v=1" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="window.handleImageError(this, 'images/profile.jpg')">
                             <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 layer-reveal pointer-events-none" onerror="this.style.display='none'">
                         </div>
 
@@ -1141,11 +1126,13 @@
             portfolioTrack.style.opacity = '1';
         }, 100);
 
-        // About Me 照片探照燈特效
+        // About Me 照片探照燈與點擊互換特效
         const profileSpotlight = document.getElementById('profile-spotlight');
         const profileReveal = document.getElementById('profile-reveal-img');
+        const profileBase = document.getElementById('profile-base-img');
         
-        if (profileSpotlight && profileReveal) {
+        if (profileSpotlight && profileReveal && profileBase) {
+            // 滑鼠探照燈效果
             profileSpotlight.addEventListener('mousemove', (e) => {
                 const rect = profileSpotlight.getBoundingClientRect();
                 const x = e.clientX - rect.left;
@@ -1158,8 +1145,22 @@
                 profileReveal.classList.add('active');
             });
 
+            // 滑鼠移出取消探照燈
             profileSpotlight.addEventListener('mouseleave', () => {
                 profileReveal.classList.remove('active');
+            });
+
+            // 點擊互換圖片邏輯
+            let isSwapped = false;
+            profileSpotlight.addEventListener('click', () => {
+                isSwapped = !isSwapped;
+                if (isSwapped) {
+                    profileBase.src = 'images/profile-reveal.jpg';
+                    profileReveal.src = 'images/profile.jpg';
+                } else {
+                    profileBase.src = 'images/profile.jpg?v=1';
+                    profileReveal.src = 'images/profile-reveal.jpg';
+                }
             });
         }
 
