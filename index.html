@@ -787,7 +787,9 @@
 
     </div> 
     
-    <footer id="contact" class="bg-brand-black text-white py-32 px-6 lg:px-12 text-center scroll-mt-20">
+    <!-- 修正重點：移除 scroll-mt-20，將 py-32 改為 pt-52 pb-32。 -->
+    <!-- 這樣能讓黑色背景實體向上延伸 80px 填補導覽列下方的空隙，根除露白問題！ -->
+    <footer id="contact" class="bg-brand-black text-white pt-52 pb-32 px-6 lg:px-12 text-center">
         <div class="max-w-4xl mx-auto space-y-12">
             <h2 class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
                 Start your <span class="font-serif italic font-normal text-[#3B82F6]">creative</span><br>
