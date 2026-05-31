@@ -94,6 +94,14 @@
             transform: translateY(-5px);
         }
 
+        /* 新增：社群圖標的彈跳懸浮效果 */
+        .icon-bounce {
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+        }
+        .icon-bounce:hover {
+            transform: translateY(-8px) scale(1.1);
+        }
+
         .layer-reveal {
             opacity: 0;
             transition: opacity 0.4s ease-out;
@@ -778,12 +786,11 @@
             </h2>
             <p class="text-xl text-gray-400">如果您有任何專案想法，歡迎隨時與我聯繫。</p>
             
-            <!-- 將巨大的文字 Email 移除，與社群圖示整合為同一行的圖示選單 -->
             <div class="pt-8 md:pt-16 flex justify-center gap-8 text-3xl text-gray-400">
-                <a href="mailto:qwe33885@gmail.com" class="hover:text-[#3B82F6] transition-colors" title="發送 Email 給我"><i class="ph ph-envelope-simple"></i></a>
-                <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="hover:text-[#3B82F6] transition-colors" title="Instagram"><i class="ph ph-instagram-logo"></i></a>
-                <a href="https://www.behance.net/fangmingyu" target="_blank" class="hover:text-[#3B82F6] transition-colors" title="Behance"><i class="ph ph-behance-logo"></i></a>
-                <a href="https://www.linkedin.com/in/frank-yu-/" target="_blank" class="hover:text-[#3B82F6] transition-colors" title="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
+                <a href="mailto:qwe33885@gmail.com" class="icon-bounce hover:text-[#3B82F6] inline-block" title="發送 Email 給我"><i class="ph ph-envelope-simple"></i></a>
+                <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="icon-bounce hover:text-[#3B82F6] inline-block" title="Instagram"><i class="ph ph-instagram-logo"></i></a>
+                <a href="https://www.behance.net/fangmingyu" target="_blank" class="icon-bounce hover:text-[#3B82F6] inline-block" title="Behance"><i class="ph ph-behance-logo"></i></a>
+                <a href="https://www.linkedin.com/in/frank-yu-/" target="_blank" class="icon-bounce hover:text-[#3B82F6] inline-block" title="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
             </div>
             
             <div class="pt-16 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center border-t border-gray-800">
