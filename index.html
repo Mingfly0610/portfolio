@@ -453,7 +453,8 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tainan-job-fair-large-p2.mp4" data-modal-img="images/2026-animation-tainan-job-fair-large-p2-full.jpg">
+                        <!-- 修正：更新此專案的 data-video 屬性，加入第二支影片路徑，並以逗號分隔 -->
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tainan-job-fair-large-p2.mp4,videos/2026-animation-tainan-job-fair-large-p2-2.mp4" data-modal-img="images/2026-animation-tainan-job-fair-large-p2-full.jpg">
                             <video src="videos/2026-animation-tainan-job-fair-large-p2.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/2026-animation-tainan-job-fair-large-p2.mp4')"></video>
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
@@ -965,19 +966,37 @@
         const indicatorContainer = document.getElementById('gallery-indicator');
         const currentPageEl = document.getElementById('current-page');
         const totalPagesEl = document.getElementById('total-pages');
+        
+        // 修正：新增 currentMediaType 來記錄目前顯示的是圖片還是影片
         let currentGallery = [];
         let currentImgIndex = 0;
+        let currentMediaType = 'image';
 
         function updateGalleryView() {
             mediaError.classList.add('hidden');
-            modalImg.classList.remove('hidden');
+            
             const currentPath = currentGallery[currentImgIndex].trim();
-            modalImg.src = currentPath;
-            modalImg.onerror = () => {
-                mediaError.classList.remove('hidden');
+            
+            if (currentMediaType === 'video') {
                 modalImg.classList.add('hidden');
-                errorPathText.innerText = `檔案路徑: ${currentPath}`;
-            };
+                modalVideo.classList.remove('hidden');
+                modalVideo.src = currentPath + "?v=" + new Date().getTime();
+                modalVideo.onerror = () => {
+                    mediaError.classList.remove('hidden');
+                    modalVideo.classList.add('hidden');
+                    errorPathText.innerText = `路徑: ${currentPath}`;
+                };
+            } else {
+                modalVideo.classList.add('hidden');
+                modalImg.classList.remove('hidden');
+                modalImg.src = currentPath;
+                modalImg.onerror = () => {
+                    mediaError.classList.remove('hidden');
+                    modalImg.classList.add('hidden');
+                    errorPathText.innerText = `檔案路徑: ${currentPath}`;
+                };
+            }
+
             if (currentGallery.length > 1) {
                 currentPageEl.innerText = currentImgIndex + 1;
                 totalPagesEl.innerText = currentGallery.length;
@@ -995,14 +1014,27 @@
             modalVideo.pause(); modalVideo.removeAttribute('src'); modalVideo.load();
             
             if (videoSrc) {
-                modalImg.classList.add('hidden'); modalVideo.classList.remove('hidden');
-                prevBtn.classList.add('hidden'); nextBtn.classList.add('hidden'); indicatorContainer.classList.add('hidden');
-                modalVideo.src = videoSrc + "?v=" + new Date().getTime();
-                modalVideo.onerror = () => { mediaError.classList.remove('hidden'); modalVideo.classList.add('hidden'); errorPathText.innerText = `路徑: ${videoSrc}`; };
+                // 修正：處理多影片的邏輯
+                currentMediaType = 'video';
+                currentGallery = videoSrc.split(',');
+                currentImgIndex = 0;
+                
+                if (currentGallery.length > 1) {
+                    prevBtn.classList.remove('hidden'); 
+                    nextBtn.classList.remove('hidden'); 
+                    indicatorContainer.classList.remove('hidden');
+                } else {
+                    prevBtn.classList.add('hidden'); 
+                    nextBtn.classList.add('hidden'); 
+                    indicatorContainer.classList.add('hidden');
+                }
+                updateGalleryView();
+                
             } else {
-                modalVideo.classList.add('hidden');
+                currentMediaType = 'image';
                 currentGallery = modalImgSrc ? modalImgSrc.split(',') : [item.querySelector('img').src];
                 currentImgIndex = 0;
+                
                 if (currentGallery.length > 1) {
                     prevBtn.classList.remove('hidden'); nextBtn.classList.remove('hidden'); indicatorContainer.classList.remove('hidden');
                 } else { 
