@@ -315,7 +315,7 @@
     <div class="mesh-background" id="dynamic-content-area">
         
         <!-- 將 padding 從 section 移到內部，讓跑馬燈能突破邊界延伸到螢幕邊緣 -->
-        <!-- 修正重點：加上了 scroll-mt-20 屬性，讓滾動對齊時能完美預留導覽列的高度，對齊變色背景邊界 -->
+        <!-- 加上了 scroll-mt-20 屬性，讓滾動對齊時能完美預留導覽列的高度 -->
         <section id="work" class="py-24 scroll-mt-20">
             <div class="max-w-7xl mx-auto px-6 lg:px-12">
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
@@ -445,7 +445,6 @@
                             </div>
                         </div>
 
-                        <!-- 新增：2026 台南好生活台南呷頭路 大型就業博覽會 Part2 啟動儀式動畫 -->
                         <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tainan-job-fair-large-p2.mp4" data-modal-img="images/2026-animation-tainan-job-fair-large-p2-full.jpg">
                             <video src="videos/2026-animation-tainan-job-fair-large-p2.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/2026-animation-tainan-job-fair-large-p2.mp4')"></video>
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
@@ -513,72 +512,69 @@
                         </div>
 
                         <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-road-animal-full.mp4" data-modal-img="images/prog-road-animal-full.jpg" data-external-link="https://design-your-life-studio.github.io/115-traffic-hero.tw/">
-                        <!-- 縮圖更新為影片 -->
-                        <video src="videos/prog-road-animal-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-road-animal-thumb.mp4')"></video>
-                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
-                            <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                            <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">測測你是哪種馬路動物人格</h3>
+                            <video src="videos/prog-road-animal-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-road-animal-thumb.mp4')"></video>
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
+                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">測測你是哪種馬路動物人格</h3>
+                            </div>
+                            <div class="project-details hidden">
+                                <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
+                                <p class="mb-6">為配合「115年交通局表揚大會」所特別企劃的數位互動前導網頁。為打破傳統交通安全宣導的刻板說教感，本專案以遊戲化方式，開發出這款「馬路動物人格」心理測驗，藉由輕鬆幽默的社群互動，有效提升民眾對交通安全議題的關注度與參與感。</p>
+                                
+                                <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                                <p class="mb-6">視覺上採用鮮明的普普風美學，以亮藍色為基底，搭配半色調網點與粗黑框線。將紅綠燈、速限標誌等交通元素進行 2D 扁平化與趣味化重塑，營造出活潑的氛圍。測驗文案以「三寶」或「交通安全守護神」等接地氣的詞彙引起共鳴，並將流程精簡至 6 道情境題，大幅降低參與門檻，讓政令宣導變得更具傳播力。</p>
+                                
+                                <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
+                                <ul class="space-y-2 list-disc list-outside ml-5">
+                                    <li><strong>視覺與 UI/UX：</strong> 統籌 2D視覺資產設計與介面排版，確保資訊層級清晰，並在強烈的視覺風格中維持流暢的操作動線。</li>
+                                    <li><strong>程式開發：</strong> 運用 AI 輔助進行前端互動網頁開發，精準處理測驗計分邏輯、流暢的頁面轉場動畫，以及最終測驗結果的動態渲染，確保跨裝置皆能完美呈現。</li>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="project-details hidden">
-                            <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
-                            <p class="mb-6">為配合「115年交通局表揚大會」所特別企劃的數位互動前導網頁。為打破傳統交通安全宣導的刻板說教感，本專案以遊戲化方式，開發出這款「馬路動物人格」心理測驗，藉由輕鬆幽默的社群互動，有效提升民眾對交通安全議題的關注度與參與感。</p>
-                            
-                            <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
-                            <p class="mb-6">視覺上採用鮮明的普普風美學，以亮藍色為基底，搭配半色調網點與粗黑框線。將紅綠燈、速限標誌等交通元素進行 2D 扁平化與趣味化重塑，營造出活潑的氛圍。測驗文案以「三寶」或「交通安全守護神」等接地氣的詞彙引起共鳴，並將流程精簡至 6 道情境題，大幅降低參與門檻，讓政令宣導變得更具傳播力。</p>
-                            
-                            <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
-                            <ul class="space-y-2 list-disc list-outside ml-5">
-                                <li><strong>視覺與 UI/UX：</strong> 統籌 2D視覺資產設計與介面排版，確保資訊層級清晰，並在強烈的視覺風格中維持流暢的操作動線。</li>
-                                <li><strong>程式開發：</strong> 運用 AI 輔助進行前端互動網頁開發，精準處理測驗計分邏輯、流暢的頁面轉場動畫，以及最終測驗結果的動態渲染，確保跨裝置皆能完美呈現。</li>
-                            </ul>
-                        </div>
-                    </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.jpg" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/">
-                        <!-- 縮圖更新為影片 -->
-                        <video src="videos/prog-beast-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-beast-thumb.mp4')"></video>
-                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
-                            <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                            <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">測測你是哪種職場神獸</h3>
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.jpg" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/">
+                            <video src="videos/prog-beast-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-beast-thumb.mp4')"></video>
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
+                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">測測你是哪種職場神獸</h3>
+                            </div>
+                            <div class="project-details hidden">
+                                <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
+                                <p class="mb-6">在徵才活動或社群互動中，為了打破傳統職涯測驗的沉悶感，特別企劃開發這款「測測你是哪種職場神獸」互動網頁。透過將適性測驗「遊戲化」，以輕鬆幽默的方式吸引年輕族群參與，不僅能作為實體活動的數位亮點，更具備高度的社群傳播潛力。</p>
+                                
+                                <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                                <p class="mb-6">視覺介面大膽採用普普風與 Y2K 復古潮流元素，透過高對比的色彩、半色調網點背景與粗黑線條，打造出極具個性與記憶點的視覺風格。測驗流程精簡至 5 道情境題，降低測驗門檻；結果頁面則以具象化的神獸角色結合精準的 Hashtag，讓求職者能快速抓到自身特質，並提高將結果截圖分享至社群的動機。</p>
+                                
+                                <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
+                                <ul class="space-y-2 list-disc list-outside ml-5">
+                                    <li><strong>視覺與 UI/UX：</strong> 專注於視覺素材的繪製與版面編排，確保在強烈色彩下依然保持清晰的資訊層級與順暢的操作動線。</li>
+                                    <li><strong>程式開發：</strong> 運用 AI 輔助進行前端互動網頁開發，精準處理測驗計分邏輯、流暢的頁面轉場動畫，以及最終測驗結果的動態渲染，確保跨裝置皆能完美呈現。</li>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="project-details hidden">
-                            <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
-                            <p class="mb-6">在徵才活動或社群互動中，為了打破傳統職涯測驗的沉悶感，特別企劃開發這款「測測你是哪種職場神獸」互動網頁。透過將適性測驗「遊戲化」，以輕鬆幽默的方式吸引年輕族群參與，不僅能作為實體活動的數位亮點，更具備高度的社群傳播潛力。</p>
-                            
-                            <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
-                            <p class="mb-6">視覺介面大膽採用普普風與 Y2K 復古潮流元素，透過高對比的色彩、半色調網點背景與粗黑線條，打造出極具個性與記憶點的視覺風格。測驗流程精簡至 5 道情境題，降低測驗門檻；結果頁面則以具象化的神獸角色結合精準的 Hashtag，讓求職者能快速抓到自身特質，並提高將結果截圖分享至社群的動機。</p>
-                            
-                            <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
-                            <ul class="space-y-2 list-disc list-outside ml-5">
-                                <li><strong>視覺與 UI/UX：</strong> 專注於視覺素材的繪製與版面編排，確保在強烈色彩下依然保持清晰的資訊層級與順暢的操作動線。</li>
-                                <li><strong>程式開發：</strong> 運用 AI 輔助進行前端互動網頁開發，精準處理測驗計分邏輯、流暢的頁面轉場動畫，以及最終測驗結果的動態渲染，確保跨裝置皆能完美呈現。</li>
-                            </ul>
-                        </div>
-                    </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.jpg" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/">
-                        <!-- 縮圖更新為影片 -->
-                        <video src="videos/prog-animal-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-animal-thumb.mp4')"></video>
-                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
-                            <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                            <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">探索你的職場動物風格</h3>
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.jpg" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/">
+                            <video src="videos/prog-animal-thumb.mp4" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" autoplay muted loop playsinline onerror="window.handleVideoError(this, 'videos/prog-animal-thumb.mp4')"></video>
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
+                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
+                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">探索你的職場動物風格</h3>
+                            </div>
+                            <div class="project-details hidden">
+                                <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
+                                <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，希望能打破傳統徵才活動的嚴肅感，特別企劃了這款「職場動物風格」適性診斷測驗。透過遊戲化的數位互動，作為活動前導預熱與現場互動亮點，吸引年輕求職者參與並探索適合自己的職涯方向。</p>
+                                
+                                <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                                <p class="mb-6">視覺上採用高飽和度的對比色彩與粗黑線條，打造出具備強烈現代感與流行指標的介面。文案以「職場叢林」為包裝，將原本枯燥的性向測驗轉化為趣味問答。求職者只需回答 5 道情境題，即可測出代表自己的職場動物角色與生存法則，大幅降低參與門檻並提高社群分享的動機。</p>
+                                
+                                <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
+                                <ul class="space-y-2 list-disc list-outside ml-5">
+                                    <li><strong>視覺與介面：</strong> 獨立統籌 2D 視覺設計、字體編排與介面規劃，確保在不同裝置上都能呈現最佳的視覺張力。</li>
+                                    <li><strong>程式開發：</strong> 運用 AI 輔助進行前端網頁開發與測驗邏輯（計分與結果分發）撰寫，完美整合設計與程式，打造出流暢的互動體驗。</li>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="project-details hidden">
-                            <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
-                            <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，希望能打破傳統徵才活動的嚴肅感，特別企劃了這款「職場動物風格」適性診斷測驗。透過遊戲化的數位互動，作為活動前導預熱與現場互動亮點，吸引年輕求職者參與並探索適合自己的職涯方向。</p>
-                            
-                            <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
-                            <p class="mb-6">視覺上採用高飽和度的對比色彩與粗黑線條，打造出具備強烈現代感與流行指標的介面。文案以「職場叢林」為包裝，將原本枯燥的性向測驗轉化為趣味問答。求職者只需回答 5 道情境題，即可測出代表自己的職場動物角色與生存法則，大幅降低參與門檻並提高社群分享的動機。</p>
-                            
-                            <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
-                            <ul class="space-y-2 list-disc list-outside ml-5">
-                                <li><strong>視覺與介面：</strong> 獨立統籌 2D 視覺設計、字體編排與介面規劃，確保在不同裝置上都能呈現最佳的視覺張力。</li>
-                                <li><strong>程式開發：</strong> 運用 AI 輔助進行前端網頁開發與測驗邏輯（計分與結果分發）撰寫，完美整合設計與程式，打造出流暢的互動體驗。</li>
-                            </ul>
-                        </div>
-                    </div>
 
-                    <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.jpg" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.jpg" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/">
                             <img src="images/prog-career-thumb.jpg" alt="適性診斷" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" onerror="window.handleImageError(this, 'images/prog-career-thumb.jpg')">
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
@@ -644,14 +640,13 @@
 
                     </div>
                     
-                    <!-- 用於存放跑馬燈備用拷令人項目的容器 -->
+                    <!-- 用於存放跑馬燈備用拷貝項目的容器 -->
                     <div id="portfolio-clone" class="hidden"></div>
 
                 </div>
             </div>
         </section>
 
-        <!-- 修正重點 1：在這裡補上 relative，這是解決拖曳亂飛、跳動的關鍵！ -->
         <!-- 關於我：上移一點點，將原先超大的 mt-80 縮減為 mt-12 md:mt-20 lg:mt-32，找到剛好的視覺平衡 -->
         <!-- 修正重點：保留了 scroll-mt-20 屬性，同步解決關於我的導航列對齊問題 -->
         <section id="about" class="py-32 mt-12 md:mt-20 lg:mt-32 px-6 lg:px-12 relative overflow-hidden scroll-mt-20">
@@ -666,17 +661,16 @@
                             <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 layer-reveal pointer-events-none" onerror="this.style.display='none'">
                         </div>
 
-                        <!-- 裝飾物件 1 (第一排左)：手機版下推至 -bottom-40，電腦版恢復較小的負值 -bottom-32 -->
+                        <!-- 裝飾物件 1 (第一排左) -->
                         <div class="drag-item group z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-40 md:-bottom-32 lg:-bottom-36 left-2 md:left-4" data-anim="none">
                             <img src="images/dress-1.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-1.png')">
-                            <!-- 懸浮提示視窗 -->
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
                                 我的眼鏡呢？
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
                         </div>
                         
-                        <!-- 裝飾物件 2 (第一排右)：手機版下推至 -bottom-40，電腦版恢復較小的負值 -bottom-32 -->
+                        <!-- 裝飾物件 2 (第一排右) -->
                         <div class="drag-item group z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-40 md:-bottom-32 lg:-bottom-36 right-2 md:right-4" data-anim="none">
                             <img src="images/dress-2.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-2.png')">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
@@ -685,7 +679,7 @@
                             </div>
                         </div>
 
-                        <!-- 裝飾物件 3 (第二排左)：手機版維持 -bottom-[280px]，電腦版調整至 -bottom-[220px] 測試間距 -->
+                        <!-- 裝飾物件 3 (第二排左) -->
                         <div class="drag-item group z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[280px] md:-bottom-[220px] lg:-bottom-[220px] left-2 md:left-4" data-anim="none">
                             <img src="images/dress-3.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-3.png')">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
@@ -694,7 +688,7 @@
                             </div>
                         </div>
                         
-                        <!-- 裝飾物件 4 (第二排右)：手機版維持 -bottom-[280px]，電腦版調整至 -bottom-[220px] 測試間距 -->
+                        <!-- 裝飾物件 4 (第二排右) -->
                         <div class="drag-item group z-40 w-[150px] h-[150px] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[280px] md:-bottom-[220px] lg:-bottom-[220px] right-2 md:right-4" data-anim="none">
                             <img src="images/dress-4.png" alt="裝飾物件" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/dress-4.png')">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
@@ -774,7 +768,7 @@
 
     </div> 
     
-    <!-- 修正重點：移除 scroll-mt-20，將 py-32 改為 pt-52 pb-32。 -->
+    <!-- 修正重點：將 py-32 改為 pt-52 pb-32。 -->
     <!-- 這樣能讓黑色背景實體向上延伸 80px 填補導覽列下方的空隙，根除露白問題！ -->
     <footer id="contact" class="bg-brand-black text-white pt-52 pb-32 px-6 lg:px-12 text-center">
         <div class="max-w-4xl mx-auto space-y-12">
@@ -784,14 +778,12 @@
             </h2>
             <p class="text-xl text-gray-400">如果您有任何專案想法，歡迎隨時與我聯繫。</p>
             
-            <a href="mailto:qwe33885@gmail.com" class="inline-block text-3xl md:text-5xl font-bold hover:text-[#3B82F6] transition-colors">
-                qwe33885@gmail.com
-            </a>
-
-            <div class="pt-16 flex justify-center gap-8 text-3xl text-gray-400">
-                <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="hover:text-[#3B82F6] transition-colors"><i class="ph ph-instagram-logo"></i></a>
-                <a href="https://www.behance.net/fangmingyu" target="_blank" class="hover:text-[#3B82F6] transition-colors"><i class="ph ph-behance-logo"></i></a>
-                <a href="https://www.linkedin.com/in/frank-yu-/" target="_blank" class="hover:text-[#3B82F6] transition-colors"><i class="ph ph-linkedin-logo"></i></a>
+            <!-- 將巨大的文字 Email 移除，與社群圖示整合為同一行的圖示選單 -->
+            <div class="pt-8 md:pt-16 flex justify-center gap-8 text-3xl text-gray-400">
+                <a href="mailto:qwe33885@gmail.com" class="hover:text-[#3B82F6] transition-colors" title="發送 Email 給我"><i class="ph ph-envelope-simple"></i></a>
+                <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="hover:text-[#3B82F6] transition-colors" title="Instagram"><i class="ph ph-instagram-logo"></i></a>
+                <a href="https://www.behance.net/fangmingyu" target="_blank" class="hover:text-[#3B82F6] transition-colors" title="Behance"><i class="ph ph-behance-logo"></i></a>
+                <a href="https://www.linkedin.com/in/frank-yu-/" target="_blank" class="hover:text-[#3B82F6] transition-colors" title="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
             </div>
             
             <div class="pt-16 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center border-t border-gray-800">
