@@ -87,7 +87,7 @@
             @apply flex flex-col items-center justify-center bg-gray-100 text-gray-400 text-xs p-4 text-center;
         }
 
-        /* 新增：流光溢彩進度條專屬特效 */
+        /* 流光溢彩進度條專屬特效 */
         @keyframes gradient-flow {
             0% { background-position: 200% 0; }
             100% { background-position: 0 0; }
@@ -104,6 +104,14 @@
         }
         .btn-bounce:hover {
             transform: translateY(-5px);
+        }
+
+        /* 恢復：社群圖標的彈跳懸浮效果 */
+        .icon-bounce {
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+        }
+        .icon-bounce:hover {
+            transform: translateY(-8px) scale(1.1);
         }
 
         .layer-reveal {
@@ -216,7 +224,7 @@
 
     <!-- 滑動進度條與跟隨小圖示 (套用流光溢彩特效與圖示防呆機制) -->
     <div class="fixed top-0 left-0 w-full z-[100] pointer-events-none">
-        <div id="scroll-progress" class="h-1 progress-glow w-0 transition-all duration-100 ease-out relative rounded-r-full">
+        <div id="scroll-progress" class="h-[2px] progress-glow w-0 transition-all duration-100 ease-out relative rounded-r-full">
             <!-- 換成自訂上傳的圖片，加上找不到圖片時的防呆圓點 -->
             <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center">
                 <img src="images/progress-icon.png" alt="進度圖示" class="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%233B82F6\'><circle cx=\'12\' cy=\'12\' r=\'8\'/></svg>';">
@@ -780,10 +788,10 @@
             
             <!-- 將巨大的文字 Email 移除，與社群圖示整合為同一行的圖示選單 -->
             <div class="pt-8 md:pt-16 flex justify-center gap-8 text-3xl text-gray-400">
-                <a href="mailto:qwe33885@gmail.com" class="hover:text-[#3B82F6] transition-colors inline-block" title="發送 Email 給我"><i class="ph ph-envelope-simple"></i></a>
-                <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="hover:text-[#3B82F6] transition-colors inline-block" title="Instagram"><i class="ph ph-instagram-logo"></i></a>
-                <a href="https://www.behance.net/fangmingyu" target="_blank" class="hover:text-[#3B82F6] transition-colors inline-block" title="Behance"><i class="ph ph-behance-logo"></i></a>
-                <a href="https://www.linkedin.com/in/frank-yu-/" target="_blank" class="hover:text-[#3B82F6] transition-colors inline-block" title="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
+                <a href="mailto:qwe33885@gmail.com" class="icon-bounce hover:text-[#3B82F6] inline-block" title="發送 Email 給我"><i class="ph ph-envelope-simple"></i></a>
+                <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="icon-bounce hover:text-[#3B82F6] inline-block" title="Instagram"><i class="ph ph-instagram-logo"></i></a>
+                <a href="https://www.behance.net/fangmingyu" target="_blank" class="icon-bounce hover:text-[#3B82F6] inline-block" title="Behance"><i class="ph ph-behance-logo"></i></a>
+                <a href="https://www.linkedin.com/in/frank-yu-/" target="_blank" class="icon-bounce hover:text-[#3B82F6] inline-block" title="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
             </div>
             
             <!-- 移除了版權宣告上的深色底線 -->
