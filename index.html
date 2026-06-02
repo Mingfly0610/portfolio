@@ -193,20 +193,6 @@
             max-width: 500px !important;
             flex-shrink: 0 !important; /* 防止項目被壓縮 */
         }
-
-        /* 全域自訂鼠標 */
-        body {
-            cursor: url('images/cursor-default.png') 4 2, auto;
-        }
-        a, button, .cursor-pointer, .portfolio-item, .mobile-link, #modal-backdrop, .dot {
-            cursor: url('images/cursor-pointer.png') 4 2, pointer !important;
-        }
-        .drag-item {
-            cursor: url('images/cursor-grab.png') 16 16, grab !important;
-        }
-        .is-dragging {
-            cursor: url('images/cursor-grabbing.png') 16 16, grabbing !important;
-        }
     </style>
 
     <script>
@@ -258,7 +244,7 @@
         <div id="scroll-progress" class="h-[2px] progress-glow w-0 transition-all duration-100 ease-out relative rounded-r-full">
             <!-- 換成自訂上傳的圖片，加上找不到圖片時的防呆圓點 -->
             <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center">
-                <img src="images/progress-icon.png" alt="進度圖示" class="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%233B82F6\'><circle cx=\'12\' cy=\'12\' r=\'8\'/></svg>';">
+                <img src="images/progress-icon.png" alt="進度圖示" class="w-[30px] h-[30px] object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%233B82F6\'><circle cx=\'12\' cy=\'12\' r=\'8\'/></svg>';">
             </div>
         </div>
     </div>
