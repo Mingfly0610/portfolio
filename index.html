@@ -202,6 +202,16 @@
 </head>
 <body class="bg-white text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
 
+    <!-- 滑動進度條與跟隨小圖示 -->
+    <div class="fixed top-0 left-0 w-full z-[100] pointer-events-none">
+        <div id="scroll-progress" class="h-[3px] bg-[#3B82F6] w-0 transition-all duration-100 ease-out relative">
+            <!-- 換成自訂上傳的圖片，移除旋轉，並加上藍色發光陰影 -->
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center">
+                <img src="images/progress-icon.png" alt="進度圖示" class="w-6 h-6 object-contain drop-shadow-[0_0_6px_rgba(59,130,246,0.8)]" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </div>
+
     <!-- 滑鼠拖尾專用 Canvas -->
     <canvas id="trail-canvas" class="fixed inset-0 pointer-events-none z-[9999] w-full h-full"></canvas>
 
@@ -1303,6 +1313,16 @@
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) navbar.classList.add('shadow-sm');
             else navbar.classList.remove('shadow-sm');
+
+            // 滑動進度條更新邏輯 (更改為 width 百分比，並附著尾端小星星)
+            const progressBar = document.getElementById('scroll-progress');
+            if (progressBar) {
+                const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrollPercent = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+                // 改用 width 調整，讓內部的絕對定位小圖示可以完美跟著邊緣跑
+                progressBar.style.width = `${scrollPercent}%`;
+            }
         });
 
         // --- 滑鼠拖尾線條效果 (1px, 平滑曲線) ---
