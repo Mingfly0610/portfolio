@@ -58,29 +58,7 @@
         @property --c4 { syntax: '<color>'; initial-value: rgba(59, 130, 246, 0.15); inherits: false; }
 
         .mesh-background {
-            background-color: #fafafa;
-            --c1: rgba(56, 189, 248, 0.15);
-            --c2: rgba(253, 224, 71, 0.15);
-            --c3: rgba(168, 85, 247, 0.15);
-            --c4: rgba(59, 130, 246, 0.15);
-            
-            background-image: 
-                radial-gradient(ellipse at 10% 20%, var(--c1) 0%, transparent 60%),
-                radial-gradient(ellipse at 90% 15%, var(--c2) 0%, transparent 60%),
-                radial-gradient(ellipse at 85% 85%, var(--c3) 0%, transparent 60%),
-                radial-gradient(ellipse at 15% 80%, var(--c4) 0%, transparent 60%);
-            
-            background-size: 200% 200%;
-            animation: aurora-move 20s ease-in-out infinite;
-            transition: --c1 1.5s ease, --c2 1.5s ease, --c3 1.5s ease, --c4 1.5s ease;
-        }
-
-        @keyframes aurora-move {
-            0%   { background-position: 0% 0%; }
-            25%  { background-position: 100% 30%; }
-            50%  { background-position: 100% 100%; }
-            75%  { background-position: 30% 100%; }
-            100% { background-position: 0% 0%; }
+            background-color: transparent;
         }
 
         .img-error-placeholder {
@@ -97,18 +75,6 @@
             background-size: 400% 100%;
             animation: shimmer 1.5s infinite ease-in-out;
             transition: opacity 0.5s ease;
-        }
-
-        /* 流光溢彩進度條專屬特效 */
-        @keyframes gradient-flow {
-            0% { background-position: 200% 0; }
-            100% { background-position: 0 0; }
-        }
-        .progress-glow {
-            background: linear-gradient(90deg, #3B82F6, #A855F7, #38BDF8, #3B82F6);
-            background-size: 200% 100%;
-            animation: gradient-flow 3s linear infinite;
-            box-shadow: 0 0 12px rgba(168, 85, 247, 0.6), 0 0 4px rgba(56, 189, 248, 0.8);
         }
 
         .btn-bounce {
@@ -237,17 +203,10 @@
         };
     </script>
 </head>
-<body class="bg-white text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
+<body class="bg-[#FCFCFC] text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
 
-    <!-- 滑動進度條與跟隨小圖示 (套用流光溢彩特效與圖示防呆機制) -->
-    <div class="fixed top-0 left-0 w-full z-[100] pointer-events-none">
-        <div id="scroll-progress" class="h-[2px] progress-glow w-0 transition-all duration-100 ease-out relative rounded-r-full">
-            <!-- 換成自訂上傳的圖片，加上找不到圖片時的防呆圓點 -->
-            <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 flex items-center justify-center">
-                <img src="images/progress-icon.png" alt="進度圖示" class="w-[30px] h-[30px] object-contain drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%233B82F6\'><circle cx=\'12\' cy=\'12\' r=\'8\'/></svg>';">
-            </div>
-        </div>
-    </div>
+    <!-- 動態網點波浪背景 Canvas -->
+    <canvas id="halftone-bg" class="fixed inset-0 w-full h-full -z-10 pointer-events-none"></canvas>
 
     <!-- 滑鼠拖尾專用 Canvas -->
     <canvas id="trail-canvas" class="fixed inset-0 pointer-events-none z-[9999] w-full h-full"></canvas>
@@ -982,45 +941,14 @@
         </div>
     </div>
 
-    <canvas id="color-sampler" class="hidden"></canvas>
+    <!-- 移除了原本的 color-sampler canvas -->
 
     <script>
-        const dynamicBg = document.getElementById('dynamic-content-area');
-        const colorSampler = document.getElementById('color-sampler');
-        const samplerCtx = colorSampler.getContext('2d', { willReadFrequently: true });
+        // 移除了與 dynamicBg, colorSampler 相關的變數宣告與預設顏色
+
+        // 移除了 updateBackgroundColors 函式
         
-        const defaultColors = {
-            c1: 'rgba(56, 189, 248, 0.15)',
-            c2: 'rgba(253, 224, 71, 0.15)',
-            c3: 'rgba(168, 85, 247, 0.15)',
-            c4: 'rgba(59, 130, 246, 0.15)'
-        };
-
-        function updateBackgroundColors(imgElement) {
-            colorSampler.width = 5;
-            colorSampler.height = 5;
-            try {
-                samplerCtx.drawImage(imgElement, 0, 0, 5, 5);
-                const p = samplerCtx.getImageData(0, 0, 5, 5).data;
-                const getRGBA = (idx) => `rgba(${p[idx]}, ${p[idx+1]}, ${p[idx+2]}, 0.35)`;
-                dynamicBg.style.setProperty('--c1', getRGBA(0));
-                dynamicBg.style.setProperty('--c2', getRGBA(16 * 4));
-                dynamicBg.style.setProperty('--c3', getRGBA(24 * 4));
-                dynamicBg.style.setProperty('--c4', getRGBA(20 * 4));
-                // 背景底色連動
-                dynamicBg.style.backgroundColor = `rgba(${p[0]}, ${p[1]}, ${p[2]}, 0.05)`;
-            } catch (e) {
-                console.warn("無法提取顏色");
-            }
-        }
-
-        function resetBackgroundColors() {
-            dynamicBg.style.setProperty('--c1', defaultColors.c1);
-            dynamicBg.style.setProperty('--c2', defaultColors.c2);
-            dynamicBg.style.setProperty('--c3', defaultColors.c3);
-            dynamicBg.style.setProperty('--c4', defaultColors.c4);
-            dynamicBg.style.backgroundColor = '#fafafa';
-        }
+        // 移除了 resetBackgroundColors 函式
 
         // --- 無限跑馬燈與網格切換邏輯 ---
         const portfolioTrack = document.getElementById('portfolio-track');
@@ -1065,21 +993,7 @@
             });
         }
 
-        // 全局事件委派 (處理懸停取色)
-        portfolioTrack.addEventListener('mouseover', (e) => {
-            const item = e.target.closest('.portfolio-item');
-            if (item) {
-                const img = item.querySelector('img');
-                if (img && img.complete && img.naturalWidth !== 0) updateBackgroundColors(img);
-            }
-        });
-
-        portfolioTrack.addEventListener('mouseout', (e) => {
-            const item = e.target.closest('.portfolio-item');
-            if (item && !item.contains(e.relatedTarget)) {
-                resetBackgroundColors();
-            }
-        });
+        // 移除了 portfolioTrack 的 mouseover 與 mouseout 懸停取色事件委派
 
         const modal = document.getElementById('project-modal');
         const modalImg = document.getElementById('modal-img');
@@ -1484,33 +1398,11 @@
             item.addEventListener('touchstart', dragStart, {passive: false});
         });
 
-        // 獨立出進度條更新函式，確保隨時可呼叫
-        function updateScrollProgress() {
-            const progressBar = document.getElementById('scroll-progress');
-            if (progressBar) {
-                const scrollTop = window.scrollY || document.documentElement.scrollTop;
-                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                // 防呆計算，避免除以 0 或出現負數
-                const scrollPercent = scrollHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / scrollHeight) * 100)) : 0;
-                progressBar.style.width = `${scrollPercent}%`;
-            }
-        }
-
         window.addEventListener('scroll', () => {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) navbar.classList.add('shadow-sm');
             else navbar.classList.remove('shadow-sm');
-
-            updateScrollProgress();
         });
-
-        // 監聽視窗大小改變時更新
-        window.addEventListener('resize', updateScrollProgress);
-        
-        // 重要防呆：確保網頁剛載入、或重新整理在網頁中央時，進度條不會因為還沒滾動而維持在 0%
-        document.addEventListener('DOMContentLoaded', updateScrollProgress);
-        // 保險起見，立刻執行一次
-        updateScrollProgress();
 
         // --- 滑鼠拖尾線條效果 (1px, 平滑曲線) ---
         const trailCanvas = document.getElementById('trail-canvas');
@@ -1562,6 +1454,62 @@
             requestAnimationFrame(animateTrail);
         }
         animateTrail();
+
+        // --- 動態網點波浪背景邏輯 ---
+        const halftoneCanvas = document.getElementById('halftone-bg');
+        const halftoneCtx = halftoneCanvas.getContext('2d');
+
+        // 設定參數 (最大半徑已縮小為 4)
+        const htSpacing = 35;
+        const htMinRadius = 0.5;
+        const htMaxRadius = 4; 
+        const htDotColor = 'rgba(148, 163, 155, 0.3)'; // 將原本的 '#94a39b' 轉為 rgba 並設定 30% 透明度
+        const htAnimSpeed = 0.015;
+        const htWaveScale = 0.003;
+        
+        let htTime = 0;
+
+        function resizeHalftone() {
+            const dpr = window.devicePixelRatio || 1;
+            halftoneCanvas.width = window.innerWidth * dpr;
+            halftoneCanvas.height = window.innerHeight * dpr;
+            halftoneCanvas.style.width = `${window.innerWidth}px`;
+            halftoneCanvas.style.height = `${window.innerHeight}px`;
+            halftoneCtx.scale(dpr, dpr);
+        }
+        window.addEventListener('resize', resizeHalftone);
+        resizeHalftone();
+
+        function animateHalftone() {
+            halftoneCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            
+            for (let x = -htSpacing; x <= window.innerWidth + htSpacing; x += htSpacing) {
+                for (let y = -htSpacing; y <= window.innerHeight + htSpacing; y += htSpacing) {
+                    
+                    const nx = x * htWaveScale;
+                    const ny = y * htWaveScale;
+
+                    const val1 = Math.sin(nx * 3 + htTime) * Math.cos(ny * 3 + htTime);
+                    const val2 = Math.sin(nx * 5 - htTime * 0.8) * Math.cos(ny * 5 + htTime * 0.5);
+
+                    let combined = val1 + val2; 
+                    let noise = (combined + 2) / 4; 
+                    noise = Math.pow(noise, 2.5); 
+
+                    const currentRadius = htMinRadius + noise * (htMaxRadius - htMinRadius);
+
+                    halftoneCtx.beginPath();
+                    halftoneCtx.arc(x, y, currentRadius, 0, Math.PI * 2);
+                    halftoneCtx.fillStyle = htDotColor;
+                    halftoneCtx.fill();
+                }
+            }
+
+            htTime += htAnimSpeed;
+            requestAnimationFrame(animateHalftone);
+        }
+        animateHalftone();
+
     </script>
 </body>
 </html>
