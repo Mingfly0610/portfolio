@@ -187,7 +187,8 @@
             /* 但讓「目前游標指到的那個元素」保持清晰、放大並取消原本的高低位移 */
             .grid-marquee .item-marquee:hover {
                 opacity: 1 !important;
-                filter: blur(0px) grayscale(0%) drop-shadow(0 20px 30px rgba(59, 130, 246, 0.2));
+                /* 再縮小陰影範圍 50%：偏移量改為 2px，模糊半徑改為 3px */
+                filter: blur(0px) grayscale(0%) drop-shadow(0 2px 3px rgba(59, 130, 246, 0.2));
                 transform: scale(1.05) translateY(0) !important;
                 z-index: 20;
             }
@@ -767,9 +768,8 @@
             </div>
         </section>
 
-        <!-- 關於我：上移一點點，將原先超大的 mt-80 縮減為 mt-12 md:mt-20 lg:mt-32，找到剛好的視覺平衡 -->
-        <!-- 修正重點：保留了 scroll-mt-20 屬性，同步解決關於我的導航列對齊問題 -->
-        <section id="about" class="py-32 mt-12 md:mt-20 lg:mt-32 px-6 lg:px-12 relative overflow-hidden scroll-mt-20">
+        <!-- 關於我：大幅縮減與上方作品區的間距，避免呼吸空間過大 -->
+        <section id="about" class="pt-8 pb-32 md:pt-12 lg:pt-16 mt-0 px-6 lg:px-12 relative overflow-hidden scroll-mt-20">
             
             <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-20 items-start relative z-10">
                 
@@ -1576,4 +1576,3 @@
 
     </script>
 </body>
-</html>
