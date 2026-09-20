@@ -144,20 +144,53 @@
             width: max-content;
             animation: marquee-scroll 75s linear infinite;
             will-change: transform; /* 提升手機端動畫效能 */
+            padding-top: 3rem; /* 為上下錯落預留空間 */
+            padding-bottom: 3rem;
         }
         .track-marquee:hover {
             animation-play-state: paused;
         }
+        
+        /* 升級 1：高低錯落的視覺節奏 (只在跑馬燈模式下生效) */
         .grid-marquee {
             display: flex;
             gap: 2.5rem; 
             padding-right: 2.5rem; /* 尾部預留與 gap 相同的間距，讓頭尾無縫接軌 */
             flex-shrink: 0;
+            align-items: center; /* 讓子元素垂直居中作為基準 */
         }
+        
         .item-marquee {
             width: 85vw !important;
             max-width: 500px !important;
             flex-shrink: 0 !important; /* 防止項目被壓縮 */
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important; /* 讓縮放和模糊更平滑 */
+        }
+        
+        /* 利用 nth-child 創造上、下錯落感 */
+        .item-marquee:nth-child(odd) {
+            transform: translateY(-20px);
+        }
+        .item-marquee:nth-child(even) {
+            transform: translateY(20px);
+        }
+
+        /* 升級 2：電影級景深聚焦 (Depth of Field) 
+           當整個軌道被 hover 時，讓裡面的元素都變暗且模糊 */
+        @media (hover: hover) {
+            .grid-marquee:hover .item-marquee {
+                opacity: 0.3 !important;
+                filter: blur(4px) grayscale(50%);
+                transform: scale(0.95); /* 稍微縮小，加深遠離的錯覺 */
+            }
+            
+            /* 但讓「目前游標指到的那個元素」保持清晰、放大並取消原本的高低位移 */
+            .grid-marquee .item-marquee:hover {
+                opacity: 1 !important;
+                filter: blur(0px) grayscale(0%) drop-shadow(0 20px 30px rgba(59, 130, 246, 0.2));
+                transform: scale(1.05) translateY(0) !important;
+                z-index: 20;
+            }
         }
     </style>
 
@@ -357,7 +390,7 @@
                             <img src="images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg')">
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl lg:text-3xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br class="hidden md:block">薪動高雄 職得幸福<br class="hidden lg:block">(岡山大型徵才)</h3>
+                                <h3 class="text-white text-xl md:text-2xl lg:text-3xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(岡山大型徵才)</h3>
                             </div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
@@ -369,19 +402,7 @@
                             <img src="images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg')">
                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl lg:text-3xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br class="hidden md:block">薪動高雄 職得幸福<br class="hidden lg:block">(楠梓大型徵才)</h3>
-                            </div>
-                            <div class="project-details hidden">
-                                <p>專案詳細介紹內容正在準備中...</p>
-                            </div>
-                        </div>
-
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-100/50 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-nanzi-full.jpg">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br class="hidden md:block">「薪動高雄 職得幸福」<br class="hidden lg:block">(楠梓大型徵才)</h3>
+                                <h3 class="text-white text-xl md:text-2xl lg:text-3xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(楠梓大型徵才)</h3>
                             </div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
