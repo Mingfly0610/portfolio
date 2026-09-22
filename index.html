@@ -187,8 +187,8 @@
             /* 但讓「目前游標指到的那個元素」保持清晰、放大並取消原本的高低位移 */
             .grid-marquee .item-marquee:hover {
                 opacity: 1 !important;
-                /* 再縮小陰影範圍 50%：偏移量改為 2px，模糊半徑改為 3px */
-                filter: blur(0px) grayscale(0%) drop-shadow(0 2px 3px rgba(59, 130, 246, 0.2));
+                /* 移除藍色 drop-shadow，只保留清晰的 filter 設定 */
+                filter: blur(0px) grayscale(0%);
                 transform: scale(1.05) translateY(0) !important;
                 z-index: 20;
             }
@@ -1050,6 +1050,10 @@
             modalImg.classList.add('opacity-0');
             modalVideo.classList.add('opacity-0');
             
+            // 切換圖片時，重置 3D 旋轉狀態 (避免前一張的傾斜殘留)
+            modalImg.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s';
+            modalImg.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+
             const currentPath = currentGallery[currentImgIndex].trim();
             
             if (currentMediaType === 'video') {
@@ -1201,9 +1205,46 @@
             }
         }
 
+        // --- 升級 3：電腦版 3D 滑鼠追蹤互動 (立體卡片效果) ---
+        modalMediaContainer.addEventListener('mousemove', (e) => {
+            // 只在圖片模式且螢幕寬度大於 1024px (電腦版) 時啟用此特效
+            if (currentMediaType !== 'image' || window.innerWidth < 1024) return;
+            
+            const rect = modalMediaContainer.getBoundingClientRect();
+            // 取得滑鼠在容器內的位置
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // 將座標轉換為以中心點為 (0,0)，範圍落在 -1 到 1 之間
+            const xNorm = (x / rect.width) * 2 - 1;
+            const yNorm = (y / rect.height) * 2 - 1;
+            
+            // 設定最大旋轉角度
+            const maxTilt = 12; 
+            // 上下移動影響 X 軸旋轉 (反向)，左右移動影響 Y 軸旋轉
+            const rotateX = -yNorm * maxTilt; 
+            const rotateY = xNorm * maxTilt;  
+            
+            // 取消 transition 延遲讓跟隨更即時，並套用旋轉與微放大
+            modalImg.style.transition = 'transform 0.1s ease-out, opacity 0.5s';
+            modalImg.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        });
+
+        modalMediaContainer.addEventListener('mouseleave', () => {
+            if (currentMediaType !== 'image') return;
+            // 滑鼠離開時，平滑歸位
+            modalImg.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s';
+            modalImg.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        });
+
         document.getElementById('modal-close').onclick = document.getElementById('modal-backdrop').onclick = () => {
             const content = document.getElementById('modal-content');
             content.classList.add('scale-95', 'opacity-0');
+            
+            // 關閉時重置圖片 3D 狀態
+            modalImg.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s';
+            modalImg.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+
             setTimeout(() => { modal.classList.add('hidden'); modalVideo.pause(); document.body.style.overflow = ''; }, 300);
         };
 
