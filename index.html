@@ -777,8 +777,8 @@
                     <!-- 加大手機版底部的 margin (mb)，確保裝飾品不會疊到下方文字 -->
                     <div class="relative w-full max-w-[360px] lg:w-[400px] mb-80 md:mb-[304px] lg:mb-[336px]">
                         <div id="profile-spotlight" class="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg cursor-crosshair lg:mt-2">
-                            <img id="profile-base-img" src="images/profile.jpg?v=1" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="window.handleImageError(this, 'images/profile.jpg')">
-                            <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 layer-reveal pointer-events-none" onerror="this.style.display='none'">
+                            <img id="profile-base-img" src="images/profile.jpg?v=1" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover" onerror="window.handleImageError(this, 'images/profile.jpg')">
+                            <img id="profile-reveal-img" src="images/profile-reveal.jpg" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover layer-reveal pointer-events-none" onerror="this.style.display='none'">
                         </div>
 
                         <!-- 裝飾物件 1 (第一排左) -->
@@ -1202,6 +1202,41 @@
                 prevBtn.click();
             }
         }
+
+        // --- 升級 3：3D 傾斜卡片 (Parallax Tracking) 特效 ---
+        modalMediaContainer.addEventListener('mousemove', (e) => {
+            // 裝置防呆：只在電腦版（螢幕寬度大於 1024px）啟用，避免干擾手機觸控
+            if (window.innerWidth < 1024) return;
+            
+            const rect = modalMediaContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            // 計算旋轉角度，最大傾斜約 8度
+            const rotateX = ((y - centerY) / centerY) * -8;
+            const rotateY = ((x - centerX) / centerX) * 8;
+            
+            // 取得當前正在顯示的媒體（圖片或影片）
+            const targetElement = currentMediaType === 'video' ? modalVideo : modalImg;
+            
+            // 為了讓跟隨更即時，移動時將過渡時間縮短，並加入微放大效果 scale(1.02)
+            targetElement.style.transition = 'transform 0.1s ease-out, opacity 0.5s';
+            targetElement.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        });
+
+        modalMediaContainer.addEventListener('mouseleave', () => {
+            if (window.innerWidth < 1024) return;
+            
+            // 移出時像有彈性一樣平滑歸位
+            modalImg.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s';
+            modalImg.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+            
+            modalVideo.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s';
+            modalVideo.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+        });
 
         document.getElementById('modal-close').onclick = document.getElementById('modal-backdrop').onclick = () => {
             const content = document.getElementById('modal-content');
