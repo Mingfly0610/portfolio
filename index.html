@@ -1041,8 +1041,30 @@
         let currentImgIndex = 0;
         let currentMediaType = 'image';
 
+        let is3DDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let currentRotX = 0;
+        let currentRotY = 0;
+        let currentScale = 1;
+
+        function reset3DState() {
+            currentRotX = 0;
+            currentRotY = 0;
+            currentScale = 1;
+            if (modalImg) {
+                modalImg.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s';
+                modalImg.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+            }
+            if (modalVideo) {
+                modalVideo.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s';
+                modalVideo.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+            }
+        }
+
         // 更新彈窗內的顯示邏輯，加入骨架屏判斷
         function updateGalleryView() {
+            reset3DState(); // 每次切換圖片/影片時重置 3D 視角
             mediaError.classList.add('hidden');
             const modalSkeleton = document.getElementById('modal-skeleton');
             
@@ -1203,45 +1225,76 @@
             }
         }
 
-        // --- 升級 3：3D 傾斜卡片 (Parallax Tracking) 特效 ---
-        modalMediaContainer.addEventListener('mousemove', (e) => {
-            // 裝置防呆：只在電腦版（螢幕寬度大於 1024px）啟用，避免干擾手機觸控
+        //        // 為了提示使用者可以互動，改變鼠標樣式
+        modalMediaContainer.style.cursor = 'grab';
+
+        modalMediaContainer.addEventListener('mousedown', (e) => {
+            // 裝置防呆：只在電腦版啟用，保留手機端原有的滑動切換
             if (window.innerWidth < 1024) return;
+            is3DDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            modalMediaContainer.style.cursor = 'grabbing';
             
-            const rect = modalMediaContainer.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            // 計算旋轉角度，最大傾斜約 8度
-            const rotateX = ((y - centerY) / centerY) * -8;
-            const rotateY = ((x - centerX) / centerX) * 8;
-            
-            // 取得當前正在顯示的媒體（圖片或影片）
             const targetElement = currentMediaType === 'video' ? modalVideo : modalImg;
-            
-            // 為了讓跟隨更即時，移動時將過渡時間縮短，並加入微放大效果 scale(1.02)
-            targetElement.style.transition = 'transform 0.1s ease-out, opacity 0.5s';
-            targetElement.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            targetElement.style.transition = 'none'; // 拖曳時取消過渡效果，讓跟隨無延遲
         });
 
-        modalMediaContainer.addEventListener('mouseleave', () => {
+        // 綁定在 window 上，確保滑鼠拖出圖片範圍時仍可保持旋轉
+        window.addEventListener('mousemove', (e) => {
+            if (!is3DDragging || window.innerWidth < 1024) return;
+            
+            const deltaX = e.clientX - dragStartX;
+            const deltaY = e.clientY - dragStartY;
+            
+            // 調整旋轉靈敏度 (乘數)
+            currentRotY += deltaX * 0.4; 
+            currentRotX -= deltaY * 0.4; 
+            
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            
+            const targetElement = currentMediaType === 'video' ? modalVideo : modalImg;
+            targetElement.style.transform = `perspective(1000px) rotateX(${currentRotX}deg) rotateY(${currentRotY}deg) scale(${currentScale})`;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (is3DDragging) {
+                is3DDragging = false;
+                modalMediaContainer.style.cursor = 'grab';
+            }
+        });
+
+        // 支援滑鼠滾輪縮放
+        modalMediaContainer.addEventListener('wheel', (e) => {
             if (window.innerWidth < 1024) return;
+            e.preventDefault(); // 防止網頁整體滾動
             
-            // 移出時像有彈性一樣平滑歸位
-            modalImg.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s';
-            modalImg.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+            const zoomSpeed = 0.002;
+            currentScale -= e.deltaY * zoomSpeed;
+            // 限制縮放極限，避免過度放大或縮小
+            currentScale = Math.max(0.3, Math.min(currentScale, 5)); 
             
-            modalVideo.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s';
-            modalVideo.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+            const targetElement = currentMediaType === 'video' ? modalVideo : modalImg;
+            targetElement.style.transition = 'transform 0.1s ease-out';
+            targetElement.style.transform = `perspective(1000px) rotateX(${currentRotX}deg) rotateY(${currentRotY}deg) scale(${currentScale})`;
+        }, { passive: false });
+
+        // 雙擊快速重置視角
+        modalMediaContainer.addEventListener('dblclick', () => {
+            if (window.innerWidth < 1024) return;
+            reset3DState();
         });
 
         document.getElementById('modal-close').onclick = document.getElementById('modal-backdrop').onclick = () => {
             const content = document.getElementById('modal-content');
             content.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => { modal.classList.add('hidden'); modalVideo.pause(); document.body.style.overflow = ''; }, 300);
+            setTimeout(() => { 
+                modal.classList.add('hidden'); 
+                modalVideo.pause(); 
+                document.body.style.overflow = ''; 
+                reset3DState(); // 關閉彈窗時也重置視角，確保下次打開是正常的
+            }, 300);
         };
 
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
