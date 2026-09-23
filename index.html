@@ -919,13 +919,15 @@
                     <i class="ph ph-x text-[18px]"></i>
                 </button>
                 <div class="w-full max-h-[90vh] overflow-y-auto relative flex flex-col lg:flex-row">
-                    <div id="modal-media-container" class="media-container w-full lg:w-[65%] xl:w-[70%] aspect-video lg:aspect-auto lg:h-[90vh] bg-gray-100 overflow-hidden relative shrink-0 lg:sticky lg:top-0">
+                    <!-- 加入 select-none 防止整個容器被反白選取 -->
+                    <div id="modal-media-container" class="media-container w-full lg:w-[65%] xl:w-[70%] aspect-video lg:aspect-auto lg:h-[90vh] bg-gray-100 overflow-hidden relative shrink-0 lg:sticky lg:top-0 select-none">
                         
                         <!-- 彈窗的專屬骨架屏 -->
                         <div id="modal-skeleton" class="skeleton-shimmer absolute inset-0 z-10 hidden transition-opacity duration-300"></div>
 
-                        <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-contain relative z-20 opacity-0 transition-opacity duration-500">
-                        <video id="modal-video" src="" class="w-full h-full object-contain relative z-20 hidden opacity-0 transition-opacity duration-500" controls autoplay muted playsinline></video>
+                        <!-- 加入 select-none, draggable="false" 與 style 防止拖曳殘影 -->
+                        <img id="modal-img" src="" alt="專案大圖" class="w-full h-full object-contain relative z-20 opacity-0 transition-opacity duration-500 select-none" draggable="false" style="-webkit-user-drag: none;">
+                        <video id="modal-video" src="" class="w-full h-full object-contain relative z-20 hidden opacity-0 transition-opacity duration-500 select-none" controls autoplay muted playsinline draggable="false" style="-webkit-user-drag: none;"></video>
                         
                         <button id="prev-img" class="absolute left-3 top-1/2 -translate-y-1/2 w-[30px] h-[30px] bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-30 hidden">
                             <i class="ph ph-caret-left text-[14px]"></i>
@@ -1225,12 +1227,24 @@
             }
         }
 
-        //        // 為了提示使用者可以互動，改變鼠標樣式
+        // 鎖定右鍵選單與長按選單，防止下載圖片與新分頁開啟
+        modalMediaContainer.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // 為了提示使用者可以互動，改變鼠標樣式
         modalMediaContainer.style.cursor = 'grab';
 
         modalMediaContainer.addEventListener('mousedown', (e) => {
             // 裝置防呆：只在電腦版啟用，保留手機端原有的滑動切換
             if (window.innerWidth < 1024) return;
+            
+            // 阻擋原生拖曳與反白選取行為，徹底根除殘影與變黑問題
+            // 備註：排除影片是因為如果點到影片的控制列，我們不希望阻擋播放/暫停的功能
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+
             is3DDragging = true;
             dragStartX = e.clientX;
             dragStartY = e.clientY;
