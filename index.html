@@ -46,6 +46,19 @@
         ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
         
+        /* 圖片與影片不可被選取、也不會被瀏覽器當成檔案拖走（自訂的拖曳與 3D 檢視不受影響） */
+        img, video, svg, canvas {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            -webkit-touch-callout: none;
+        }
+        /* 作品卡片的圖片區與彈窗的顯示區：連按兩下也不會選到東西 */
+        .item-media, .modal-media, #profile-spotlight, .drag-item {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
         .fade-in { animation: fadeIn 0.8s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -222,6 +235,46 @@
         }
         .portfolio-item.is-phone .item-media-el { border-radius: 23px; }
         .portfolio-item.is-phone .skeleton-shimmer { border-radius: 23px; }
+
+        /* 程式設計（網站）：瀏覽器視窗外框 */
+        .portfolio-item.is-browser .item-media {
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            border: 1px solid rgba(17, 17, 17, 0.14);
+            container-type: inline-size;
+        }
+        .browser-bar {
+            flex: 0 0 auto;
+            display: flex; align-items: center; gap: 10px;
+            height: 26px; padding: 0 10px;
+            background: #f1f1f3;
+            border-bottom: 1px solid rgba(17, 17, 17, 0.1);
+        }
+        .browser-dots { display: inline-flex; gap: 5px; flex-shrink: 0; }
+        .browser-dots i { width: 7px; height: 7px; border-radius: 50%; background: #c9c9cf; }
+        .browser-url {
+            flex: 1 1 auto; min-width: 0;
+            height: 16px; padding: 0 10px;
+            border-radius: 999px; background: #ffffff;
+            font-size: 10px; line-height: 16px; color: #8b8b93; letter-spacing: 0.02em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .browser-screen { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+        .browser-screen .item-media-el { position: absolute; inset: 0; }
+        /* 影片還沒放上去之前的預覽：用 CSS 重畫首頁的樣子 */
+        .browser-placeholder {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 4cqw; padding: 4cqw; text-align: center;
+            background-color: #FCFCFC;
+            background-image: radial-gradient(rgba(148, 163, 155, 0.35) 1.2px, transparent 1.6px);
+            background-size: 5.5cqw 5.5cqw;
+        }
+        .bp-logo { position: absolute; top: 3cqw; left: 4cqw; font-family: 'Playfair Display', serif; font-weight: 700; font-size: clamp(9px, 3cqw, 16px); color: #111111; }
+        .bp-title { font-size: clamp(15px, 7.2cqw, 40px); font-weight: 900; line-height: 1.12; letter-spacing: -0.01em; color: #111111; }
+        .bp-title em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400; color: #3B82F6; }
+        .bp-note { padding: 0.9cqw 2.6cqw; border-radius: 999px; background: #FFEC00; font-size: clamp(9px, 2.5cqw, 13px); font-weight: 700; color: #111111; }
 
         .item-badge {
             position: absolute;
@@ -625,10 +678,6 @@
                         
                         <button class="filter-btn relative px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 btn-bounce hover:shadow-md" data-filter="programming">
                             程式設計
-                            <div id="prog-tooltip" class="absolute top-full md:top-auto md:bottom-full left-0 md:left-1/2 md:-translate-x-1/2 mt-3 md:mt-0 md:mb-3 px-5 py-2 bg-[#3B82F6] text-white text-[13px] font-black rounded-full text-center whitespace-nowrap opacity-0 pointer-events-none transition-all duration-500 transform translate-y-2 z-50 leading-tight tracking-wide">
-                                這個作品集網站也是<br>程式設計的作品喔！
-                                <div class="absolute bottom-full md:bottom-auto md:top-full left-11 md:left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#3B82F6] border-t-0 md:border-b-0 md:border-t-[8px] md:border-t-[#3B82F6]"></div>
-                            </div>
                         </button>
                     </div>
                 </div>
@@ -1137,6 +1186,45 @@
                             </div>
                         </div>
 
+
+                        <!-- 第七件：這個作品集網站本身。影片檔放進 videos/ 後會自動顯示，在那之前顯示用 CSS 畫的預覽畫面 -->
+                        <div class="portfolio-item group is-wide is-browser" style="--ar:1.6" data-category="programming" data-video="videos/prog-portfolio-full.mp4" data-pending-media="示範影片準備中" role="button" tabindex="0" aria-label="程式設計：個人作品集網站" data-modal-ar="1.7778">
+                            <div class="item-media">
+                                <div class="browser-bar" aria-hidden="true">
+                                    <span class="browser-dots"><i></i><i></i><i></i></span>
+                                    <span class="browser-url">mingfly0610.github.io/portfolio</span>
+                                </div>
+                                <div class="browser-screen">
+                                    <div class="browser-placeholder" aria-hidden="true">
+                                        <span class="bp-logo">MingFly.</span>
+                                        <p class="bp-title">Crafting <em>beautiful</em><br>digital experiences.</p>
+                                        <span class="bp-note">你正在看的這個網站</span>
+                                    </div>
+                                    <video src="videos/prog-portfolio-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="個人作品集網站" onloadeddata="window.handleMediaLoad(this)" onerror="this.dataset.missing='1'; this.style.display='none';"></video>
+                                </div>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
+                            </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title"><span class="tw">個人</span><wbr><span class="tw">作品集網站</span></h3>
+                            </div>
+                            <div class="modal-title-src hidden">個人作品集網站</div>
+                            <div class="project-details hidden">
+                                <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
+                                <p class="mb-6">你現在正在瀏覽的這個網站，本身就是一件作品。我希望作品集不只是把圖片排在一起，而是讓人在瀏覽的過程中，直接感受到我同時具備視覺、動態與互動三種能力，因此從版面規劃、互動設計到程式開發都由自己完成。</p>
+                                
+                                <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                                <p class="mb-6">整體以乾淨的留白與單一品牌藍為基調，把畫面焦點留給作品。作品卡片不加外框，依每件作品的實際比例呈現，並以紙張、螢幕、手機三種外觀區分平面、動態與程式作品。互動上加入可拖曳的立體圖標、可以幫大頭照換造型的小物件，以及能旋轉檢視的作品大圖，讓瀏覽本身帶有一點探索的樂趣。</p>
+                                
+                                <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
+                                <ul class="space-y-2 list-disc list-outside ml-5">
+                                    <li><strong>視覺與 UI/UX：</strong> 規劃整體版面、字體層級與三種作品卡片樣式，並製作立體圖標等視覺素材，確保桌機與手機上都有一致的瀏覽體驗。</li>
+                                    <li><strong>程式開發：</strong> 運用 AI 輔助，以 HTML、Tailwind CSS 與原生 JavaScript 開發。實作作品跑馬燈、同列等高的分類排版、可 3D 檢視的作品彈窗、拖曳互動，並以 Canvas 繪製動態網點背景與滑鼠軌跡。</li>
+                                    <li><strong>效能優化：</strong> 圖片與影片依顯示尺寸重新輸出，影片進入畫面才載入播放，大圖先以縮圖顯示再換上高解析版本，縮短等待時間。</li>
+                                </ul>
+                            </div>
+                        </div>
+
                     </div>
                     
                     <div id="portfolio-clone" class="hidden"></div>
@@ -1292,7 +1380,7 @@
                             <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center text-gray-500 text-center p-4 z-20">
                                 <div class="px-4">
                                     <i class="ph ph-warning-circle text-4xl mb-2" aria-hidden="true"></i>
-                                    <p class="font-bold">檔案載入失敗</p>
+                                    <p class="font-bold" id="media-error-title">檔案載入失敗</p>
                                     <p class="text-xs mt-2 opacity-70 break-all max-w-md mx-auto" id="error-path"></p>
                                 </div>
                             </div>
@@ -1344,6 +1432,11 @@
 
     <script>
 
+        // 不讓瀏覽器把圖片當成檔案拖出去（Firefox 不支援對應的 CSS，所以用事件擋）
+        document.addEventListener('dragstart', (e) => {
+            if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO' || (e.target.closest && e.target.closest('svg')))) e.preventDefault();
+        });
+
         const portfolioTrack = document.getElementById('portfolio-track');
         const portfolioGrid = document.getElementById('portfolio-grid');
         const portfolioClone = document.getElementById('portfolio-clone');
@@ -1391,6 +1484,7 @@
             if (!thumbImagesRequested && workSection.getBoundingClientRect().top < vh + 800) loadThumbImages();
 
             thumbVideos.forEach(video => {
+                if (video.dataset.missing) return; // 檔案還沒放上去：不重複嘗試
                 const r = video.getBoundingClientRect();
                 // 左右各預留 400px：影片在滑進畫面前就先開始載入
                 const onScreen = r.width > 0 && r.right > -400 && r.left < vw + 400 && r.bottom > -150 && r.top < vh + 150;
@@ -1605,7 +1699,11 @@
                     modalSkeleton.classList.add('hidden');
                     mediaError.classList.remove('hidden');
                     modalVideo.classList.add('hidden');
-                    errorPathText.innerText = `路徑: ${currentPath}`;
+                    // 影片尚未上傳的作品：顯示「準備中」，不顯示錯誤訊息
+                    const pendingNote = currentProject && currentProject.getAttribute('data-pending-media');
+                    document.getElementById('media-error-title').innerText = pendingNote || '檔案載入失敗';
+                    mediaError.querySelector('i').style.display = pendingNote ? 'none' : '';
+                    errorPathText.innerText = pendingNote ? '' : `路徑: ${currentPath}`;
                 };
             } else {
                 modalVideo.classList.add('hidden');
@@ -1646,6 +1744,8 @@
                     modalSkeleton.classList.add('hidden');
                     mediaError.classList.remove('hidden');
                     modalImg.classList.add('hidden');
+                    document.getElementById('media-error-title').innerText = '檔案載入失敗';
+                    mediaError.querySelector('i').style.display = '';
                     errorPathText.innerText = `檔案路徑: ${currentPath}`;
                 };
                 loader.src = currentPath;
@@ -1988,7 +2088,6 @@
         mobileLinks.forEach(link => link.addEventListener('click', toggleMobileMenu));
 
         let isFilterAnimating = false;
-        let tooltipTimer;
         const filterBtns_el = document.querySelectorAll('.filter-btn');
         
         filterBtns_el.forEach(btn => {
@@ -1997,21 +2096,6 @@
                 isFilterAnimating = true;
                 const filterValue = btn.getAttribute('data-filter');
                 
-                const progTooltip = document.getElementById('prog-tooltip');
-                if (filterValue === 'programming' && progTooltip) {
-                    clearTimeout(tooltipTimer);
-                    progTooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
-                    progTooltip.classList.add('opacity-100', 'translate-y-0');
-                    tooltipTimer = setTimeout(() => {
-                        progTooltip.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
-                        progTooltip.classList.remove('opacity-100', 'translate-y-0');
-                    }, 4000);
-                } else if (progTooltip) {
-                    clearTimeout(tooltipTimer);
-                    progTooltip.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
-                    progTooltip.classList.remove('opacity-100', 'translate-y-0');
-                }
-
                 filterBtns_el.forEach(b => {
                     b.classList.remove('bg-[#3B82F6]', 'border-[#3B82F6]', 'text-white', 'hover:bg-[#2563EB]');
                     b.classList.add('bg-transparent', 'border-gray-300', 'text-brand-black', 'hover:bg-gray-200');
