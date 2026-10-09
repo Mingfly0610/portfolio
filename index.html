@@ -405,6 +405,14 @@
         /* 作品像放在襯紙上：陰影跟著作品實際的外形走 */
         .modal-art { filter: drop-shadow(0 2px 3px rgba(17, 17, 17, 0.12)) drop-shadow(0 22px 30px rgba(17, 17, 17, 0.22)); }
         .modal-art.is-video { border-radius: 10px; }
+        /* 手機作品：彈窗裡的影片也套上和卡片相同的手機外框 */
+        .modal-card.is-phone-media .modal-art.is-video {
+            box-sizing: border-box;
+            border: 8px solid #111111;
+            border-radius: 34px;
+            background: #111111;
+            object-fit: cover;
+        }
         #modal-skeleton {
             background: linear-gradient(90deg, rgba(255,255,255,0) 25%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 75%);
             background-size: 400% 100%;
@@ -483,6 +491,7 @@
             .modal-arrow.is-next { right: 10px; }
 
             /* 直式作品：圖左、資訊右，彈窗收窄 */
+            .modal-card.is-phone-media .modal-art.is-video { border-width: 11px; border-radius: 46px; }
             .modal-card.is-portrait { width: min(95vw, 1080px); height: 90vh; }
             .modal-card.is-portrait .modal-scroll { flex-direction: row; overflow: hidden; }
             .modal-card.is-portrait .modal-media { flex: 1 1 0; width: auto; min-width: 0; height: 100%; }
@@ -1874,6 +1883,7 @@
             const ratio = parseFloat(item.getAttribute('data-modal-ar')) || 1.5;
             modalContent.classList.toggle('is-portrait', ratio < 0.95);
             modalContent.classList.toggle('is-landscape', ratio >= 0.95);
+            modalContent.classList.toggle('is-phone-media', item.classList.contains('is-phone')); // 手機作品：影片套手機外框
             const scroller = modalContent.querySelector('.modal-scroll');
             scroller.scrollTop = 0;
             modalContent.querySelector('.modal-info').scrollTop = 0;
