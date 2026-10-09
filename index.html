@@ -59,6 +59,10 @@
             user-select: none;
         }
 
+        /* 按住滑鼠左鍵畫出的筆畫：蓋在頁面上、彈窗之下，不擋任何點擊 */
+        #draw-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 90; }
+        html.is-drawing, html.is-drawing * { -webkit-user-select: none !important; user-select: none !important; }
+
         .fade-in { animation: fadeIn 0.8s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -570,6 +574,7 @@
 <body class="bg-[#FCFCFC] text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
 
     <canvas id="halftone-bg" class="fixed inset-0 w-full h-full -z-10 pointer-events-none"></canvas>
+    <canvas id="draw-canvas" aria-hidden="true"></canvas>
     <canvas id="trail-canvas" class="fixed inset-0 pointer-events-none z-[9999] w-full h-full"></canvas>
 
     <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300" id="navbar">
@@ -2408,6 +2413,101 @@
                 trailRunning = false; // 軌跡淡出完畢，停止重繪
             }
         }
+
+        // ===== 按住滑鼠左鍵在頁面上作畫 =====
+        // 筆畫以「整頁座標」記錄，所以捲動時會跟著頁面內容移動；重新整理後自然消失。
+        const drawCanvas = document.getElementById('draw-canvas');
+        const drawCtx = drawCanvas.getContext('2d');
+        const drawStrokes = [];        // 每一筆：{ points: [{x, y}], minY, maxY }
+        let activeStroke = null;
+        let drawStart = null;          // 按下的位置；移動超過幾個像素才算開始畫，單純點一下不會留下墨點
+        let drawFramePending = false;
+        // 這些地方按住滑鼠有自己的功能（點擊、拖曳、3D 檢視），不在上面作畫
+        const DRAW_BLOCK = 'a, button, input, textarea, select, video, label, [role="button"], .portfolio-item, .drag-item, #profile-spotlight, #project-modal, #mobile-menu, #navbar';
+
+        // 畫布解析度、線寬、顏色、線頭與平滑方式都和滑鼠拖尾（trail-canvas）完全相同，質感才會一致
+        function resizeDrawCanvas() {
+            drawCanvas.width = window.innerWidth;
+            drawCanvas.height = window.innerHeight;
+            renderStrokes();
+        }
+
+        function renderStrokes() {
+            drawFramePending = false;
+            const sx = Math.round(window.scrollX), sy = Math.round(window.scrollY), vh = window.innerHeight;
+            drawCtx.setTransform(1, 0, 0, 1, 0, 0);
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            if (!drawStrokes.length) return;
+            drawCtx.setTransform(1, 0, 0, 1, -sx, -sy);
+            drawCtx.strokeStyle = '#3B82F6';
+            drawCtx.lineWidth = 1;
+            drawCtx.lineCap = 'round';
+            drawCtx.lineJoin = 'round';
+            drawStrokes.forEach(stroke => {
+                if (stroke.maxY < sy - 10 || stroke.minY > sy + vh + 10) return; // 不在畫面內的筆畫不用畫
+                const pts = stroke.points;
+                drawCtx.beginPath();
+                drawCtx.moveTo(pts[0].x, pts[0].y);
+                for (let i = 1; i < pts.length - 1; i++) {
+                    const xc = (pts[i].x + pts[i + 1].x) / 2;
+                    const yc = (pts[i].y + pts[i + 1].y) / 2;
+                    drawCtx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc);
+                }
+                const last = pts[pts.length - 1];
+                drawCtx.lineTo(last.x, last.y);
+                drawCtx.stroke();
+            });
+        }
+
+        function scheduleStrokeRender() {
+            if (drawFramePending) return;
+            drawFramePending = true;
+            requestAnimationFrame(renderStrokes);
+        }
+
+        function addStrokePoint(clientX, clientY) {
+            const x = clientX + window.scrollX, y = clientY + window.scrollY;
+            const pts = activeStroke.points;
+            const prev = pts[pts.length - 1];
+            pts.push({ x, y });
+            if (y < activeStroke.minY) activeStroke.minY = y;
+            if (y > activeStroke.maxY) activeStroke.maxY = y;
+            scheduleStrokeRender();
+        }
+
+        document.addEventListener('mousedown', (e) => {
+            if (e.button !== 0 || e.ctrlKey || e.metaKey) return;
+            if (!e.target.closest || e.target.closest(DRAW_BLOCK)) return;
+            if (e.clientX >= document.documentElement.clientWidth) return; // 捲軸
+            drawStart = { x: e.clientX, y: e.clientY };
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!drawStart) return;
+            if (!(e.buttons & 1)) { endStroke(); return; } // 在視窗外放開了
+            if (!activeStroke) {
+                if (Math.hypot(e.clientX - drawStart.x, e.clientY - drawStart.y) < 4) return;
+                activeStroke = { points: [], minY: Infinity, maxY: -Infinity };
+                drawStrokes.push(activeStroke);
+                document.documentElement.classList.add('is-drawing');
+                const selection = window.getSelection && window.getSelection();
+                if (selection && selection.removeAllRanges) selection.removeAllRanges();
+                addStrokePoint(drawStart.x, drawStart.y);
+            }
+            addStrokePoint(e.clientX, e.clientY);
+        });
+
+        function endStroke() {
+            drawStart = null;
+            if (!activeStroke) return;
+            activeStroke = null;
+            document.documentElement.classList.remove('is-drawing');
+        }
+        window.addEventListener('mouseup', endStroke);
+        window.addEventListener('blur', endStroke);
+        window.addEventListener('scroll', () => { if (drawStrokes.length) scheduleStrokeRender(); }, { passive: true });
+        window.addEventListener('resize', resizeDrawCanvas);
+        resizeDrawCanvas();
 
         const halftoneCanvas = document.getElementById('halftone-bg');
         const halftoneCtx = halftoneCanvas.getContext('2d');
