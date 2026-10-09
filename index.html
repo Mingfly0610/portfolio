@@ -135,57 +135,147 @@
             animation-play-state: paused;
         }
         
+        /* ===== 作品卡片：作品本身就是卡片，等高不等寬 ===== */
         .grid-marquee {
             display: flex;
-            gap: 2.5rem; 
-            padding-right: 2.5rem; 
+            gap: 2.75rem;
+            padding-right: 2.75rem;
             flex-shrink: 0;
-            align-items: center; 
+            align-items: flex-start;
+            --card-h: clamp(210px, min(44vh, calc(30vw + 120px)), 420px);
         }
-        
-        .item-marquee {
-            width: 85vw !important;
-            max-width: 500px !important;
-            flex-shrink: 0 !important; 
-            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important; 
+        .grid-wall {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 3rem 2.75rem;
+            --card-h: clamp(220px, calc(24vw + 120px), 400px);
         }
-        
+
+        .portfolio-item {
+            position: relative;
+            flex: 0 0 auto;
+            width: min(calc(var(--card-h) * var(--ar, 1.3333)), 88vw);
+            max-width: 100%;
+            cursor: pointer;
+            transition: opacity 0.4s ease;
+        }
+        .grid-marquee .portfolio-item { max-width: none; }
+
+        /* 分類檢視：橫式作品一列兩件；手機上直式一列兩件、橫式滿版 */
+        @media (min-width: 768px) {
+            .grid-wall .portfolio-item.is-wide { width: calc(50% - 1.375rem); }
+        }
+        @media (max-width: 767px) {
+            .grid-wall { gap: 2.25rem 1.25rem; }
+            .grid-wall .portfolio-item { width: calc(50% - 0.625rem); }
+            .grid-wall .portfolio-item.is-wide { width: 100%; }
+        }
+
+        .item-media {
+            position: relative;
+            width: 100%;
+            aspect-ratio: var(--ar, 1.3333);
+            overflow: hidden;
+            border-radius: 4px;               /* 平面作品：像紙一樣，接近直角 */
+            background: #ececee;
+            box-shadow: 0 1px 2px rgba(17, 17, 17, 0.08), 0 14px 30px -14px rgba(17, 17, 17, 0.32);
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease;
+        }
+        .item-media-el {
+            position: relative;
+            z-index: 1;
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* 動態設計：螢幕感的圓角 + 播放時間標記 */
+        .portfolio-item[data-category="animation"] .item-media { border-radius: 10px; }
+        /* 程式設計（橫式）：同樣是螢幕 */
+        .portfolio-item[data-category="programming"] .item-media { border-radius: 10px; }
+        /* 程式設計（直式）：手機外框 */
+        .portfolio-item.is-phone .item-media {
+            border: 7px solid #111111;
+            border-radius: 30px;
+            background: #111111;
+        }
+        .portfolio-item.is-phone .item-media-el { border-radius: 23px; }
+        .portfolio-item.is-phone .skeleton-shimmer { border-radius: 23px; }
+
+        .item-badge {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 9px 4px 8px;
+            border-radius: 999px;
+            background: rgba(17, 17, 17, 0.72);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            pointer-events: none;
+        }
+        .item-badge svg { width: 9px; height: 9px; fill: currentColor; flex-shrink: 0; }
+        .item-badge.is-link { background: #3B82F6; }
+        .item-badge.is-link svg { width: 10px; height: 10px; }
+        .portfolio-item.is-phone .item-badge { right: 12px; bottom: 14px; }
+
+        .item-caption { padding-top: 14px; }
+        .item-cat {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            color: #9ca3af;
+        }
+        .item-title {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.45;
+            color: #111111;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+            transition: color 0.3s ease;
+        }
+        .item-year {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 17px;
+            color: #3B82F6;
+            margin-right: 0.35em;
+        }
+
         @media (hover: hover) {
-            .grid-marquee:hover .item-marquee {
-                opacity: 0.3 !important;
-                filter: blur(4px) grayscale(50%);
-                transform: scale(0.95); 
+            .portfolio-item:hover .item-media {
+                transform: translateY(-10px);
+                box-shadow: 0 2px 4px rgba(17, 17, 17, 0.08), 0 30px 44px -18px rgba(17, 17, 17, 0.42);
             }
-            
-            .grid-marquee .item-marquee:hover {
-                opacity: 1 !important;
-                filter: blur(0px) grayscale(0%);
-                transform: scale(1.05) translateY(0) !important;
-                z-index: 20;
-            }
+            .portfolio-item:hover .item-media-el { transform: scale(1.03); }
+            .portfolio-item:hover .item-title { color: #3B82F6; }
+            /* 跑馬燈：滑到其中一件時，其他作品退後（只調透明度，不做模糊） */
+            .grid-marquee:hover .portfolio-item { opacity: 0.45; }
+            .grid-marquee .portfolio-item:hover { opacity: 1; }
         }
 
         /* 鍵盤操作時的焦點外框 */
         .portfolio-item:focus-visible {
             outline: 3px solid #3B82F6;
-            outline-offset: 4px;
-        }
-
-        /* 觸控裝置沒有 hover：作品標題改為常駐顯示 */
-        @media (hover: none) {
-            .portfolio-item .item-overlay {
-                opacity: 1;
-                padding: 1rem 1.25rem;
-                background: linear-gradient(to top, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0) 70%);
-            }
-            .portfolio-item .item-overlay > span {
-                display: none;
-            }
-            .portfolio-item .item-overlay h3 {
-                transform: none;
-                font-size: 0.95rem;
-                line-height: 1.35;
-            }
+            outline-offset: 6px;
+            border-radius: 6px;
         }
 
         /* 尊重「減少動態效果」的系統設定 */
@@ -367,281 +457,361 @@
             <div id="portfolio-track-container" class="overflow-x-hidden w-full pb-10 pt-4 -mt-4">
                 <div id="portfolio-track" class="w-full transition-opacity duration-300 opacity-0">
                     
-                    <div id="portfolio-grid" class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-7xl mx-auto px-6 lg:px-12">
+                    <div id="portfolio-grid" class="grid-wall max-w-7xl mx-auto px-6 lg:px-12">
                         
                         <!-- 新增：2026年 高雄市政府財政局菸酒法令宣導 -->
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-finance-tobacco-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府財政局菸酒法令宣導">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-kaohsiung-finance-tobacco-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府財政局菸酒法令宣導" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-finance-tobacco-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府財政局<br class="hidden md:block">菸酒法令宣導</h3>
+                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2026-event-kaohsiung-finance-tobacco-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府財政局菸酒法令宣導">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2026-event-kaohsiung-finance-tobacco-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府財政局菸酒法令宣導" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-finance-tobacco-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府財政局菸酒法令宣導</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>高雄市政府財政局<br class="hidden md:block">菸酒法令宣導</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-full.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-2.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-3.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-4.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-5.webp" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(岡山大型徵才)</h3>
+                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-full.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-2.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-3.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-4.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-5.webp" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(岡山大型徵才)</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-nanzi-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(楠梓大型徵才)">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(楠梓大型徵才)" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(楠梓大型徵才)</h3>
+                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-nanzi-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(楠梓大型徵才)">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(楠梓大型徵才)" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府現場徵才活動 薪動高雄 職得幸福(楠梓大型徵才)</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(楠梓大型徵才)</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-fire-station-opening-full.png,images/2026-event-fire-station-opening-full-2.png,images/2026-event-fire-station-opening-full-3.png,images/2026-event-fire-station-opening-full-4.png,images/2026-event-fire-station-opening-full-5.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-fire-station-opening-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-fire-station-opening-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">消防局後勁分隊與<br class="hidden md:block">特搜第一分隊<br class="hidden lg:block">啟用典禮</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:2.0202" data-category="event" data-modal-img="images/2026-event-fire-station-opening-full.png,images/2026-event-fire-station-opening-full-2.png,images/2026-event-fire-station-opening-full-3.png,images/2026-event-fire-station-opening-full-4.png,images/2026-event-fire-station-opening-full-5.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2026-event-fire-station-opening-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-fire-station-opening-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">消防局後勁分隊與<br class="hidden md:block">特搜第一分隊<br class="hidden lg:block">啟用典禮</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-labor-safety-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-labor-safety-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-labor-safety-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">職業安全衛生日<br class="hidden md:block">安全體感觀摩暨<br>展示活動</h3>
+                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2026-event-labor-safety-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2026-event-labor-safety-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-labor-safety-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府職業安全衛生日安全體感觀摩暨 展示活動</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">職業安全衛生日<br class="hidden md:block">安全體感觀摩暨<br>展示活動</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-chiayi-job-part1-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 嘉義縣政府現場徵才活動 Part1">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-chiayi-job-part1-thumb.jpg" loading="lazy" decoding="async" alt="2026年 嘉義縣政府現場徵才活動 Part1" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-chiayi-job-part1-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>嘉義縣政府<br class="hidden md:block">現場徵才活動 Part1</h3>
+                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2026-event-chiayi-job-part1-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 嘉義縣政府現場徵才活動 Part1">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2026-event-chiayi-job-part1-thumb.jpg" loading="lazy" decoding="async" alt="2026年 嘉義縣政府現場徵才活動 Part1" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-chiayi-job-part1-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>嘉義縣政府現場徵才活動 Part1</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>嘉義縣政府<br class="hidden md:block">現場徵才活動 Part1</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
                         <!-- 之前新增的：2026年 嘉義縣政府 現場徵才活動 Part2 -->
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-chiayi-job-part2-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 嘉義縣政府現場徵才活動 Part2">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-chiayi-job-part2-thumb.jpg" loading="lazy" decoding="async" alt="2026年 嘉義縣政府現場徵才活動 Part2" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-chiayi-job-part2-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>嘉義縣政府<br class="hidden md:block">現場徵才活動 Part2</h3>
+                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2026-event-chiayi-job-part2-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 嘉義縣政府現場徵才活動 Part2">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2026-event-chiayi-job-part2-thumb.jpg" loading="lazy" decoding="async" alt="2026年 嘉義縣政府現場徵才活動 Part2" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-chiayi-job-part2-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>嘉義縣政府現場徵才活動 Part2</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>嘉義縣政府<br class="hidden md:block">現場徵才活動 Part2</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-tainan-job-fair-large-p3-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 台南好生活 台南呷頭路大型就業博覽會 Part3">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-tainan-job-fair-large-p3-thumb.jpg" loading="lazy" decoding="async" alt="2026年 台南好生活 台南呷頭路大型就業博覽會 Part3" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-tainan-job-fair-large-p3-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part3</h3>
+                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2026-event-tainan-job-fair-large-p3-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 台南好生活 台南呷頭路大型就業博覽會 Part3">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2026-event-tainan-job-fair-large-p3-thumb.jpg" loading="lazy" decoding="async" alt="2026年 台南好生活 台南呷頭路大型就業博覽會 Part3" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-tainan-job-fair-large-p3-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>台南好生活 台南呷頭路大型就業博覽會 Part3</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part3</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tsrc-year-end-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2025年 台橡旺年會">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2025-event-tsrc-year-end-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台橡旺年會" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tsrc-year-end-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台橡旺年會</h3>
+                        <div class="portfolio-item group" style="--ar:0.72" data-category="event" data-modal-img="images/2025-event-tsrc-year-end-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2025年 台橡旺年會">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2025-event-tsrc-year-end-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台橡旺年會" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tsrc-year-end-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2025</span>台橡旺年會</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2025年<br>台橡旺年會</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-large-p1-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2025年 台南好生活 台南呷頭路大型就業博覽會 Part1">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2025-event-tainan-job-fair-large-p1-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台南好生活 台南呷頭路大型就業博覽會 Part1" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tainan-job-fair-large-p1-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part1</h3>
+                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-large-p1-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2025年 台南好生活 台南呷頭路大型就業博覽會 Part1">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2025-event-tainan-job-fair-large-p1-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台南好生活 台南呷頭路大型就業博覽會 Part1" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tainan-job-fair-large-p1-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2025</span>台南好生活 台南呷頭路大型就業博覽會 Part1</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part1</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-medium-p1-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2025年 台南好生活 台南呷頭路中型就業博覽會 Part1">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2025-event-tainan-job-fair-medium-p1-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台南好生活 台南呷頭路中型就業博覽會 Part1" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tainan-job-fair-medium-p1-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">中型就業博覽會 Part1</h3>
+                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-medium-p1-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2025年 台南好生活 台南呷頭路中型就業博覽會 Part1">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2025-event-tainan-job-fair-medium-p1-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台南好生活 台南呷頭路中型就業博覽會 Part1" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tainan-job-fair-medium-p1-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2025</span>台南好生活 台南呷頭路中型就業博覽會 Part1</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">中型就業博覽會 Part1</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2024-event-tainan-job-fair-large-p4-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2024年 台南好生活 台南呷頭路大型就業博覽會 Part4">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2024-event-tainan-job-fair-large-p4-thumb.jpg" loading="lazy" decoding="async" alt="2024年 台南好生活 台南呷頭路大型就業博覽會 Part4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2024-event-tainan-job-fair-large-p4-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2024年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part4</h3>
+                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2024-event-tainan-job-fair-large-p4-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2024年 台南好生活 台南呷頭路大型就業博覽會 Part4">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2024-event-tainan-job-fair-large-p4-thumb.jpg" loading="lazy" decoding="async" alt="2024年 台南好生活 台南呷頭路大型就業博覽會 Part4" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2024-event-tainan-job-fair-large-p4-thumb.jpg')">
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2024</span>台南好生活 台南呷頭路大型就業博覽會 Part4</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2024年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part4</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tsrc-elt.mp4" data-modal-img="images/2026-animation-tsrc-elt-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台橡旺年會ELT進場前導動畫">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-tsrc-elt-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台橡旺年會ELT進場前導動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-tsrc-elt-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台橡旺年會<br class="hidden md:block">ELT進場前導動畫</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:2.3358" data-category="animation" data-video="videos/2026-animation-tsrc-elt.mp4" data-modal-img="images/2026-animation-tsrc-elt-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台橡旺年會ELT進場前導動畫">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2026-animation-tsrc-elt-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2026年 台橡旺年會ELT進場前導動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-tsrc-elt-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:50</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>台橡旺年會ELT進場前導動畫</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>台橡旺年會<br class="hidden md:block">ELT進場前導動畫</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tainan-job-fair-large-p2.mp4,videos/2026-animation-tainan-job-fair-large-p2-2.mp4" data-modal-img="images/2026-animation-tainan-job-fair-large-p2-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台南好生活 台南呷頭路大型就業博覽會 Part2啟動儀式動畫">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-tainan-job-fair-large-p2-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台南好生活 台南呷頭路大型就業博覽會 Part2啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-tainan-job-fair-large-p2-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part2<br class="hidden lg:block">啟動儀式動畫</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2026-animation-tainan-job-fair-large-p2.mp4,videos/2026-animation-tainan-job-fair-large-p2-2.mp4" data-modal-img="images/2026-animation-tainan-job-fair-large-p2-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台南好生活 台南呷頭路大型就業博覽會 Part2啟動儀式動畫">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2026-animation-tainan-job-fair-large-p2-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2026年 台南好生活 台南呷頭路大型就業博覽會 Part2啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-tainan-job-fair-large-p2-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:35</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>台南好生活 台南呷頭路大型就業博覽會 Part2啟動儀式動畫</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part2<br class="hidden lg:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-job-fair.mp4" data-modal-img="images/2025-animation-job-fair-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 僑生就業博覽會啟動儀式動畫">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2025-animation-job-fair-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2025年 僑生就業博覽會啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-job-fair-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>僑生就業博覽會<br class="hidden md:block">啟動儀式動畫</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2025-animation-job-fair.mp4" data-modal-img="images/2025-animation-job-fair-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 僑生就業博覽會啟動儀式動畫">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2025-animation-job-fair-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2025年 僑生就業博覽會啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-job-fair-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:30</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2025</span>僑生就業博覽會啟動儀式動畫</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2025年<br>僑生就業博覽會<br class="hidden md:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-kaohsiung-forum.mp4" data-modal-img="images/2025-animation-kaohsiung-forum-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 高雄市政府智慧港都 幸福永續論壇展示活動啟動儀式動畫">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2025-animation-kaohsiung-forum-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2025年 高雄市政府智慧港都 幸福永續論壇展示活動啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-kaohsiung-forum-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>高雄市政府<br class="hidden md:block">智慧港都 幸福永續<br class="hidden md:block">論壇展示活動<br class="hidden lg:block">啟動儀式動畫</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2025-animation-kaohsiung-forum.mp4" data-modal-img="images/2025-animation-kaohsiung-forum-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 高雄市政府智慧港都 幸福永續論壇展示活動啟動儀式動畫">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2025-animation-kaohsiung-forum-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2025年 高雄市政府智慧港都 幸福永續論壇展示活動啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-kaohsiung-forum-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>1:30</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2025</span>高雄市政府智慧港都 幸福永續論壇展示活動啟動儀式動畫</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2025年<br>高雄市政府<br class="hidden md:block">智慧港都 幸福永續<br class="hidden md:block">論壇展示活動<br class="hidden lg:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-labor-safety.mp4" data-modal-img="images/2026-animation-labor-safety-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-labor-safety-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-labor-safety-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">職業安全衛生日<br class="hidden md:block">安全體感觀摩暨<br>展示活動<br class="hidden lg:block">啟動儀式動畫</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2026-animation-labor-safety.mp4" data-modal-img="images/2026-animation-labor-safety-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2026-animation-labor-safety-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-labor-safety-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:30</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">職業安全衛生日<br class="hidden md:block">安全體感觀摩暨<br>展示活動<br class="hidden lg:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs.mp4" data-modal-img="images/2025-animation-taiwan-jobs-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2025-animation-taiwan-jobs-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2025年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-taiwan-jobs-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">啟動儀式動畫</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2025-animation-taiwan-jobs.mp4" data-modal-img="images/2025-animation-taiwan-jobs-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2025-animation-taiwan-jobs-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2025年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-taiwan-jobs-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:18</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2025</span>台灣就業通雲嘉南區就業博覽會啟動儀式動畫</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2025年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs-info.mp4" data-modal-img="images/2025-animation-taiwan-jobs-info-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 台灣就業通雲嘉南區就業博覽會活動懶人包">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2025-animation-taiwan-jobs-info-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2025年 台灣就業通雲嘉南區就業博覽會活動懶人包" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-taiwan-jobs-info-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">活動懶人包</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2025-animation-taiwan-jobs-info.mp4" data-modal-img="images/2025-animation-taiwan-jobs-info-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 台灣就業通雲嘉南區就業博覽會活動懶人包">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2025-animation-taiwan-jobs-info-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2025年 台灣就業通雲嘉南區就業博覽會活動懶人包" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-taiwan-jobs-info-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:52</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2025</span>台灣就業通雲嘉南區就業博覽會活動懶人包</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2025年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">活動懶人包</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-taiwan-jobs.mp4" data-modal-img="images/2026-animation-taiwan-jobs-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-taiwan-jobs-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">啟動儀式動畫</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2026-animation-taiwan-jobs.mp4" data-modal-img="images/2026-animation-taiwan-jobs-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2026-animation-taiwan-jobs-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2026年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:49</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>台灣就業通雲嘉南區就業博覽會啟動儀式動畫</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-taiwan-jobs-info.mp4" data-modal-img="images/2026-animation-taiwan-jobs-info-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台灣就業通雲嘉南區就業博覽會活動懶人包">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-taiwan-jobs-info-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台灣就業通雲嘉南區就業博覽會活動懶人包" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-info-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">活動懶人包</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2026-animation-taiwan-jobs-info.mp4" data-modal-img="images/2026-animation-taiwan-jobs-info-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台灣就業通雲嘉南區就業博覽會活動懶人包">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2026-animation-taiwan-jobs-info-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2026年 台灣就業通雲嘉南區就業博覽會活動懶人包" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-info-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:57</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>台灣就業通雲嘉南區就業博覽會活動懶人包</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">活動懶人包</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-taiwan-jobs-tv.mp4" data-modal-img="images/2026-animation-taiwan-jobs-tv-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台灣就業通雲嘉南區就業博覽會電視牆廣告">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-taiwan-jobs-tv-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台灣就業通雲嘉南區就業博覽會電視牆廣告" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-tv-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">電視牆廣告</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.3333" data-category="animation" data-video="videos/2026-animation-taiwan-jobs-tv.mp4" data-modal-img="images/2026-animation-taiwan-jobs-tv-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台灣就業通雲嘉南區就業博覽會電視牆廣告">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/2026-animation-taiwan-jobs-tv-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2026年 台灣就業通雲嘉南區就業博覽會電視牆廣告" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-tv-thumb.mp4')"></video>
+                                <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:15</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">動態設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span>台灣就業通雲嘉南區就業博覽會電視牆廣告</h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">電視牆廣告</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-road-animal-full.mp4" data-modal-img="images/prog-road-animal-full.png" data-external-link="https://design-your-life-studio.github.io/115-traffic-hero.tw/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種馬路動物人格">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/prog-road-animal-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="測測你是哪種馬路動物人格" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-road-animal-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">測測你是哪種馬路動物人格</h3>
+                        <div class="portfolio-item group is-phone" style="--ar:0.56" data-category="programming" data-video="videos/prog-road-animal-full.mp4" data-modal-img="images/prog-road-animal-full.png" data-external-link="https://design-your-life-studio.github.io/115-traffic-hero.tw/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種馬路動物人格">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/prog-road-animal-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="測測你是哪種馬路動物人格" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-road-animal-thumb.mp4')"></video>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title">測測你是哪種馬路動物人格</h3>
+                            </div>
+                            <div class="modal-title-src hidden">測測你是哪種馬路動物人格</div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
                                 <p class="mb-6">為配合「115年交通局表揚大會」所特別企劃的數位互動前導網頁。為打破傳統交通安全宣導的刻板說教感，本專案以遊戲化方式，開發出這款「馬路動物人格」心理測驗，藉由輕鬆幽默的社群互動，有效提升民眾對交通安全議題的關注度與參與感。</p>
@@ -657,13 +827,17 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.png" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種職場神獸">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/prog-beast-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="測測你是哪種職場神獸" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-beast-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">測測你是哪種職場神獸</h3>
+                        <div class="portfolio-item group is-phone" style="--ar:0.56" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.png" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種職場神獸">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/prog-beast-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="測測你是哪種職場神獸" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-beast-thumb.mp4')"></video>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title">測測你是哪種職場神獸</h3>
+                            </div>
+                            <div class="modal-title-src hidden">測測你是哪種職場神獸</div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
                                 <p class="mb-6">在徵才活動或社群互動中，為了打破傳統職涯測驗的沉悶感，特別企劃開發這款「測測你是哪種職場神獸」互動網頁。透過將適性測驗「遊戲化」，以輕鬆幽默的方式吸引年輕族群參與，不僅能作為實體活動的數位亮點，更具備高度的社群傳播潛力。</p>
@@ -679,13 +853,17 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.png" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/" role="button" tabindex="0" aria-label="程式設計：探索你的職場動物風格">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/prog-animal-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="探索你的職場動物風格" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-animal-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">探索你的職場動物風格</h3>
+                        <div class="portfolio-item group is-phone" style="--ar:0.56" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.png" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/" role="button" tabindex="0" aria-label="程式設計：探索你的職場動物風格">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/prog-animal-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="探索你的職場動物風格" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-animal-thumb.mp4')"></video>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title">探索你的職場動物風格</h3>
+                            </div>
+                            <div class="modal-title-src hidden">探索你的職場動物風格</div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
                                 <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，希望能打破傳統徵才活動的嚴肅感，特別企劃了這款「職場動物風格」適性診斷測驗。透過遊戲化的數位互動，作為活動前導預熱與現場互動亮點，吸引年輕求職者參與並探索適合自己的職涯方向。</p>
@@ -701,13 +879,17 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.png" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/" role="button" tabindex="0" aria-label="程式設計：求職適性測驗">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/prog-career-thumb.jpg" loading="lazy" decoding="async" alt="適性診斷" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/prog-career-thumb.jpg')">
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">求職適性測驗</h3>
+                        <div class="portfolio-item group is-phone" style="--ar:0.5833" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.png" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/" role="button" tabindex="0" aria-label="程式設計：求職適性測驗">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/prog-career-thumb.jpg" loading="lazy" decoding="async" alt="適性診斷" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/prog-career-thumb.jpg')">
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title">求職適性測驗</h3>
+                            </div>
+                            <div class="modal-title-src hidden">求職適性測驗</div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
                                 <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，本專案致力於將傳統的職業性向測驗數位化、現代化。透過結構化的測驗流程，不僅能作為展場的數位互動亮點，更能實質幫助求職者在短時間內釐清個人優勢，對接合適的職涯發展路徑。</p>
@@ -723,13 +905,17 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.png" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：活動電子抽獎程式">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/prog-lottery-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="活動電子抽獎程式" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-lottery-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">活動電子抽獎程式</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.png" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：活動電子抽獎程式">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/prog-lottery-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="活動電子抽獎程式" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-lottery-thumb.mp4')"></video>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title">活動電子抽獎程式</h3>
+                            </div>
+                            <div class="modal-title-src hidden">活動電子抽獎程式</div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
                                 <p class="mb-6">本專案為 2026 年台橡 (TSRC) 企業尾牙量身打造的專屬電子抽獎系統。為了解決傳統紙本抽獎的繁瑣流程，並提升活動現場的互動氛圍，特別開發此款具備高度視覺張力與流暢體驗的網頁程式。</p>
@@ -745,13 +931,17 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-graffiti-wall-full.mp4" data-modal-img="images/prog-graffiti-wall-full.png" role="button" tabindex="0" aria-label="程式設計：互動展示塗鴉牆">
-                            <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="互動展示塗鴉牆" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-graffiti-wall-thumb.mp4')"></video>
-                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
-                                <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
-                                <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">互動展示塗鴉牆</h3>
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="programming" data-video="videos/prog-graffiti-wall-full.mp4" data-modal-img="images/prog-graffiti-wall-full.png" role="button" tabindex="0" aria-label="程式設計：互動展示塗鴉牆">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/prog-graffiti-wall-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="互動展示塗鴉牆" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-graffiti-wall-thumb.mp4')"></video>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
                             </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title">互動展示塗鴉牆</h3>
+                            </div>
+                            <div class="modal-title-src hidden">互動展示塗鴉牆</div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
                                 <p class="mb-6">本專案旨在提供一個高互動性的展示空間，打破單向的資訊傳遞，讓參與者能夠在數位畫布上自由創作、留言與互動，增添活動的趣味性與參與感，非常適合應用於實體展場或線上活動的數位破冰環節。</p>
@@ -1067,7 +1257,7 @@
 
         function disableMarquee() {
             portfolioTrack.className = 'w-full transition-opacity duration-300 py-4';
-            portfolioGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-10 max-w-7xl mx-auto px-6 lg:px-12';
+            portfolioGrid.className = 'grid-wall max-w-7xl mx-auto px-6 lg:px-12';
             portfolioClone.className = 'hidden'; 
             
             document.querySelectorAll('.portfolio-item').forEach(item => {
@@ -1287,7 +1477,8 @@
                 updateGalleryView();
             }
             
-            const title = item.querySelector('h3').innerHTML;
+            const titleSrc = item.querySelector('.modal-title-src') || item.querySelector('h3');
+            const title = titleSrc.innerHTML;
             const category = item.querySelector('span').innerText;
             const projectLink = item.getAttribute('data-external-link');
             const noQr = item.getAttribute('data-no-qr') === 'true';
