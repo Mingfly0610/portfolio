@@ -149,9 +149,13 @@
             flex-wrap: wrap;
             justify-content: center;
             align-items: flex-start;
-            gap: 3rem 2.75rem;
-            --card-h: clamp(220px, calc(24vw + 120px), 400px);
+            column-gap: 2.75rem;
+            row-gap: 0;
+            --card-h: clamp(220px, calc(24vw + 120px), 380px);
         }
+        .grid-wall .portfolio-item { margin-bottom: 3rem; }
+        .grid-wall .item-cat { display: none; }      /* 分類檢視中每張都是同一類，不重複標示 */
+        .wall-break { flex-basis: 100%; width: 100%; height: 0; }
 
         .portfolio-item {
             position: relative;
@@ -163,14 +167,9 @@
         }
         .grid-marquee .portfolio-item { max-width: none; }
 
-        /* 分類檢視：橫式作品一列兩件；手機上直式一列兩件、橫式滿版 */
-        @media (min-width: 768px) {
-            .grid-wall .portfolio-item.is-wide { width: calc(50% - 1.375rem); }
-        }
         @media (max-width: 767px) {
-            .grid-wall { gap: 2.25rem 1.25rem; }
-            .grid-wall .portfolio-item { width: calc(50% - 0.625rem); }
-            .grid-wall .portfolio-item.is-wide { width: 100%; }
+            .grid-wall { column-gap: 1.25rem; }
+            .grid-wall .portfolio-item { margin-bottom: 2.25rem; }
         }
 
         .item-media {
@@ -1242,6 +1241,7 @@
                 if (thumbImagesRequested) loadThumbImages();
             }
             
+            clearWallLayout();
             portfolioTrack.className = 'track-marquee transition-opacity duration-300 ml-6 lg:ml-12 py-4';
             portfolioGrid.className = 'grid-marquee';
             portfolioClone.className = 'grid-marquee'; 
@@ -1254,6 +1254,61 @@
                 item.style.transform = '';
             });
         }
+
+        // 分類檢視的排版：同一列的作品等高，並盡量把每一列排滿容器寬度
+        function clearWallLayout() {
+            portfolioGrid.querySelectorAll('.wall-break').forEach(el => el.remove());
+            allOriginalItems.forEach(item => { item.style.width = ''; });
+        }
+
+        function layoutWall() {
+            if (!portfolioGrid.classList.contains('grid-wall')) return;
+            clearWallLayout();
+            const items = allOriginalItems.filter(item => item.style.display !== 'none');
+            if (!items.length) return;
+
+            const cs = getComputedStyle(portfolioGrid);
+            const W = portfolioGrid.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 1;
+            const gap = parseFloat(cs.columnGap) || 0;
+            const H = W < 720 ? 240 : 380;            // 理想列高
+            const minH = H * 0.8, maxH = H * 1.03;     // 允許的伸縮範圍
+            const ratio = item => parseFloat(item.style.getPropertyValue('--ar')) || 1.3333;
+            const fitHeight = row => (W - gap * (row.length - 1)) / row.reduce((sum, it) => sum + ratio(it), 0);
+
+            const rows = [];
+            let row = [];
+            items.forEach(item => {
+                row.push(item);
+                const h = fitHeight(row);
+                if (h < minH && row.length > 1) {
+                    // 加進這件會太擠：先把前面的收成一列，這件移到下一列
+                    row.pop();
+                    rows.push({ items: row, h: Math.min(fitHeight(row), maxH) });
+                    row = [item];
+                    if (fitHeight(row) <= H) { rows.push({ items: row, h: fitHeight(row) }); row = []; }
+                } else if (h <= H) {
+                    rows.push({ items: row, h });       // 剛好排滿
+                    row = [];
+                }
+            });
+            if (row.length) rows.push({ items: row, h: Math.min(fitHeight(row), H) }); // 最後一列不硬撐滿
+
+            rows.forEach((r, index) => {
+                r.items.forEach(item => { item.style.width = (Math.floor(r.h * ratio(item) * 100) / 100) + 'px'; });
+                if (index < rows.length - 1) {
+                    const br = document.createElement('i');
+                    br.className = 'wall-break';
+                    br.setAttribute('aria-hidden', 'true');
+                    r.items[r.items.length - 1].after(br);
+                }
+            });
+        }
+
+        let wallResizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(wallResizeTimer);
+            wallResizeTimer = setTimeout(layoutWall, 150);
+        });
 
         function disableMarquee() {
             portfolioTrack.className = 'w-full transition-opacity duration-300 py-4';
@@ -1479,7 +1534,7 @@
             
             const titleSrc = item.querySelector('.modal-title-src') || item.querySelector('h3');
             const title = titleSrc.innerHTML;
-            const category = item.querySelector('span').innerText;
+            const category = (item.querySelector('.item-cat') || item.querySelector('span')).textContent.trim();
             const projectLink = item.getAttribute('data-external-link');
             const noQr = item.getAttribute('data-no-qr') === 'true';
             document.getElementById('modal-title').innerHTML = title;
@@ -1694,6 +1749,7 @@
                             }
                             item.style.transform = '';
                         });
+                        layoutWall();
                     }
                     
                     setTimeout(() => {
