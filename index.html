@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>視覺設計作品集 | MingFly</title>
     
-    <link class="cursor-pointer" rel="icon" type="image/png" href="images/favicon.png">
-    <link class="cursor-pointer" rel="apple-touch-icon" href="images/favicon.png">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="apple-touch-icon" href="images/favicon.png">
     
+    <meta name="description" content="跨領域設計師 MingFly 的作品集。涵蓋活動視覺設計、動態影像與互動式網頁體驗開發。">
     <meta property="og:title" content="MingFly | 視覺設計作品集">
     <meta property="og:description" content="跨領域設計師 MingFly 的作品集。涵蓋活動視覺設計、動態影像與互動式網頁體驗開發。">
     <meta property="og:image" content="https://mingfly0610.github.io/portfolio/images/share-thumb.jpg">
@@ -15,9 +16,9 @@
     <meta property="og:type" content="website">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link class="cursor-pointer" rel="preconnect" href="https://fonts.googleapis.com">
-    <link class="cursor-pointer" rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link class="cursor-pointer" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
@@ -49,19 +50,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        @property --c1 { syntax: '<color>'; initial-value: rgba(56, 189, 248, 0.15); inherits: false; }
-        @property --c2 { syntax: '<color>'; initial-value: rgba(253, 224, 71, 0.15); inherits: false; }
-        @property --c3 { syntax: '<color>'; initial-value: rgba(168, 85, 247, 0.15); inherits: false; }
-        @property --c4 { syntax: '<color>'; initial-value: rgba(59, 130, 246, 0.15); inherits: false; }
-
-        .mesh-background {
-            background-color: transparent;
-        }
-
-        .img-error-placeholder {
-            @apply flex flex-col items-center justify-center bg-gray-100 text-gray-400 text-xs p-4 text-center;
         }
 
         @keyframes shimmer {
@@ -142,7 +130,8 @@
             padding-top: 3rem; 
             padding-bottom: 3rem;
         }
-        .track-marquee:hover {
+        .track-marquee:hover,
+        .track-marquee.is-paused {
             animation-play-state: paused;
         }
         
@@ -161,13 +150,6 @@
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important; 
         }
         
-        .item-marquee:nth-child(odd) {
-            transform: translateY(-20px);
-        }
-        .item-marquee:nth-child(even) {
-            transform: translateY(20px);
-        }
-
         @media (hover: hover) {
             .grid-marquee:hover .item-marquee {
                 opacity: 0.3 !important;
@@ -181,6 +163,38 @@
                 transform: scale(1.05) translateY(0) !important;
                 z-index: 20;
             }
+        }
+
+        /* 鍵盤操作時的焦點外框 */
+        .portfolio-item:focus-visible {
+            outline: 3px solid #3B82F6;
+            outline-offset: 4px;
+        }
+
+        /* 觸控裝置沒有 hover：作品標題改為常駐顯示 */
+        @media (hover: none) {
+            .portfolio-item .item-overlay {
+                opacity: 1;
+                padding: 1rem 1.25rem;
+                background: linear-gradient(to top, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0) 70%);
+            }
+            .portfolio-item .item-overlay > span {
+                display: none;
+            }
+            .portfolio-item .item-overlay h3 {
+                transform: none;
+                font-size: 0.95rem;
+                line-height: 1.35;
+            }
+        }
+
+        /* 尊重「減少動態效果」的系統設定 */
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto !important; }
+            .fade-in, .float-anim, .float-anim-delayed { animation: none; }
+            .track-marquee { animation: none; }
+            .track-marquee #portfolio-clone { display: none; }
+            #portfolio-track-container { overflow-x: auto; }
         }
     </style>
 
@@ -201,7 +215,7 @@
             
             const placeholder = document.createElement('div');
             placeholder.className = 'w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 text-xs p-4 text-center rounded-2xl relative z-10';
-            placeholder.innerHTML = `<i class="ph ph-image-break text-3xl mb-2"></i><p>圖片載入失敗</p><p class="opacity-50 mt-1 break-all">${path}</p>`;
+            placeholder.innerHTML = `<i class="ph ph-image-break text-3xl mb-2" aria-hidden="true"></i><p>圖片載入失敗</p><p class="opacity-50 mt-1 break-all">${path}</p>`;
             if (img.parentNode) {
                 img.parentNode.insertBefore(placeholder, img);
             }
@@ -214,7 +228,7 @@
 
             const placeholder = document.createElement('div');
             placeholder.className = 'w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 text-xs p-4 text-center rounded-2xl relative z-10';
-            placeholder.innerHTML = `<i class="ph ph-video-camera-slash text-3xl mb-2"></i><p>影片載入失敗</p><p class="opacity-50 mt-1 break-all">${path}</p>`;
+            placeholder.innerHTML = `<i class="ph ph-video-camera-slash text-3xl mb-2" aria-hidden="true"></i><p>影片載入失敗</p><p class="opacity-50 mt-1 break-all">${path}</p>`;
             if (video.parentNode) {
                 video.parentNode.insertBefore(placeholder, video);
             }
@@ -236,15 +250,15 @@
                 <a class="cursor-pointer hover:text-[#3B82F6] transition-colors" href="#contact">聯絡 Contact</a>
             </nav>
 
-            <button id="mobile-menu-btn" class="md:hidden text-2xl">
-                <i class="ph ph-list"></i>
+            <button id="mobile-menu-btn" class="md:hidden text-2xl" type="button" aria-label="開啟選單" aria-controls="mobile-menu" aria-expanded="false">
+                <i class="ph ph-list" aria-hidden="true"></i>
             </button>
         </div>
     </header>
 
-    <div id="mobile-menu" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center gap-10 opacity-0 pointer-events-none transition-all duration-300">
-        <button id="mobile-menu-close" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-brand-black rounded-full transition-all">
-            <i class="ph ph-x text-2xl"></i>
+    <div id="mobile-menu" inert class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center gap-10 opacity-0 pointer-events-none transition-all duration-300">
+        <button id="mobile-menu-close" type="button" aria-label="關閉選單" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-brand-black rounded-full transition-all">
+            <i class="ph ph-x text-2xl" aria-hidden="true"></i>
         </button>
         <a href="#work" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">作品 Work</a>
         <a href="#about" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">關於 About</a>
@@ -292,7 +306,7 @@
                 <div class="relative inline-flex group">
                     <a class="cursor-pointer relative z-10 inline-flex items-center gap-2 text-brand-black text-lg md:text-xl font-bold px-8 py-4 transition-colors group-hover:text-[#3B82F6]" href="#work">
                         觀看作品
-                        <i class="ph ph-arrow-down-right text-xl"></i>
+                        <i class="ph ph-arrow-down-right text-xl" aria-hidden="true"></i>
                     </a>
                     
                     <svg class="absolute inset-0 w-full h-full scale-[1.3] md:scale-[1.5] -translate-x-3 md:-translate-x-4 pointer-events-none -z-0 overflow-visible" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
@@ -324,7 +338,7 @@
         </div>
     </section>
 
-    <div class="mesh-background" id="dynamic-content-area">
+    <div id="dynamic-content-area">
         
         <section id="work" class="py-24 scroll-mt-20">
             <div class="max-w-7xl mx-auto px-6 lg:px-12">
@@ -356,10 +370,10 @@
                     <div id="portfolio-grid" class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-7xl mx-auto px-6 lg:px-12">
                         
                         <!-- 新增：2026年 高雄市政府財政局菸酒法令宣導 -->
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-finance-tobacco-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-finance-tobacco-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府財政局菸酒法令宣導">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-kaohsiung-finance-tobacco-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-finance-tobacco-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2026-event-kaohsiung-finance-tobacco-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府財政局菸酒法令宣導" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-finance-tobacco-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府財政局<br class="hidden md:block">菸酒法令宣導</h3>
                             </div>
@@ -368,10 +382,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-full.png,images/2026-event-kaohsiung-job-fair-gangshan-full-2.png,images/2026-event-kaohsiung-job-fair-gangshan-full-3.png,images/2026-event-kaohsiung-job-fair-gangshan-full-4.png,images/2026-event-kaohsiung-job-fair-gangshan-full-5.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-full.png,images/2026-event-kaohsiung-job-fair-gangshan-full-2.png,images/2026-event-kaohsiung-job-fair-gangshan-full-3.png,images/2026-event-kaohsiung-job-fair-gangshan-full-4.png,images/2026-event-kaohsiung-job-fair-gangshan-full-5.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(岡山大型徵才)</h3>
                             </div>
@@ -380,10 +394,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-nanzi-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-nanzi-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(楠梓大型徵才)">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(楠梓大型徵才)" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-nanzi-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(楠梓大型徵才)</h3>
                             </div>
@@ -392,10 +406,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-fire-station-opening-full.png,images/2026-event-fire-station-opening-full-2.png,images/2026-event-fire-station-opening-full-3.png,images/2026-event-fire-station-opening-full-4.png,images/2026-event-fire-station-opening-full-5.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-fire-station-opening-full.png,images/2026-event-fire-station-opening-full-2.png,images/2026-event-fire-station-opening-full-3.png,images/2026-event-fire-station-opening-full-4.png,images/2026-event-fire-station-opening-full-5.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-fire-station-opening-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-fire-station-opening-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2026-event-fire-station-opening-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-fire-station-opening-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">消防局後勁分隊與<br class="hidden md:block">特搜第一分隊<br class="hidden lg:block">啟用典禮</h3>
                             </div>
@@ -404,10 +418,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-labor-safety-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-labor-safety-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-labor-safety-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-labor-safety-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2026-event-labor-safety-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-labor-safety-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">職業安全衛生日<br class="hidden md:block">安全體感觀摩暨<br>展示活動</h3>
                             </div>
@@ -416,10 +430,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-chiayi-job-part1-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-chiayi-job-part1-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 嘉義縣政府現場徵才活動 Part1">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-chiayi-job-part1-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-chiayi-job-part1-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2026-event-chiayi-job-part1-thumb.jpg" loading="lazy" decoding="async" alt="2026年 嘉義縣政府現場徵才活動 Part1" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-chiayi-job-part1-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>嘉義縣政府<br class="hidden md:block">現場徵才活動 Part1</h3>
                             </div>
@@ -429,10 +443,10 @@
                         </div>
 
                         <!-- 之前新增的：2026年 嘉義縣政府 現場徵才活動 Part2 -->
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-chiayi-job-part2-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-chiayi-job-part2-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 嘉義縣政府現場徵才活動 Part2">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-chiayi-job-part2-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-chiayi-job-part2-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2026-event-chiayi-job-part2-thumb.jpg" loading="lazy" decoding="async" alt="2026年 嘉義縣政府現場徵才活動 Part2" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-chiayi-job-part2-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>嘉義縣政府<br class="hidden md:block">現場徵才活動 Part2</h3>
                             </div>
@@ -441,10 +455,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-tainan-job-fair-large-p3-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2026-event-tainan-job-fair-large-p3-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 台南好生活 台南呷頭路大型就業博覽會 Part3">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2026-event-tainan-job-fair-large-p3-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-tainan-job-fair-large-p3-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2026-event-tainan-job-fair-large-p3-thumb.jpg" loading="lazy" decoding="async" alt="2026年 台南好生活 台南呷頭路大型就業博覽會 Part3" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-tainan-job-fair-large-p3-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part3</h3>
                             </div>
@@ -453,10 +467,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tsrc-year-end-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tsrc-year-end-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2025年 台橡旺年會">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2025-event-tsrc-year-end-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tsrc-year-end-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2025-event-tsrc-year-end-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台橡旺年會" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tsrc-year-end-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台橡旺年會</h3>
                             </div>
@@ -465,10 +479,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-large-p1-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-large-p1-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2025年 台南好生活 台南呷頭路大型就業博覽會 Part1">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2025-event-tainan-job-fair-large-p1-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tainan-job-fair-large-p1-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2025-event-tainan-job-fair-large-p1-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台南好生活 台南呷頭路大型就業博覽會 Part1" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tainan-job-fair-large-p1-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part1</h3>
                             </div>
@@ -477,10 +491,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-medium-p1-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-medium-p1-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2025年 台南好生活 台南呷頭路中型就業博覽會 Part1">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2025-event-tainan-job-fair-medium-p1-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tainan-job-fair-medium-p1-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2025-event-tainan-job-fair-medium-p1-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台南好生活 台南呷頭路中型就業博覽會 Part1" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tainan-job-fair-medium-p1-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">中型就業博覽會 Part1</h3>
                             </div>
@@ -489,10 +503,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2024-event-tainan-job-fair-large-p4-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="event" data-modal-img="images/2024-event-tainan-job-fair-large-p4-full.png" role="button" tabindex="0" aria-label="活動視覺設計：2024年 台南好生活 台南呷頭路大型就業博覽會 Part4">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <img src="images/2024-event-tainan-job-fair-large-p4-thumb.jpg" loading="lazy" decoding="async" alt="活動視覺設計" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2024-event-tainan-job-fair-large-p4-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <img src="images/2024-event-tainan-job-fair-large-p4-thumb.jpg" loading="lazy" decoding="async" alt="2024年 台南好生活 台南呷頭路大型就業博覽會 Part4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2024-event-tainan-job-fair-large-p4-thumb.jpg')">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">活動視覺設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2024年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part4</h3>
                             </div>
@@ -501,10 +515,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tsrc-elt.mp4" data-modal-img="images/2026-animation-tsrc-elt-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tsrc-elt.mp4" data-modal-img="images/2026-animation-tsrc-elt-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台橡旺年會ELT進場前導動畫">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-tsrc-elt.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-tsrc-elt.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2026-animation-tsrc-elt.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台橡旺年會ELT進場前導動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-tsrc-elt.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台橡旺年會<br class="hidden md:block">ELT進場前導動畫</h3>
                             </div>
@@ -513,10 +527,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tainan-job-fair-large-p2.mp4,videos/2026-animation-tainan-job-fair-large-p2-2.mp4" data-modal-img="images/2026-animation-tainan-job-fair-large-p2-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-tainan-job-fair-large-p2.mp4,videos/2026-animation-tainan-job-fair-large-p2-2.mp4" data-modal-img="images/2026-animation-tainan-job-fair-large-p2-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台南好生活 台南呷頭路大型就業博覽會 Part2啟動儀式動畫">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-tainan-job-fair-large-p2.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-tainan-job-fair-large-p2.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2026-animation-tainan-job-fair-large-p2.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台南好生活 台南呷頭路大型就業博覽會 Part2啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-tainan-job-fair-large-p2.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part2<br class="hidden lg:block">啟動儀式動畫</h3>
                             </div>
@@ -525,10 +539,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-job-fair.mp4" data-modal-img="images/2025-animation-job-fair-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-job-fair.mp4" data-modal-img="images/2025-animation-job-fair-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 僑生就業博覽會啟動儀式動畫">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2025-animation-job-fair.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-job-fair.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2025-animation-job-fair.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2025年 僑生就業博覽會啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-job-fair.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>僑生就業博覽會<br class="hidden md:block">啟動儀式動畫</h3>
                             </div>
@@ -537,10 +551,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-kaohsiung-forum.mp4" data-modal-img="images/2025-animation-kaohsiung-forum-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-kaohsiung-forum.mp4" data-modal-img="images/2025-animation-kaohsiung-forum-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 高雄市政府智慧港都 幸福永續論壇展示活動啟動儀式動畫">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2025-animation-kaohsiung-forum.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-kaohsiung-forum.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2025-animation-kaohsiung-forum.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2025年 高雄市政府智慧港都 幸福永續論壇展示活動啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-kaohsiung-forum.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>高雄市政府<br class="hidden md:block">智慧港都 幸福永續<br class="hidden md:block">論壇展示活動<br class="hidden lg:block">啟動儀式動畫</h3>
                             </div>
@@ -549,10 +563,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-labor-safety.mp4" data-modal-img="images/2026-animation-labor-safety-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-labor-safety.mp4" data-modal-img="images/2026-animation-labor-safety-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-labor-safety.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-labor-safety.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2026-animation-labor-safety.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-labor-safety.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>高雄市政府<br class="hidden md:block">職業安全衛生日<br class="hidden md:block">安全體感觀摩暨<br>展示活動<br class="hidden lg:block">啟動儀式動畫</h3>
                             </div>
@@ -561,10 +575,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs.mp4" data-modal-img="images/2025-animation-taiwan-jobs-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs.mp4" data-modal-img="images/2025-animation-taiwan-jobs-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2025-animation-taiwan-jobs.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-taiwan-jobs.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2025-animation-taiwan-jobs.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2025年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-taiwan-jobs.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">啟動儀式動畫</h3>
                             </div>
@@ -573,10 +587,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs-info.mp4" data-modal-img="images/2025-animation-taiwan-jobs-info-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2025-animation-taiwan-jobs-info.mp4" data-modal-img="images/2025-animation-taiwan-jobs-info-full.png" role="button" tabindex="0" aria-label="動態設計：2025年 台灣就業通雲嘉南區就業博覽會活動懶人包">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2025-animation-taiwan-jobs-info.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-taiwan-jobs-info.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2025-animation-taiwan-jobs-info.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2025年 台灣就業通雲嘉南區就業博覽會活動懶人包" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2025-animation-taiwan-jobs-info.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2025年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">活動懶人包</h3>
                             </div>
@@ -585,10 +599,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-taiwan-jobs.mp4" data-modal-img="images/2026-animation-taiwan-jobs-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-taiwan-jobs.mp4" data-modal-img="images/2026-animation-taiwan-jobs-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-taiwan-jobs.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2026-animation-taiwan-jobs.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台灣就業通雲嘉南區就業博覽會啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">啟動儀式動畫</h3>
                             </div>
@@ -597,10 +611,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-taiwan-jobs-info.mp4" data-modal-img="images/2026-animation-taiwan-jobs-info-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-taiwan-jobs-info.mp4" data-modal-img="images/2026-animation-taiwan-jobs-info-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台灣就業通雲嘉南區就業博覽會活動懶人包">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-taiwan-jobs-info.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-info.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2026-animation-taiwan-jobs-info.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台灣就業通雲嘉南區就業博覽會活動懶人包" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-info.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">活動懶人包</h3>
                             </div>
@@ -609,10 +623,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-taiwan-jobs-tv.mp4" data-modal-img="images/2026-animation-taiwan-jobs-tv-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="animation" data-video="videos/2026-animation-taiwan-jobs-tv.mp4" data-modal-img="images/2026-animation-taiwan-jobs-tv-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 台灣就業通雲嘉南區就業博覽會電視牆廣告">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/2026-animation-taiwan-jobs-tv.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-tv.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/2026-animation-taiwan-jobs-tv.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="2026年 台灣就業通雲嘉南區就業博覽會電視牆廣告" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-taiwan-jobs-tv.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">動態設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">電視牆廣告</h3>
                             </div>
@@ -621,10 +635,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-road-animal-full.mp4" data-modal-img="images/prog-road-animal-full.png" data-external-link="https://design-your-life-studio.github.io/115-traffic-hero.tw/">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-road-animal-full.mp4" data-modal-img="images/prog-road-animal-full.png" data-external-link="https://design-your-life-studio.github.io/115-traffic-hero.tw/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種馬路動物人格">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/prog-road-animal-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-road-animal-thumb.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/prog-road-animal-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="測測你是哪種馬路動物人格" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-road-animal-thumb.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">測測你是哪種馬路動物人格</h3>
                             </div>
@@ -643,10 +657,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.png" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.png" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種職場神獸">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/prog-beast-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-beast-thumb.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/prog-beast-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="測測你是哪種職場神獸" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-beast-thumb.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">測測你是哪種職場神獸</h3>
                             </div>
@@ -665,10 +679,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.png" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.png" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/" role="button" tabindex="0" aria-label="程式設計：探索你的職場動物風格">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="videos/prog-animal-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-animal-thumb.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="videos/prog-animal-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="探索你的職場動物風格" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-animal-thumb.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">探索你的職場動物風格</h3>
                             </div>
@@ -687,19 +701,19 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.png" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.png" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/" role="button" tabindex="0" aria-label="程式設計：求職適性測驗">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                             <img src="images/prog-career-thumb.jpg" loading="lazy" decoding="async" alt="適性診斷" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/prog-career-thumb.jpg')">
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">求職適性測驗</h3>
                             </div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
-                                <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，本專案致力於將傳統的職業性向測驗數位化、現代化。透過結構化的測驗流程，性能作為展場的數位互動亮點，更能實質幫助求職者在短時間內釐清個人優勢，對接合適的職涯發展路徑。</p>
+                                <p class="mb-6">為了配合雲嘉南、高雄等地舉辦的大型就業博覽會，本專案致力於將傳統的職業性向測驗數位化、現代化。透過結構化的測驗流程，不僅能作為展場的數位互動亮點，更能實質幫助求職者在短時間內釐清個人優勢，對接合適的職涯發展路徑。</p>
                                 
                                 <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
-                                <p class="mb-6">在視覺介面上，捨棄繁複的裝飾，採用俐開的網格排版、對比鮮明的重點色彩與字體層級規劃，營造出具備現代感與公信力的視覺體驗。測驗結果頁面經過精心設計，將複雜的「內在性格」與「外在形象」評估結果，轉化為直覺的標籤與圖卡人物設計，有助於求職者理解自己的職場角色設定，掌握自身核心職能。</p>
+                                <p class="mb-6">在視覺介面上，捨棄繁複的裝飾，採用俐落的網格排版、對比鮮明的重點色彩與字體層級規劃，營造出具備現代感與公信力的視覺體驗。測驗結果頁面經過精心設計，將複雜的「內在性格」與「外在形象」評估結果，轉化為直覺的標籤與圖卡人物設計，有助於求職者理解自己的職場角色設定，掌握自身核心職能。</p>
                                 
                                 <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
                                 <ul class="space-y-2 list-disc list-outside ml-5">
@@ -709,10 +723,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.png" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.png" data-external-link="https://design-your-life-studio.github.io/lucky-draw/" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：活動電子抽獎程式">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="images/prog-lottery-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'images/prog-lottery-thumb.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="images/prog-lottery-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="活動電子抽獎程式" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'images/prog-lottery-thumb.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">活動電子抽獎程式</h3>
                             </div>
@@ -731,10 +745,10 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-graffiti-wall-full.mp4" data-modal-img="images/prog-graffiti-wall-full.png">
+                        <div class="portfolio-item group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer bg-white/40 backdrop-blur-sm border border-white/60 shadow-lg shadow-black/10 transition-all duration-500 hover:scale-105 hover:bg-white/60 hover:-translate-y-1" data-category="programming" data-video="videos/prog-graffiti-wall-full.mp4" data-modal-img="images/prog-graffiti-wall-full.png" role="button" tabindex="0" aria-label="程式設計：互動展示塗鴉牆">
                             <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                            <video src="images/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" autoplay muted loop playsinline onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'images/prog-graffiti-wall-thumb.mp4')"></video>
-                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
+                            <video src="images/prog-graffiti-wall-thumb.mp4" class="w-full h-full object-contain transition-all duration-[800ms] group-hover:scale-105 opacity-0 relative z-10" muted loop playsinline preload="none" aria-label="互動展示塗鴉牆" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'images/prog-graffiti-wall-thumb.mp4')"></video>
+                            <div class="item-overlay absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-8 z-20">
                                 <span class="text-white/70 text-sm tracking-widest uppercase mb-2">程式設計</span>
                                 <h3 class="text-white text-xl md:text-2xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">互動展示塗鴉牆</h3>
                             </div>
@@ -878,39 +892,39 @@
             <div class="pt-16 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center">
                 <p>&copy; 2026 MingFly. All rights reserved.</p>
                 <a href="#top" class="mt-4 md:mt-0 hover:text-[#3B82F6] transition-colors flex items-center gap-2">
-                    Back to top <i class="ph ph-arrow-up"></i>
+                    Back to top <i class="ph ph-arrow-up" aria-hidden="true"></i>
                 </a>
             </div>
         </div>
     </footer>
 
-    <div id="project-modal" class="fixed inset-0 z-[100] hidden">
+    <div id="project-modal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div id="modal-backdrop" class="absolute inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none">
             <div id="modal-content" class="bg-white rounded-2xl md:rounded-3xl w-[95vw] max-w-[1400px] scale-95 opacity-0 transition-all duration-300 relative shadow-2xl overflow-hidden pointer-events-auto">
-                <button id="modal-close" class="absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
-                    <i class="ph ph-x text-[18px]"></i>
+                <button id="modal-close" type="button" aria-label="關閉" class="absolute top-3 right-3 md:top-4 md:right-4 w-9 h-9 flex items-center justify-center bg-black/50 hover:bg-black text-white rounded-full transition-all z-[110] backdrop-blur-md">
+                    <i class="ph ph-x text-[18px]" aria-hidden="true"></i>
                 </button>
                 <div class="w-full max-h-[90vh] overflow-y-auto relative flex flex-col lg:flex-row">
                     <div id="modal-media-container" class="media-container w-full lg:w-[65%] xl:w-[70%] aspect-video lg:aspect-auto lg:h-[90vh] bg-gray-100 overflow-hidden relative shrink-0 lg:sticky lg:top-0 select-none flex items-center justify-center p-6 md:p-12 lg:p-16">
                         
                         <div id="modal-skeleton" class="skeleton-shimmer absolute inset-0 z-10 hidden transition-opacity duration-300"></div>
 
-                        <img id="modal-img" src="" alt="專案大圖" class="max-w-full max-h-full object-contain relative z-20 opacity-0 transition-opacity duration-500 select-none" draggable="false" style="-webkit-user-drag: none;">
-                        <video id="modal-video" src="" class="max-w-full max-h-full object-contain relative z-20 hidden opacity-0 transition-opacity duration-500 select-none" controls autoplay muted playsinline draggable="false" style="-webkit-user-drag: none;"></video>
+                        <img id="modal-img" alt="專案大圖" class="max-w-full max-h-full object-contain relative z-20 opacity-0 transition-opacity duration-500 select-none" draggable="false" style="-webkit-user-drag: none;">
+                        <video id="modal-video" class="max-w-full max-h-full object-contain relative z-20 hidden opacity-0 transition-opacity duration-500 select-none" controls autoplay muted playsinline draggable="false" style="-webkit-user-drag: none;"></video>
                         
-                        <button id="prev-img" class="absolute left-3 top-1/2 -translate-y-1/2 w-[30px] h-[30px] bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-30 hidden">
-                            <i class="ph ph-caret-left text-[14px]"></i>
+                        <button id="prev-img" type="button" aria-label="上一張" class="absolute left-3 top-1/2 -translate-y-1/2 w-[30px] h-[30px] bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-30 hidden">
+                            <i class="ph ph-caret-left text-[14px]" aria-hidden="true"></i>
                         </button>
-                        <button id="next-img" class="absolute right-3 top-1/2 -translate-y-1/2 w-[30px] h-[30px] bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-30 hidden">
-                            <i class="ph ph-caret-right text-[14px]"></i>
+                        <button id="next-img" type="button" aria-label="下一張" class="absolute right-3 top-1/2 -translate-y-1/2 w-[30px] h-[30px] bg-black/30 hover:bg-black text-white rounded-full flex items-center justify-center transition-all z-30 hidden">
+                            <i class="ph ph-caret-right text-[14px]" aria-hidden="true"></i>
                         </button>
                         <div id="gallery-indicator" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center bg-black/60 backdrop-blur-md text-white text-[10px] tracking-widest px-2 py-0.5 rounded-full z-30 hidden shadow-lg">
                             <span id="current-page">1</span><span class="mx-1">/</span><span id="total-pages">3</span>
                         </div>
                         <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-center p-4 z-20">
                             <div class="px-4">
-                                <i class="ph ph-warning-circle text-4xl mb-2"></i>
+                                <i class="ph ph-warning-circle text-4xl mb-2" aria-hidden="true"></i>
                                 <p class="font-bold">檔案載入失敗</p>
                                 <p class="text-xs mt-2 opacity-70 break-all max-w-md mx-auto" id="error-path"></p>
                             </div>
@@ -922,13 +936,13 @@
                         <div class="text-gray-600 leading-relaxed space-y-6 text-lg max-w-3xl">
                             <div id="modal-description">專案詳細介紹內容。</div>
                             <div id="external-link-container" class="hidden pt-8 flex flex-col md:flex-row items-start md:items-center gap-6 border-t border-gray-100 mt-8">
-                                <a id="modal-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 bg-brand-black text-white px-6 py-3 text-sm md:text-base rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1 shrink-0">
+                                <a id="modal-external-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-brand-black text-white px-6 py-3 text-sm md:text-base rounded-full font-medium hover:bg-gray-800 transition-all transform hover:-translate-y-1 shrink-0">
                                     前往程式網頁
-                                    <i class="ph ph-arrow-up-right"></i>
+                                    <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
                                 </a>
                                 <div id="qr-container" class="flex flex-col items-center gap-2 shrink-0">
                                     <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                                        <img id="modal-qr" src="" alt="QR Code" class="w-20 h-20 md:w-24 md:h-24 object-contain">
+                                        <img id="modal-qr" alt="QR Code" class="w-20 h-20 md:w-24 md:h-24 object-contain">
                                     </div>
                                     <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center leading-relaxed">
                                         Scan to Preview<br>手機體驗效果更佳
@@ -951,18 +965,65 @@
         const portfolioClone = document.getElementById('portfolio-clone');
         const allOriginalItems = Array.from(document.querySelectorAll('#portfolio-grid .portfolio-item'));
 
+        // 縮圖影片：只在進入畫面時載入並播放，離開畫面就暫停
+        const visibleThumbs = new Set();
+        let thumbsSuspended = false;
+
+        function playThumb(video) {
+            video.muted = true;
+            const p = video.play();
+            if (p && p.catch) {
+                p.catch(() => {
+                    // 無法自動播放（例如省電模式）時，至少載入第一格畫面
+                    if (!video.dataset.fallbackLoaded) {
+                        video.dataset.fallbackLoaded = '1';
+                        video.preload = 'auto';
+                        video.load();
+                    }
+                });
+            }
+        }
+
+        const thumbObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (entry.isIntersecting) {
+                    visibleThumbs.add(video);
+                    if (!thumbsSuspended) playThumb(video);
+                } else {
+                    visibleThumbs.delete(video);
+                    video.pause();
+                }
+            });
+        }, { rootMargin: '100px 200px', threshold: 0.01 }) : null;
+
+        function observeThumb(video) {
+            if (thumbObserver) thumbObserver.observe(video);
+            else playThumb(video);
+        }
+
+        // 彈窗開啟時暫停背景的跑馬燈與縮圖影片
+        function suspendThumbs(suspend) {
+            thumbsSuspended = suspend;
+            portfolioTrack.classList.toggle('is-paused', suspend);
+            visibleThumbs.forEach(video => suspend ? video.pause() : playThumb(video));
+        }
+
+        allOriginalItems.forEach(item => {
+            const video = item.querySelector('video');
+            if (video) observeThumb(video);
+        });
+
         function enableMarquee() {
             if (portfolioClone.innerHTML === '') {
                 allOriginalItems.forEach(item => {
                     const clonedItem = item.cloneNode(true);
-                    const video = clonedItem.querySelector('video');
-                    const originalVideo = item.querySelector('video');
-                    if (video && originalVideo && originalVideo.src) {
-                        video.removeAttribute('src');
-                        video.setAttribute('src', originalVideo.src);
-                        video.load();
-                    }
+                    // 複製品只是跑馬燈的視覺延伸：不重複讓輔助工具與鍵盤讀到
+                    clonedItem.setAttribute('aria-hidden', 'true');
+                    clonedItem.setAttribute('tabindex', '-1');
                     portfolioClone.appendChild(clonedItem);
+                    const video = clonedItem.querySelector('video');
+                    if (video) observeThumb(video);
                 });
             }
             
@@ -974,7 +1035,8 @@
                 item.classList.add('item-marquee');
                 item.style.display = '';
                 item.style.opacity = '1';
-                item.style.transform = 'scale(1)';
+                // 不寫入行內 transform，才不會蓋掉 hover 效果
+                item.style.transform = '';
             });
         }
 
@@ -1052,7 +1114,7 @@
                     modalVideo.classList.remove('opacity-0');
                 };
                 
-                modalVideo.src = currentPath + "?v=" + new Date().getTime();
+                modalVideo.src = currentPath;
                 
                 modalVideo.onerror = () => {
                     modalSkeleton.classList.add('hidden');
@@ -1086,9 +1148,21 @@
             }
         }
 
+        let lastFocusedItem = null;
+
+        // 鍵盤：Enter 或空白鍵開啟作品
+        portfolioTrack.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const item = e.target.closest('.portfolio-item');
+            if (!item || e.target !== item) return;
+            e.preventDefault();
+            item.click();
+        });
+
         portfolioTrack.addEventListener('click', (e) => {
             const item = e.target.closest('.portfolio-item');
             if (!item) return;
+            lastFocusedItem = item;
 
             const videoSrc = item.getAttribute('data-video');
             const modalImgSrc = item.getAttribute('data-modal-img');
@@ -1145,6 +1219,8 @@
             modal.classList.remove('hidden');
             setTimeout(() => document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0'), 10);
             document.body.style.overflow = 'hidden';
+            suspendThumbs(true);
+            document.getElementById('modal-close').focus({ preventScroll: true });
         });
 
         prevBtn.onclick = (e) => { e.stopPropagation(); currentImgIndex = (currentImgIndex - 1 + currentGallery.length) % currentGallery.length; updateGalleryView(); };
@@ -1264,6 +1340,10 @@
                 modalVideo.pause(); 
                 document.body.style.overflow = ''; 
                 reset3DState(); 
+                suspendThumbs(false);
+                if (lastFocusedItem && lastFocusedItem.getAttribute('tabindex') === '0') {
+                    lastFocusedItem.focus({ preventScroll: true });
+                }
             }, 300);
         };
 
@@ -1275,6 +1355,8 @@
             const isHidden = mobileMenu.classList.contains('opacity-0');
             if (isHidden) { mobileMenu.classList.remove('opacity-0', 'pointer-events-none'); document.body.style.overflow = 'hidden'; }
             else { mobileMenu.classList.add('opacity-0', 'pointer-events-none'); document.body.style.overflow = ''; }
+            mobileMenu.inert = !isHidden;
+            mobileMenuBtn.setAttribute('aria-expanded', String(isHidden));
         }
         mobileMenuBtn.addEventListener('click', toggleMobileMenu);
         mobileMenuClose.addEventListener('click', toggleMobileMenu);
@@ -1324,12 +1406,11 @@
                             if (!isMatch) {
                                 item.style.display = 'none';
                                 item.style.opacity = '0';
-                                item.style.transform = 'scale(0.95)';
                             } else {
                                 item.style.display = '';
                                 item.style.opacity = '1';
-                                item.style.transform = 'scale(1)';
                             }
+                            item.style.transform = '';
                         });
                     }
                     
@@ -1386,8 +1467,14 @@
         let currentDragZIndex = 40; 
         
         const initialPositions = new Map();
+        const dragOrigins = new Map();
 
-        setTimeout(() => {
+        // 記住每個物件原本在 HTML 中的位置，視窗寬度改變時才能放回去
+        dragItems.forEach(item => {
+            dragOrigins.set(item, { parent: item.parentElement, next: item.nextSibling });
+        });
+
+        function recordInitialPositions() {
             dragItems.forEach(item => {
                 const container = item.closest('section') || document.body;
                 const containerRect = container.getBoundingClientRect();
@@ -1397,7 +1484,31 @@
                     y: rect.top - containerRect.top
                 });
             });
-        }, 500);
+        }
+
+        setTimeout(recordInitialPositions, 500);
+
+        // 視窗寬度改變（旋轉手機、縮放視窗）時：把物件放回響應式的原位並重新記錄
+        let lastViewportWidth = window.innerWidth;
+        let dragResizeTimer;
+        window.addEventListener('resize', () => {
+            if (window.innerWidth === lastViewportWidth) return; // 手機網址列收合只改變高度，不處理
+            lastViewportWidth = window.innerWidth;
+            clearTimeout(dragResizeTimer);
+            dragResizeTimer = setTimeout(() => {
+                if (activeDragItem) return;
+                // 由後往前放回，確保每個物件的「下一個兄弟節點」已經就位
+                Array.from(dragItems).reverse().forEach(item => {
+                    const origin = dragOrigins.get(item);
+                    if (origin && item.parentElement !== origin.parent) {
+                        const ref = origin.next && origin.next.parentNode === origin.parent ? origin.next : null;
+                        origin.parent.insertBefore(item, ref);
+                    }
+                    ['left', 'top', 'right', 'bottom', 'transition', 'zIndex'].forEach(prop => { item.style[prop] = ''; });
+                });
+                recordInitialPositions();
+            }, 200);
+        });
 
         function dragStart(e) {
             activeDragItem = this;
@@ -1512,7 +1623,7 @@
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) navbar.classList.add('shadow-sm');
             else navbar.classList.remove('shadow-sm');
-        });
+        }, { passive: true });
 
         const trailCanvas = document.getElementById('trail-canvas');
         const trailCtx = trailCanvas.getContext('2d');
@@ -1525,8 +1636,17 @@
         window.addEventListener('resize', resizeTrailCanvas);
         resizeTrailCanvas();
 
+        const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let trailRunning = false;
+
         function addTrailPoint(x, y) {
+            if (reducedMotionQuery.matches) return;
             trailPoints.push({ x, y, age: 0 });
+            // 只有在有軌跡要畫時才啟動動畫迴圈
+            if (!trailRunning) {
+                trailRunning = true;
+                requestAnimationFrame(animateTrail);
+            }
         }
 
         window.addEventListener('mousemove', (e) => addTrailPoint(e.clientX, e.clientY));
@@ -1560,9 +1680,12 @@
                 trailCtx.lineJoin = 'round';      
                 trailCtx.stroke();
             }
-            requestAnimationFrame(animateTrail);
+            if (trailPoints.length > 0) {
+                requestAnimationFrame(animateTrail);
+            } else {
+                trailRunning = false; // 軌跡淡出完畢，停止重繪
+            }
         }
-        animateTrail();
 
         const halftoneCanvas = document.getElementById('halftone-bg');
         const halftoneCtx = halftoneCanvas.getContext('2d');
@@ -1587,8 +1710,10 @@
         window.addEventListener('resize', resizeHalftone);
         resizeHalftone();
 
-        function animateHalftone() {
+        function drawHalftone() {
             halftoneCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            halftoneCtx.fillStyle = htDotColor;
+            halftoneCtx.beginPath(); // 所有圓點合併成一條路徑，一次填色
             
             for (let x = -htSpacing; x <= window.innerWidth + htSpacing; x += htSpacing) {
                 for (let y = -htSpacing; y <= window.innerHeight + htSpacing; y += htSpacing) {
@@ -1605,17 +1730,34 @@
 
                     const currentRadius = htMinRadius + noise * (htMaxRadius - htMinRadius);
 
-                    halftoneCtx.beginPath();
+                    halftoneCtx.moveTo(x + currentRadius, y);
                     halftoneCtx.arc(x, y, currentRadius, 0, Math.PI * 2);
-                    halftoneCtx.fillStyle = htDotColor;
-                    halftoneCtx.fill();
                 }
             }
+            halftoneCtx.fill();
+        }
 
-            htTime += htAnimSpeed;
+        // 背景波動很緩慢，約 30fps 重繪即可；速度以實際經過時間計算，維持原本的節奏
+        const htFrameInterval = 1000 / 30;
+        let htLastDraw = 0;
+
+        function animateHalftone(now) {
+            if (reducedMotionQuery.matches) return; // 減少動態：維持靜態網點
+            const elapsed = now - htLastDraw;
+            if (elapsed >= htFrameInterval) {
+                htTime += htAnimSpeed * Math.min(elapsed, 100) / (1000 / 60);
+                htLastDraw = now;
+                drawHalftone();
+            }
             requestAnimationFrame(animateHalftone);
         }
-        animateHalftone();
+
+        drawHalftone();
+        requestAnimationFrame(animateHalftone);
+        window.addEventListener('resize', () => { if (reducedMotionQuery.matches) drawHalftone(); });
+        reducedMotionQuery.addEventListener('change', () => {
+            if (!reducedMotionQuery.matches) requestAnimationFrame(animateHalftone);
+        });
 
     </script>
 </body>
