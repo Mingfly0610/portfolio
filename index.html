@@ -267,6 +267,8 @@
             overflow: hidden;
             transition: color 0.3s ease;
         }
+        /* 名稱中的每個詞不拆開：只會在詞與詞之間換行 */
+        .tw { white-space: nowrap; }
         .item-year {
             font-family: 'Playfair Display', serif;
             font-style: italic;
@@ -288,7 +290,7 @@
             .grid-marquee .portfolio-item:hover { opacity: 1; }
         }
 
-        /* ===== 作品彈窗：單一底色（取自作品）、版面隨作品方向改變 ===== */
+        /* ===== 作品彈窗：單一灰底、版面隨作品方向改變 ===== */
         .modal-backdrop {
             position: absolute; inset: 0;
             background: rgba(17, 17, 17, 0.86);
@@ -313,7 +315,7 @@
             background: var(--modal-tint);
             box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.6);
             pointer-events: auto;
-            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.45s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
         .modal-scroll {
             flex: 1 1 auto;
@@ -326,7 +328,7 @@
             position: absolute; top: 12px; right: 12px; z-index: 40;
             width: 40px; height: 40px;                 /* 保留好按的範圍，但不畫出圓圈 */
             display: flex; align-items: center; justify-content: center;
-            background: transparent; color: #111111; font-size: 22px;
+            background: transparent; color: #111111;
             transition: color 0.2s ease;
         }
         .modal-close:hover, .modal-close:active { color: #3B82F6; }
@@ -357,16 +359,15 @@
 
         .modal-arrow {
             position: absolute; top: 50%; z-index: 30;
-            width: 36px; height: 36px; margin-top: -18px;
+            width: 40px; height: 40px; margin-top: -20px;   /* 保留好按的範圍，但不畫出圓圈 */
             display: flex; align-items: center; justify-content: center;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.92); color: #111111; font-size: 16px;
-            box-shadow: 0 4px 14px rgba(17, 17, 17, 0.18);
-            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+            background: transparent; color: #111111;
+            transition: color 0.2s ease;
         }
-        .modal-arrow.is-prev { left: 12px; }
-        .modal-arrow.is-next { right: 12px; }
-        .modal-arrow:hover { background: #111111; color: #ffffff; transform: scale(1.08); }
+        .modal-arrow svg { width: 22px; height: 22px; }
+        .modal-arrow.is-prev { left: 8px; }
+        .modal-arrow.is-next { right: 8px; }
+        .modal-arrow:hover, .modal-arrow:active { color: #3B82F6; }
         .modal-arrow.hidden, .modal-strip.hidden, .modal-link.hidden { display: none; }
 
         /* 多圖專案：縮圖列 */
@@ -400,10 +401,10 @@
         .modal-year {
             margin-top: 16px;
             font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
-            font-size: clamp(44px, 5vw, 68px); line-height: 1; color: #3B82F6;
+            font-size: clamp(28px, 2.6vw, 38px); line-height: 1; color: #3B82F6;
         }
         .modal-year:empty { display: none; }
-        .modal-title { margin-top: 12px; font-size: clamp(19px, 1.7vw, 24px); font-weight: 700; line-height: 1.45; color: #111111; }
+        .modal-title { margin-top: 10px; font-size: clamp(19px, 1.7vw, 24px); font-weight: 700; line-height: 1.45; color: #111111; text-wrap: balance; }
         .modal-body { font-size: 16px; line-height: 1.85; color: #4b5563; }
         .modal-link { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; margin-top: 26px; padding-top: 24px; border-top: 1px solid rgba(17, 17, 17, 0.1); }
 
@@ -425,8 +426,8 @@
 
         @media (min-width: 1024px) {
             .modal-viewport { padding: 56px; }
-            .modal-arrow.is-prev { left: 16px; }
-            .modal-arrow.is-next { right: 16px; }
+            .modal-arrow.is-prev { left: 10px; }
+            .modal-arrow.is-next { right: 10px; }
 
             /* 直式作品：圖左、資訊右，彈窗收窄 */
             .modal-card.is-portrait { width: min(95vw, 1080px); height: 90vh; }
@@ -646,7 +647,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府財政局菸酒法令宣導</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">高雄市政府</span><wbr><span class="tw">財政局</span><wbr><span class="tw">菸酒法令</span><wbr><span class="tw">宣導</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>高雄市政府財政局<br class="hidden md:block">菸酒法令宣導</div>
                             <div class="project-details hidden">
@@ -661,7 +662,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">高雄市政府</span><wbr><span class="tw">現場徵才活動</span> <span class="tw">薪動高雄</span> <span class="tw">職得幸福</span><wbr><span class="tw">(岡山大型徵才)</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(岡山大型徵才)</div>
                             <div class="project-details hidden">
@@ -676,7 +677,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府現場徵才活動 薪動高雄 職得幸福(楠梓大型徵才)</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">高雄市政府</span><wbr><span class="tw">現場徵才活動</span> <span class="tw">薪動高雄</span> <span class="tw">職得幸福</span><wbr><span class="tw">(楠梓大型徵才)</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(楠梓大型徵才)</div>
                             <div class="project-details hidden">
@@ -691,7 +692,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">高雄市政府</span><wbr><span class="tw">消防局</span><wbr><span class="tw">後勁分隊</span><wbr><span class="tw">與特搜第一分隊</span><wbr><span class="tw">啟用典禮</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">消防局後勁分隊與<br class="hidden md:block">特搜第一分隊<br class="hidden lg:block">啟用典禮</div>
                             <div class="project-details hidden">
@@ -699,14 +700,14 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2026-event-labor-safety-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動" data-modal-ar="0.7071">
+                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2026-event-labor-safety-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨展示活動" data-modal-ar="0.7071">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                                <img src="images/2026-event-labor-safety-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-labor-safety-thumb.jpg')">
+                                <img src="images/2026-event-labor-safety-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府職業安全衛生日安全體感觀摩暨展示活動" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-labor-safety-thumb.jpg')">
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府職業安全衛生日安全體感觀摩暨 展示活動</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">高雄市政府</span><wbr><span class="tw">職業安全衛生日</span><wbr><span class="tw">安全體感觀摩</span><wbr><span class="tw">暨展示活動</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">職業安全衛生日<br class="hidden md:block">安全體感觀摩暨<br>展示活動</div>
                             <div class="project-details hidden">
@@ -721,7 +722,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>嘉義縣政府現場徵才活動 Part1</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">嘉義縣政府</span><wbr><span class="tw">現場徵才活動</span> <span class="tw">Part1</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>嘉義縣政府<br class="hidden md:block">現場徵才活動 Part1</div>
                             <div class="project-details hidden">
@@ -737,7 +738,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>嘉義縣政府現場徵才活動 Part2</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">嘉義縣政府</span><wbr><span class="tw">現場徵才活動</span> <span class="tw">Part2</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>嘉義縣政府<br class="hidden md:block">現場徵才活動 Part2</div>
                             <div class="project-details hidden">
@@ -752,7 +753,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>台南好生活 台南呷頭路大型就業博覽會 Part3</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">台南好生活</span> <span class="tw">台南呷頭路</span><wbr><span class="tw">大型就業博覽會</span> <span class="tw">Part3</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part3</div>
                             <div class="project-details hidden">
@@ -767,7 +768,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2025</span>台橡旺年會</h3>
+                                <h3 class="item-title"><span class="item-year">2025</span><span class="tw">台橡旺年會</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2025年<br>台橡旺年會</div>
                             <div class="project-details hidden">
@@ -782,7 +783,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2025</span>台南好生活 台南呷頭路大型就業博覽會 Part1</h3>
+                                <h3 class="item-title"><span class="item-year">2025</span><span class="tw">台南好生活</span> <span class="tw">台南呷頭路</span><wbr><span class="tw">大型就業博覽會</span> <span class="tw">Part1</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part1</div>
                             <div class="project-details hidden">
@@ -797,7 +798,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2025</span>台南好生活 台南呷頭路中型就業博覽會 Part1</h3>
+                                <h3 class="item-title"><span class="item-year">2025</span><span class="tw">台南好生活</span> <span class="tw">台南呷頭路</span><wbr><span class="tw">中型就業博覽會</span> <span class="tw">Part1</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">中型就業博覽會 Part1</div>
                             <div class="project-details hidden">
@@ -812,7 +813,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2024</span>台南好生活 台南呷頭路大型就業博覽會 Part4</h3>
+                                <h3 class="item-title"><span class="item-year">2024</span><span class="tw">台南好生活</span> <span class="tw">台南呷頭路</span><wbr><span class="tw">大型就業博覽會</span> <span class="tw">Part4</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2024年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part4</div>
                             <div class="project-details hidden">
@@ -828,7 +829,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>台橡旺年會ELT進場前導動畫</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">台橡旺年會</span><wbr><span class="tw">ELT進場</span><wbr><span class="tw">前導動畫</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>台橡旺年會<br class="hidden md:block">ELT進場前導動畫</div>
                             <div class="project-details hidden">
@@ -844,7 +845,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>台南好生活 台南呷頭路大型就業博覽會 Part2啟動儀式動畫</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">台南好生活</span> <span class="tw">台南呷頭路</span><wbr><span class="tw">大型就業博覽會</span> <span class="tw">Part2</span><wbr><span class="tw">啟動儀式動畫</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part2<br class="hidden lg:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
@@ -860,7 +861,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2025</span>僑生就業博覽會啟動儀式動畫</h3>
+                                <h3 class="item-title"><span class="item-year">2025</span><span class="tw">僑生就業博覽會</span><wbr><span class="tw">啟動儀式動畫</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2025年<br>僑生就業博覽會<br class="hidden md:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
@@ -876,7 +877,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2025</span>高雄市政府智慧港都 幸福永續論壇展示活動啟動儀式動畫</h3>
+                                <h3 class="item-title"><span class="item-year">2025</span><span class="tw">高雄市政府</span><wbr><span class="tw">智慧港都</span> <span class="tw">幸福永續論壇</span><wbr><span class="tw">展示活動</span><wbr><span class="tw">啟動儀式動畫</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2025年<br>高雄市政府<br class="hidden md:block">智慧港都 幸福永續<br class="hidden md:block">論壇展示活動<br class="hidden lg:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
@@ -884,15 +885,15 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2026-animation-labor-safety.mp4" data-modal-img="images/2026-animation-labor-safety-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫" data-modal-ar="1.7778">
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="animation" data-video="videos/2026-animation-labor-safety.mp4" data-modal-img="images/2026-animation-labor-safety-full.png" role="button" tabindex="0" aria-label="動態設計：2026年 高雄市政府職業安全衛生日安全體感觀摩暨展示活動啟動儀式動畫" data-modal-ar="1.7778">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                                <video src="videos/2026-animation-labor-safety-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2026年 高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-labor-safety-thumb.mp4')"></video>
+                                <video src="videos/2026-animation-labor-safety-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="2026年 高雄市政府職業安全衛生日安全體感觀摩暨展示活動啟動儀式動畫" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/2026-animation-labor-safety-thumb.mp4')"></video>
                                 <span class="item-badge"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>0:30</span>
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>高雄市政府職業安全衛生日安全體感觀摩暨 展示活動啟動儀式動畫</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">高雄市政府</span><wbr><span class="tw">職業安全衛生日</span><wbr><span class="tw">安全體感觀摩</span><wbr><span class="tw">暨展示活動</span><wbr><span class="tw">啟動儀式動畫</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">職業安全衛生日<br class="hidden md:block">安全體感觀摩暨<br>展示活動<br class="hidden lg:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
@@ -908,7 +909,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2025</span>台灣就業通雲嘉南區就業博覽會啟動儀式動畫</h3>
+                                <h3 class="item-title"><span class="item-year">2025</span><span class="tw">台灣就業通</span><wbr><span class="tw">雲嘉南區</span><wbr><span class="tw">就業博覽會</span><wbr><span class="tw">啟動儀式動畫</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2025年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
@@ -924,7 +925,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2025</span>台灣就業通雲嘉南區就業博覽會活動懶人包</h3>
+                                <h3 class="item-title"><span class="item-year">2025</span><span class="tw">台灣就業通</span><wbr><span class="tw">雲嘉南區</span><wbr><span class="tw">就業博覽會</span><wbr><span class="tw">活動懶人包</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2025年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">活動懶人包</div>
                             <div class="project-details hidden">
@@ -940,7 +941,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>台灣就業通雲嘉南區就業博覽會啟動儀式動畫</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">台灣就業通</span><wbr><span class="tw">雲嘉南區</span><wbr><span class="tw">就業博覽會</span><wbr><span class="tw">啟動儀式動畫</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
@@ -956,7 +957,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>台灣就業通雲嘉南區就業博覽會活動懶人包</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">台灣就業通</span><wbr><span class="tw">雲嘉南區</span><wbr><span class="tw">就業博覽會</span><wbr><span class="tw">活動懶人包</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">活動懶人包</div>
                             <div class="project-details hidden">
@@ -972,7 +973,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">動態設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span>台灣就業通雲嘉南區就業博覽會電視牆廣告</h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">台灣就業通</span><wbr><span class="tw">雲嘉南區</span><wbr><span class="tw">就業博覽會</span><wbr><span class="tw">電視牆廣告</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2026年<br>台灣就業通<br class="hidden md:block">雲嘉南區就業博覽會<br class="hidden md:block">電視牆廣告</div>
                             <div class="project-details hidden">
@@ -988,7 +989,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title">測測你是哪種馬路動物人格</h3>
+                                <h3 class="item-title"><span class="tw">測測你是哪種</span><wbr><span class="tw">馬路動物人格</span></h3>
                             </div>
                             <div class="modal-title-src hidden">測測你是哪種馬路動物人格</div>
                             <div class="project-details hidden">
@@ -1014,7 +1015,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title">測測你是哪種職場神獸</h3>
+                                <h3 class="item-title"><span class="tw">測測你是哪種</span><wbr><span class="tw">職場神獸</span></h3>
                             </div>
                             <div class="modal-title-src hidden">測測你是哪種職場神獸</div>
                             <div class="project-details hidden">
@@ -1040,7 +1041,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title">探索你的職場動物風格</h3>
+                                <h3 class="item-title"><span class="tw">探索你的</span><wbr><span class="tw">職場動物風格</span></h3>
                             </div>
                             <div class="modal-title-src hidden">探索你的職場動物風格</div>
                             <div class="project-details hidden">
@@ -1066,7 +1067,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title">求職適性測驗</h3>
+                                <h3 class="item-title"><span class="tw">求職適性測驗</span></h3>
                             </div>
                             <div class="modal-title-src hidden">求職適性測驗</div>
                             <div class="project-details hidden">
@@ -1092,7 +1093,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title">活動電子抽獎程式</h3>
+                                <h3 class="item-title"><span class="tw">活動</span><wbr><span class="tw">電子抽獎程式</span></h3>
                             </div>
                             <div class="modal-title-src hidden">活動電子抽獎程式</div>
                             <div class="project-details hidden">
@@ -1118,7 +1119,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title">互動展示塗鴉牆</h3>
+                                <h3 class="item-title"><span class="tw">互動展示</span><wbr><span class="tw">塗鴉牆</span></h3>
                             </div>
                             <div class="modal-title-src hidden">互動展示塗鴉牆</div>
                             <div class="project-details hidden">
@@ -1272,7 +1273,7 @@
         <div class="modal-stage">
             <div id="modal-content" class="modal-card is-portrait scale-95 opacity-0">
                 <button id="modal-close" type="button" aria-label="關閉" class="modal-close">
-                    <i class="ph ph-x" aria-hidden="true"></i>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
                 </button>
                 <div class="modal-scroll">
                     <div id="modal-media-container" class="modal-media select-none">
@@ -1283,10 +1284,10 @@
                             <video id="modal-video" class="modal-art is-video max-w-full max-h-full object-contain relative z-20 hidden opacity-0 select-none" controls autoplay muted playsinline draggable="false" style="-webkit-user-drag: none;"></video>
 
                             <button id="prev-img" type="button" aria-label="上一張" class="modal-arrow is-prev hidden">
-                                <i class="ph ph-caret-left" aria-hidden="true"></i>
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
                             </button>
                             <button id="next-img" type="button" aria-label="下一張" class="modal-arrow is-next hidden">
-                                <i class="ph ph-caret-right" aria-hidden="true"></i>
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
                             </button>
                             <div id="media-error" class="hidden absolute inset-0 flex items-center justify-center text-gray-500 text-center p-4 z-20">
                                 <div class="px-4">
@@ -1326,11 +1327,11 @@
                         </div>
                         <div class="modal-nav">
                             <button id="modal-prev-project" type="button" class="modal-nav-btn is-prev">
-                                <span class="modal-nav-label"><i class="ph ph-arrow-left" aria-hidden="true"></i> 上一件</span>
+                                <span class="modal-nav-label"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> 上一件</span>
                                 <span class="modal-nav-title"></span>
                             </button>
                             <button id="modal-next-project" type="button" class="modal-nav-btn is-next">
-                                <span class="modal-nav-label">下一件 <i class="ph ph-arrow-right" aria-hidden="true"></i></span>
+                                <span class="modal-nav-label">下一件 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
                                 <span class="modal-nav-title"></span>
                             </button>
                         </div>
@@ -1705,36 +1706,6 @@
             });
         }
 
-        // 從作品縮圖取出主色，調得很淡後當作彈窗底色
-        const tintCanvas = document.createElement('canvas');
-        tintCanvas.width = tintCanvas.height = 24;
-
-        function computeTint(item) {
-            try {
-                const media = item.querySelector('.item-media-el');
-                if (!media) return null;
-                const ready = media.tagName === 'IMG' ? (media.complete && media.naturalWidth > 0) : media.readyState >= 2;
-                if (!ready) return null;
-                const ctx = tintCanvas.getContext('2d', { willReadFrequently: true });
-                ctx.clearRect(0, 0, 24, 24);
-                ctx.drawImage(media, 0, 0, 24, 24);
-                const data = ctx.getImageData(0, 0, 24, 24).data;
-                let r = 0, g = 0, b = 0, total = 0;
-                for (let i = 0; i < data.length; i += 4) {
-                    if (data[i + 3] < 200) continue;
-                    const max = Math.max(data[i], data[i + 1], data[i + 2]);
-                    const min = Math.min(data[i], data[i + 1], data[i + 2]);
-                    const weight = 1 + (max - min) / 24;   // 鮮豔的像素比灰、白、黑更能代表作品
-                    r += data[i] * weight; g += data[i + 1] * weight; b += data[i + 2] * weight; total += weight;
-                }
-                if (!total) return null;
-                const soften = v => Math.round((v / total) * 0.17 + 255 * 0.83);
-                return `rgb(${soften(r)}, ${soften(g)}, ${soften(b)})`;
-            } catch (err) {
-                return null;   // 例如以本機檔案開啟時無法讀取像素
-            }
-        }
-
         let lastFocusedItem = null;
 
         // 滑鼠停在作品上超過 0.15 秒，就先下載第一張大圖，點開時幾乎不用等
@@ -1803,7 +1774,6 @@
             const ratio = parseFloat(item.getAttribute('data-modal-ar')) || 1.5;
             modalContent.classList.toggle('is-portrait', ratio < 0.95);
             modalContent.classList.toggle('is-landscape', ratio >= 0.95);
-            modalContent.style.setProperty('--modal-tint', computeTint(item) || '#f3f4f6');
             const scroller = modalContent.querySelector('.modal-scroll');
             scroller.scrollTop = 0;
             modalContent.querySelector('.modal-info').scrollTop = 0;
@@ -1831,7 +1801,10 @@
             const yearEl = item.querySelector('.item-year');
             const category = (item.querySelector('.item-cat') || item.querySelector('span')).textContent.trim();
             document.getElementById('modal-year').textContent = yearEl ? yearEl.textContent.trim() : '';
-            document.getElementById('modal-title').textContent = projectTitle(item);
+            const titleClone = item.querySelector('.item-title').cloneNode(true);
+            const titleYear = titleClone.querySelector('.item-year');
+            if (titleYear) titleYear.remove();
+            document.getElementById('modal-title').innerHTML = titleClone.innerHTML; // 保留「詞不拆開」的標記
             document.getElementById('modal-category').innerText = category;
             const details = item.querySelector('.project-details');
             document.getElementById('modal-description').innerHTML = details ? details.innerHTML : '<p>專案詳細介紹內容正在準備中...</p>';
