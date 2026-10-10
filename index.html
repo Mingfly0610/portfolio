@@ -2086,7 +2086,8 @@
             const multiple = currentGallery.length > 1;
             prevBtn.classList.toggle('hidden', !multiple);
             nextBtn.classList.toggle('hidden', !multiple);
-            indicatorContainer.classList.toggle('hidden', !multiple);
+            // 影片專案不顯示下方的編號列（多支影片仍可用左右箭頭切換）
+            indicatorContainer.classList.toggle('hidden', !multiple || currentMediaType === 'video');
             buildGalleryStrip();
             updateGalleryView();
 
