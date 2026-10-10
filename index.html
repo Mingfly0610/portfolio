@@ -705,8 +705,8 @@
                         <i class="ph ph-arrow-down-right text-xl" aria-hidden="true"></i>
                     </a>
                     
-                    <svg class="absolute inset-0 w-full h-full scale-[1.3] md:scale-[1.5] -translate-x-3 md:-translate-x-4 pointer-events-none -z-0 overflow-visible" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M 50,80 C 10,80 10,20 80,15 C 150,10 190,20 185,60 C 180,95 80,95 40,75 C 5,50 30,10 100,10 C 170,10 195,45 175,80 C 160,95 50,90 30,65 C 10,35 60,5 120,15 C 180,25 185,70 150,85" 
+                    <svg class="absolute inset-0 w-full h-full scale-[1.3] md:scale-[1.5] -translate-x-1 md:-translate-x-1.5 pointer-events-none -z-0 overflow-visible" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 50,80 C 10,80 10,20 80,15 C 150,10 190,20 185,60 C 180,95 80,95 40,75 C 5,50 30,10 100,10 C 170,10 193,48 176,78 C 166,95 50,92 30,65 C 10,35 60,5 120,15 C 180,25 185,70 150,85" 
                               stroke-dasharray="1500"
                               stroke-dashoffset="1500"
                               fill="none" 
@@ -717,7 +717,7 @@
                             <animate attributeName="stroke-dashoffset" values="1500;0;0;0" keyTimes="0;0.45;0.65;1" dur="2s" repeatCount="indefinite" />
                             <animate attributeName="opacity" values="0;0.9;0.9;0.9;0" keyTimes="0;0.05;0.45;0.65;1" dur="2s" repeatCount="indefinite" />
                         </path>
-                        <path d="M 40,30 C 60,5 150,5 170,30 C 190,55 160,95 100,90 C 40,85 10,65 20,35 C 30,5 160,0 185,45 C 210,90 120,105 60,85 C 0,65 15,20 70,15 C 125,10 170,25 165,65 C 160,105 50,100 45,60" 
+                        <path d="M 40,30 C 60,5 150,5 170,30 C 190,55 160,95 100,90 C 40,85 10,65 20,35 C 30,5 160,0 185,45 C 204,86 120,101 60,85 C 0,65 15,20 70,15 C 125,10 170,25 168,62 C 164,94 80,98 42,78" 
                               stroke-dasharray="1500"
                               stroke-dashoffset="1500"
                               fill="none" 
@@ -744,7 +744,7 @@
                         <p class="text-gray-500 text-lg">近期精選的設計專案與視覺實驗。</p>
                     </div>
                     
-                    <div class="flex flex-wrap gap-2 md:gap-4" id="filter-btns">
+                    <div class="grid grid-cols-2 w-max max-w-full md:w-auto md:flex md:flex-wrap gap-2 md:gap-4" id="filter-btns">
                         <button class="filter-btn active px-4 py-2 rounded-full border border-[#3B82F6] text-sm font-medium bg-[#3B82F6] hover:bg-[#2563EB] text-white btn-bounce hover:shadow-md" data-filter="all">全部</button>
                         <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 btn-bounce hover:shadow-md" data-filter="event">活動視覺設計</button>
                         <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 btn-bounce hover:shadow-md" data-filter="animation">動態設計</button>
@@ -1388,8 +1388,8 @@
                     <h2 class="text-4xl md:text-5xl font-bold">About Me</h2>
                     <div class="space-y-6 text-lg text-gray-600 leading-relaxed text-justify">
                         <p>對我而言，設計不只是美感的體現，更是為了解決問題，把想說的故事好好傳達出去。</p>
-                        <p>我平時的創作範圍很廣，從平面的活動主視覺、生動的動態影像，到具備互動與可玩性的網頁，我都很有興趣。我也非常喜歡透過 AI 協作工具來輔助創作，為每一個專案找出最適合的呈現方式。</p>
-                        <p>過去，我負責過不少展示活動和公部門的視覺設計與啟動儀式動畫。除了平面和動態設計，我也運用 AI 協作開發互動網頁，完成「線上人格測驗」和「活動電子抽獎系統」這類的互動專案。從一開始的腦力激盪，到最後看著作品實際上線，把想像變成現實的過程，是我做設計最大的成就感！</p>
+                        <p>我的創作範圍很廣，從平面的活動主視覺、生動的動態影像，到具備互動與可玩性的網頁，我都很有興趣。也擅長透過 AI 協作工具來輔助創作，為每一個專案找出最適合的呈現方式。</p>
+                        <p>過去，我負責過不少展示活動、公部門的活動視覺設計、啟動儀式動畫，除此之外，我也運用 AI 協作開發互動網頁，完成「線上測驗」和「抽獎系統」諸如此類的互動專案。從一開始的腦力激盪，到作品實際上線，把想像變成現實的過程，是我做設計最大的成就感！</p>
                     </div>
                     
                     <div class="pt-6">
@@ -2375,7 +2375,11 @@
         const profileBase = document.getElementById('profile-base-img');
         
         if (profileSpotlight && profileReveal && profileBase) {
+            // 探照燈跟隨是滑鼠專屬：手機與平板只保留「點一下切換照片」
+            const spotlightPointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+            if (!spotlightPointer.matches) profileSpotlight.style.cursor = 'pointer';
             profileSpotlight.addEventListener('mousemove', (e) => {
+                if (!spotlightPointer.matches) { profileReveal.classList.remove('active'); return; }
                 const rect = profileSpotlight.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
