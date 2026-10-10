@@ -285,7 +285,7 @@
         }
         .browser-screen { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
         .browser-screen .item-media-el { position: absolute; inset: 0; }
-        /* 影片還沒放上去之前的預覽：用 CSS 重畫首頁的樣子 */
+        /* 卡片縮圖：用 CSS 重畫首頁的樣子 */
         .browser-placeholder {
             position: absolute; inset: 0;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1219,7 +1219,7 @@
                         </div>
 
 
-                        <!-- 第七件：這個作品集網站本身。影片檔放進 videos/ 後會自動顯示，在那之前顯示用 CSS 畫的預覽畫面 -->
+                        <!-- 第七件：這個作品集網站本身。卡片固定使用 CSS 畫的首頁縮影；彈窗的示範影片為 videos/prog-portfolio-full.mp4 -->
                         <div class="portfolio-item group is-wide is-browser" style="--ar:1.6" data-category="programming" data-video="videos/prog-portfolio-full.mp4" data-pending-media="示範影片準備中" role="button" tabindex="0" aria-label="程式設計：個人作品集網站" data-modal-ar="1.7778">
                             <div class="item-media">
                                 <div class="browser-bar" aria-hidden="true">
@@ -1232,7 +1232,6 @@
                                         <p class="bp-title">Crafting <em>beautiful</em><br>digital experiences.</p>
                                         <span class="bp-note">你正在看的這個網站</span>
                                     </div>
-                                    <video src="videos/prog-portfolio-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="個人作品集網站" onloadeddata="window.handleMediaLoad(this)" onerror="this.dataset.missing='1'; this.style.display='none';"></video>
                                 </div>
                                 <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
                             </div>
