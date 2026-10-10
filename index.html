@@ -441,6 +441,21 @@
             box-shadow: 0 1px 2px rgba(17, 17, 17, 0.07), 0 14px 26px rgba(17, 17, 17, 0.10);
             transition: opacity 0.5s;
         }
+        .modal-embed-bar { flex: 0 0 auto; display: flex; justify-content: center; padding: 0 22px 22px; }
+        .modal-embed-bar.hidden { display: none; }
+        .modal-embed-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 22px; border-radius: 999px;
+            background: #3B82F6; color: #ffffff; font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.28);
+            transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        .modal-embed-btn:hover { background: #2563EB; transform: translateY(-2px); }
+        .modal-embed-btn .ico-back { display: none; }
+        .modal-embed-btn.is-playing { background: #ffffff; color: #111111; box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.16); }
+        .modal-embed-btn.is-playing:hover { background: #f3f4f6; }
+        .modal-embed-btn.is-playing .ico-play { display: none; }
+        .modal-embed-btn.is-playing .ico-back { display: block; }
         .modal-embed iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; background: #ffffff; }
         /* 手機作品：彈窗裡的影片也套上和卡片相同的手機外框 */
         .modal-card.is-phone-media .modal-art.is-video {
@@ -1248,7 +1263,7 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group is-wide" style="--ar:1.58" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.png" data-external-link="https://design-your-life-studio.github.io/TSRC-lucky-draw/" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：活動電子抽獎程式" data-modal-ar="1.58">
+                        <div class="portfolio-item group is-wide" style="--ar:1.58" data-category="programming" data-video="videos/prog-lottery-full.mp4" data-modal-img="images/prog-lottery-full.png" data-embed="https://design-your-life-studio.github.io/TSRC-lucky-draw/" role="button" tabindex="0" aria-label="程式設計：活動電子抽獎程式" data-modal-ar="1.58">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <video src="videos/prog-lottery-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="活動電子抽獎程式" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-lottery-thumb.mp4')"></video>
@@ -1270,29 +1285,6 @@
                                 <ul class="space-y-2 list-disc list-outside ml-5">
                                     <li><strong>程式開發：</strong>結合 AI 輔助生成技術，進行前端互動網頁開發，確保抽獎邏輯的公平性與流暢的過場動畫。</li>
                                     <li><strong>視覺與動畫：</strong>專注於 2D 視覺設計、版面編排以及動態效果製作，打造兼具美感與實用性的數位活動體驗。</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="portfolio-item group is-wide" style="--ar:1.58" data-category="programming" data-embed="https://design-your-life-studio.github.io/TSRC-lucky-draw/" data-video="videos/prog-lottery-full.mp4" data-external-link="https://design-your-life-studio.github.io/TSRC-lucky-draw/" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：活動電子抽獎程式(體驗區)" data-modal-ar="1.58">
-                            <div class="item-media">
-                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                                <video src="videos/prog-lottery-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="活動電子抽獎程式(體驗區)" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-lottery-thumb.mp4')"></video>
-                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>線上體驗</span>
-                            </div>
-                            <div class="item-caption">
-                                <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">活動</span><wbr><span class="tw">電子抽獎程式</span><wbr><span class="tw">(體驗區)</span></h3>
-                            </div>
-                            <div class="modal-title-src hidden">活動電子抽獎程式(體驗區)</div>
-                            <div class="project-details hidden">
-                                <h4 class="text-xl font-bold text-brand-black mb-2">體驗說明</h4>
-                                <p class="mb-6">這裡嵌入的是實際運作中的抽獎程式，不是影片。使用電腦瀏覽時，可以直接在上方視窗內點擊操作，親自體驗抽獎的流程與動態效果。</p>
-
-                                <h4 class="text-xl font-bold text-brand-black mb-2">小提醒</h4>
-                                <ul class="space-y-2 list-disc list-outside ml-5">
-                                    <li>程式以活動現場的大螢幕為設計基準，手機與平板會改為播放示範影片。</li>
-                                    <li>想用完整視窗操作，可以點選下方連結另開分頁。</li>
                                 </ul>
                             </div>
                         </div>
@@ -1523,6 +1515,13 @@
                                     <p class="text-xs mt-2 opacity-70 break-all max-w-md mx-auto" id="error-path"></p>
                                 </div>
                             </div>
+                        </div>
+                        <div id="embed-bar" class="modal-embed-bar hidden">
+                            <button id="embed-toggle" type="button" class="modal-embed-btn">
+                                <svg class="ico-play" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+                                <svg class="ico-back" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+                                <span id="embed-toggle-label">立即試玩</span>
+                            </button>
                         </div>
                         <div id="gallery-indicator" class="modal-strip hidden">
                             <span class="modal-strip-count"><span id="current-page">1</span><span> / </span><span id="total-pages">1</span></span>
@@ -1870,7 +1869,52 @@
             modalEmbed.onload = null;
             modalEmbed.removeAttribute('src');
             modalEmbedWrap.classList.add('hidden', 'opacity-0');
+            embedToggle.classList.remove('is-playing');
+            embedToggleLabel.textContent = '立即試玩';
         }
+        const embedBar = document.getElementById('embed-bar');
+        const embedToggle = document.getElementById('embed-toggle');
+        const embedToggleLabel = document.getElementById('embed-toggle-label');
+        // 立即試玩：暫停影片，把影片區換成可操作的程式
+        function enterEmbed() {
+            const src = currentProject && currentProject.getAttribute('data-embed');
+            if (!src || !canEmbed()) return;
+            const modalSkeleton = document.getElementById('modal-skeleton');
+            modalVideo.pause();
+            modalVideo.classList.add('hidden');
+            mediaError.classList.add('hidden');
+            currentMediaType = 'embed';
+            modalSkeleton.classList.remove('hidden');
+            modalSkeleton.style.opacity = '1';
+            modalEmbedWrap.classList.remove('hidden');
+            fitEmbed();
+            modalEmbed.onload = () => {
+                modalSkeleton.style.opacity = '0';
+                setTimeout(() => modalSkeleton.classList.add('hidden'), 300);
+                modalEmbedWrap.classList.remove('opacity-0');
+            };
+            modalEmbed.src = src;
+            embedToggle.classList.add('is-playing');
+            embedToggleLabel.textContent = '返回影片';
+        }
+        // 返回影片：卸載程式，影片從剛才的位置繼續播放
+        function exitEmbed() {
+            releaseEmbed();
+            currentMediaType = 'video';
+            const modalSkeleton = document.getElementById('modal-skeleton');
+            if (modalVideo.getAttribute('src') && !modalVideo.error) {
+                modalSkeleton.classList.add('hidden');
+                modalVideo.classList.remove('hidden', 'opacity-0');
+                const p = modalVideo.play();
+                if (p && p.catch) p.catch(() => {});
+            } else {
+                updateGalleryView();
+            }
+        }
+        embedToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentMediaType === 'embed') exitEmbed(); else enterEmbed();
+        });
         function fitEmbed() {
             if (currentMediaType !== 'embed') return;
             const viewport = modalEmbedWrap.parentElement;
@@ -1903,18 +1947,7 @@
             
             const currentPath = currentGallery[currentImgIndex].trim();
             
-            if (currentMediaType === 'embed') {
-                modalImg.classList.add('hidden');
-                modalVideo.classList.add('hidden');
-                modalEmbedWrap.classList.remove('hidden');
-                fitEmbed();
-                modalEmbed.onload = () => {
-                    modalSkeleton.style.opacity = '0';
-                    setTimeout(() => modalSkeleton.classList.add('hidden'), 300);
-                    modalEmbedWrap.classList.remove('opacity-0');
-                };
-                modalEmbed.src = currentPath;
-            } else if (currentMediaType === 'video') {
+            if (currentMediaType === 'video') {
                 modalImg.classList.add('hidden');
                 modalVideo.classList.remove('hidden');
                 
@@ -2077,7 +2110,6 @@
             if (!item || item.contains(e.relatedTarget)) return;
             clearTimeout(hoverPrefetchTimer);
             const videoPath = item.getAttribute('data-video');
-            if (item.hasAttribute('data-embed') && canEmbed()) return; // 體驗區在電腦上不播影片，不需預載
             if (videoPath) {
                 hoverPrefetchTimer = setTimeout(() => preloadModalVideo(videoPath), 150);
                 return;
@@ -2150,12 +2182,9 @@
             currentImgIndex = 0;
             currentThumbPreview = null;
             releaseEmbed();
-            const embedSrc = item.getAttribute('data-embed');
-            if (embedSrc && canEmbed()) {
-                // 體驗區：電腦直接嵌入可操作的網頁；手機與平板改播示範影片
-                currentMediaType = 'embed';
-                currentGallery = [embedSrc];
-            } else if (videoSrc) {
+            // 可試玩的程式：電腦版在影片下方顯示「立即試玩」；手機與平板只播示範影片
+            embedBar.classList.toggle('hidden', !(item.hasAttribute('data-embed') && canEmbed()));
+            if (videoSrc) {
                 currentMediaType = 'video';
                 currentGallery = videoSrc.split(',');
             } else {
