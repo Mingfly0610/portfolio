@@ -435,6 +435,13 @@
         /* 作品像放在襯紙上：陰影跟著作品實際的外形走 */
         .modal-art { filter: drop-shadow(0 1px 2px rgba(17, 17, 17, 0.07)) drop-shadow(0 14px 26px rgba(17, 17, 17, 0.10)); }
         .modal-art.is-video { border-radius: 10px; }
+        /* 嵌入的互動程式：以桌機寬度排版後等比例縮放到顯示區 */
+        .modal-embed {
+            flex: 0 0 auto; overflow: hidden; border-radius: 10px; background: #ffffff;
+            box-shadow: 0 1px 2px rgba(17, 17, 17, 0.07), 0 14px 26px rgba(17, 17, 17, 0.10);
+            transition: opacity 0.5s;
+        }
+        .modal-embed iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; background: #ffffff; }
         /* 手機作品：彈窗裡的影片也套上和卡片相同的手機外框 */
         .modal-card.is-phone-media .modal-art.is-video {
             box-sizing: border-box;
@@ -1267,6 +1274,29 @@
                             </div>
                         </div>
 
+                        <div class="portfolio-item group is-wide" style="--ar:1.58" data-category="programming" data-embed="https://design-your-life-studio.github.io/TSRC-lucky-draw/" data-video="videos/prog-lottery-full.mp4" data-external-link="https://design-your-life-studio.github.io/TSRC-lucky-draw/" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：活動電子抽獎程式(體驗區)" data-modal-ar="1.58">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/prog-lottery-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="活動電子抽獎程式(體驗區)" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-lottery-thumb.mp4')"></video>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>線上體驗</span>
+                            </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title"><span class="tw">活動</span><wbr><span class="tw">電子抽獎程式</span><wbr><span class="tw">(體驗區)</span></h3>
+                            </div>
+                            <div class="modal-title-src hidden">活動電子抽獎程式(體驗區)</div>
+                            <div class="project-details hidden">
+                                <h4 class="text-xl font-bold text-brand-black mb-2">體驗說明</h4>
+                                <p class="mb-6">這裡嵌入的是實際運作中的抽獎程式，不是影片。使用電腦瀏覽時，可以直接在上方視窗內點擊操作，親自體驗抽獎的流程與動態效果。</p>
+
+                                <h4 class="text-xl font-bold text-brand-black mb-2">小提醒</h4>
+                                <ul class="space-y-2 list-disc list-outside ml-5">
+                                    <li>程式以活動現場的大螢幕為設計基準，手機與平板會改為播放示範影片。</li>
+                                    <li>想用完整視窗操作，可以點選下方連結另開分頁。</li>
+                                </ul>
+                            </div>
+                        </div>
+
                         <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="programming" data-video="videos/prog-graffiti-wall-full.mp4" data-modal-img="images/prog-graffiti-wall-full.png" role="button" tabindex="0" aria-label="程式設計：互動展示塗鴉牆" data-modal-ar="1.7778">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
@@ -1476,6 +1506,9 @@
 
                             <img id="modal-img" alt="專案大圖" class="modal-art max-w-full max-h-full object-contain relative z-20 opacity-0 select-none" draggable="false" style="-webkit-user-drag: none;">
                             <video id="modal-video" class="modal-art is-video max-w-full max-h-full object-contain relative z-20 hidden opacity-0 select-none" controls autoplay muted playsinline draggable="false" style="-webkit-user-drag: none;"></video>
+                            <div id="modal-embed-wrap" class="modal-embed relative z-20 hidden opacity-0">
+                                <iframe id="modal-embed" title="互動程式體驗" allow="autoplay; fullscreen" referrerpolicy="no-referrer"></iframe>
+                            </div>
 
                             <button id="prev-img" type="button" aria-label="上一張" class="modal-arrow is-prev hidden">
                                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
@@ -1828,6 +1861,36 @@
             } catch (err) { return ''; }
         }
 
+        // 嵌入的互動程式（體驗區）
+        const modalEmbedWrap = document.getElementById('modal-embed-wrap');
+        const modalEmbed = document.getElementById('modal-embed');
+        const embedDesktopQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+        function canEmbed() { return window.innerWidth >= 1024 && embedDesktopQuery.matches; }
+        function releaseEmbed() {
+            modalEmbed.onload = null;
+            modalEmbed.removeAttribute('src');
+            modalEmbedWrap.classList.add('hidden', 'opacity-0');
+        }
+        function fitEmbed() {
+            if (currentMediaType !== 'embed') return;
+            const viewport = modalEmbedWrap.parentElement;
+            const cs = getComputedStyle(viewport);
+            const availW = viewport.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+            const availH = viewport.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+            if (availW <= 0 || availH <= 0) return;
+            const ar = parseFloat(currentProject && currentProject.getAttribute('data-modal-ar')) || 1.6;
+            let w = availW, h = w / ar;
+            if (h > availH) { h = availH; w = h * ar; }
+            const baseW = Math.max(1280, w);          // 內部一律以桌機寬度排版
+            const scale = w / baseW;
+            modalEmbedWrap.style.width = w + 'px';
+            modalEmbedWrap.style.height = h + 'px';
+            modalEmbed.style.width = baseW + 'px';
+            modalEmbed.style.height = (baseW / ar) + 'px';
+            modalEmbed.style.transform = `scale(${scale})`;
+        }
+        window.addEventListener('resize', fitEmbed);
+
         function updateGalleryView() {
             reset3DState(); 
             mediaError.classList.add('hidden');
@@ -1840,7 +1903,18 @@
             
             const currentPath = currentGallery[currentImgIndex].trim();
             
-            if (currentMediaType === 'video') {
+            if (currentMediaType === 'embed') {
+                modalImg.classList.add('hidden');
+                modalVideo.classList.add('hidden');
+                modalEmbedWrap.classList.remove('hidden');
+                fitEmbed();
+                modalEmbed.onload = () => {
+                    modalSkeleton.style.opacity = '0';
+                    setTimeout(() => modalSkeleton.classList.add('hidden'), 300);
+                    modalEmbedWrap.classList.remove('opacity-0');
+                };
+                modalEmbed.src = currentPath;
+            } else if (currentMediaType === 'video') {
                 modalImg.classList.add('hidden');
                 modalVideo.classList.remove('hidden');
                 
@@ -1926,7 +2000,7 @@
             }
 
             // 影片不提供 3D 拖曳，游標維持一般樣式
-            modalMediaContainer.style.cursor = currentMediaType === 'video' ? '' : 'grab';
+            modalMediaContainer.style.cursor = currentMediaType === 'image' ? 'grab' : '';
 
             if (currentGallery.length > 1) {
                 currentPageEl.innerText = currentImgIndex + 1;
@@ -2003,6 +2077,7 @@
             if (!item || item.contains(e.relatedTarget)) return;
             clearTimeout(hoverPrefetchTimer);
             const videoPath = item.getAttribute('data-video');
+            if (item.hasAttribute('data-embed') && canEmbed()) return; // 體驗區在電腦上不播影片，不需預載
             if (videoPath) {
                 hoverPrefetchTimer = setTimeout(() => preloadModalVideo(videoPath), 150);
                 return;
@@ -2074,7 +2149,13 @@
 
             currentImgIndex = 0;
             currentThumbPreview = null;
-            if (videoSrc) {
+            releaseEmbed();
+            const embedSrc = item.getAttribute('data-embed');
+            if (embedSrc && canEmbed()) {
+                // 體驗區：電腦直接嵌入可操作的網頁；手機與平板改播示範影片
+                currentMediaType = 'embed';
+                currentGallery = [embedSrc];
+            } else if (videoSrc) {
                 currentMediaType = 'video';
                 currentGallery = videoSrc.split(',');
             } else {
@@ -2088,7 +2169,7 @@
             prevBtn.classList.toggle('hidden', !multiple);
             nextBtn.classList.toggle('hidden', !multiple);
             // 影片專案不顯示下方的編號列（多支影片仍可用左右箭頭切換）
-            indicatorContainer.classList.toggle('hidden', !multiple || currentMediaType === 'video');
+            indicatorContainer.classList.toggle('hidden', !multiple || currentMediaType !== 'image');
             buildGalleryStrip();
             updateGalleryView();
 
@@ -2133,6 +2214,8 @@
                 suspendThumbs(true);
                 document.getElementById('modal-close').focus({ preventScroll: true });
             }
+            fitEmbed(); // 彈窗顯示後才量得到顯示區大小
+            requestAnimationFrame(fitEmbed);
         }
 
         portfolioTrack.addEventListener('click', (e) => {
@@ -2180,7 +2263,7 @@
 
         modalMediaContainer.addEventListener('mousedown', (e) => {
             if (window.innerWidth < 1024) return;
-            if (currentMediaType === 'video') return; // 影片不提供 3D 拖曳
+            if (currentMediaType !== 'image') return; // 影片與嵌入程式不提供 3D 拖曳
             if (e.target.closest('button, .modal-strip')) return; // 箭頭與縮圖列不觸發拖曳
             
             if (e.target.tagName === 'IMG' || e.target.tagName === 'DIV') {
@@ -2205,7 +2288,7 @@
         window.addEventListener('mousemove', (e) => {
             if (window.innerWidth < 1024) return;
             
-            if (currentMediaType === 'video') return;
+            if (currentMediaType !== 'image') return;
             const targetElement = modalImg;
             const deltaX = e.clientX - dragStartX;
             const deltaY = e.clientY - dragStartY;
@@ -2234,7 +2317,7 @@
 
         modalMediaContainer.addEventListener('wheel', (e) => {
             if (window.innerWidth < 1024) return;
-            if (currentMediaType === 'video') return;
+            if (currentMediaType !== 'image') return;
             e.preventDefault(); 
             
             const zoomSpeed = 0.002;
@@ -2248,7 +2331,7 @@
 
         modalMediaContainer.addEventListener('dblclick', () => {
             if (window.innerWidth < 1024) return;
-            if (currentMediaType === 'video') return;
+            if (currentMediaType !== 'image') return;
             reset3DState();
         });
 
@@ -2262,6 +2345,7 @@
                 modalVideo.onerror = null; modalVideo.onloadeddata = null;
                 modalVideo.removeAttribute('src'); modalVideo.removeAttribute('poster'); modalVideo.load();
                 preloadedVideoPath = null;
+                releaseEmbed();
                 document.body.style.overflow = ''; 
                 reset3DState(); 
                 suspendThumbs(false);
