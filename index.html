@@ -171,6 +171,8 @@
         /* 換裝物件的圖案本身已放大，拖曳時外框不再額外放大，避免大小跳動 */
         .dress-item.is-dragging { transform: none !important; }
 
+        /* 換裝物件離開原位後（放到照片上或其他地方），不再顯示提示對話框 */
+        .is-away .dress-tooltip,
         .is-dragging .dress-tooltip {
             opacity: 0 !important;
             visibility: hidden !important;
@@ -2416,6 +2418,7 @@
                 if (activeDragItem) return;
                 // 由後往前放回，確保每個物件的「下一個兄弟節點」已經就位
                 Array.from(dragItems).reverse().forEach(item => {
+                    item.classList.remove('is-away');
                     const origin = dragOrigins.get(item);
                     if (origin && item.parentElement !== origin.parent) {
                         const ref = origin.next && origin.next.parentNode === origin.parent ? origin.next : null;
@@ -2501,6 +2504,7 @@
                 if (initialPos) {
                     const distance = Math.sqrt(Math.pow(currentLeft - initialPos.x, 2) + Math.pow(currentTop - initialPos.y, 2));
                     
+                    activeDragItem.classList.toggle('is-away', distance >= 80);
                     if (distance < 80) {
                         activeDragItem.style.transition = 'left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.3s ease, filter 0.3s ease';
                         activeDragItem.style.left = `${initialPos.x}px`;
