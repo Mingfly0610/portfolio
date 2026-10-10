@@ -1586,7 +1586,25 @@
         function suspendThumbs(suspend) {
             thumbsSuspended = suspend;
             portfolioTrack.classList.toggle('is-paused', suspend);
-            visibleThumbs.forEach(video => suspend ? video.pause() : playThumb(video));
+            if (suspend) {
+                visibleThumbs.forEach(video => video.pause());
+                // 暫停播放並不會停止下載：把還沒抓完的縮圖影片整個中止，
+                // 讓彈窗裡的完整影片獨佔頻寬
+                thumbVideos.forEach(video => {
+                    if (video.dataset.missing || !video.getAttribute('src')) return;
+                    if (video.networkState !== 2) return; // 2 = 正在下載
+                    video.dataset.heldSrc = video.getAttribute('src');
+                    video.removeAttribute('src');
+                    video.load();
+                });
+            } else {
+                thumbVideos.forEach(video => {
+                    if (!video.dataset.heldSrc) return;
+                    video.setAttribute('src', video.dataset.heldSrc);
+                    delete video.dataset.heldSrc;
+                });
+                visibleThumbs.forEach(video => playThumb(video));
+            }
         }
 
         allOriginalItems.forEach(item => {
@@ -1749,6 +1767,36 @@
             currentGallery.forEach(prefetchImage);
         }
 
+        // 影片預先載入：直接讓彈窗的 <video> 開始抓檔，點開時沿用同一份緩衝
+        let preloadedVideoPath = null;
+        function preloadModalVideo(path) {
+            if (!path || preloadedVideoPath === path) return;
+            if (modalVideo.getAttribute('src') && !preloadedVideoPath) return; // 彈窗正在播放其他影片
+            preloadedVideoPath = path;
+            modalVideo.onloadeddata = null;
+            modalVideo.onerror = null;
+            modalVideo.autoplay = false;
+            modalVideo.preload = 'auto';
+            modalVideo.removeAttribute('poster');
+            modalVideo.src = path;
+            modalVideo.load();
+        }
+
+        // 用卡片上的縮圖影片畫面當作封面，影片還沒載入前先有畫面可看
+        function posterFromThumb(item) {
+            try {
+                const thumb = item && item.querySelector('video.item-media-el');
+                if (!thumb || thumb.readyState < 2 || !thumb.videoWidth) return '';
+                const ar = parseFloat(item.getAttribute('data-modal-ar')) || (thumb.videoWidth / thumb.videoHeight);
+                const w = ar >= 1 ? 1600 : Math.round(1280 * ar);
+                const h = ar >= 1 ? Math.round(1600 / ar) : 1280;
+                const c = document.createElement('canvas');
+                c.width = w; c.height = h;
+                c.getContext('2d').drawImage(thumb, 0, 0, w, h);
+                return c.toDataURL('image/jpeg', 0.72);
+            } catch (err) { return ''; }
+        }
+
         function updateGalleryView() {
             reset3DState(); 
             mediaError.classList.add('hidden');
@@ -1765,13 +1813,30 @@
                 modalImg.classList.add('hidden');
                 modalVideo.classList.remove('hidden');
                 
-                modalVideo.onloadeddata = () => {
+                const revealVideo = () => {
                     modalSkeleton.style.opacity = '0';
                     setTimeout(() => modalSkeleton.classList.add('hidden'), 300);
                     modalVideo.classList.remove('opacity-0');
                 };
-                
-                modalVideo.src = currentPath;
+                modalVideo.onloadeddata = revealVideo;
+                modalVideo.autoplay = true;
+                modalVideo.preload = 'auto';
+
+                const warmed = preloadedVideoPath === currentPath && modalVideo.getAttribute('src') === currentPath && !modalVideo.error;
+                preloadedVideoPath = null;
+                const poster = posterFromThumb(currentProject);
+
+                if (warmed) {
+                    // 已經在滑鼠停留時開始載入：沿用緩衝，直接播放
+                    if (poster && modalVideo.readyState < 2) { modalVideo.poster = poster; revealVideo(); }
+                    if (modalVideo.readyState >= 2) revealVideo();
+                    const p = modalVideo.play();
+                    if (p && p.catch) p.catch(() => {});
+                } else {
+                    if (poster) modalVideo.poster = poster; else modalVideo.removeAttribute('poster');
+                    modalVideo.src = currentPath;
+                    if (poster) revealVideo();
+                }
                 
                 modalVideo.onerror = () => {
                     modalSkeleton.classList.add('hidden');
@@ -1892,7 +1957,11 @@
             const item = e.target.closest('.portfolio-item');
             if (!item || item.contains(e.relatedTarget)) return;
             clearTimeout(hoverPrefetchTimer);
-            if (item.getAttribute('data-video')) return;
+            const videoPath = item.getAttribute('data-video');
+            if (videoPath) {
+                hoverPrefetchTimer = setTimeout(() => preloadModalVideo(videoPath), 150);
+                return;
+            }
             const first = (item.getAttribute('data-modal-img') || '').split(',')[0];
             if (first) hoverPrefetchTimer = setTimeout(() => prefetchImage(first), 150);
         });
@@ -1946,7 +2015,7 @@
             const videoSrc = item.getAttribute('data-video');
             const modalImgSrc = item.getAttribute('data-modal-img');
             modalVideo.onerror = null; modalImg.onerror = null; mediaError.classList.add('hidden');
-            modalVideo.pause(); modalVideo.removeAttribute('src'); modalVideo.load();
+            modalVideo.pause(); modalVideo.removeAttribute('src'); modalVideo.removeAttribute('poster'); modalVideo.load(); preloadedVideoPath = null;
 
             // 版面：直式作品左右排，橫式作品與影片上下排
             const ratio = parseFloat(item.getAttribute('data-modal-ar')) || 1.5;
@@ -2143,6 +2212,10 @@
             setTimeout(() => { 
                 modal.classList.add('hidden'); 
                 modalVideo.pause(); 
+                // 關閉後釋放影片：停止下載，也讓下一次滑鼠停留可以重新預先載入
+                modalVideo.onerror = null; modalVideo.onloadeddata = null;
+                modalVideo.removeAttribute('src'); modalVideo.removeAttribute('poster'); modalVideo.load();
+                preloadedVideoPath = null;
                 document.body.style.overflow = ''; 
                 reset3DState(); 
                 suspendThumbs(false);
