@@ -140,7 +140,8 @@
             top: 50%;
             width: 100%;
             height: auto;
-            transform: translateY(-50%);
+            /* 靜止時就用拖曳中的大小（1.15 倍） */
+            transform: translateY(-50%) scale(1.15);
             pointer-events: auto;
             cursor: grab;
             touch-action: none;
@@ -167,6 +168,9 @@
             z-index: 49 !important;
         }
         
+        /* 換裝物件的圖案本身已放大，拖曳時外框不再額外放大，避免大小跳動 */
+        .dress-item.is-dragging { transform: none !important; }
+
         .is-dragging .dress-tooltip {
             opacity: 0 !important;
             visibility: hidden !important;
