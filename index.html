@@ -480,6 +480,16 @@
         .modal-strip { flex-shrink: 0; padding: 0 22px 18px; }
         .modal-strip-count { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
         .modal-strip-list { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+        /* 圖很多的專案：改成單列、可左右捲動，不佔掉大圖的高度 */
+        .modal-strip-list.is-scroll {
+            flex-wrap: nowrap; justify-content: flex-start;
+            overflow-x: auto; overflow-y: hidden;
+            padding: 6px 4px; margin: -6px -4px;
+            scrollbar-width: none; scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .modal-strip-list.is-scroll::-webkit-scrollbar { display: none; }
+        .modal-strip-list.is-scroll .strip-thumb { flex-shrink: 0; }
         .strip-thumb {
             position: relative;
             height: 46px; min-width: 34px; max-width: 104px;
@@ -674,7 +684,7 @@
                         <text x="140" y="40" dy="0.32em" text-anchor="middle" 
                               font-family="'Playfair Display', serif" font-size="48" font-weight="700" letter-spacing="-1px"
                               fill="#111111" stroke="#FFEC00" stroke-width="12" stroke-linejoin="round" paint-order="stroke fill">
-                            2024-2026
+                            2025-2026
                         </text>
                     </svg>
                 </div>
@@ -764,7 +774,7 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-full.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-2.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-3.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-4.webp,images/2026-event-kaohsiung-job-fair-gangshan-full-5.webp" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)" data-modal-ar="0.7076">
+                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-01-poster.jpg,images/2026-event-kaohsiung-job-fair-gangshan-02-instagram.jpg,images/2026-event-kaohsiung-job-fair-gangshan-03-line.jpg,images/2026-event-kaohsiung-job-fair-gangshan-04-facebook-cover.jpg,images/2026-event-kaohsiung-job-fair-gangshan-05-tv-wall.jpg,images/2026-event-kaohsiung-job-fair-gangshan-06-flag.jpg,images/2026-event-kaohsiung-job-fair-gangshan-07-venue-map.jpg,images/2026-event-kaohsiung-job-fair-gangshan-08-shuttle-sign.jpg,images/2026-event-kaohsiung-job-fair-gangshan-09-invitation.jpg,images/2026-event-kaohsiung-job-fair-gangshan-10-handbook.jpg,images/2026-event-kaohsiung-job-fair-gangshan-11-newspaper-ad.jpg,images/2026-event-kaohsiung-job-fair-gangshan-12-stage-backdrop.jpg,images/2026-event-kaohsiung-job-fair-gangshan-13-mic-sign.png,images/2026-event-kaohsiung-job-fair-gangshan-14-ceremony-puzzle.jpg,images/2026-event-kaohsiung-job-fair-gangshan-15-ceremony.jpg,images/2026-event-kaohsiung-job-fair-gangshan-16-ceremony-photo.jpg" data-strip-thumbs data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)" data-modal-ar="0.7076">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <img src="images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg')">
@@ -775,7 +785,19 @@
                             </div>
                             <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">現場徵才活動<br>薪動高雄 職得幸福<br class="hidden lg:block">(岡山大型徵才)</div>
                             <div class="project-details hidden">
-                                <p>專案詳細介紹內容正在準備中...</p>
+                                <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
+                                <p class="mb-6">高雄市政府 115 年度「薪動高雄 職得幸福」現場徵才活動岡山場，於岡山農工舉辦，現場約 50 家廠商、超過 1,500 個職缺。本專案負責活動的整體視覺，從主視覺海報出發，一路延伸到舞台、啟動儀式、現場指引與線上宣傳，讓民眾從看到宣傳到走進會場，接收到的都是同一套視覺語言。</p>
+                                <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                                <p class="mb-6">主視覺把「找工作」比喻成一場闖關旅程：以等角視角的桌遊路徑作為畫面主體，沿途的格子放上代表各行各業的小物件，從起點的 GO 旗一路走到終點的定位圖標，再以羅盤象徵「找到方向」。標題採用像素風字體，搭配星星、愛心等點綴，讓徵才活動看起來輕鬆、好親近，而不是嚴肅的公告。</p>
+                                <p class="mb-6">徵才海報的資訊量大，因此依照民眾最在意的順序安排層級：日期與時間放大為第一視覺焦點，地點以橘色與藍色主調形成對比，廠商數與職缺數緊接在後；交通方式、接駁車時刻表與位置地圖則整理成獨立區塊，需要的人一眼就能找到。</p>
+                                <p class="mb-6">啟動儀式延續同一個遊戲概念，設計成「拼圖」：六位貴賓各持一片寫有服務項目的拼圖，依序拼上舞台中央的底座，完成整幅畫面。除了視覺本身，也一併規劃拼圖順序、前後兩次合照的畫面，以及道具尺寸與側視圖，讓廠商可以直接依圖施作。</p>
+                                <h4 class="text-xl font-bold text-brand-black mb-2">延伸應用</h4>
+                                <ul class="space-y-2 list-disc list-outside ml-5">
+                                    <li><strong>線上與戶外宣傳：</strong> 主視覺海報、Instagram 貼文、LINE 宣傳圖、Facebook 封面、科工館電視牆。</li>
+                                    <li><strong>現場指引：</strong> 關東旗、場地配置圖、接駁車候車處指示牌。</li>
+                                    <li><strong>文宣品：</strong> 電子邀請卡、電子職缺手冊封面與封底、報紙廣告。</li>
+                                    <li><strong>舞台與儀式：</strong> 舞台背板、舞台前沿、麥克風牌、啟動儀式拼圖道具與底座。</li>
+                                </ul>
                             </div>
                         </div>
 
@@ -794,18 +816,29 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group is-wide" style="--ar:2.0202" data-category="event" data-modal-img="images/2026-event-fire-station-opening-full.png,images/2026-event-fire-station-opening-full-2.png,images/2026-event-fire-station-opening-full-3.png,images/2026-event-fire-station-opening-full-4.png,images/2026-event-fire-station-opening-full-5.png" role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮" data-modal-ar="1.7778">
+                        <div class="portfolio-item group is-wide" style="--ar:2.0202" data-category="event" data-modal-img="images/2026-event-fire-station-opening-01-key-visual.jpg,images/2026-event-fire-station-opening-02-stage-backdrop.jpg,images/2026-event-fire-station-opening-03-podium.png,images/2026-event-fire-station-opening-04-tent-skirt.png,images/2026-event-fire-station-opening-05-hand-signs.png,images/2026-event-fire-station-opening-06-sign.jpg,images/2026-event-fire-station-opening-07-invitation.jpg,images/2026-event-fire-station-opening-08-envelope.jpg,images/2026-event-fire-station-opening-09-site-photo-1.jpg,images/2026-event-fire-station-opening-10-site-photo-2.jpg,images/2026-event-fire-station-opening-11-site-photo-3.jpg,images/2026-event-fire-station-opening-12-site-photo-4.jpg" data-strip-thumbs data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府消防局後勁分隊與特搜第一分隊成立典禮" data-modal-ar="2.0202">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                                <img src="images/2026-event-fire-station-opening-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府消防局後勁分隊與特搜第一分隊啟用典禮" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-fire-station-opening-thumb.jpg')">
+                                <img src="images/2026-event-fire-station-opening-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府消防局後勁分隊與特搜第一分隊成立典禮" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-fire-station-opening-thumb.jpg')">
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">高雄市政府</span><wbr><span class="tw">消防局</span><wbr><span class="tw">後勁分隊</span><wbr><span class="tw">與特搜第一分隊</span><wbr><span class="tw">啟用典禮</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">高雄市政府</span><wbr><span class="tw">消防局</span><wbr><span class="tw">後勁分隊</span><wbr><span class="tw">與特搜第一分隊</span><wbr><span class="tw">成立典禮</span></h3>
                             </div>
-                            <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">消防局後勁分隊與<br class="hidden md:block">特搜第一分隊<br class="hidden lg:block">啟用典禮</div>
+                            <div class="modal-title-src hidden">2026年<br>高雄市政府<br class="hidden md:block">消防局後勁分隊與<br class="hidden md:block">特搜第一分隊<br class="hidden lg:block">成立典禮</div>
                             <div class="project-details hidden">
-                                <p>專案詳細介紹內容正在準備中...</p>
+                                <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
+                                <p class="mb-6">高雄市政府消防局「後勁分隊及特搜第一分隊」成立典禮，於新落成的廳舍前舉辦。這是一場以長官致詞、揭牌為主的正式典禮，視覺需要同時傳達兩件事：官方儀式的莊重感，以及新分隊成立的喜氣。本專案負責典禮的主視覺，並延伸到舞台、報到指引與邀請卡。</p>
+                                <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                                <p class="mb-6">主視覺直接以新廳舍為主角：把分隊建築與車庫裡待命的消防車放在畫面正中央，讓來賓一眼就知道「今天慶祝的就是這棟建築」。建築經過插畫化處理，並在地面加上倒影，保留真實樣貌的同時，比直接放照片更有典禮的質感。</p>
+                                <p class="mb-6">左右兩側以紅底金字的對聯呈現「特搜勇無畏」、「後勁護民安」，把兩個分隊的名稱結合進祝賀詞裡，同時呼應典禮舉辦時剛過完農曆新年的喜悅。對聯刻意做成向內彎曲的布幔造型，像舞台帷幕一樣把視線收攏到中央的建築。</p>
+                                <p class="mb-6">色彩以消防的紅色搭配金色作為主調，傳達隆重與喜慶；背景則用淺藍的天空與雲朵留出呼吸空間，避免整體過於沉重。標題字選用帶有書法筆觸的字體，與對聯的書法字相互呼應。</p>
+                                <h4 class="text-xl font-bold text-brand-black mb-2">延伸應用</h4>
+                                <ul class="space-y-2 list-disc list-outside ml-5">
+                                    <li><strong>會場佈置：</strong> 舞台背板、聯訪區背板、講台裝飾輸出、帝王帳圍布裝飾、手拿牌。</li>
+                                    <li><strong>現場指引：</strong> 報到處指示牌。</li>
+                                    <li><strong>文宣品：</strong> 邀請卡(含典禮流程、交通位置圖與停車資訊)、信封。邀請卡上的吉祥物由主辦單位提供並授權使用。</li>
+                                </ul>
                             </div>
                         </div>
 
@@ -885,21 +918,6 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-large-p1-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2025年 台南好生活 台南呷頭路大型就業博覽會 Part1" data-modal-ar="0.7071">
-                            <div class="item-media">
-                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                                <img src="images/2025-event-tainan-job-fair-large-p1-thumb.jpg" loading="lazy" decoding="async" alt="2025年 台南好生活 台南呷頭路大型就業博覽會 Part1" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2025-event-tainan-job-fair-large-p1-thumb.jpg')">
-                            </div>
-                            <div class="item-caption">
-                                <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2025</span><span class="tw">台南好生活</span> <span class="tw">台南呷頭路</span><wbr><span class="tw">大型就業博覽會</span> <span class="tw">Part1</span></h3>
-                            </div>
-                            <div class="modal-title-src hidden">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part1</div>
-                            <div class="project-details hidden">
-                                <p>專案詳細介紹內容正在準備中...</p>
-                            </div>
-                        </div>
-
                         <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2025-event-tainan-job-fair-medium-p1-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2025年 台南好生活 台南呷頭路中型就業博覽會 Part1" data-modal-ar="0.7071">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
@@ -910,21 +928,6 @@
                                 <h3 class="item-title"><span class="item-year">2025</span><span class="tw">台南好生活</span> <span class="tw">台南呷頭路</span><wbr><span class="tw">中型就業博覽會</span> <span class="tw">Part1</span></h3>
                             </div>
                             <div class="modal-title-src hidden">2025年<br>台南好生活 台南呷頭路<br class="hidden md:block">中型就業博覽會 Part1</div>
-                            <div class="project-details hidden">
-                                <p>專案詳細介紹內容正在準備中...</p>
-                            </div>
-                        </div>
-
-                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2024-event-tainan-job-fair-large-p4-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2024年 台南好生活 台南呷頭路大型就業博覽會 Part4" data-modal-ar="0.7071">
-                            <div class="item-media">
-                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
-                                <img src="images/2024-event-tainan-job-fair-large-p4-thumb.jpg" loading="lazy" decoding="async" alt="2024年 台南好生活 台南呷頭路大型就業博覽會 Part4" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2024-event-tainan-job-fair-large-p4-thumb.jpg')">
-                            </div>
-                            <div class="item-caption">
-                                <span class="item-cat">活動視覺設計</span>
-                                <h3 class="item-title"><span class="item-year">2024</span><span class="tw">台南好生活</span> <span class="tw">台南呷頭路</span><wbr><span class="tw">大型就業博覽會</span> <span class="tw">Part4</span></h3>
-                            </div>
-                            <div class="modal-title-src hidden">2024年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part4</div>
                             <div class="project-details hidden">
                                 <p>專案詳細介紹內容正在準備中...</p>
                             </div>
@@ -1764,7 +1767,10 @@
         // 第一張大圖載入後，在背景把同一專案的其他張也先抓好，切換上一張/下一張時不用等
         function preloadRestOfGallery() {
             if (currentMediaType !== 'image') return;
-            currentGallery.forEach(prefetchImage);
+            if (currentGallery.length <= 6) { currentGallery.forEach(prefetchImage); return; }
+            // 圖很多的專案：只先抓目前這張的前後兩張，其餘等切換到附近再抓
+            const n = currentGallery.length;
+            [1, -1, 2].forEach(d => prefetchImage(currentGallery[(currentImgIndex + d + n) % n]));
         }
 
         // 影片預先載入：直接讓彈窗的 <video> 開始抓檔，點開時沿用同一份緩衝
@@ -1905,6 +1911,10 @@
                 const active = i === currentImgIndex;
                 btn.classList.toggle('is-active', active);
                 btn.setAttribute('aria-current', active ? 'true' : 'false');
+                if (active && galleryThumbs.classList.contains('is-scroll')) {
+                    const target = btn.offsetLeft - (galleryThumbs.clientWidth - btn.offsetWidth) / 2;
+                    galleryThumbs.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+                }
             });
         }
 
@@ -1913,6 +1923,8 @@
 
         function buildGalleryStrip() {
             galleryThumbs.innerHTML = '';
+            galleryThumbs.classList.toggle('is-scroll', currentGallery.length > 8);
+            galleryThumbs.scrollLeft = 0;
             if (currentGallery.length < 2) return;
             currentGallery.forEach((path, i) => {
                 const btn = document.createElement('button');
@@ -1942,10 +1954,18 @@
             img.src = url;
         }
 
+        // 有標記 data-strip-thumbs 的專案，縮圖列使用另外準備的小圖（檔名加上 -s.jpg），不必載入整張大圖
+        function stripThumbUrl(path) {
+            if (currentProject && currentProject.hasAttribute('data-strip-thumbs')) {
+                return path.replace(/\.(webp|jpe?g|png)$/i, '-s.jpg');
+            }
+            return path;
+        }
+
         function fillGalleryStrip() {
             if (currentMediaType !== 'image') return;
             galleryThumbs.querySelectorAll('.strip-thumb').forEach((btn, i) => {
-                if (currentGallery[i]) setStripImage(btn, currentGallery[i].trim());
+                if (currentGallery[i]) setStripImage(btn, stripThumbUrl(currentGallery[i].trim()));
             });
         }
 
