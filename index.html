@@ -512,7 +512,7 @@
 
         .modal-info { display: flex; flex-direction: column; gap: 22px; padding: 26px 24px 20px; }
         .modal-tag {
-            display: inline-block; align-self: flex-start;
+            display: inline-block; align-self: flex-start; margin-left: -12px;
             padding: 5px 12px; border-radius: 999px;
             background: rgba(17, 17, 17, 0.07);
             font-size: 12px; font-weight: 700; letter-spacing: 0.14em; color: #111111;
@@ -654,7 +654,7 @@
     </header>
 
     <div id="mobile-menu" inert class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center gap-10 opacity-0 pointer-events-none transition-all duration-300">
-        <button id="mobile-menu-close" type="button" aria-label="關閉選單" class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-brand-black rounded-full transition-all">
+        <button id="mobile-menu-close" type="button" aria-label="關閉選單" ontouchstart="" style="-webkit-tap-highlight-color:transparent" class="absolute top-4 right-3 w-12 h-12 flex items-center justify-center text-brand-black active:text-[#3B82F6] transition-colors">
             <i class="ph ph-x text-2xl" aria-hidden="true"></i>
         </button>
         <a href="#work" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">作品 Work</a>
