@@ -131,6 +131,10 @@
             touch-action: none;
             transition: filter 0.3s ease, transform 0.3s ease;
         }
+        /* 首頁的圖示與年份標籤：觸控裝置（手機、平板）不提供拖曳，也不擋住捲動與點擊 */
+        @media (hover: none), (pointer: coarse) {
+            .drag-item.no-touch-drag { pointer-events: none !important; touch-action: auto; cursor: default; }
+        }
         /* 換裝物件：外框是正方形、圖案是橫長的，上下排的外框會互相重疊。
            讓外框不接收滑鼠，只有圖案本身可以被點到與拖曳。 */
         .dress-item { pointer-events: none; }
@@ -690,25 +694,25 @@
 
     <section id="hero-section" class="min-h-[100dvh] flex items-center justify-center pt-20 pb-12 md:pb-0 relative overflow-hidden px-6 lg:px-12">
         
-        <div class="drag-item float-anim z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[38%] left-[2%] md:top-[12%] md:left-[5%] lg:top-[15%] lg:left-[8%]" data-anim="normal">
+        <div class="drag-item no-touch-drag float-anim z-10 md:z-30 w-[min(51vw,230px)] h-[min(51vw,230px)] md:w-40 md:h-40 lg:w-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] lg:h-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[30%] left-[-18%] md:top-[12%] md:left-[5%] lg:top-[10%] lg:left-[-1%]" data-anim="normal">
             <img src="images/hero-icon-1.webp" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/hero-icon-1.webp')">
         </div>
         
-        <div class="drag-item float-anim-delayed z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 rotate-[10deg] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[16%] right-[4%] md:top-[15%] md:right-[5%] lg:top-[18%] lg:right-[8%]" data-anim="delayed">
+        <div class="drag-item no-touch-drag float-anim-delayed z-10 md:z-30 w-[min(51vw,230px)] h-[min(51vw,230px)] md:w-40 md:h-40 lg:w-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] lg:h-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] rotate-[10deg] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] top-[7.5%] right-[-17%] md:top-[15%] md:right-[5%] lg:top-[9%] lg:right-[0%]" data-anim="delayed">
             <img src="images/hero-icon-2.webp" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/hero-icon-2.webp')">
         </div>
 
-        <div class="drag-item float-anim-delayed z-30 w-20 h-20 md:w-36 md:h-36 lg:w-52 lg:h-52 -rotate-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[18%] left-[2%] md:bottom-[15%] md:left-[5%] lg:bottom-[18%] lg:left-[8%]" data-anim="delayed">
+        <div class="drag-item no-touch-drag float-anim-delayed z-10 md:z-30 w-[min(51vw,230px)] h-[min(51vw,230px)] md:w-36 md:h-36 lg:w-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] lg:h-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] -rotate-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[5%] left-[-11%] md:bottom-[15%] md:left-[5%] lg:bottom-[6%] lg:left-[2%]" data-anim="delayed">
             <img src="images/hero-icon-3.webp" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/hero-icon-3.webp')">
         </div>
 
-        <div class="drag-item float-anim z-30 w-24 h-24 md:w-40 md:h-40 lg:w-56 lg:h-56 rotate-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[8%] right-[2%] md:bottom-[12%] md:right-[8%] lg:bottom-[15%] lg:right-[10%]" data-anim="normal">
+        <div class="drag-item no-touch-drag float-anim z-10 md:z-30 w-[min(51vw,230px)] h-[min(51vw,230px)] md:w-40 md:h-40 lg:w-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] lg:h-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] rotate-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[23%] right-[-14%] md:bottom-[12%] md:right-[8%] lg:bottom-[4%] lg:right-[8%]" data-anim="normal">
             <img src="images/hero-icon-4.webp" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/hero-icon-4.webp')">
         </div>
 
         <div class="max-w-5xl mx-auto text-center space-y-6 md:space-y-8 fade-in relative z-20 pointer-events-none">
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight relative inline-block">
-                <div class="drag-item float-anim-delayed z-30 -rotate-2 pointer-events-auto -top-[45px] -left-[10px] md:-top-[30px] md:-left-[10px] w-[150px] md:w-[270px]" data-anim="delayed">
+                <div class="drag-item no-touch-drag float-anim-delayed z-30 -rotate-2 pointer-events-auto -top-[45px] -left-[10px] md:-top-[30px] md:-left-[10px] w-[150px] md:w-[270px]" data-anim="delayed">
                     <svg class="w-full drop-shadow-sm pointer-events-none overflow-visible" viewBox="0 0 280 80">
                         <text x="140" y="40" dy="0.32em" text-anchor="middle" 
                               font-family="'Playfair Display', serif" font-size="48" font-weight="700" letter-spacing="-1px"
@@ -2580,6 +2584,7 @@
         });
 
         function dragStart(e) {
+            if (this.classList.contains('no-touch-drag') && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
             activeDragItem = this;
             const event = e.type === 'touchstart' ? e.touches[0] : e;
             
