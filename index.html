@@ -457,6 +457,10 @@
         .modal-embed-btn.is-playing .ico-play { display: none; }
         .modal-embed-btn.is-playing .ico-back { display: block; }
         .modal-embed iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; background: #ffffff; }
+        /* 手機作品試玩：程式放進同樣的手機外框，內部以手機寬度排版 */
+        .modal-card.is-phone-media .modal-embed {
+            box-sizing: border-box; border: 11px solid #111111; border-radius: 46px; background: #111111;
+        }
         /* 手機作品：彈窗裡的影片也套上和卡片相同的手機外框 */
         .modal-card.is-phone-media .modal-art.is-video {
             box-sizing: border-box;
@@ -1133,7 +1137,7 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group is-phone" style="--ar:0.5578" data-category="programming" data-video="videos/prog-hakka-soul-full.mp4" data-external-link="https://design-your-life-studio.github.io/2026-hakka-soul/" role="button" tabindex="0" aria-label="程式設計：客家魂大揭秘" data-modal-ar="0.5578">
+                        <div class="portfolio-item group is-phone" style="--ar:0.5578" data-category="programming" data-video="videos/prog-hakka-soul-full.mp4" data-embed="https://design-your-life-studio.github.io/2026-hakka-soul/" data-external-link="https://design-your-life-studio.github.io/2026-hakka-soul/" role="button" tabindex="0" aria-label="程式設計：客家魂大揭秘" data-modal-ar="0.5578">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <video src="videos/prog-hakka-soul-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="客家魂大揭秘" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-hakka-soul-thumb.mp4')"></video>
@@ -1159,7 +1163,7 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group is-phone" style="--ar:0.56" data-category="programming" data-video="videos/prog-road-animal-full.mp4" data-modal-img="images/prog-road-animal-full.png" data-external-link="https://design-your-life-studio.github.io/115-traffic-hero.tw/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種馬路動物人格" data-modal-ar="0.5906">
+                        <div class="portfolio-item group is-phone" style="--ar:0.56" data-category="programming" data-video="videos/prog-road-animal-full.mp4" data-modal-img="images/prog-road-animal-full.png" data-embed="https://design-your-life-studio.github.io/115-traffic-hero.tw/" data-external-link="https://design-your-life-studio.github.io/115-traffic-hero.tw/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種馬路動物人格" data-modal-ar="0.5906">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <video src="videos/prog-road-animal-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="測測你是哪種馬路動物人格" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-road-animal-thumb.mp4')"></video>
@@ -1185,7 +1189,7 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group is-phone" style="--ar:0.56" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.png" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種職場神獸" data-modal-ar="0.5906">
+                        <div class="portfolio-item group is-phone" style="--ar:0.56" data-category="programming" data-video="videos/prog-beast-full.mp4" data-modal-img="images/prog-beast-full.png" data-embed="https://design-your-life-studio.github.io/workplace-beast.com/" data-external-link="https://design-your-life-studio.github.io/workplace-beast.com/" role="button" tabindex="0" aria-label="程式設計：測測你是哪種職場神獸" data-modal-ar="0.5906">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <video src="videos/prog-beast-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="測測你是哪種職場神獸" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-beast-thumb.mp4')"></video>
@@ -1211,7 +1215,7 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group is-phone" style="--ar:0.56" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.png" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/" role="button" tabindex="0" aria-label="程式設計：探索你的職場動物風格" data-modal-ar="0.5906">
+                        <div class="portfolio-item group is-phone" style="--ar:0.56" data-category="programming" data-video="videos/prog-animal-full.mp4" data-modal-img="images/prog-animal-full.png" data-embed="https://design-your-life-studio.github.io/work-hard-play-hard/" data-external-link="https://design-your-life-studio.github.io/work-hard-play-hard/" role="button" tabindex="0" aria-label="程式設計：探索你的職場動物風格" data-modal-ar="0.5906">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <video src="videos/prog-animal-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="探索你的職場動物風格" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-animal-thumb.mp4')"></video>
@@ -1237,7 +1241,7 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group is-phone" style="--ar:0.5833" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.png" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/" role="button" tabindex="0" aria-label="程式設計：求職適性測驗" data-modal-ar="0.5906">
+                        <div class="portfolio-item group is-phone" style="--ar:0.5833" data-category="programming" data-video="videos/prog-career-full.mp4" data-modal-img="images/prog-career-full.png" data-embed="https://design-your-life-studio.github.io/career-diagnosis/" data-external-link="https://design-your-life-studio.github.io/career-diagnosis/" role="button" tabindex="0" aria-label="程式設計：求職適性測驗" data-modal-ar="0.5906">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <img src="images/prog-career-thumb.jpg" loading="lazy" decoding="async" alt="適性診斷" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/prog-career-thumb.jpg')">
@@ -1925,12 +1929,16 @@
             const ar = parseFloat(currentProject && currentProject.getAttribute('data-modal-ar')) || 1.6;
             let w = availW, h = w / ar;
             if (h > availH) { h = availH; w = h * ar; }
-            const baseW = Math.max(1280, w);          // 內部一律以桌機寬度排版
-            const scale = w / baseW;
+            const isPhone = modalContent.classList.contains('is-phone-media');
+            const frame = isPhone ? parseFloat(getComputedStyle(modalEmbedWrap).borderLeftWidth) * 2 : 0; // 手機外框的厚度
+            const innerW = w - frame, innerH = h - frame;
+            // 內部排版寬度：手機作品用手機寬度（直式），其餘用桌機寬度
+            const baseW = isPhone ? 390 : Math.max(1280, innerW);
+            const scale = innerW / baseW;
             modalEmbedWrap.style.width = w + 'px';
             modalEmbedWrap.style.height = h + 'px';
             modalEmbed.style.width = baseW + 'px';
-            modalEmbed.style.height = (baseW / ar) + 'px';
+            modalEmbed.style.height = (innerH / scale) + 'px';
             modalEmbed.style.transform = `scale(${scale})`;
         }
         window.addEventListener('resize', fitEmbed);
