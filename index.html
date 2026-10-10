@@ -436,6 +436,24 @@
             background: #111111;
             object-fit: cover;
         }
+        /* 網站作品：彈窗裡的影片套上和卡片相同的瀏覽器視窗（三個圓點＋網址列） */
+        .modal-card.is-browser-media .modal-art.is-video {
+            box-sizing: border-box;
+            padding-top: 26px;
+            border: 1px solid rgba(17, 17, 17, 0.14);
+            border-radius: 10px;
+            background-color: #f1f1f3;
+            background-repeat: no-repeat;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='10' viewBox='0 0 46 10'%3E%3Cg fill='%23c9c9cf'%3E%3Ccircle cx='5' cy='5' r='5'/%3E%3Ccircle cx='23' cy='5' r='5'/%3E%3Ccircle cx='41' cy='5' r='5'/%3E%3C/g%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='230' height='22' viewBox='0 0 230 22'%3E%3Ctext x='0' y='15.5' font-family='-apple-system%2C BlinkMacSystemFont%2C Helvetica Neue%2C Arial%2C sans-serif' font-size='12' letter-spacing='0.2' fill='%238b8b93'%3Emingfly0610.github.io/portfolio%3C/text%3E%3C/svg%3E"),
+                radial-gradient(circle closest-side, #ffffff 95%, rgba(255,255,255,0) 100%),
+                radial-gradient(circle closest-side, #ffffff 95%, rgba(255,255,255,0) 100%),
+                linear-gradient(#ffffff, #ffffff),
+                linear-gradient(rgba(17, 17, 17, 0.1), rgba(17, 17, 17, 0.1));
+            background-size: 35px 8px, 172px 16px, 16px 16px, 16px 16px, calc(100% - 82px) 16px, 100% 1px;
+            background-position: 10px 9px, 72px 5px, 58px 5px, calc(100% - 10px) 5px, 66px 5px, 0 25px;
+        }
         #modal-skeleton {
             background: linear-gradient(90deg, rgba(255,255,255,0) 25%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 75%);
             background-size: 400% 100%;
@@ -515,6 +533,12 @@
 
             /* 直式作品：圖左、資訊右，彈窗收窄 */
             .modal-card.is-phone-media .modal-art.is-video { border-width: 11px; border-radius: 46px; }
+            .modal-card.is-browser-media .modal-art.is-video {
+                padding-top: 36px;
+                border-radius: 12px;
+                background-size: 46px 10px, 230px 22px, 22px 22px, 22px 22px, calc(100% - 112px) 22px, 100% 1px;
+                background-position: 15px 13px, 98px 7px, 78px 7px, calc(100% - 14px) 7px, 89px 7px, 0 35px;
+            }
             .modal-card.is-portrait { width: min(95vw, 1080px); height: 90vh; }
             .modal-card.is-portrait .modal-scroll { flex-direction: row; overflow: hidden; }
             .modal-card.is-portrait .modal-media { flex: 1 1 0; width: auto; min-width: 0; height: 100%; }
@@ -1906,6 +1930,7 @@
             modalContent.classList.toggle('is-portrait', ratio < 0.95);
             modalContent.classList.toggle('is-landscape', ratio >= 0.95);
             modalContent.classList.toggle('is-phone-media', item.classList.contains('is-phone')); // 手機作品：影片套手機外框
+            modalContent.classList.toggle('is-browser-media', item.classList.contains('is-browser')); // 網站作品：影片套瀏覽器視窗
             const scroller = modalContent.querySelector('.modal-scroll');
             scroller.scrollTop = 0;
             modalContent.querySelector('.modal-info').scrollTop = 0;
