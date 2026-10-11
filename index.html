@@ -2316,7 +2316,9 @@
                 linkContainer.classList.remove('hidden');
                 document.getElementById('modal-external-link').href = projectLink;
                 const qr = document.getElementById('qr-container');
-                if (noQr) qr.classList.add('hidden');
+                // 手機與平板本身就能直接點連結前往，不需要再顯示 QR Code（也省下一次圖片下載）
+                const onTouchDevice = window.innerWidth < 768 || !embedDesktopQuery.matches;
+                if (noQr || onTouchDevice) qr.classList.add('hidden');
                 else { qr.classList.remove('hidden'); document.getElementById('modal-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(projectLink)}`; }
             } else linkContainer.classList.add('hidden');
 
