@@ -188,6 +188,8 @@
             -webkit-user-drag: none;
         }
         .dress-item.is-dragging > .dress-img { cursor: grabbing; }
+        /* 網點版物件不加陰影（和首頁的網點圖示一致） */
+        .dress-item.is-flat { filter: none !important; }
 
         .float-anim {
             animation: floating 6s ease-in-out infinite;
@@ -1522,32 +1524,32 @@
                             <img id="profile-reveal-img" src="images/profile.jpg?v=1" loading="lazy" decoding="async" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover layer-reveal pointer-events-none" onerror="this.style.display='none'">
                         </div>
 
-                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[134px] md:-bottom-32 lg:-bottom-36 left-2 md:left-4" data-anim="none">
-                            <img src="images/dress-1.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, 'images/dress-1.webp')">
+                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[134px] md:-bottom-32 lg:-bottom-36 left-2 md:left-4" data-anim="none">
+                            <img src="images/dress-1-reveal.webp" data-normal="images/dress-1.webp" data-reveal="images/dress-1-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
                                 我的眼鏡呢？
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
                         </div>
                         
-                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[134px] md:-bottom-32 lg:-bottom-36 right-2 md:right-4" data-anim="none">
-                            <img src="images/dress-2.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, 'images/dress-2.webp')">
+                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[134px] md:-bottom-32 lg:-bottom-36 right-2 md:right-4" data-anim="none">
+                            <img src="images/dress-2-reveal.webp" data-normal="images/dress-2.webp" data-reveal="images/dress-2-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
                                 幫 MingFly 換個造型！
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
                         </div>
 
-                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] left-2 md:left-4" data-anim="none">
-                            <img src="images/dress-3.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, 'images/dress-3.webp')">
+                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] left-2 md:left-4" data-anim="none">
+                            <img src="images/dress-3-reveal.webp" data-normal="images/dress-3.webp" data-reveal="images/dress-3-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
                                 領子前面好像有點空！
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
                         </div>
                         
-                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] right-2 md:right-4" data-anim="none">
-                            <img src="images/dress-4.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, 'images/dress-4.webp')">
+                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] right-2 md:right-4" data-anim="none">
+                            <img src="images/dress-4-reveal.webp" data-normal="images/dress-4.webp" data-reveal="images/dress-4-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
                                 拖曳發揮你的創意！
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
@@ -2691,6 +2693,19 @@
                 profileReveal.classList.remove('active');
             });
 
+            // 換裝物件跟著人物圖切換：網點人像配網點版物件，照片配立體版物件
+            const dressImgs = Array.from(document.querySelectorAll('.dress-item > .dress-img'));
+            function setDressStyle(reveal) {
+                dressImgs.forEach(img => {
+                    const next = img.getAttribute(reveal ? 'data-reveal' : 'data-normal');
+                    if (next && img.getAttribute('src') !== next) img.src = next;
+                    img.closest('.dress-item').classList.toggle('is-flat', reveal);
+                });
+            }
+            setDressStyle(true);
+            // 另一種版本先在背景載好，切換時不會閃一下
+            dressImgs.forEach(img => { const pre = new Image(); pre.src = img.getAttribute('data-normal'); });
+
             let isSwapped = false;
             profileSpotlight.addEventListener('click', () => {
                 isSwapped = !isSwapped;
@@ -2701,6 +2716,7 @@
                     profileBase.src = 'images/profile-reveal.jpg';
                     profileReveal.src = 'images/profile.jpg?v=1';
                 }
+                setDressStyle(!isSwapped);
             });
         }
 
