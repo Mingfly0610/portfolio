@@ -59,6 +59,21 @@
             user-select: none;
         }
 
+        /* 專案彈窗的捲軸：靜止時隱藏，捲動時淡入、停止後淡出；上下各留一段，讓捲軸短一點、不貼到圓角 */
+        @property --sb-alpha { syntax: '<number>'; inherits: true; initial-value: 0; }
+        .modal-scroll, .modal-info { --sb-alpha: 0; transition: --sb-alpha 0.6s ease; }
+        .modal-scroll.is-scrolling, .modal-info.is-scrolling { --sb-alpha: 0.28; transition: --sb-alpha 0.18s ease; }
+        .modal-scroll::-webkit-scrollbar, .modal-info::-webkit-scrollbar { width: 6px; }
+        .modal-scroll::-webkit-scrollbar-track, .modal-info::-webkit-scrollbar-track { background: transparent; margin-block: 110px; }
+        .modal-scroll::-webkit-scrollbar-thumb, .modal-info::-webkit-scrollbar-thumb { background: rgba(17, 17, 17, var(--sb-alpha)); border-radius: 999px; }
+        @supports not selector(::-webkit-scrollbar) {
+            .modal-scroll, .modal-info { scrollbar-width: thin; scrollbar-color: rgba(17, 17, 17, var(--sb-alpha)) transparent; }
+        }
+
+        /* 整個頁面的文字都不能被滑鼠選取（反白）；只有專案彈窗裡的介紹文字保留可選取，方便複製 */
+        body { -webkit-user-select: none; user-select: none; }
+        .modal-info, .modal-info * { -webkit-user-select: text; user-select: text; }
+
         /* 按住滑鼠左鍵畫出的筆畫：蓋在頁面上、彈窗之下，不擋任何點擊 */
         #draw-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 90; }
         html.is-drawing, html.is-drawing * { -webkit-user-select: none !important; user-select: none !important; }
@@ -705,7 +720,7 @@
             <img src="images/hero-icon-2.webp" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/hero-icon-2.webp')">
         </div>
 
-        <div class="drag-item hero-icon no-touch-drag float-anim-delayed z-10 md:z-30 w-[min(51vw,230px)] h-[min(51vw,230px)] md:w-36 md:h-36 lg:w-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] lg:h-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] -rotate-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[5%] left-[-20%] md:bottom-[15%] md:left-[5%] lg:bottom-[6%] lg:left-[2%]" data-anim="delayed">
+        <div class="drag-item hero-icon no-touch-drag float-anim-delayed z-10 md:z-30 w-[min(51vw,230px)] h-[min(51vw,230px)] md:w-36 md:h-36 lg:w-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] lg:h-[clamp(205px,min(calc(42vw_-_265px),46vh),500px)] -rotate-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] bottom-[5%] left-[-20%] md:bottom-[15%] md:left-[5%] lg:bottom-[2.5%] lg:left-[6.25%]" data-anim="delayed">
             <img src="images/hero-icon-3.webp" alt="互動圖標" class="w-full h-full object-contain pointer-events-none" onerror="window.handleImageError(this, 'images/hero-icon-3.webp')">
         </div>
 
@@ -1512,9 +1527,10 @@
             
             <div class="pt-8 md:pt-16 flex justify-center gap-8 text-3xl text-gray-400">
                 <a href="mailto:qwe33885@gmail.com" class="icon-bounce hover:text-[#3B82F6] inline-block" title="發送 Email 給我"><i class="ph ph-envelope-simple"></i></a>
-                <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" class="icon-bounce hover:text-[#3B82F6] inline-block" title="Instagram"><i class="ph ph-instagram-logo"></i></a>
-                <a href="https://www.behance.net/fangmingyu" target="_blank" class="icon-bounce hover:text-[#3B82F6] inline-block" title="Behance"><i class="ph ph-behance-logo"></i></a>
-                <a href="https://www.linkedin.com/in/frank-yu-/" target="_blank" class="icon-bounce hover:text-[#3B82F6] inline-block" title="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
+                <!-- 以下三個社群連結暫時隱藏（未刪除）：日後要加回來，把各自的 style="display:none" 拿掉即可 -->
+                <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" style="display:none" class="icon-bounce hover:text-[#3B82F6] inline-block" title="Instagram"><i class="ph ph-instagram-logo"></i></a>
+                <a href="https://www.behance.net/fangmingyu" target="_blank" style="display:none" class="icon-bounce hover:text-[#3B82F6] inline-block" title="Behance"><i class="ph ph-behance-logo"></i></a>
+                <a href="https://www.linkedin.com/in/frank-yu-/" target="_blank" style="display:none" class="icon-bounce hover:text-[#3B82F6] inline-block" title="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
             </div>
             
             <div class="pt-16 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center">
@@ -2304,6 +2320,16 @@
             fitEmbed(); // 彈窗顯示後才量得到顯示區大小
             requestAnimationFrame(fitEmbed);
         }
+
+        // 彈窗捲軸：捲動時顯示，停止 0.8 秒後淡出
+        modalContent.querySelectorAll('.modal-scroll, .modal-info').forEach(el => {
+            let hideTimer;
+            el.addEventListener('scroll', () => {
+                el.classList.add('is-scrolling');
+                clearTimeout(hideTimer);
+                hideTimer = setTimeout(() => el.classList.remove('is-scrolling'), 800);
+            }, { passive: true });
+        });
 
         portfolioTrack.addEventListener('click', (e) => {
             const item = e.target.closest('.portfolio-item');
