@@ -709,7 +709,7 @@
             var root = document.documentElement, splash = document.getElementById('splash'), logo = document.getElementById('splash-logo');
             var t0 = performance.now();
             var MIN_SHOW = 900;      // 至少顯示這麼久，避免一閃而過
-            var EXTRA_WAIT = 1200;   // 版面就緒後，最多再等字型與首頁圖示這麼久
+            var EXTRA_WAIT = 5000;   // 等首頁內容全部就緒的上限；超過就先揭開，避免網路很慢時一直卡在藍色畫面
             root.classList.add('splash-on');
             window.scrollTo(0, 0);
             // 字樣是內嵌的向量圖，不需要等字型：下一個畫格就淡入
@@ -717,11 +717,34 @@
             setTimeout(function () { logo.classList.add('is-in'); }, 120);
             function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
             function domReady() { return new Promise(function (r) { if (document.readyState !== 'loading') r(); else document.addEventListener('DOMContentLoaded', r); }); }
-            function heroAssets() {
+            // 版面樣式是否已套用：樣式檔載入後，首頁區塊才會變成置中排版
+            function stylesReady() {
+                return new Promise(function (r) {
+                    (function check() {
+                        var hero = document.getElementById('hero-section');
+                        if (hero && getComputedStyle(hero).display === 'flex') r(); else setTimeout(check, 40);
+                    })();
+                });
+            }
+            // 首頁用到的字型：大標題（黑體 900）、花體字（斜體）、年份標籤與導覽列標誌（粗體）、內文
+            function heroFonts() {
+                if (!document.fonts || !document.fonts.load) return Promise.resolve();
+                var list = ['900 48px "Noto Sans TC"', '400 20px "Noto Sans TC"', '500 16px "Noto Sans TC"', 'italic 400 48px "Playfair Display"', '700 24px "Playfair Display"'];
+                var text = 'Crafting beautiful digital experiences. 你好，我是 MingFly 觀看作品 2025-2026';
+                return Promise.all(list.map(function (f) { return document.fonts.load(f, text).catch(function () {}); }))
+                    .then(function () { return document.fonts.ready; });
+            }
+            // 首頁的四個圖示：下載並解碼完成才算好
+            function heroImages() {
                 var imgs = Array.prototype.slice.call(document.querySelectorAll('#hero-section img'));
-                var jobs = imgs.map(function (img) { return img.complete ? Promise.resolve() : new Promise(function (r) { img.addEventListener('load', r); img.addEventListener('error', r); }); });
-                var fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-                return Promise.all(jobs.concat([fonts]));
+                return Promise.all(imgs.map(function (img) {
+                    var loaded = img.complete ? Promise.resolve() : new Promise(function (r) { img.addEventListener('load', r); img.addEventListener('error', r); });
+                    return loaded.then(function () { return img.decode ? img.decode().catch(function () {}) : null; });
+                }));
+            }
+            function heroAssets() {
+                return stylesReady().then(function () { return Promise.all([heroFonts(), heroImages()]); })
+                    .then(function () { return new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); }); }); // 再等兩個畫格，確定都畫上去了
             }
             function leave() {
                 splash.classList.add('is-leaving');
