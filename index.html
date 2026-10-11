@@ -590,6 +590,15 @@
         .strip-thumb span { padding: 0 12px; }
         .strip-thumb:hover { opacity: 0.9; transform: translateY(-2px); }
         .strip-thumb.is-active { opacity: 1; box-shadow: 0 0 0 2px var(--modal-tint), 0 0 0 4px #3B82F6; }
+        /* 手機：縮圖縮小，橫式圖片裁成接近方形，讓 8 張能排在同一列 */
+        @media (max-width: 767px) {
+            .modal-strip { padding: 0 18px 14px; }
+            .modal-strip-list { gap: 6px; }
+            .strip-thumb { height: 30px; min-width: 24px; max-width: 34px; border-radius: 5px; font-size: 11px; }
+            .strip-thumb img { height: 30px; max-width: 34px; }
+            .strip-thumb span { padding: 0 6px; }
+            .strip-thumb.is-active { box-shadow: 0 0 0 1.5px var(--modal-tint), 0 0 0 3px #3B82F6; }
+        }
 
         .modal-info { display: flex; flex-direction: column; gap: 22px; padding: 26px 24px 20px; }
         .modal-tag {
@@ -944,7 +953,7 @@
                         <p class="text-gray-500 text-lg">近期精選的設計專案與視覺實驗。</p>
                     </div>
                     
-                    <div class="grid grid-cols-2 w-max max-w-full md:w-auto md:flex md:flex-wrap gap-2 md:gap-4" id="filter-btns">
+                    <div class="flex flex-wrap justify-center md:justify-start w-full max-w-[250px] mx-auto md:mx-0 md:w-auto md:max-w-none gap-2 md:gap-4" id="filter-btns">
                         <button class="filter-btn active px-4 py-2 rounded-full border border-[#3B82F6] text-sm font-medium bg-[#3B82F6] hover:bg-[#2563EB] text-white btn-bounce hover:shadow-md" data-filter="all">全部</button>
                         <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 btn-bounce hover:shadow-md" data-filter="event">活動視覺設計</button>
                         <button class="filter-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-medium bg-transparent text-brand-black hover:bg-gray-200 btn-bounce hover:shadow-md" data-filter="animation">動態設計</button>
