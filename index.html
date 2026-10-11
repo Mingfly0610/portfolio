@@ -36,6 +36,11 @@
         }
         #splash-logo.is-in { opacity: 1; transform: none; }
         #splash.is-leaving #splash-logo { transform: scale(1.04); }
+        /* 網點散開：藍色畫面換成一格一格的藍色圓點，由中央往外逐一縮小消失，露出底下的首頁 */
+        #splash.is-dots { background: transparent; pointer-events: none; }
+        #splash.is-dots #splash-logo { opacity: 0; transition: opacity 0.22s ease; }
+        #splash-dots { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+        #splash-logo { position: relative; z-index: 1; }
         @keyframes splashFailsafe { to { opacity: 0; visibility: hidden; pointer-events: none; } }
         /* 開場畫面還在時，首頁的進場動畫先暫停，等畫面揭開才開始播 */
         html.splash-on .fade-in { animation-play-state: paused; }
@@ -752,10 +757,49 @@
                 return stylesReady().then(function () { return Promise.all([heroFonts(), heroImages()]); })
                     .then(function () { return new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); }); }); // 再等兩個畫格，確定都畫上去了
             }
-            function leave() {
+            function fadeOut() {
                 splash.classList.add('is-leaving');
                 root.classList.remove('splash-on');
                 setTimeout(function () { if (splash.parentNode) splash.parentNode.removeChild(splash); }, 700);
+            }
+            // 網點散開：圓點的間距與位置和網站背景的網點一致（每 35px 一顆）
+            function leave() {
+                var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                var cv = document.createElement('canvas'), ctx = cv.getContext && cv.getContext('2d');
+                if (reduce || !ctx) { fadeOut(); return; }
+                var W = window.innerWidth, H = window.innerHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
+                var GAP = 35, R = 26;          // 半徑 26 時相鄰圓點互相蓋滿，看起來就是整片藍
+                var SPREAD = 420, SHRINK = 480; // 由中央擴散到角落的時間差、每顆圓點縮小的時間（毫秒）
+                cv.id = 'splash-dots'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+                ctx.scale(dpr, dpr); ctx.fillStyle = '#3B82F6';
+                var cx = W / 2, cy = H / 2, far = Math.sqrt(cx * cx + cy * cy) || 1, dots = [];
+                for (var x = 0; x <= W + GAP; x += GAP) for (var y = 0; y <= H + GAP; y += GAP) {
+                    var dx = x - cx, dy = y - cy;
+                    dots.push([x, y, Math.sqrt(dx * dx + dy * dy) / far * SPREAD]);
+                }
+                function draw(t) {
+                    ctx.clearRect(0, 0, W, H);
+                    ctx.beginPath();
+                    for (var i = 0; i < dots.length; i++) {
+                        var d = dots[i], p = Math.max(0, Math.min(1, (t - d[2]) / SHRINK));
+                        var r = R * (1 - p * p * (3 - 2 * p));
+                        if (r > 0.2) { ctx.moveTo(d[0] + r, d[1]); ctx.arc(d[0], d[1], r, 0, 6.2832); }
+                    }
+                    ctx.fill();
+                }
+                draw(0);
+                splash.insertBefore(cv, splash.firstChild);
+                splash.classList.add('is-dots');
+                root.classList.remove('splash-on');
+                var start = performance.now();
+                (function tick(now) {
+                    var t = now - start;
+                    if (t >= SPREAD + SHRINK) { if (splash.parentNode) splash.parentNode.removeChild(splash); return; }
+                    draw(t);
+                    requestAnimationFrame(tick);
+                })(start);
+                // 保險：分頁在背景時動畫不會跑，時間到一律移除
+                setTimeout(function () { if (splash.parentNode) splash.parentNode.removeChild(splash); }, SPREAD + SHRINK + 1500);
             }
             domReady()
                 .then(function () { return new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); }); }) // 等樣式套用完成
@@ -1551,7 +1595,7 @@
 
                         <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[134px] md:-bottom-32 lg:-bottom-36 left-[9%] md:left-4" data-anim="none" data-snap-slot="eyes" data-snap-x="0.493" data-snap-y="0.332">
                             <img src="images/dress-1-reveal.webp" data-normal="images/dress-1.webp" data-reveal="images/dress-1-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
-                            <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                            <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50">
                                 我的眼鏡呢？
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
@@ -1559,7 +1603,7 @@
                         
                         <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[134px] md:-bottom-32 lg:-bottom-36 right-[9%] md:right-4" data-anim="none" data-snap-slot="eyes" data-snap-x="0.496" data-snap-y="0.324">
                             <img src="images/dress-2-reveal.webp" data-normal="images/dress-2.webp" data-reveal="images/dress-2-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
-                            <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                            <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50">
                                 幫 MingFly 換個造型！
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
@@ -1567,7 +1611,7 @@
 
                         <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] left-[9%] md:left-4" data-anim="none" data-snap-slot="collar" data-snap-x="0.462" data-snap-y="0.735">
                             <img src="images/dress-3-reveal.webp" data-normal="images/dress-3.webp" data-reveal="images/dress-3-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
-                            <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                            <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50">
                                 領子前面好像有點空！
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
@@ -1575,7 +1619,7 @@
                         
                         <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] right-[9%] md:right-4" data-anim="none" data-snap-slot="nose" data-snap-x="0.5" data-snap-y="0.446">
                             <img src="images/dress-4-reveal.webp" data-normal="images/dress-4.webp" data-reveal="images/dress-4-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
-                            <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                            <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50">
                                 拖曳發揮你的創意！
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
@@ -1637,9 +1681,11 @@
 
     </div> 
     
-    <footer id="contact" class="relative bg-brand-black text-white min-h-[100dvh] flex flex-col justify-center py-20 md:py-28 px-6 lg:px-12 text-center">
+    <footer id="contact" class="relative bg-brand-black text-white min-h-[100dvh] flex flex-col justify-center py-20 md:py-28 px-6 lg:px-12 text-center [clip-path:inset(0)]">
+        <!-- 黑底上的網點背景：固定在視窗上、只在這個區塊內露出，和上方頁面的網點是同一片（位置與波動一致） -->
+        <canvas id="halftone-contact" aria-hidden="true" class="fixed inset-0 w-full h-full pointer-events-none opacity-[0.45]"></canvas>
         <!-- 主要內容：在整個畫面中上下置中 -->
-        <div class="max-w-4xl mx-auto w-full space-y-8 md:space-y-12">
+        <div class="relative max-w-4xl mx-auto w-full space-y-8 md:space-y-12">
             <h2 class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
                 Start your <span class="font-serif italic font-normal text-[#3B82F6]">creative</span><br>
                 journey with me.
@@ -3148,6 +3194,11 @@
         
         let htTime = 0;
 
+        // 聯絡區（黑底）專用的淺色網點：把同一片網點換個顏色畫在聯絡區裡
+        const htContactCanvas = document.getElementById('halftone-contact');
+        const htContactCtx = htContactCanvas ? htContactCanvas.getContext('2d') : null;
+        const htContactSection = document.getElementById('contact');
+
         function resizeHalftone() {
             const dpr = window.devicePixelRatio || 1;
             halftoneCanvas.width = window.innerWidth * dpr;
@@ -3155,6 +3206,11 @@
             halftoneCanvas.style.width = `${window.innerWidth}px`;
             halftoneCanvas.style.height = `${window.innerHeight}px`;
             halftoneCtx.scale(dpr, dpr);
+            if (htContactCanvas) {
+                htContactCanvas.width = window.innerWidth * dpr;
+                htContactCanvas.height = window.innerHeight * dpr;
+                htContactCtx.scale(dpr, dpr);
+            }
         }
         window.addEventListener('resize', resizeHalftone);
         resizeHalftone();
@@ -3184,6 +3240,19 @@
                 }
             }
             halftoneCtx.fill();
+
+            // 聯絡區進到畫面時才畫：直接沿用上面那片網點的形狀，只換成淺色
+            if (htContactCtx && htContactSection.getBoundingClientRect().top < window.innerHeight) {
+                const c = htContactCtx;
+                c.save();
+                c.setTransform(1, 0, 0, 1, 0, 0);
+                c.globalCompositeOperation = 'copy';
+                c.drawImage(halftoneCanvas, 0, 0);
+                c.globalCompositeOperation = 'source-in';
+                c.fillStyle = '#ffffff';
+                c.fillRect(0, 0, htContactCanvas.width, htContactCanvas.height);
+                c.restore();
+            }
         }
 
         // 背景波動很緩慢，約 30fps 重繪即可；速度以實際經過時間計算，維持原本的節奏
