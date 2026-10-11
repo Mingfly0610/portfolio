@@ -15,31 +15,34 @@
     <meta property="og:url" content="https://mingfly0610.github.io/portfolio/">
     <meta property="og:type" content="website">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Noto Sans TC"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif'],
-                    },
-                    colors: {
-                        brand: {
-                            black: '#111111',
-                            gray: '#f4f4f5',
-                            accent: '#3B82F6'
-                        }
-                    }
-                }
-            }
+    <!-- 開場畫面的樣式：寫在最前面，網頁一開始讀取就能先畫出品牌藍的畫面 -->
+    <style>
+        html.splash-on { overflow: hidden; }
+        #splash {
+            position: fixed; inset: 0; z-index: 100000;
+            display: flex; align-items: center; justify-content: center;
+            background: #3B82F6;
+            transition: opacity 0.55s ease, visibility 0s linear 0.55s;
+            /* 保險：萬一程式沒有執行，8 秒後自動消失，不會把網站擋住 */
+            animation: splashFailsafe 0s linear 8s forwards;
         }
-    </script>
+        #splash.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+        #splash-logo {
+            font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+            font-weight: 700; font-size: clamp(34px, 5.2vw, 56px); letter-spacing: -0.05em;
+            color: #ffffff; line-height: 1;
+            opacity: 0; transform: translateY(6px);
+            transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            -webkit-user-select: none; user-select: none;
+        }
+        #splash-logo.is-in { opacity: 1; transform: none; }
+        #splash.is-leaving #splash-logo { transform: scale(1.04); }
+        @keyframes splashFailsafe { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+        /* 開場畫面還在時，首頁的進場動畫先暫停，等畫面揭開才開始播 */
+        html.splash-on .fade-in { animation-play-state: paused; }
+        @media (prefers-reduced-motion: reduce) { #splash, #splash-logo { transition-duration: 0.01s; } }
+    </style>
+    <noscript><style>#splash { display: none; }</style></noscript>
     <style>
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -698,6 +701,69 @@
     </script>
 </head>
 <body class="bg-[#FCFCFC] text-brand-black font-sans antialiased selection:bg-brand-black selection:text-white">
+    <!-- 開場畫面：品牌藍底＋白色 MingFly. 字樣。放在所有外部資源之前，才能最先顯示 -->
+    <div id="splash" aria-hidden="true"><span id="splash-logo">MingFly.</span></div>
+    <script>
+        (function () {
+            var root = document.documentElement, splash = document.getElementById('splash'), logo = document.getElementById('splash-logo');
+            var t0 = performance.now();
+            var MIN_SHOW = 900;      // 至少顯示這麼久，避免一閃而過
+            var EXTRA_WAIT = 1200;   // 版面就緒後，最多再等字型與首頁圖示這麼久
+            root.classList.add('splash-on');
+            window.scrollTo(0, 0);
+            // 字樣：品牌字型載入後才淡入；等超過 0.6 秒就先用替代字型顯示
+            var shown = false;
+            function showLogo() { if (!shown) { shown = true; logo.classList.add('is-in'); } }
+            try { document.fonts.load('700 40px "Playfair Display"').then(showLogo, showLogo); } catch (e) { showLogo(); }
+            setTimeout(showLogo, 600);
+            function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+            function domReady() { return new Promise(function (r) { if (document.readyState !== 'loading') r(); else document.addEventListener('DOMContentLoaded', r); }); }
+            function heroAssets() {
+                var imgs = Array.prototype.slice.call(document.querySelectorAll('#hero-section img'));
+                var jobs = imgs.map(function (img) { return img.complete ? Promise.resolve() : new Promise(function (r) { img.addEventListener('load', r); img.addEventListener('error', r); }); });
+                var fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+                return Promise.all(jobs.concat([fonts]));
+            }
+            function leave() {
+                splash.classList.add('is-leaving');
+                root.classList.remove('splash-on');
+                setTimeout(function () { if (splash.parentNode) splash.parentNode.removeChild(splash); }, 700);
+            }
+            domReady()
+                .then(function () { return new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); }); }) // 等樣式套用完成
+                .then(function () { return Promise.race([heroAssets(), wait(EXTRA_WAIT)]); })
+                .then(function () { return wait(Math.max(0, MIN_SHOW - (performance.now() - t0))); })
+                .then(leave, leave);
+        })();
+    </script>
+
+    <!-- 以下外部資源改放在開場畫面之後載入，下載期間畫面上已經有東西可看 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            black: '#111111',
+                            gray: '#f4f4f5',
+                            accent: '#3B82F6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
 
     <canvas id="halftone-bg" class="fixed inset-0 w-full h-full -z-10 pointer-events-none"></canvas>
     <canvas id="draw-canvas" aria-hidden="true"></canvas>
@@ -952,7 +1018,7 @@
                         </div>
 
                         <!-- 之前新增的：2026年 嘉義縣政府 現場徵才活動 Part2 -->
-                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2026-event-chiayi-job-part2-full.png" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 嘉義縣政府現場徵才活動 Part2" data-modal-ar="0.707">
+                        <div class="portfolio-item group" style="--ar:0.7067" data-category="event" data-modal-img="images/2026-event-chiayi-job-part2-01-poster.webp,images/2026-event-chiayi-job-part2-02-promo.webp,images/2026-event-chiayi-job-part2-03-street-flags.webp,images/2026-event-chiayi-job-part2-04-invitation.webp,images/2026-event-chiayi-job-part2-05-stage-backdrop.webp,images/2026-event-chiayi-job-part2-06-booth-board.webp,images/2026-event-chiayi-job-part2-07-tickets.webp" data-strip-thumbs data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 嘉義縣政府現場徵才活動 Part2" data-modal-ar="0.707">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <img src="images/2026-event-chiayi-job-part2-thumb.jpg" loading="lazy" decoding="async" alt="2026年 嘉義縣政府現場徵才活動 Part2" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-chiayi-job-part2-thumb.jpg')">
@@ -963,7 +1029,19 @@
                             </div>
                             <div class="modal-title-src hidden">2026年<br>嘉義縣政府<br class="hidden md:block">現場徵才活動 Part2</div>
                             <div class="project-details hidden">
-                                <p>專案詳細介紹內容正在準備中...</p>
+                                <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
+                                <p class="mb-6">嘉義縣政府 115 年度現場徵才活動第二場「優職嘉義 幸福就業」，於太保國小學生活動中心舉辦，集結 36 家以上廠商、釋出超過 1500 個工作機會。除了徵才攤位，現場還安排了宣導攤位、身障服務攤位與集章摸彩，因此這個專案要處理的不只是一張海報，而是從戶外宣傳、貴賓邀請到場內動線與票券的一整套視覺。</p>
+                                <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                                <p class="mb-6">活動地點太保是高鐵嘉義站的所在地，主視覺便以一列駛過高架橋的高鐵作為背景主角，搭配遠山、風力發電機與城市輪廓，用淡藍色的水彩筆觸描繪出嘉義的樣貌，也帶出「前進、出發」的意象。前景則是六位不同職業的人物並肩站立，涵蓋工程、技術、餐飲、醫護與服務業，讓求職者一眼就能在畫面裡找到自己的位置。</p>
+                                <p class="mb-6">配色以沉穩的藍色為底，標題「優職嘉義 幸福就業」使用橘色漸層，在大面積的冷色中成為最醒目的焦點；日期與時間同樣以暖色放大處理，廠商數與職缺數則收在藍綠色的膠囊標籤裡，三種資訊各有顏色、不會互相干擾。背景刻意保持淡雅，是為了讓同一張底圖可以承載密度差異很大的內容，從只有幾行字的路燈旗，到滿版表格的設攤總表都能適用。</p>
+                                <p class="mb-6">現場的集章活動也一併納入設計：民眾每面試一家廠商可獲得一個章，集滿兩個即可兌換小禮並參加摸彩。摸彩券上直接規劃了「投遞履歷 1、2」與「已兌換」三個蓋章位置，讓工作人員與民眾都能一眼確認進度，不需要另外說明規則。</p>
+                                <h4 class="text-xl font-bold text-brand-black mb-2">延伸應用</h4>
+                                <ul class="space-y-2 list-disc list-outside ml-5">
+                                    <li><strong>宣傳：</strong> 主視覺海報、路燈旗、設攤廠商一覽與活動流程宣傳圖。</li>
+                                    <li><strong>貴賓邀請：</strong> 對折式邀請卡，封面為主視覺、背面附活動地點地圖，內頁為活動流程與邀請文。</li>
+                                    <li><strong>會場佈置：</strong> 舞台背板，以及整合場地配置圖、攤位名單與職缺總表的設攤總表背板。</li>
+                                    <li><strong>現場票券：</strong> 附集章欄位的摸彩券、冰粉兌換券。</li>
+                                </ul>
                             </div>
                         </div>
 
