@@ -21,6 +21,7 @@
         #splash {
             position: fixed; inset: 0; z-index: 100000;
             display: flex; align-items: center; justify-content: center;
+            margin: 0; padding: 0; box-sizing: border-box;
             background: #3B82F6;
             transition: opacity 0.55s ease, visibility 0s linear 0.55s;
             /* 保險：萬一程式沒有執行，8 秒後自動消失，不會把網站擋住 */
@@ -31,6 +32,9 @@
             font-family: "Playfair Display", Georgia, "Times New Roman", serif;
             font-weight: 700; font-size: clamp(34px, 5.2vw, 56px); letter-spacing: -0.05em;
             color: #ffffff; line-height: 1;
+            /* 與網站本體相同的字體平滑設定：一開始就套用，樣式檔載入後字的粗細才不會變 */
+            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+            font-style: normal; font-synthesis: none; text-rendering: optimizeLegibility;
             opacity: 0; transform: translateY(6px);
             transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             -webkit-user-select: none; user-select: none;
@@ -1032,7 +1036,7 @@
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
                                 <p class="mb-6">嘉義縣政府 115 年度現場徵才活動「優職嘉義 幸福就業」，於太保國小學生活動中心舉辦，現場 36 家以上廠商、超過 1500 個工作機會。本專案負責活動的整體視覺，從主視覺海報出發，一路延伸到路燈旗、邀請卡、舞台，以及現場的背板與票券，讓民眾從街上看到宣傳到走進會場，接收到的都是同一套視覺語言。</p>
                                 <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
-                                <p class="mb-6">主視覺把「就業」描繪成一趟啟程：畫面後方是一列駛過高架橋的列車，沿途經過遠山、風力發電機與城市街景，把嘉義的風景串成一條向前延伸的路線；前方站著六位穿著不同制服的人物，從工程、技術、餐飲到醫護與服務業，代表現場釋出的各類職缺。整體以帶有紙張質感的水彩筆觸繪製，色調清爽柔和，讓徵才活動看起來溫暖、有希望，而不是冰冷的職缺公告。</p>
+                                <p class="mb-6">主視覺把「就業」描繪成一趟啟程：畫面後方是一列駛過高架橋的高鐵，沿途經過遠山、風力發電機與城市街景，把嘉義的風景串成一條向前延伸的路線；前方站著六位穿著不同制服的人物，從工程、技術、餐飲到醫護與服務業，代表現場釋出的各類職缺。整體以帶有紙張質感的水彩筆觸繪製，色調清爽柔和，讓徵才活動看起來溫暖、有希望，而不是冰冷的職缺公告。</p>
                                 <p class="mb-6">徵才海報的資訊量大，因此依照民眾最在意的順序安排層級：橘色漸層的活動標題是第一視覺焦點，日期、時間與地點以紅橘色放大緊接在後，與藍色的背景形成對比；廠商數與職缺數收在藍綠色的標籤裡，早鳥禮與現場體驗活動整理成對話框，電子職缺的 QR Code 則獨立放在右下角，需要的人一眼就能找到。</p>
                                 <p class="mb-6">現場的集章活動也一併納入設計：民眾每面試一家廠商可以蓋一個章，集滿兩個就能兌換小禮並參加摸彩。摸彩券上直接規劃「投遞履歷 1、2」與「已兌換」三個蓋章位置，並印上抽獎辦法與得獎須知；設攤總表背板則把場地配置圖、攤位名單與各家職缺整合在同一面，讓民眾進場後先看清楚全場，再決定面試的順序。</p>
                                 <h4 class="text-xl font-bold text-brand-black mb-2">延伸應用</h4>
@@ -1521,8 +1525,8 @@
                 <div class="w-full lg:w-auto shrink-0 flex justify-center">
                     <div class="relative w-full max-w-[360px] lg:w-[400px] mb-[272px] md:mb-[304px] lg:mb-[336px]">
                         <div id="profile-spotlight" class="group relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gray-100 shadow-lg cursor-crosshair lg:mt-2">
-                            <img id="profile-base-img" src="images/profile.jpg?v=1" loading="lazy" decoding="async" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover" onerror="window.handleImageError(this, 'images/profile.jpg')">
-                            <img id="profile-reveal-img" src="images/profile-reveal.jpg" loading="lazy" decoding="async" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover layer-reveal pointer-events-none" onerror="this.style.display='none'">
+                            <img id="profile-base-img" src="images/profile-reveal.jpg" loading="lazy" decoding="async" alt="設計師肖像" class="absolute inset-0 w-full h-full object-cover" onerror="window.handleImageError(this, 'images/profile-reveal.jpg')">
+                            <img id="profile-reveal-img" src="images/profile.jpg?v=1" loading="lazy" decoding="async" alt="設計師肖像隱藏版" class="absolute inset-0 w-full h-full object-cover layer-reveal pointer-events-none" onerror="this.style.display='none'">
                         </div>
 
                         <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)] absolute -bottom-[134px] md:-bottom-32 lg:-bottom-36 left-2 md:left-4" data-anim="none">
@@ -2698,11 +2702,11 @@
             profileSpotlight.addEventListener('click', () => {
                 isSwapped = !isSwapped;
                 if (isSwapped) {
-                    profileBase.src = 'images/profile-reveal.jpg';
-                    profileReveal.src = 'images/profile.jpg';
-                } else {
                     profileBase.src = 'images/profile.jpg?v=1';
                     profileReveal.src = 'images/profile-reveal.jpg';
+                } else {
+                    profileBase.src = 'images/profile-reveal.jpg';
+                    profileReveal.src = 'images/profile.jpg?v=1';
                 }
             });
         }
