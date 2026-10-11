@@ -1328,6 +1328,37 @@
 
 
                         <!-- 第七件：這個作品集網站本身。卡片固定使用 CSS 畫的首頁縮影；彈窗的示範影片為 videos/prog-portfolio-full.mp4 -->
+                        <div class="portfolio-item group is-wide" style="--ar:1.6" data-category="programming" data-embed="https://design-your-life-studio.github.io/3D-PART-BUILDER-ASSEMBLY/" data-embed-auto="true" data-video="videos/prog-3d-builder-thumb.mp4" data-external-link="https://design-your-life-studio.github.io/3D-PART-BUILDER-ASSEMBLY/" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：3D PART BUILDER &amp; ASSEMBLY" data-modal-ar="1.6">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/prog-3d-builder-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="3D PART BUILDER &amp; ASSEMBLY" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-3d-builder-thumb.mp4')"></video>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
+                            </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title"><span class="tw">3D PART BUILDER</span><wbr> <span class="tw">&amp; ASSEMBLY</span></h3>
+                            </div>
+                            <div class="modal-title-src hidden">3D PART BUILDER &amp; ASSEMBLY</div>
+                            <div class="project-details hidden">
+                                <h4 class="text-xl font-bold text-brand-black mb-2">創作動機</h4>
+                                <p class="mb-6">這是一項自發性的創作，沒有委託單位。做活動視覺設計時，舞台背板、電視牆與各種輸出物最後都會落在真實的空間裡，但平面稿很難說明它們擺進場地後的比例與前後關係；專業的 3D 軟體功能龐大，只為了確認一個舞台配置就得花上不少時間。於是我與 AI 協作工具從零開始，做出這套打開瀏覽器就能使用的 3D 零件繪製與組裝工具，讓「先把場景搭起來看看」變得和畫草圖一樣快。</p>
+
+                                <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                                <p class="mb-4">操作流程拆成「繪製零件」與「組裝」兩個步驟：先在左側設定方塊、圓柱或圓球的尺寸與顏色並即時預覽，再加入右側的組裝視窗擺放。介面以簡潔為原則，按鈕只用文字、不放圖示，常用功能都配有快捷鍵，深色的畫面則讓視線留在模型本身。</p>
+                                <p class="mb-6">功能的取捨來自實際搭建場景時的需要：對齊、等距分佈、群組、鏡射複製、線性與環形陣列，讓重複的結構可以快速完成；零件表面能貼上圖片與影片，直接模擬電視牆播放內容的樣子；完成後可以切換到展示與參觀模式，用來向他人說明整體配置。</p>
+
+                                <h4 class="text-xl font-bold text-brand-black mb-2">技術與軟體</h4>
+                                <ul class="space-y-2 list-disc list-outside ml-5 mb-6">
+                                    <li><strong>程式開發：</strong>與 AI 協作工具共同開發，以單一網頁檔案完成的 3D 應用程式，不需安裝，開啟瀏覽器即可使用。</li>
+                                    <li><strong>3D 互動：</strong>運用瀏覽器的即時 3D 繪圖技術，實作移動、旋轉、框選、網格與零件吸附、量測，以及上一步、下一步的操作紀錄。</li>
+                                    <li><strong>專案與媒體：</strong>支援專案的儲存與開啟；影片以連結方式載入、不寫進專案檔，讓檔案維持輕巧。</li>
+                                </ul>
+
+                                <h4 class="text-xl font-bold text-brand-black mb-2">操作提示</h4>
+                                <p>使用電腦瀏覽時，上方視窗就是實際運作中的程式，可以直接操作：滑鼠左鍵旋轉視角與選取、中鍵平移、滾輪縮放。手機與平板則改為播放示範影片。</p>
+                            </div>
+                        </div>
+
                         <div class="portfolio-item group is-wide is-browser" style="--ar:1.6" data-category="programming" data-video="videos/prog-portfolio-full.mp4" data-pending-media="示範影片準備中" role="button" tabindex="0" aria-label="程式設計：個人作品集網站" data-modal-ar="1.7778">
                             <div class="item-media">
                                 <div class="browser-bar" aria-hidden="true">
@@ -2125,6 +2156,7 @@
             if (!item || item.contains(e.relatedTarget)) return;
             clearTimeout(hoverPrefetchTimer);
             const videoPath = item.getAttribute('data-video');
+            if (item.hasAttribute('data-embed-auto') && canEmbed()) return; // 直接嵌入的程式不播影片，不需預載
             if (videoPath) {
                 hoverPrefetchTimer = setTimeout(() => preloadModalVideo(videoPath), 150);
                 return;
@@ -2215,7 +2247,17 @@
             // 影片專案不顯示下方的編號列（多支影片仍可用左右箭頭切換）
             indicatorContainer.classList.toggle('hidden', !multiple || currentMediaType !== 'image');
             buildGalleryStrip();
-            updateGalleryView();
+            // 直接嵌入的程式（沒有示範影片）：電腦版一打開就載入程式，不經過影片
+            const autoEmbed = item.hasAttribute('data-embed') && item.hasAttribute('data-embed-auto') && canEmbed();
+            if (autoEmbed) {
+                embedBar.classList.add('hidden');
+                reset3DState();
+                modalImg.classList.add('hidden', 'opacity-0');
+                modalVideo.classList.add('hidden', 'opacity-0');
+                modalMediaContainer.style.cursor = '';
+            } else {
+                updateGalleryView();
+            }
 
             // 標題：年份放大、標題不手動斷行
             const yearEl = item.querySelector('.item-year');
@@ -2258,6 +2300,7 @@
                 suspendThumbs(true);
                 document.getElementById('modal-close').focus({ preventScroll: true });
             }
+            if (autoEmbed) enterEmbed();
             fitEmbed(); // 彈窗顯示後才量得到顯示區大小
             requestAnimationFrame(fitEmbed);
         }
