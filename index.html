@@ -70,6 +70,24 @@
             .modal-scroll, .modal-info { scrollbar-width: thin; scrollbar-color: rgba(17, 17, 17, var(--sb-alpha)) transparent; }
         }
 
+        /* 捲到最底的聯絡區時，導覽列換成黑底白字。
+           過渡方式：黑色區塊的上緣捲到哪裡，導覽列就黑到哪裡（像布幕由下往上蓋過），
+           文字用差異混合，壓在白底上是黑字、壓在黑底上是白字，不會有灰色的中間狀態 */
+        #navbar.nav-curtain {
+            transition: none;
+            background: linear-gradient(to bottom, #ffffff 0, #ffffff var(--nav-edge, 100%), #111111 var(--nav-edge, 100%), #111111 100%);
+            background-origin: border-box;
+            background-repeat: no-repeat;
+            border-color: #111111;
+            box-shadow: none;
+        }
+        #navbar.nav-curtain a, #navbar.nav-curtain button { color: #ffffff !important; mix-blend-mode: difference; transition: none; }
+        /* 切換狀態的瞬間不做顏色漸變，避免往回捲時殘留一條正在淡出的黑線與灰掉的文字 */
+        #navbar.nav-snap, #navbar.nav-snap a, #navbar.nav-snap button { transition: none !important; }
+        #navbar.nav-dark { transition: none; background: rgba(17, 17, 17, 0.82); border-color: rgba(255, 255, 255, 0.08); box-shadow: none; }
+        #navbar.nav-dark, #navbar.nav-dark a, #navbar.nav-dark button { color: #ffffff; }
+        #navbar.nav-dark a:hover { color: #3B82F6; }
+
         /* 整個頁面的文字都不能被滑鼠選取（反白）；只有專案彈窗裡的介紹文字保留可選取，方便複製 */
         body { -webkit-user-select: none; user-select: none; }
         .modal-info, .modal-info * { -webkit-user-select: text; user-select: text; }
@@ -1517,13 +1535,14 @@
 
     </div> 
     
-    <footer id="contact" class="bg-brand-black text-white pt-52 pb-32 px-6 lg:px-12 text-center">
-        <div class="max-w-4xl mx-auto space-y-12">
+    <footer id="contact" class="relative bg-brand-black text-white min-h-[100dvh] flex flex-col justify-center py-20 md:py-28 px-6 lg:px-12 text-center">
+        <!-- 主要內容：在整個畫面中上下置中 -->
+        <div class="max-w-4xl mx-auto w-full space-y-8 md:space-y-12">
             <h2 class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
                 Start your <span class="font-serif italic font-normal text-[#3B82F6]">creative</span><br>
                 journey with me.
             </h2>
-            <p class="text-xl text-gray-400">如果您有任何專案想法，歡迎隨時與我聯繫。</p>
+            <p class="text-base md:text-xl text-gray-400">如果您有任何專案想法，<br class="md:hidden">歡迎與我聯繫。</p>
             
             <div class="pt-8 md:pt-16 flex justify-center gap-8 text-3xl text-gray-400">
                 <a href="mailto:qwe33885@gmail.com" class="icon-bounce hover:text-[#3B82F6] inline-block" title="發送 Email 給我"><i class="ph ph-envelope-simple"></i></a>
@@ -1533,9 +1552,12 @@
                 <a href="https://www.linkedin.com/in/frank-yu-/" target="_blank" style="display:none" class="icon-bounce hover:text-[#3B82F6] inline-block" title="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
             </div>
             
-            <div class="pt-16 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center">
+        </div>
+        <!-- 版權列：貼在最底，高度與左右邊界和最上方的導覽列對稱 -->
+        <div class="absolute inset-x-0 bottom-0 text-sm text-gray-500">
+            <div class="max-w-7xl mx-auto px-6 lg:px-12 pb-6 md:pb-0 md:h-20 flex flex-col md:flex-row justify-between items-center">
                 <p>&copy; 2026 MingFly. All rights reserved.</p>
-                <a href="#top" class="mt-4 md:mt-0 hover:text-[#3B82F6] transition-colors flex items-center gap-2">
+                <a href="#top" class="mt-2 md:mt-0 hover:text-[#3B82F6] transition-colors flex items-center gap-2">
                     Back to top <i class="ph ph-arrow-up" aria-hidden="true"></i>
                 </a>
             </div>
@@ -2779,6 +2801,20 @@
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) navbar.classList.add('shadow-sm');
             else navbar.classList.remove('shadow-sm');
+            // 聯絡區（黑色）捲到導覽列底下時，導覽列跟著變黑
+            const contactTop = document.getElementById('contact').getBoundingClientRect().top;
+            const navH = navbar.offsetHeight;
+            const covered = Math.max(0, Math.min(1, (navH - contactTop) / navH)); // 黑色區塊蓋住導覽列的比例
+            navbar.style.setProperty('--nav-edge', `${Math.max(0, contactTop)}px`);
+            const navState = covered >= 1 ? 'dark' : (covered > 0 ? 'curtain' : 'light');
+            if (navState !== navbar.dataset.navState) {
+                navbar.dataset.navState = navState;
+                navbar.classList.add('nav-snap');
+                clearTimeout(window.__navSnapTimer);
+                window.__navSnapTimer = setTimeout(() => navbar.classList.remove('nav-snap'), 80);
+            }
+            navbar.classList.toggle('nav-curtain', navState === 'curtain');
+            navbar.classList.toggle('nav-dark', navState === 'dark');
         }, { passive: true });
 
         const trailCanvas = document.getElementById('trail-canvas');
