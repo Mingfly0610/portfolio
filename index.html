@@ -2527,6 +2527,8 @@
 
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
+                // 隱藏狀態下設定捲動位置無效：顯示後再把文字欄捲回最上面，避免沿用上一個專案的位置
+                modalContent.querySelectorAll('.modal-scroll, .modal-info').forEach(el => { el.scrollTop = 0; });
                 setTimeout(() => modalContent.classList.remove('scale-95', 'opacity-0'), 10);
                 document.body.style.overflow = 'hidden';
                 suspendThumbs(true);
