@@ -3650,8 +3650,9 @@
     .fl-head span { font-family: "Playfair Display", serif; font-style: italic; font-size: 18px; color: #3B82F6; }
     html.d4 .fl-head { color: #ffffff; }
     html.d4 .fl-head span { color: #FFEC00; }
-    .fl-stage { position: relative; aspect-ratio: var(--stage-ar, 0.7); perspective: 1800px; cursor: pointer; }
+    .fl-stage { position: relative; aspect-ratio: 0.7071; perspective: 1800px; cursor: pointer; }   /* 三欄一律是直式海報比例（A 系列 1:√2） */
     .fl-card { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 50% 50%; }
+    .fl-fx { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 2; }
     .fl-card.is-flipping { transition: transform 0.62s cubic-bezier(0.55, 0.05, 0.3, 1); transform: rotateY(-180deg); }   /* 從上往下看是順時針 */
     .fl-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
         display: flex; align-items: flex-start; justify-content: center; }
@@ -3663,6 +3664,9 @@
     }
     .fl-face .item-media { box-shadow: 0 1px 2px rgba(17,17,17,0.08), 0 10px 22px -12px rgba(17,17,17,0.35); }
     .fl-face .item-badge { display: none; }
+    /* 縮圖填滿整個方框（橫式等比例放大裁切），方正直角 */
+    .fl-face .item-media { position: absolute; inset: 0; width: 100% !important; height: 100% !important; aspect-ratio: auto !important; border-radius: 0 !important; box-shadow: none; overflow: hidden; }
+    .fl-face .item-media-el { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 0 !important; }
     .fl-dots { display: none !important; gap: 6px; justify-content: center; }
     .fl-dots i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.25; transition: opacity 0.3s, transform 0.3s; }
     .fl-dots i.on { opacity: 1; transform: scale(1.3); }
@@ -3676,59 +3680,37 @@
         .fl-dots i { width: 4px; height: 4px; }
     }
     /* =========================================================
-       7. 「全部」：索引清單＋游標預覽
+       7. 「全部」：索引清單（細字清單＋右側預覽圖，圖片壓在文字下方）
        ========================================================= */
-    #demo-index { display: none; max-width: 1280px; margin: 0 auto; padding: 0 48px 40px; }
+    #demo-index { display: none; position: relative; max-width: 1280px; margin: 0 auto; padding: 0 48px 40px; }
     html.d7 #demo-index.is-on { display: block; }
-    .ix-head, .ix-row { display: grid; grid-template-columns: 70px 90px minmax(0, 1fr) 150px 36px; gap: 18px; align-items: center; }
-    .ix-head { font-size: 11px; font-weight: 700; letter-spacing: 0.24em; color: #9ca3af; padding-bottom: 14px; border-bottom: 2px solid #111111; }
-    .ix-row { padding: 20px 0; border-bottom: 1px solid rgba(17, 17, 17, 0.14); cursor: pointer; position: relative; transition: background 0.25s, padding 0.25s; }
-    .ix-row .n { font-family: "Playfair Display", serif; font-style: italic; font-size: 20px; color: #9ca3af; padding-left: 4px; transition: color 0.25s; }
-    .ix-row .yr { font-family: "Playfair Display", serif; font-style: italic; font-size: 22px; color: #3B82F6; }
-    .ix-row .ti { font-size: 24px; font-weight: 800; line-height: 1.35; letter-spacing: -0.01em; color: #111111; transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
-    .ix-row .tg { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #111111; }
-    .ix-row .tg::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
-    .ix-row .ar { font-size: 22px; text-align: right; color: #111111; transition: transform 0.3s; }
-    .ix-row:hover, .ix-row:focus-visible, .ix-row.is-open { background: #111111; outline: none; }
-    .ix-row.is-open { cursor: default; }
-    .ix-row:hover .ti, .ix-row:focus-visible .ti { transform: translateX(10px); }
-    .ix-row:hover .ti, .ix-row:hover .tg, .ix-row:hover .ar, .ix-row.is-open .ti, .ix-row.is-open .tg, .ix-row.is-open .ar { color: #ffffff; }
-    .ix-row:hover .n, .ix-row.is-open .n { color: #FFEC00; }
-    .ix-row:hover .ar { transform: translate(3px, -3px); }
-    html.d4 .ix-head { color: rgba(255, 255, 255, 0.7); border-color: #ffffff; }
-    html.d4 .ix-row { border-color: rgba(255, 255, 255, 0.3); }
-    html.d4 .ix-row .ti, html.d4 .ix-row .tg, html.d4 .ix-row .ar { color: #ffffff; }
-    html.d4 .ix-row .yr, html.d4 .ix-row .n { color: #FFEC00; }
-    html.d4 .ix-row .n { color: rgba(255, 255, 255, 0.6); }
-    /* 藍底上：活動視覺用白點、動態設計用黃點、程式設計用黑點 */
-    html.d4 .ix-row .tg[style*="#3B82F6"]::before { background: #ffffff; }
-    html.d4 .ix-row .tg[style*="#F59E0B"]::before { background: #FFEC00; }
-    /* 點一下展開：縮圖在該列下方往下展開 */
-    .ix-thumb { grid-column: 3 / -1; display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); }
-    .ix-thumb > .in { overflow: hidden; min-height: 0; }
-    .ix-row.is-open .ix-thumb { grid-template-rows: 1fr; }
-    .ix-thumb .pic { cursor: pointer; width: min(100%, calc(400px * var(--a))); padding-top: 18px; }
-    .ix-thumb .item-media { width: 100%; box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6); }
-    .ix-thumb .item-badge { display: none; }
-    .ix-thumb .go { display: inline-flex; align-items: center; gap: 8px; margin: 16px 0 6px; padding: 9px 18px; border-radius: 999px;
-        background: #FFEC00; color: #111111; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; }
-    .ix-thumb .go:hover { background: #ffffff; }
+    .ix-layer { position: relative; }
+    .ix-head, .ix-row { display: grid; grid-template-columns: 56px 64px minmax(0, 1fr) 150px; gap: 18px; align-items: baseline; }
+    .ix-head { font-size: 12px; font-weight: 300; letter-spacing: 0.04em; color: #6b7280; padding-bottom: 10px; }
+    .ix-row { font-size: 15px; font-weight: 300; line-height: 1.5; padding: 3px 0; color: #111111; cursor: pointer; transition: opacity 0.25s ease; }
+    .ix-row .ti { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ix-row .n, .ix-row .yr { font-variant-numeric: tabular-nums; }
+    #demo-index.is-hovering .ix-row { opacity: 0.35; }
+    #demo-index.is-hovering .ix-row.is-hot { opacity: 1; }
+    html.d4 #demo-index .ix-row { color: #ffffff; }
+    html.d4 #demo-index .ix-head { color: rgba(255, 255, 255, 0.7); }
+    /* 預覽圖：在右側，壓在文字下方 */
+    #ix-pic { position: absolute; z-index: 1; left: 34%; width: 36%; pointer-events: none; opacity: 0; transition: opacity 0.2s ease; overflow: hidden; }
+    #ix-pic.is-on { opacity: 1; }
+    #ix-pic > img, #ix-pic > video { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .ix-layer.base { z-index: 0; }
+    /* 疊在圖片上的那份文字：只露出圖片範圍，顏色依圖片明暗自動黑或白 */
+    .ix-layer.over { position: absolute; left: 48px; right: 48px; top: 0; z-index: 2; pointer-events: none; clip-path: inset(0 0 100% 0); }
+    .ix-layer.over .ix-row { opacity: 1 !important; transition: color 0.2s ease; }
     @media (max-width: 767px) {
         #demo-index { padding: 0 20px 30px; }
-        .ix-head, .ix-row { grid-template-columns: 40px minmax(0, 1fr); gap: 12px; }
-        .ix-head span:nth-child(2), .ix-head span:nth-child(4), .ix-head span:nth-child(5) { display: none; }
-        .ix-row { padding: 16px 0; align-items: start; }
-        .ix-row .n { font-size: 17px; padding-top: 2px; }
-        .ix-row .yr, .ix-row .tg, .ix-row .ar { display: none; }
-        .ix-row .ti { font-size: 16.5px; }
-        .ix-row .meta { display: flex !important; gap: 12px; align-items: center; margin-top: 6px; }
-        .ix-row .meta .yr, .ix-row .meta .tg { display: inline-flex; }
-        .ix-row .meta .yr { font-size: 15px; }
-        .ix-row:hover .ti { transform: none; }
-        .ix-thumb { grid-column: 2 / -1; }
-        .ix-thumb .pic { width: 100%; }
+        .ix-layer.over { left: 20px; right: 20px; }
+        .ix-head, .ix-row { grid-template-columns: 30px minmax(0, 1fr) 40px; gap: 10px; }
+        .ix-head span:nth-child(4), .ix-row .tg { display: none; }
+        .ix-head span:nth-child(2), .ix-row .yr { order: 3; text-align: right; }
+        .ix-row { font-size: 13px; padding: 4px 0; }
+        #ix-pic { left: 45%; width: 50%; }
     }
-    .ix-row .meta { display: none; }
     /* =========================================================
        8. ASCII 字元風格（靈感來自 stackedlol/ascii-sharks，MIT）
           圖片切成方格，每格是一個色塊＋一個字元，滑過顯示原圖
@@ -3785,7 +3767,7 @@
         <label><input type="checkbox" data-f="1"><span class="dp-num">1</span>十字網格與轉場</label>
         <label><input type="checkbox" data-f="8"><span class="dp-num">8</span>ASCII 字元風格</label>
         <label><input type="checkbox" data-f="3"><span class="dp-num">3</span>拼貼作品牆</label>
-        <label><input type="checkbox" data-f="5"><span class="dp-num">5</span>全部：三欄翻卡</label>
+        <label><input type="checkbox" data-f="5"><span class="dp-num">5</span>全部：三欄 ASCII 換卡</label>
         <label><input type="checkbox" data-f="7"><span class="dp-num">7</span>全部：索引清單</label>
         <label><input type="checkbox" data-f="4"><span class="dp-num">4</span>品牌藍色塊</label>
         <label><input type="checkbox" data-f="6"><span class="dp-num">6</span>整頁專案頁</label>
@@ -3797,7 +3779,7 @@
 (function () {
     // ---------- 讀取要開啟的方向（網址 ?d=1346，預設全開） ----------
     const q = new URLSearchParams(location.search).get('d');
-    const on = new Set((q === null ? '13468' : q).split(''));
+    const on = new Set((q === null ? '134568' : q).split(''));
     const root = document.documentElement;
     on.forEach(f => root.classList.add('d' + f));
 
@@ -4183,7 +4165,7 @@
             m.querySelectorAll('img').forEach(n => { n.loading = 'eager'; n.classList.remove('opacity-0'); });
             m.querySelectorAll('video').forEach(v => { v.classList.remove('opacity-0'); v.preload = 'auto'; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.load(); v.play().catch(() => {}); });
             const src = item.querySelector('.item-media-el');
-            if (on.has('1') && src) {
+            if (on.has('1') && !on.has('8') && src) {   // ASCII 模式下卡片顯示原圖，換卡時才用 ASCII 消散重組
                 const cs = getComputedStyle(src);
                 m.querySelectorAll('.item-media-el').forEach(n => { n.style.webkitMaskImage = cs.webkitMaskImage; n.style.maskImage = cs.maskImage; n.style.webkitMaskSize = cs.webkitMaskSize; n.style.maskSize = cs.maskSize; n.style.filter = cs.filter; });
                 m.style.background = '#ffffff';
@@ -4198,7 +4180,6 @@
                 <div class="fl-dots">${list.map(() => '<i></i>').join('')}</div>`;
             stage.appendChild(col);
             // 舞台高度以這一欄最直長的作品為準，換卡時版面不會跳動
-            col.querySelector('.fl-stage').style.setProperty('--stage-ar', Math.min(...list.map(it => parseFloat(it.style.getPropertyValue('--ar')) || 1.33)));
             const st = { list, idx: 0, col, card: col.querySelector('.fl-card'), front: col.querySelector('.front'), back: col.querySelector('.back'), dots: [...col.querySelectorAll('.fl-dots i')], paused: false, busy: false };
             st.front.appendChild(face(list[0]));
             st.back.appendChild(face(list[1 % list.length]));
@@ -4213,24 +4194,109 @@
             });
             return st;
         });
+        // 換下一件：目前的縮圖碎成 ASCII 字元消散，下一件再由字元飛回來重組成圖（取代原本的翻卡）
+        const DIS_GLY = '@#8XS%t;:.';
+        const dh = (a, b, c) => { let h = (a * 374761393 + b * 668265263 + c * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+        const mediaOf = el => el && el.querySelector('img, video');
+        // 和 object-fit: cover 一樣的裁切：放大填滿，多出來的部分從中間裁掉
+        function coverCrop(src, W, H) {
+            const sw = src.videoWidth || src.naturalWidth, sh = src.videoHeight || src.naturalHeight;
+            let sx = 0, sy = 0, cw = sw, ch = sh;
+            if (sw / sh > W / H) { cw = sh * W / H; sx = (sw - cw) / 2; } else { ch = sw * H / W; sy = (sh - ch) / 2; }
+            return [sx, sy, cw, ch];
+        }
+        function sample(src, cols, rows, W, H) {
+            const c = document.createElement('canvas'); c.width = cols; c.height = rows;
+            const x = c.getContext('2d', { willReadFrequently: true });
+            try { x.drawImage(src, ...coverCrop(src, W, H), 0, 0, cols, rows); return x.getImageData(0, 0, cols, rows).data; } catch (e) { return null; }
+        }
         function flip(st) {
             if (st.paused || st.busy || document.hidden) return;
             if (!document.getElementById('demo-flip').classList.contains('is-on')) return;
             if (!document.getElementById('project-modal').classList.contains('hidden')) return;
-            st.busy = true;
-            st.card.classList.add('is-flipping');
-            setTimeout(() => {
+            const stg = st.col.querySelector('.fl-stage');
+            const curM = st.front.querySelector('.item-media'), nxtM = st.back.querySelector('.item-media');
+            const A = mediaOf(curM), B = mediaOf(nxtM);
+            const ready = m => m && ((m.tagName === 'IMG' && m.complete && m.naturalWidth) || (m.tagName === 'VIDEO' && m.readyState >= 2));
+            const swap = () => {
                 st.idx = (st.idx + 1) % st.list.length;
-                // 翻完：背面變成正面，背面換成下一件
                 st.front.replaceChildren(...st.back.childNodes);
-                st.card.classList.remove('is-flipping');
                 st.back.replaceChildren(face(st.list[(st.idx + 1) % st.list.length]));
                 st.dots.forEach((d, i) => d.classList.toggle('on', i === st.idx));
-                st.busy = false;
-            }, 650);
+                st.front.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+            };
+            if (!ready(A) || !ready(B) || reduce) { swap(); return; }   // 圖還沒載好或減少動態：直接換
+            st.busy = true;
+            const W = stg.clientWidth, dpr = Math.min(devicePixelRatio || 1, 2);
+            const H = stg.clientHeight, hA = H, hB = H;   // 三欄同一個直式方框，縮圖都填滿
+            const cell = innerWidth < 768 ? 6 : 9;
+            const cols = Math.ceil(W / cell), rA = Math.ceil(hA / cell), rB = Math.ceil(hB / cell);
+            const dA = sample(A, cols, rA, W, H), dB = sample(B, cols, rB, W, H);
+            if (!dA || !dB) { st.busy = false; swap(); return; }
+            if (!st.cv) {
+                st.cv = document.createElement('canvas'); st.cv.className = 'fl-fx'; st.cv.setAttribute('aria-hidden', 'true');
+                stg.appendChild(st.cv);
+            }
+            const cv = st.cv, ctx = cv.getContext('2d');
+            cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+            cv.style.width = W + 'px'; cv.style.height = H + 'px';
+            const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+            const mA = mk(cols, rA), mB = mk(cols, rB), tA = mk(cv.width, cv.height), tB = mk(cv.width, cv.height);
+            st.front.style.visibility = 'hidden';
+            const DUR = 1150, t0 = performance.now();
+            const ease = x => x * x * (3 - 2 * x);
+            (function step(now) {
+                const k = Math.min(1, (now - t0) / DUR);
+                ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+                const iA = mA.getContext('2d').createImageData(cols, rA), iB = mB.getContext('2d').createImageData(cols, rB);
+                const glyphs = [];
+                // 目前這件：一格一格變成字元，往外飄散並淡出
+                for (let y = 0; y < rA; y++) for (let x = 0; x < cols; x++) {
+                    const j = y * cols + x, a = dA[j * 4 + 3];
+                    const start = 0.03 + 0.34 * (0.4 * (y / rA) + 0.6 * dh(x, y, 31));
+                    const l = (k - start) / 0.26;
+                    if (l <= 0) { iA.data[j * 4 + 3] = 255; continue; }
+                    if (l >= 1 || a < 60) continue;
+                    const e = ease(l), ang = dh(x, y, 32) * Math.PI * 2, dist = (1.5 + dh(x, y, 33) * 3) * cell * e;
+                    glyphs.push([x * cell + cell / 2 + Math.cos(ang) * dist, y * cell + cell / 2 + Math.sin(ang) * dist - e * cell * 2, dA, j, 1 - e, DIS_GLY[Math.min(DIS_GLY.length - 1, Math.floor(e * DIS_GLY.length))]]);
+                }
+                // 下一件：字元從四周飛回定位，到位後變回圖
+                for (let y = 0; y < rB; y++) for (let x = 0; x < cols; x++) {
+                    const j = y * cols + x, a = dB[j * 4 + 3];
+                    const start = 0.42 + 0.3 * (0.4 * (y / rB) + 0.6 * dh(x, y, 41));
+                    const l = (k - start) / 0.26;
+                    if (l <= 0 || a < 60 && l < 1) continue;
+                    if (l >= 1) { iB.data[j * 4 + 3] = 255; continue; }
+                    const e = ease(l), ang = dh(x, y, 42) * Math.PI * 2, dist = (1.5 + dh(x, y, 43) * 3) * cell * (1 - e);
+                    glyphs.push([x * cell + cell / 2 + Math.cos(ang) * dist, y * cell + cell / 2 + Math.sin(ang) * dist, dB, j, e, DIS_GLY[Math.min(DIS_GLY.length - 1, Math.floor((1 - e) * DIS_GLY.length))]]);
+                }
+                mA.getContext('2d').putImageData(iA, 0, 0); mB.getContext('2d').putImageData(iB, 0, 0);
+                for (const [tmp, src, mask, h, rows] of [[tA, A, mA, hA, rA], [tB, B, mB, hB, rB]]) {
+                    const x2 = tmp.getContext('2d');
+                    x2.globalCompositeOperation = 'source-over'; x2.clearRect(0, 0, tmp.width, tmp.height);
+                    x2.drawImage(src, ...coverCrop(src, W, H), 0, 0, W * dpr, h * dpr);
+                    x2.globalCompositeOperation = 'destination-in'; x2.imageSmoothingEnabled = false;
+                    x2.drawImage(mask, 0, 0, cols, rows, 0, 0, cols * cell * dpr, rows * cell * dpr);
+                    x2.globalCompositeOperation = 'source-over';
+                    ctx.drawImage(tmp, 0, 0);
+                }
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.font = `700 ${Math.round(cell * 1.05)}px "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                for (const [gx, gy, d, j, al, ch] of glyphs) {
+                    ctx.globalAlpha = Math.max(0, Math.min(1, al));
+                    ctx.fillStyle = `rgb(${d[j * 4]},${d[j * 4 + 1]},${d[j * 4 + 2]})`;
+                    ctx.fillText(ch, gx, gy);
+                }
+                ctx.globalAlpha = 1;
+                if (k < 1) return requestAnimationFrame(step);
+                swap();
+                st.front.style.visibility = '';
+                requestAnimationFrame(() => { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); st.busy = false; });
+            })(t0);
         }
-        // 三欄同步翻
-        const PERIOD = 1700;
+        // 三欄同步換：每次換卡約 1.15 秒，換完停留一下再換下一件
+        const PERIOD = 3000;
         cols.forEach((st, i) => setTimeout(() => { flip(st); setInterval(() => flip(st), PERIOD); }, 600));
 
         const prevEnable = enableMarquee, prevDisable = disableMarquee;
@@ -4250,57 +4316,120 @@
     // 7. 「全部」：索引清單＋游標預覽
     // =========================================================
     if (on.has('7') && !on.has('5')) {
-        const CAT = { event: ['活動視覺', '#3B82F6'], animation: ['動態設計', '#F59E0B'], programming: ['程式設計', '#111111'] };
+        const CAT = { event: '活動視覺', animation: '動態設計', programming: '程式設計' };
         const touch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
         const box = document.createElement('div');
         box.id = 'demo-index';
         document.getElementById('portfolio-track-container').before(box);
-        box.innerHTML = `<div class="ix-head"><span>NO.</span><span>YEAR</span><span>PROJECT · ${allOriginalItems.length}</span><span>CATEGORY</span><span></span></div>`;
-        const cache = new Map();
-        function thumb(item) {
-            if (cache.has(item)) return cache.get(item);
-            const m = item.querySelector('.item-media').cloneNode(true);
-            m.querySelectorAll('.skeleton-shimmer').forEach(n => n.remove());
-            m.style.aspectRatio = parseFloat(item.style.getPropertyValue('--ar')) || 1.33;
-            m.style.width = '100%';
-            m.querySelectorAll('img').forEach(n => { n.loading = 'eager'; n.classList.remove('opacity-0'); });
-            m.querySelectorAll('video').forEach(v => { v.classList.remove('opacity-0'); v.preload = 'auto'; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.load(); });
-            cache.set(item, m);
-            return m;
-        }
-        function open(item, e) {
-            if (on.has('1') && typeof dotWipe === 'function') dotWipe(e.clientX, e.clientY, () => openProject(item));
-            else openProject(item);
-        }
+        const head = '<div class="ix-head"><span>N°</span><span>Year</span><span>Project</span><span>Category</span></div>';
+        const rowsHTML = [], info = [];
         allOriginalItems.forEach((item, k) => {
             const y = item.querySelector('.item-year');
             const t = item.querySelector('.item-title').cloneNode(true);
             t.querySelectorAll('.item-year').forEach(n => n.remove());
             const title = t.textContent.replace(/\s+/g, ' ').trim();
             const year = y ? y.textContent.trim() : '—';
-            const [cn, cc] = CAT[item.getAttribute('data-category')];
-            const tag = `<span class="tg" style="--c:${cc}">${cn}</span>`;
-            const row = document.createElement('div');
-            row.className = 'ix-row'; row.tabIndex = 0; row.setAttribute('role', 'button');
-            row.innerHTML = `<span class="n">${String(k + 1).padStart(2, '0')}</span><span class="yr">${year}</span>
-                <div><div class="ti">${title}</div><div class="meta"><span class="yr">${year}</span>${tag}</div></div>${tag}<span class="ar">↗</span>`;
-            box.appendChild(row);
-            const th = document.createElement('div');
-            th.className = 'ix-thumb';
-            th.innerHTML = `<div class="in"><div class="pic" style="--a:${parseFloat(item.style.getPropertyValue('--ar')) || 1.33}"></div><button type="button" class="go">查看專案 →</button></div>`;
-            row.appendChild(th);
-            // 點標題列：展開或收合；點縮圖或按鈕：打開專案
-            row.addEventListener('click', (e) => {
-                if (e.target.closest('.ix-thumb .pic, .ix-thumb .go')) { open(item, e); return; }
-                if (row.classList.contains('is-open')) { row.classList.remove('is-open'); return; }
-                box.querySelectorAll('.ix-row.is-open').forEach(r => r.classList.remove('is-open'));
-                const pic = th.querySelector('.pic');
-                if (!pic.firstChild) pic.appendChild(thumb(item));
-                pic.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
-                row.classList.add('is-open');
-            });
-            row.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target === row) row.click(); });
+            rowsHTML.push(`<div class="ix-row" data-k="${k}"><span class="n">${String(k + 1).padStart(2, '0')}</span><span class="yr">${year}</span><span class="ti">${title}</span><span class="tg">${CAT[item.getAttribute('data-category')]}</span></div>`);
+            info.push(item);
         });
+        box.innerHTML = `<div class="ix-layer base">${head}${rowsHTML.join('')}</div><div id="ix-pic"></div><div class="ix-layer over" aria-hidden="true">${head}${rowsHTML.join('')}</div>`;
+        const base = box.querySelector('.ix-layer.base'), over = box.querySelector('.ix-layer.over'), pic = box.querySelector('#ix-pic');
+        const baseRows = [...base.querySelectorAll('.ix-row')], overRows = [...over.querySelectorAll('.ix-row')];
+        baseRows.forEach(r => { r.tabIndex = 0; r.setAttribute('role', 'button'); });
+        const smp = document.createElement('canvas'), sx = smp.getContext('2d', { willReadFrequently: true });
+        let cur = null, media = null, hot = null, lumTimer = 0;
+
+        function mediaFor(item) {
+            const src = item.querySelector('.item-media-el');
+            if (!src) return null;
+            if (src.tagName === 'VIDEO') {
+                const v = document.createElement('video');
+                v.src = src.getAttribute('src') || src.currentSrc; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.preload = 'auto';
+                return v;
+            }
+            const im = new Image(); im.src = src.currentSrc || src.getAttribute('src'); im.decoding = 'async';
+            return im;
+        }
+        // 文字顏色：每一列取圖片在這一列高度的平均亮度，亮的用黑字、暗的用白字
+        function recolor() {
+            if (!media || !pic.classList.contains('is-on')) return;
+            const pr = pic.getBoundingClientRect(), orr = over.getBoundingClientRect();
+            const top = pr.top - orr.top, bottom = pr.bottom - orr.top;
+            over.style.clipPath = `inset(${Math.max(0, top)}px ${Math.max(0, orr.right - pr.right)}px ${Math.max(0, orr.bottom - pr.bottom)}px ${Math.max(0, pr.left - orr.left)}px)`;
+            const w = 24, h = 64;
+            smp.width = w; smp.height = h;
+            try { sx.drawImage(media, 0, 0, w, h); } catch (e) { return; }
+            let d; try { d = sx.getImageData(0, 0, w, h).data; } catch (e) { return; }
+            overRows.forEach(r => {
+                const rr = r.getBoundingClientRect();
+                const y0 = (rr.top - pr.top) / pr.height, y1 = (rr.bottom - pr.top) / pr.height;
+                if (y1 <= 0 || y0 >= 1) return;
+                const a = Math.max(0, Math.floor(y0 * h)), b = Math.min(h, Math.ceil(y1 * h));
+                let sum = 0, n = 0;
+                for (let y = a; y < b; y++) for (let x = 0; x < w; x++) { const i = (y * w + x) * 4; sum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; n++; }
+                r.style.color = n && sum / n / 255 > 0.55 ? '#111111' : '#ffffff';
+            });
+        }
+        function place(row) {
+            const br = box.getBoundingClientRect(), rr = row.getBoundingClientRect();
+            const ar = parseFloat(cur.style.getPropertyValue('--ar')) || 1.33;
+            const w = pic.offsetWidth || br.width * 0.3;
+            let h = w / ar;
+            const maxH = innerHeight * 0.7;
+            if (h > maxH) h = maxH;
+            pic.style.height = h + 'px';
+            let top = rr.top - br.top + rr.height / 2 - h / 2;
+            top = Math.max(0, Math.min(box.scrollHeight - h, top));
+            pic.style.top = top + 'px';
+        }
+        function show(row) {
+            const item = info[+row.dataset.k];
+            baseRows.forEach(r => r.classList.toggle('is-hot', r === row));
+            overRows.forEach(r => r.classList.toggle('is-hot', r.dataset.k === row.dataset.k));
+            box.classList.add('is-hovering');
+            hot = row;
+            if (cur !== item) {
+                cur = item;
+                media = mediaFor(item);
+                pic.replaceChildren();
+                if (media) {
+                    pic.appendChild(media);
+                    const go = () => recolor();
+                    media.addEventListener('load', go); media.addEventListener('loadeddata', go);
+                    if (media.play) media.play().catch(() => {});
+                }
+            }
+            place(row);
+            pic.classList.add('is-on');
+            recolor();
+            clearInterval(lumTimer);
+            if (media && media.tagName === 'VIDEO') lumTimer = setInterval(recolor, 250);   // 影片畫面會變：持續更新文字顏色
+        }
+        function hide() {
+            pic.classList.remove('is-on'); box.classList.remove('is-hovering');
+            baseRows.forEach(r => r.classList.remove('is-hot'));
+            over.style.clipPath = 'inset(0 0 100% 0)';
+            clearInterval(lumTimer); hot = null;
+            if (media && media.pause) media.pause();
+        }
+        function open(item, e) {
+            if (on.has('1') && typeof dotWipe === 'function') dotWipe(e.clientX, e.clientY, () => openProject(item));
+            else openProject(item);
+        }
+        baseRows.forEach(row => {
+            const item = info[+row.dataset.k];
+            if (!touch) row.addEventListener('mouseenter', () => show(row));
+            row.addEventListener('click', (e) => {
+                if (touch && hot !== row) { show(row); return; }    // 手機：第一次點顯示圖片，再點一次進入專案
+                open(item, e);
+            });
+            row.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(item, e); });
+            row.addEventListener('focus', () => show(row));
+        });
+        if (!touch) box.addEventListener('mouseleave', hide);
+        window.addEventListener('scroll', () => { if (hot) recolor(); }, { passive: true });
+        window.addEventListener('resize', () => { if (hot) { place(hot); recolor(); } });
+
         const prevDisable = disableMarquee;
         enableMarquee = function () {
             prevDisable();
@@ -4309,7 +4438,7 @@
             box.classList.add('is-on');
         };
         disableMarquee = function () {
-            box.classList.remove('is-on');
+            box.classList.remove('is-on'); hide();
             document.getElementById('portfolio-track-container').style.display = '';
             prevDisable();
         };
