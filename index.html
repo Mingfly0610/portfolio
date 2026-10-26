@@ -2700,7 +2700,7 @@
                 isPanning = true;
                 modalMediaContainer.style.cursor = 'move';
             } else {
-                is3DDragging = true;
+                isPanning = true;   // 不再支援 3D 轉動：左鍵拖曳改成上下左右移動
                 modalMediaContainer.style.cursor = 'grabbing';
             }
 
@@ -2926,6 +2926,7 @@
             logo.addEventListener('mouseleave', () => { hovering = false; });
             setInterval(() => {
                 if (!root.classList.contains('hero-gone')) { logo.classList.remove('show-arrow'); return; }
+                if (window.__logoSynced && window.__logoSynced()) return;
                 if (!hovering) logo.classList.toggle('show-arrow');
             }, 3000);
         })();
@@ -3670,7 +3671,28 @@
     html.d6 #project-modal .modal-year { font-size: clamp(48px, 5.6vw, 96px); }
     html.d6 #project-modal .modal-body { font-size: 17px; line-height: 2; color: #374151; }
     html.d6 #project-modal .modal-body h4 { font-size: 13px !important; letter-spacing: 0.28em; color: #3B82F6 !important; margin-top: 8px; }
-    html.d6 #project-modal .modal-art { filter: drop-shadow(0 2px 4px rgba(17,17,17,0.08)) drop-shadow(0 30px 50px rgba(17,17,17,0.16)); }
+    /* 圖片、影片、縮圖都不要陰影 */
+    html.d6 #project-modal .modal-art { filter: none !important; }
+    html.d6 #project-modal .modal-embed { box-shadow: none !important; }
+    /* 多張圖片的縮圖：直角、無陰影 */
+    html.d6 #project-modal .strip-thumb { border-radius: 0 !important; box-shadow: none !important; }
+    html.d6 #project-modal .strip-thumb.is-active { box-shadow: 0 0 0 2px var(--modal-tint), 0 0 0 3.5px #3B82F6 !important; }
+    /* 專案類別：不用圓角底色，改成文字＋底線 */
+    html.d6 #project-modal .modal-tag { background: none !important; border-radius: 0 !important; padding: 0 0 4px !important; margin-left: 0 !important;
+        border-bottom: 1px solid currentColor; font-size: 13px; letter-spacing: 0.16em; }
+    /* 年份：縮小到大約專案名稱兩個中文字的寬度 */
+    html.d6 #project-modal .modal-year { font-size: clamp(31px, 3.55vw, 58px) !important; margin-top: 22px; }
+    /* 上一件／下一件固定顯示，不跟著內文捲動 */
+    html.d6 #project-modal .mi-scroll { display: flex; flex-direction: column; gap: 22px; }
+    html.d6 #project-modal .modal-nav { background: var(--modal-tint); }
+    html.d6 #project-modal .modal-card > .modal-nav { flex: 0 0 auto; margin: 0; padding: 14px 24px 16px; border-top: 1px solid rgba(17,17,17,0.1); }
+    @media (min-width: 1024px) {
+        html.d6 #project-modal .modal-card.is-portrait .modal-info { overflow: hidden !important; display: flex; flex-direction: column; padding-bottom: 0 !important; gap: 0; }
+        html.d6 #project-modal .modal-card.is-portrait .mi-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 32px; margin-right: -24px; padding-right: 24px; }
+        html.d6 #project-modal .modal-card.is-portrait .modal-info > .modal-nav { flex: 0 0 auto; margin-top: 0; padding: 18px 0 36px; }
+        html.d6 #project-modal .modal-card.is-landscape .mi-scroll { display: contents; }
+        html.d6 #project-modal .modal-card > .modal-nav { padding: 16px max(96px, calc((100vw - 1280px) / 2 + 96px)) 22px; }
+    }
     @media (min-width: 1024px) {
         /* 直式作品：左邊作品佔大半，右邊是可以捲動的文章欄 */
         html.d6 #project-modal .modal-card.is-portrait { width: 100vw !important; height: 100dvh !important; }
@@ -4591,6 +4613,36 @@
         layoutWall = function () { syncRows(); };
     }
     // =========================================================
+    // 6. 整頁專案頁：上一件／下一件固定顯示、活動視覺一律左右排
+    // =========================================================
+    if (on.has('6')) (function projectPage() {
+        const card = document.getElementById('modal-content');
+        if (!card) return;
+        const info = card.querySelector('.modal-info'), nav = info.querySelector('.modal-nav');
+        const sc = document.createElement('div'); sc.className = 'mi-scroll';
+        info.insertBefore(sc, info.firstChild);
+        sc.append(info.querySelector('.modal-head'), info.querySelector('.modal-body'));
+        const desk = () => innerWidth >= 1024;
+        const cat = document.getElementById('modal-category');
+        let busy = false;
+        function arrange() {
+            if (busy) return; busy = true;
+            // 活動視覺設計：不管圖片是直式還橫式，都是「圖片左、文字右」
+            if (cat && cat.textContent.trim() === '活動視覺設計' && card.classList.contains('is-landscape')) {
+                card.classList.remove('is-landscape'); card.classList.add('is-portrait');
+            }
+            // 桌機的左右排：上一件／下一件放在右欄最下面；其他版面：放在畫面最下方的固定列
+            const inInfo = desk() && card.classList.contains('is-portrait');
+            if (inInfo && nav.parentElement !== info) info.appendChild(nav);
+            if (!inInfo && nav.parentElement !== card) card.appendChild(nav);
+            busy = false;
+        }
+        new MutationObserver(arrange).observe(card, { attributes: true, attributeFilter: ['class'] });
+        new MutationObserver(() => { arrange(); sc.scrollTop = 0; }).observe(document.getElementById('modal-title'), { childList: true, characterData: true, subtree: true });
+        window.addEventListener('resize', arrange);
+        arrange();
+    })();
+    // =========================================================
     // 8. ASCII 字元風格
     // =========================================================
     if (on.has('8')) {
@@ -5056,6 +5108,15 @@
                     if (k < 1) requestAnimationFrame(f); else el.textContent = target;
                 })(t0);
             }).observe(logo, { attributes: true, attributeFilter: ['class'] });
+            // 聯絡頁：左上角 logo 跟中間標題用同一個時鐘——標題變 ASCII 時換成 ← Home，標題變回來時換回 MingFly.
+            let hov = false;
+            logo.addEventListener('mouseenter', () => { hov = true; });
+            logo.addEventListener('mouseleave', () => { hov = false; });
+            const R = document.documentElement;
+            window.__logoSynced = () => R.classList.contains('hero-gone') && R.getAttribute('data-view') === 'contact';
+            window.__logoFlip = (toAscii) => { if (!hov) logo.classList.toggle('show-arrow', toAscii); };
+            new MutationObserver(() => { if (window.__logoSynced()) logo.classList.toggle('show-arrow', !!(window.__contactAscii && window.__contactAscii())); })
+                .observe(R, { attributes: true, attributeFilter: ['data-view', 'class'] });
         }
     }
     // =========================================================
@@ -5288,8 +5349,10 @@
             fastAsciiText(FX_S, t);
         }
         const HOLD = 3000, FX = 800;
+        window.__contactAscii = () => mode === 'ascii';
         function run(toAscii) {
             clearTimeout(timer);
+            { const R = document.documentElement; if (R.classList.contains('hero-gone') && R.getAttribute('data-view') === 'contact') { window.__logoFlip && window.__logoFlip(toAscii); } }
             const t0 = performance.now();
             h2.classList.add('is-ascii-text');
             decodeWord(h2.querySelector('.font-serif'));
