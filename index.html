@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-TW" class="scroll-smooth">
 <head>
+    <meta name="robots" content="noindex">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>視覺設計作品集 | MingFly</title>
+    <title>Style Demo | MingFly</title>
     
     <link rel="icon" type="image/png" href="images/favicon.png">
     <link rel="apple-touch-icon" href="images/favicon.png">
@@ -1551,7 +1552,7 @@
 
 
                         <!-- 第七件：這個作品集網站本身。卡片固定使用 CSS 畫的首頁縮影；彈窗的示範影片為 videos/prog-portfolio-full.mp4 -->
-                        <div class="portfolio-item group is-wide" style="--ar:1.6" data-category="programming" data-embed="https://design-your-life-studio.github.io/3D-PART-BUILDER-ASSEMBLY/" data-embed-auto="true" data-video="videos/prog-3d-builder-thumb.mp4" data-external-link="https://design-your-life-studio.github.io/3D-PART-BUILDER-ASSEMBLY/" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：3D PART BUILDER &amp; ASSEMBLY" data-modal-ar="1.6">
+                        <div class="portfolio-item group is-wide" style="--ar:1.6" data-category="programming" data-embed="https://design-your-life-studio.github.io/3D-PART-BUILDER-ASSEMBLY/" data-embed-auto="true" data-video="videos/prog-3d-builder-thumb.mp4" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：3D PART BUILDER &amp; ASSEMBLY" data-modal-ar="1.6">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <video src="videos/prog-3d-builder-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="3D PART BUILDER &amp; ASSEMBLY" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-3d-builder-thumb.mp4')"></video>
@@ -3374,5 +3375,374 @@
         });
 
     </script>
+
+<!-- ===================== 風格 DEMO 層（只存在於 demo.html，不影響正式網站） ===================== -->
+<style id="demo-style">
+    /* ---------- 控制面板 ---------- */
+    #demo-panel {
+        position: fixed; left: 16px; bottom: 16px; z-index: 2147483000;
+        background: #111111; color: #ffffff; border-radius: 14px;
+        font: 500 13px/1.4 "Noto Sans TC", sans-serif; letter-spacing: 0.02em;
+        box-shadow: 0 18px 40px -12px rgba(0,0,0,0.45);
+        width: 238px; overflow: hidden; user-select: none;
+    }
+    #demo-panel .dp-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; cursor: pointer; }
+    #demo-panel .dp-head b { font-family: "Playfair Display", serif; font-size: 15px; letter-spacing: 0; }
+    #demo-panel .dp-head span { font-size: 11px; color: #9ca3af; }
+    #demo-panel .dp-body { padding: 2px 14px 14px; display: grid; gap: 8px; }
+    #demo-panel.is-min .dp-body { display: none; }
+    #demo-panel label { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.06); }
+    #demo-panel label:hover { background: rgba(255,255,255,0.12); }
+    #demo-panel input { accent-color: #3B82F6; width: 16px; height: 16px; }
+    #demo-panel .dp-num { display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: #3B82F6; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex: 0 0 auto; }
+    #demo-panel .dp-note { font-size: 11px; color: #9ca3af; line-height: 1.5; margin-top: 2px; }
+    @media (max-width: 767px) { #demo-panel { left: 10px; bottom: 10px; width: 210px; } }
+
+    /* ---------- 網點轉場畫布 ---------- */
+    #demo-wipe { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 2147482000; pointer-events: none; display: none; }
+    #demo-wipe.is-on { display: block; pointer-events: auto; }
+
+    /* =========================================================
+       1. 網點系統：作品縮圖平常是網點，滑過才顯影
+       ========================================================= */
+    @property --dot-r { syntax: '<length>'; inherits: true; initial-value: 0px; }
+    html.d1 .portfolio-item .item-media { background: #ffffff; }
+    html.d1 .portfolio-item .item-media-el {
+        --dot-r: 2.35px;
+        -webkit-mask-image: radial-gradient(circle at center, #000 var(--dot-r), transparent calc(var(--dot-r) + 0.7px));
+                mask-image: radial-gradient(circle at center, #000 var(--dot-r), transparent calc(var(--dot-r) + 0.7px));
+        -webkit-mask-size: 6.5px 6.5px; mask-size: 6.5px 6.5px;
+        filter: url(#demo-duotone);
+        transition: --dot-r 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.7s ease, opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    html.d1 .portfolio-item:hover .item-media-el,
+    html.d1 .portfolio-item:focus-visible .item-media-el { --dot-r: 4.8px; filter: none; }
+    /* 觸控裝置沒有滑過：改成捲到畫面中央的那件顯影 */
+    html.d1 .portfolio-item.is-revealed .item-media-el { --dot-r: 4.8px; filter: none; }
+
+    /* =========================================================
+       3. 拼貼作品牆：大小不一、重點作品放大、分類大字標記
+       ========================================================= */
+    html.d3 #portfolio-track { margin-left: 0 !important; padding-top: 0 !important; }
+    html.d3 #portfolio-clone { display: none !important; }
+    #portfolio-grid.demo-collage { display: block; max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+    #portfolio-grid.demo-collage .demo-group {
+        display: grid; grid-template-columns: repeat(var(--cols, 12), minmax(0, 1fr));
+        grid-auto-rows: 8px; grid-auto-flow: row dense; column-gap: 28px; row-gap: 0;
+        padding-bottom: 72px;
+    }
+    #portfolio-grid.demo-collage .demo-group + .demo-group { padding-top: 64px; border-top: 1px solid rgba(17,17,17,0.12); }
+    html.d4 #portfolio-grid.demo-collage .demo-group + .demo-group { border-top-color: rgba(255,255,255,0.35); }
+    #portfolio-grid.demo-collage .portfolio-item { width: auto !important; max-width: none; margin: 0; align-self: start; }
+    #portfolio-grid.demo-collage .item-cat { display: none; }
+    #portfolio-grid.demo-collage .portfolio-item.is-featured .item-title { font-size: 19px; }
+    #portfolio-grid.demo-collage .portfolio-item.is-featured .item-year { font-size: 22px; }
+    .demo-marker {
+        align-self: start; display: flex; flex-direction: column; justify-content: flex-end;
+        padding: 0 0 28px; color: #111111; pointer-events: none;
+    }
+    .demo-marker .dm-num { font-family: "Playfair Display", serif; font-style: italic; font-size: 20px; color: #3B82F6; }
+    .demo-marker .dm-zh { font-size: clamp(54px, 6.2vw, 104px); font-weight: 900; line-height: 0.95; letter-spacing: -0.02em; margin-top: 6px; }
+    .demo-marker .dm-en { font-size: 12px; font-weight: 700; letter-spacing: 0.3em; margin-top: 14px; color: #6b7280; }
+    @media (max-width: 767px) {
+        #portfolio-grid.demo-collage { padding: 0 20px; }
+        #portfolio-grid.demo-collage .demo-group { column-gap: 14px; }
+        .demo-marker .dm-zh { font-size: 52px; }
+    }
+
+    /* =========================================================
+       4. 色塊：作品區整塊換成品牌藍，白字白網點
+       ========================================================= */
+    html.d4 #work { position: relative; background: #3B82F6; color: #ffffff; clip-path: inset(0); }
+    html.d4 #work > * { position: relative; z-index: 1; }
+    html.d4 #demo-work-dots { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0 !important; opacity: 0.55; }
+    html.d4 #work h2 { color: #ffffff; }
+    html.d4 #work h2 + p { color: rgba(255,255,255,0.75); }
+    html.d4 #work .filter-btn { background: transparent !important; color: #ffffff !important; border-color: rgba(255,255,255,0.55) !important; }
+    html.d4 #work .filter-btn:hover { background: rgba(255,255,255,0.14) !important; }
+    html.d4 #work .filter-btn.bg-\[\#3B82F6\] { background: #ffffff !important; color: #3B82F6 !important; border-color: #ffffff !important; }
+    html.d4 #work .item-title { color: #ffffff; }
+    html.d4 #work .item-year { color: #FFEC00; }
+    html.d4 #work .item-cat { color: rgba(255,255,255,0.65); }
+    html.d4 #work .portfolio-item:hover .item-title { color: #FFEC00; }
+    html.d4 #work .demo-marker { color: #ffffff; }
+    html.d4 #work .demo-marker .dm-num { color: #FFEC00; }
+    html.d4 #work .demo-marker .dm-en { color: rgba(255,255,255,0.7); }
+    html.d4 #work .item-media { box-shadow: 0 1px 2px rgba(0,0,0,0.12), 0 18px 34px -16px rgba(10, 30, 90, 0.55); }
+    /* 網點版縮圖在藍底上：用白底襯著，像印在紙上 */
+    html.d4.d1 #work .portfolio-item .item-media { background: #ffffff; }
+
+    /* =========================================================
+       6. 整頁專案頁：彈窗改成滿版、雜誌式排版
+       ========================================================= */
+    html.d6 #project-modal .modal-backdrop { background: #f3f4f6; -webkit-backdrop-filter: none; backdrop-filter: none; }
+    html.d6 #project-modal .modal-stage { padding: 0 !important; }
+    html.d6 #project-modal .modal-card {
+        width: 100vw !important; height: 100dvh !important; max-height: none !important;
+        border-radius: 0 !important; box-shadow: none !important; transition: none !important;
+        --modal-tint: #f3f4f6;
+    }
+    html.d6 #project-modal .modal-card.scale-95 { transform: none !important; }
+    html.d6 #project-modal .modal-close {
+        top: 22px; right: 26px; width: auto; height: auto; gap: 10px; padding: 10px 16px;
+        font-size: 12px; font-weight: 700; letter-spacing: 0.24em; color: #111111;
+        border: 1.5px solid #111111; border-radius: 999px; background: rgba(243,244,246,0.85);
+    }
+    html.d6 #project-modal .modal-close::before { content: "CLOSE"; }
+    html.d6 #project-modal .modal-close:hover { background: #111111; color: #ffffff; }
+    html.d6 #project-modal .modal-title { font-size: clamp(30px, 3.4vw, 56px); font-weight: 900; line-height: 1.15; letter-spacing: -0.01em; }
+    html.d6 #project-modal .modal-year { font-size: clamp(48px, 5.6vw, 96px); }
+    html.d6 #project-modal .modal-body { font-size: 17px; line-height: 2; color: #374151; }
+    html.d6 #project-modal .modal-body h4 { font-size: 13px !important; letter-spacing: 0.28em; color: #3B82F6 !important; margin-top: 8px; }
+    html.d6 #project-modal .modal-art { filter: drop-shadow(0 2px 4px rgba(17,17,17,0.08)) drop-shadow(0 30px 50px rgba(17,17,17,0.16)); }
+    @media (min-width: 1024px) {
+        /* 直式作品：左邊作品佔大半，右邊是可以捲動的文章欄 */
+        html.d6 #project-modal .modal-card.is-portrait { width: 100vw !important; height: 100dvh !important; }
+        html.d6 #project-modal .modal-card.is-portrait .modal-info { flex: 0 0 min(40vw, 620px); padding: 120px 64px 48px 24px; }
+        html.d6 #project-modal .modal-card.is-portrait .modal-viewport { padding: 80px 72px 40px; }
+        /* 橫式作品：作品滿版在上，下面是兩欄的文章 */
+        html.d6 #project-modal .modal-card.is-landscape .modal-media { height: 86vh; }
+        html.d6 #project-modal .modal-card.is-landscape .modal-viewport { padding: 84px 96px 28px; }
+        html.d6 #project-modal .modal-card.is-landscape .modal-info {
+            max-width: 1280px; margin: 0 auto; width: 100%;
+            grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 96px; padding: 56px 96px 64px;
+        }
+    }
+</style>
+
+<canvas id="demo-wipe" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <filter id="demo-duotone" color-interpolation-filters="sRGB">
+        <feComponentTransfer><feFuncR type="linear" slope="1.55" intercept="-0.22"/><feFuncG type="linear" slope="1.55" intercept="-0.22"/><feFuncB type="linear" slope="1.55" intercept="-0.22"/></feComponentTransfer>
+        <feColorMatrix type="matrix" values="0.1883 0.6336 0.0640 0 0.114  0.1475 0.4963 0.0501 0 0.306  0.0325 0.1094 0.0110 0 0.847  0 0 0 1 0"/>
+    </filter>
+</svg>
+
+<div id="demo-panel" aria-label="風格 DEMO 切換">
+    <div class="dp-head"><b>Style Demo</b><span>點此收合</span></div>
+    <div class="dp-body">
+        <label><input type="checkbox" data-f="1"><span class="dp-num">1</span>網點系統與轉場</label>
+        <label><input type="checkbox" data-f="3"><span class="dp-num">3</span>拼貼作品牆</label>
+        <label><input type="checkbox" data-f="4"><span class="dp-num">4</span>品牌藍色塊</label>
+        <label><input type="checkbox" data-f="6"><span class="dp-num">6</span>整頁專案頁</label>
+        <div class="dp-note">勾選後頁面會重新載入。<br>這是測試頁，不影響正式網站。</div>
+    </div>
+</div>
+
+<script id="demo-script">
+(function () {
+    // ---------- 讀取要開啟的方向（網址 ?d=1346，預設全開） ----------
+    const q = new URLSearchParams(location.search).get('d');
+    const on = new Set((q === null ? '1346' : q).split(''));
+    const root = document.documentElement;
+    on.forEach(f => root.classList.add('d' + f));
+
+    const panel = document.getElementById('demo-panel');
+    panel.querySelectorAll('input').forEach(inp => {
+        inp.checked = on.has(inp.dataset.f);
+        inp.addEventListener('change', () => {
+            const sel = [...panel.querySelectorAll('input')].filter(i => i.checked).map(i => i.dataset.f).join('');
+            const u = new URL(location.href); u.searchParams.set('d', sel || '0'); location.href = u.toString();
+        });
+    });
+    try { if (localStorage.getItem('demoPanelMin') === '1') panel.classList.add('is-min'); } catch (e) {}
+    panel.querySelector('.dp-head').addEventListener('click', () => {
+        panel.classList.toggle('is-min');
+        try { localStorage.setItem('demoPanelMin', panel.classList.contains('is-min') ? '1' : '0'); } catch (e) {}
+    });
+
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // =========================================================
+    // 網點轉場：和開場畫面同一套圓點，從點擊的位置擴散蓋滿，再退開
+    // =========================================================
+    const cv = document.getElementById('demo-wipe');
+    const ctx = cv.getContext('2d');
+    let wiping = false;
+    function dotWipe(ox, oy, onCovered, color) {
+        if (reduce || wiping) { onCovered(); return; }
+        wiping = true;
+        const W = innerWidth, H = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+        cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = color || '#111111';
+        const GAP = 35, R = 26, SPREAD = 300, GROW = 260;
+        const far = Math.max(Math.hypot(ox, oy), Math.hypot(W - ox, oy), Math.hypot(ox, H - oy), Math.hypot(W - ox, H - oy)) || 1;
+        const dots = [];
+        for (let x = 0; x <= W + GAP; x += GAP) for (let y = 0; y <= H + GAP; y += GAP) dots.push([x, y, Math.hypot(x - ox, y - oy) / far * SPREAD]);
+        const ease = p => p * p * (3 - 2 * p);
+        function draw(t, grow) {
+            ctx.clearRect(0, 0, W, H); ctx.beginPath();
+            for (const d of dots) {
+                const p = Math.max(0, Math.min(1, (t - d[2]) / GROW));
+                const r = R * (grow ? ease(p) : 1 - ease(p));
+                if (r > 0.2) { ctx.moveTo(d[0] + r, d[1]); ctx.arc(d[0], d[1], r, 0, Math.PI * 2); }
+            }
+            ctx.fill();
+        }
+        cv.classList.add('is-on');
+        const total = SPREAD + GROW;
+        let t0 = performance.now();
+        (function cover(now) {
+            const t = now - t0; draw(t, true);
+            if (t < total) return requestAnimationFrame(cover);
+            onCovered();
+            setTimeout(() => {
+                t0 = performance.now();
+                (function reveal(n) {
+                    const t2 = n - t0; draw(t2, false);
+                    if (t2 < total) return requestAnimationFrame(reveal);
+                    ctx.clearRect(0, 0, W, H); cv.classList.remove('is-on'); wiping = false;
+                })(t0);
+            }, 380);
+        })(t0);
+    }
+
+    if (on.has('1')) {
+        // 打開作品：先網點蓋滿，換成專案頁，再網點退開
+        let bypass = false;
+        document.addEventListener('click', (e) => {
+            if (bypass) return;
+            const item = e.target.closest && e.target.closest('#portfolio-track .portfolio-item');
+            if (item) {
+                e.stopPropagation(); e.preventDefault();
+                dotWipe(e.clientX, e.clientY, () => openProject(item));
+                return;
+            }
+            const close = e.target.closest && e.target.closest('#modal-close, #modal-backdrop');
+            if (close && !document.getElementById('project-modal').classList.contains('hidden')) {
+                e.stopPropagation(); e.preventDefault();
+                dotWipe(e.clientX || innerWidth / 2, e.clientY || innerHeight / 2, () => {
+                    const c = document.getElementById('modal-content');
+                    c.style.transition = 'none';
+                    document.getElementById('modal-close').onclick();
+                    setTimeout(() => { c.style.transition = ''; }, 400);
+                });
+                return;
+            }
+            const fb = e.target.closest && e.target.closest('.filter-btn');
+            if (fb && !fb.classList.contains('bg-[#3B82F6]')) {
+                e.stopPropagation(); e.preventDefault();
+                dotWipe(e.clientX, e.clientY, () => { bypass = true; fb.click(); bypass = false; });
+            }
+        }, true);
+
+        // 觸控裝置：捲到畫面中央的作品自動顯影
+        if (!finePointer) {
+            const io = new IntersectionObserver(entries => entries.forEach(en => en.target.classList.toggle('is-revealed', en.isIntersecting)),
+                { rootMargin: '-38% 0px -38% 0px' });
+            document.querySelectorAll('.portfolio-item').forEach(it => io.observe(it));
+        }
+    }
+
+    // =========================================================
+    // 3. 拼貼作品牆
+    // =========================================================
+    if (on.has('3')) {
+        const FEATURED = ['岡山', '消防局', '台橡旺年會ELT', '2026年 台灣就業通雲嘉南區就業博覽會啟動', '客家魂', '活動電子抽獎', '3D PART'];
+        const CAT = {
+            event: { zh: '活動\n視覺', en: 'EVENT VISUAL' },
+            animation: { zh: '動態\n設計', en: 'MOTION' },
+            programming: { zh: '程式\n設計', en: 'INTERACTIVE' }
+        };
+        allOriginalItems.forEach(it => {
+            const label = it.getAttribute('aria-label') || '';
+            if (FEATURED.some(k => label.includes(k))) it.classList.add('is-featured');
+        });
+        const ar = it => parseFloat(it.style.getPropertyValue('--ar')) || 1.3333;
+
+        function spanFor(it, cols) {
+            const f = it.classList.contains('is-featured');
+            const a = ar(it);
+            let s;
+            if (it.classList.contains('is-phone')) s = f ? 3 : 2;
+            else if (a < 0.95) s = f ? 4 : 3;
+            else if (a >= 1.9) s = f ? 8 : 6;
+            else s = f ? 6 : 4;
+            if (cols === 12) return s;
+            if (cols === 8) return Math.max(2, Math.min(8, Math.round(s * 8 / 12)));
+            return (f || a >= 1.4) ? 2 : 1;
+        }
+
+        // 依分類分成三組，每組各自是一面拼貼牆（組內緊密排列，組與組之間不混在一起）
+        const groups = {};
+        function ensureGroups() {
+            ['event', 'animation', 'programming'].forEach(c => {
+                if (groups[c]) return;
+                const g = document.createElement('div');
+                g.className = 'demo-group'; g.dataset.cat = c;
+                const m = document.createElement('div');
+                m.className = 'demo-marker';
+                g.appendChild(m);
+                portfolioGrid.appendChild(g);
+                groups[c] = g;
+            });
+            allOriginalItems.forEach(it => {
+                const g = groups[it.getAttribute('data-category')];
+                if (g && it.parentElement !== g) g.appendChild(it);
+            });
+        }
+
+        layoutWall = function () {
+            const grid = portfolioGrid;
+            grid.className = 'demo-collage';
+            grid.querySelectorAll('.wall-break').forEach(el => el.remove());
+            ensureGroups();
+            const cols = innerWidth >= 1024 ? 12 : innerWidth >= 768 ? 8 : 2;
+            grid.style.setProperty('--cols', cols);
+            Object.entries(groups).forEach(([c, g]) => {
+                const visible = allOriginalItems.filter(it => it.getAttribute('data-category') === c && it.style.display !== 'none');
+                g.style.display = visible.length ? '' : 'none';
+                if (!visible.length) return;
+                const m = g.querySelector('.demo-marker');
+                m.innerHTML = `<span class="dm-num">${String(visible.length).padStart(2, '0')} works</span><span class="dm-zh">${CAT[c].zh.replace('\n', '<br>')}</span><span class="dm-en">${CAT[c].en}</span>`;
+                m.style.gridColumn = `span ${cols === 2 ? 2 : 3}`;
+                visible.forEach(it => { it.style.gridColumn = `span ${spanFor(it, cols)}`; it.style.width = ''; });
+            });
+            // 依實際高度（作品＋標題）決定佔幾列，讓下面的作品往上補空位
+            requestAnimationFrame(() => {
+                Object.values(groups).forEach(g => {
+                    [...g.children].forEach(el => {
+                        if (el.style.display === 'none') return;
+                        const h = el.getBoundingClientRect().height;
+                        el.style.gridRow = `span ${Math.ceil((h + (cols === 2 ? 30 : 56)) / 8)}`;
+                    });
+                });
+            });
+        };
+        enableMarquee = function () {
+            disableMarquee();
+            allOriginalItems.forEach(item => { item.style.display = ''; item.style.opacity = '1'; item.style.transform = ''; });
+            layoutWall();
+        };
+        // 媒體載入或字型換好後高度會變：再排一次
+        window.addEventListener('load', () => setTimeout(() => layoutWall(), 200));
+        document.fonts && document.fonts.ready.then(() => layoutWall());
+    }
+
+    // =========================================================
+    // 4. 作品區的白色網點（沿用整站背景網點的形狀與波動）
+    // =========================================================
+    if (on.has('4')) {
+        const work = document.getElementById('work');
+        const c = document.createElement('canvas');
+        c.id = 'demo-work-dots'; c.setAttribute('aria-hidden', 'true');
+        work.insertBefore(c, work.firstChild);
+        const cx = c.getContext('2d');
+        const src = document.getElementById('halftone-bg');
+        (function tick() {
+            const r = work.getBoundingClientRect();
+            if (r.bottom > 0 && r.top < innerHeight) {
+                if (c.width !== src.width || c.height !== src.height) { c.width = src.width; c.height = src.height; }
+                cx.globalCompositeOperation = 'copy'; cx.drawImage(src, 0, 0);
+                cx.globalCompositeOperation = 'source-in'; cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, c.width, c.height);
+            }
+            setTimeout(() => requestAnimationFrame(tick), 33);
+        })();
+    }
+})();
+</script>
+
 </body>
 </html>
