@@ -3445,7 +3445,8 @@
     /* =========================================================
        3. 拼貼作品牆：大小不一、重點作品放大、分類大字標記
        ========================================================= */
-    html.d3 #portfolio-track:not(.track-marquee) { margin-left: 0 !important; padding-top: 0 !important; }
+    html.d3 #portfolio-track { margin-left: 0 !important; padding-top: 0 !important; }
+    html.d3 #portfolio-clone { display: none !important; }
     #portfolio-grid.demo-collage { display: block; max-width: 1280px; margin: 0 auto; padding: 0 48px; }
     #portfolio-grid.demo-collage .demo-group {
         display: grid; grid-template-columns: repeat(var(--cols, 12), minmax(0, 1fr));
@@ -3621,6 +3622,17 @@
         .ix-thumb .pic { width: 100%; }
     }
     .ix-row .meta { display: none; }
+    /* =========================================================
+       8. ASCII 字元風格（靈感來自 stackedlol/ascii-sharks，MIT）
+          圖片切成方格，每格是一個色塊＋一個字元，滑過顯示原圖
+       ========================================================= */
+    html.d8 .portfolio-item .item-media-el { -webkit-mask-image: none !important; mask-image: none !important; filter: none !important; animation: none !important; }
+    .ascii-layer { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; transition: opacity 0.45s ease; }
+    html.d8 .portfolio-item:hover .ascii-layer, html.d8 .portfolio-item:focus-visible .ascii-layer,
+    html.d8 .portfolio-item.is-revealed .ascii-layer { opacity: 0; }
+    html.d8 .hero-icon > img.is-ascii { opacity: 0; }
+    html.d8 .hero-icon .ascii-layer { z-index: 1; }
+    html.d8 #halftone-bg { opacity: 1; }
 </style>
 
 <canvas id="demo-wipe" aria-hidden="true"></canvas>
@@ -3635,6 +3647,7 @@
     <div class="dp-head"><b>Style Demo</b><span>點此收合</span></div>
     <div class="dp-body">
         <label><input type="checkbox" data-f="1"><span class="dp-num">1</span>十字網格與轉場</label>
+        <label><input type="checkbox" data-f="8"><span class="dp-num">8</span>ASCII 字元風格</label>
         <label><input type="checkbox" data-f="3"><span class="dp-num">3</span>拼貼作品牆</label>
         <label><input type="checkbox" data-f="5"><span class="dp-num">5</span>全部：三欄翻卡</label>
         <label><input type="checkbox" data-f="7"><span class="dp-num">7</span>全部：索引清單</label>
@@ -3648,7 +3661,7 @@
 (function () {
     // ---------- 讀取要開啟的方向（網址 ?d=1346，預設全開） ----------
     const q = new URLSearchParams(location.search).get('d');
-    const on = new Set((q === null ? '146' : q).split(''));
+    const on = new Set((q === null ? '13468' : q).split(''));
     const root = document.documentElement;
     on.forEach(f => root.classList.add('d' + f));
 
@@ -3829,18 +3842,14 @@
                 });
             });
         };
-        // 「全部」維持原本的跑馬燈：先把作品從分類群組放回原位，清掉拼貼用的排版
-        const origEnable = enableMarquee;
         enableMarquee = function () {
-            allOriginalItems.forEach(item => { portfolioGrid.appendChild(item); item.style.gridColumn = ''; item.style.gridRow = ''; item.style.width = ''; });
-            portfolioGrid.querySelectorAll('.demo-group').forEach(g => g.remove());
-            Object.keys(groups).forEach(k => delete groups[k]);
-            portfolioGrid.style.removeProperty('--cols');
-            origEnable();
+            disableMarquee();
+            allOriginalItems.forEach(item => { item.style.display = ''; item.style.opacity = '1'; item.style.transform = ''; });
+            layoutWall();
         };
         // 媒體載入或字型換好後高度會變：再排一次
-        window.addEventListener('load', () => setTimeout(() => { if (portfolioGrid.classList.contains('demo-collage')) layoutWall(); }, 200));
-        document.fonts && document.fonts.ready.then(() => { if (portfolioGrid.classList.contains('demo-collage')) layoutWall(); });
+        window.addEventListener('load', () => setTimeout(() => { layoutWall(); }, 200));
+        document.fonts && document.fonts.ready.then(() => layoutWall());
     }
 
     // =========================================================
@@ -4012,6 +4021,148 @@
             document.getElementById('portfolio-track-container').style.display = '';
             prevDisable();
         };
+    }
+    // =========================================================
+    // 8. ASCII 字元風格
+    // =========================================================
+    if (on.has('8')) {
+        const RAMP = ':;t%SX8#@';                 // 由淺到深
+        const ACCENTS = ['#FFEC00', '#F97316', '#EF4444', '#A855F7', '#22C55E', '#06B6D4'];
+        const FONT = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const hash = (a, b, c) => { let h = (a * 374761393 + b * 668265263 + c * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+        const layers = [];
+
+        // 把一張圖（或影片目前的畫面）畫成 ASCII：一格一個色塊＋一個字元
+        function makeLayer(host, src, opt) {
+            const cv = document.createElement('canvas');
+            cv.className = 'ascii-layer'; cv.setAttribute('aria-hidden', 'true');
+            host.appendChild(cv);
+            const ctx = cv.getContext('2d');
+            const sample = document.createElement('canvas');
+            const sctx = sample.getContext('2d', { willReadFrequently: true });
+            const L = { host, src, cv, ctx, sample, sctx, opt, cols: 0, rows: 0, ok: false, last: 0 };
+            layers.push(L);
+            return L;
+        }
+        function draw(L, t) {
+            const r = L.host.getBoundingClientRect();
+            if (r.width < 4 || r.height < 4) return;
+            const src = L.src;
+            const sw = src.videoWidth || src.naturalWidth, sh = src.videoHeight || src.naturalHeight;
+            if (!sw || !sh) return;
+            const dpr = Math.min(devicePixelRatio || 1, 2);
+            const cell = L.opt.cell;
+            const cols = Math.max(4, Math.round(r.width / cell)), rows = Math.max(4, Math.round(r.height / cell));
+            const cw = r.width / cols, ch = r.height / rows;
+            if (L.cv.width !== Math.round(r.width * dpr) || L.cv.height !== Math.round(r.height * dpr)) {
+                L.cv.width = Math.round(r.width * dpr); L.cv.height = Math.round(r.height * dpr);
+            }
+            L.sample.width = cols; L.sample.height = rows;
+            // 依 object-fit: cover 取樣，和底下原圖的裁切一致
+            let sx = 0, sy = 0, sW = sw, sH = sh;
+            if (L.opt.cover) {
+                const ra = r.width / r.height, ia = sw / sh;
+                if (ia > ra) { sW = sh * ra; sx = (sw - sW) / 2; } else { sH = sw / ra; sy = (sh - sH) / 2; }
+            }
+            let data;
+            try {
+                L.sctx.clearRect(0, 0, cols, rows);
+                L.sctx.drawImage(src, sx, sy, sW, sH, 0, 0, cols, rows);
+                data = L.sctx.getImageData(0, 0, cols, rows).data;
+            } catch (e) { return; }   // 跨網域的圖讀不到像素：維持原圖
+            const ctx = L.ctx;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, r.width, r.height);
+            if (L.opt.paper) { ctx.fillStyle = L.opt.paper; ctx.fillRect(0, 0, r.width, r.height); }
+            ctx.font = `700 ${Math.round(ch * 0.82)}px ${FONT}`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            const gap = Math.max(0.6, cw * 0.08);
+            const tick = Math.floor(t / 420);
+            for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+                const i = (y * cols + x) * 4;
+                const a = data[i + 3] / 255;
+                if (a < 0.35) continue;
+                const R = data[i], G = data[i + 1], B = data[i + 2];
+                const lum = (0.299 * R + 0.587 * G + 0.114 * B) / 255;
+                const ink = 1 - lum;
+                const px = x * cw, py = y * ch;
+                if (ink < 0.07 && L.opt.paper) {
+                    // 留白處：只放稀疏的小點，像背景的水
+                    if (hash(x, y, 7) < 0.05) { ctx.fillStyle = 'rgba(59,130,246,0.35)'; ctx.fillText('-', px + cw / 2, py + ch / 2); }
+                    continue;
+                }
+                // 色塊：原圖顏色，留一點縫隙露出格線
+                ctx.fillStyle = `rgba(${R},${G},${B},${a})`;
+                ctx.fillRect(px + gap / 2, py + gap / 2, cw - gap, ch - gap);
+                // 字元：越暗的格子用越密的字；偶爾閃一下彩色
+                const j = Math.min(RAMP.length - 1, Math.max(0, Math.floor(ink * RAMP.length + (hash(x, y, 3) - 0.5) * 2)));
+                const flick = hash(x, y, tick) < 0.035;
+                ctx.fillStyle = flick ? ACCENTS[Math.floor(hash(y, x, tick) * ACCENTS.length)] : (lum > 0.6 ? 'rgba(17,17,17,0.55)' : 'rgba(255,255,255,0.78)');
+                ctx.fillText(RAMP[j], px + cw / 2, py + ch / 2 + ch * 0.04);
+            }
+            L.ok = true;
+        }
+
+        function attachThumbs() {
+            document.querySelectorAll('.portfolio-item .item-media').forEach(m => {
+                if (m.__ascii) return;
+                const el = m.querySelector('.item-media-el');
+                if (!el) return;
+                m.__ascii = makeLayer(m, el, { cell: 7, cover: true, paper: '#ffffff', video: el.tagName === 'VIDEO' });
+            });
+        }
+        function attachHero() {
+            document.querySelectorAll('#hero-section .hero-icon > img').forEach(img => {
+                const host = img.parentElement;
+                if (host.__ascii) return;
+                img.classList.add('is-ascii');
+                host.__ascii = makeLayer(host, img, { cell: 9, cover: false, paper: null });
+                host.__ascii.cv.style.objectFit = 'contain';
+            });
+        }
+
+        // 背景：把漂浮的圓點換成格線上的字元
+        if (typeof drawHalftone === 'function') {
+            const BG = ' .-:;+=%';
+            window.drawHalftone = function () {
+                const W = innerWidth, H = innerHeight, G = 22;
+                halftoneCtx.clearRect(0, 0, W, H);
+                halftoneCtx.strokeStyle = 'rgba(148,163,155,0.10)';
+                halftoneCtx.lineWidth = 1;
+                halftoneCtx.beginPath();
+                for (let x = 0.5; x <= W; x += G) { halftoneCtx.moveTo(x, 0); halftoneCtx.lineTo(x, H); }
+                for (let y = 0.5; y <= H; y += G) { halftoneCtx.moveTo(0, y); halftoneCtx.lineTo(W, y); }
+                halftoneCtx.stroke();
+                halftoneCtx.font = `700 13px ${FONT}`;
+                halftoneCtx.textAlign = 'center'; halftoneCtx.textBaseline = 'middle';
+                halftoneCtx.fillStyle = 'rgba(120,135,150,0.55)';
+                for (let x = 0; x < W + G; x += G) for (let y = 0; y < H + G; y += G) {
+                    const nx = x * htWaveScale, ny = y * htWaveScale;
+                    const v = (Math.sin(nx * 3 + htTime) * Math.cos(ny * 3 + htTime) + Math.sin(nx * 5 - htTime * 0.8) * Math.cos(ny * 5 + htTime * 0.5) + 2) / 4;
+                    const k = Math.floor(Math.pow(v, 2.2) * BG.length);
+                    if (k <= 0) continue;
+                    halftoneCtx.fillText(BG[Math.min(BG.length - 1, k)], x + G / 2, y + G / 2);
+                }
+            };
+        }
+
+        let raf = 0;
+        function loop(t) {
+            const vh = innerHeight;
+            for (const L of layers) {
+                const r = L.host.getBoundingClientRect();
+                if (r.bottom < -50 || r.top > vh + 50 || r.right < -50 || r.left > innerWidth + 50) continue;
+                // 影片每秒更新約 10 次；靜態圖每 420ms 只換字元閃爍
+                if (!L.ok || t - L.last > (L.opt.video ? 100 : 420)) { draw(L, t); L.last = t; }
+            }
+            raf = requestAnimationFrame(loop);
+        }
+        function start() { attachThumbs(); attachHero(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
+        if (document.readyState === 'complete') start(); else window.addEventListener('load', start);
+        setTimeout(start, 1200);
+        // 切換分類或跑馬燈複製出新的卡片時，補上 ASCII 圖層
+        new MutationObserver(() => attachThumbs()).observe(document.getElementById('portfolio-track'), { childList: true, subtree: true });
+        window.addEventListener('resize', () => layers.forEach(L => { L.ok = false; }));
     }
 })();
 </script>
