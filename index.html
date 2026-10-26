@@ -3546,6 +3546,70 @@
     html body #work #filter-btns .filter-btn.filter-btn:focus-visible { outline: 1px dashed currentColor; outline-offset: 4px; }
     /* 年份標籤放在最上層，不被首頁圖示壓住 */
     #hero-section .hero-icon { z-index: 10 !important; }
+    /* ===== 關於頁（電腦）：單一畫面、不捲動；照片與換裝物件依視窗高度等比例縮放，整體上下置中 ===== */
+    @media (min-width: 1024px) {
+        html.hero-gone[data-view="about"], html.hero-gone[data-view="about"] body { overflow: hidden !important; overscroll-behavior: none; }
+        html.hero-gone[data-view="about"] #about { height: 100dvh; min-height: 0 !important; box-sizing: border-box; padding: 80px 48px 0 !important;
+            display: flex; align-items: center; }
+        html.hero-gone[data-view="about"] #about > .max-w-6xl { width: 100%; align-items: flex-start !important; }   /* 文字與照片置頂對齊 */
+        html.hero-gone[data-view="about"] #about .lg\:flex-1 > h2 { margin-top: -7px; }
+        /* 文字欄高度＝照片高度：技能標籤推到最下方，和照片底部對齊 */
+        html.hero-gone[data-view="about"] #about .lg\:flex-1 { height: calc(var(--pw) * 1.25); display: flex; flex-direction: column; }
+        html.hero-gone[data-view="about"] #about .lg\:flex-1 > .pt-6 { margin-top: auto !important; margin-bottom: -10px; }   /* 抵消行高留白，讓字的頂端貼齊照片上緣 */
+        #about { --pw: min(400px, calc((100dvh - 80px - 96px) / 1.85)); }
+        #about .max-w-6xl > div:first-child > div.relative { width: var(--pw); max-width: none; margin-bottom: calc(var(--pw) * 0.6); }
+        #about .max-w-6xl > div:first-child > div.relative > #profile-spotlight { margin-top: 0; }
+        #about .max-w-6xl > div:first-child > div.relative > .dress-item { width: calc(var(--pw) * 0.36); height: calc(var(--pw) * 0.36); }
+        #about .max-w-6xl > div:first-child > div.relative > .dress-item:nth-child(2),
+        #about .max-w-6xl > div:first-child > div.relative > .dress-item:nth-child(3) { bottom: calc(var(--pw) * -0.36); }
+        #about .max-w-6xl > div:first-child > div.relative > .dress-item:nth-child(4),
+        #about .max-w-6xl > div:first-child > div.relative > .dress-item:nth-child(5) { bottom: calc(var(--pw) * -0.55); }
+    }
+    /* 探照燈改用畫布繪製（ASCII 字元溶解邊）：原本的遮罩圖層不顯示 */
+    html.spot-d #profile-reveal-img { opacity: 0 !important; visibility: hidden !important; }
+    #profile-spot-d { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none; }
+    #profile-swap-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+    /* 關於頁：# 字號跟文字同色；CORE SKILLS 標題改成和技能文字同色 */
+    #about .skill-hash { color: inherit !important; }
+    #about h3 { color: #111111 !important; }
+    /* 關於頁的提示文字（技能標籤、換裝物件）：B＋淡底——藍色等寬字＋方括號，後面墊一層和頁面同色的淡底，無框無圓角 */
+    #about .skill-item > div, .dress-tooltip {
+        background: #FAFAFA !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+        color: #3B82F6 !important; border-radius: 0 !important; box-shadow: none !important;
+        padding: 5px 8px !important; margin-bottom: 4px !important;
+        font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace !important; font-size: 12px !important; font-weight: 500 !important; letter-spacing: 0.04em;
+    }
+    #about .skill-item > div > div, .dress-tooltip > div { display: none !important; }   /* 拿掉小三角 */
+    #about .skill-item > div::before, .dress-tooltip::before { content: "[ "; }
+    #about .skill-item > div::after, .dress-tooltip::after { content: " ]"; }
+    /* 關於頁字級：標題 36px、內文 15px、CORE SKILLS 15px、技能標籤與 # 15px */
+    #about h2 { font-size: 36px !important; line-height: 1.15 !important; }
+    #about .space-y-6 p { font-size: 15px !important; line-height: 1.75 !important; }
+    #about h3 { font-size: 15px !important; }
+    #about .skill-tag, #about .skill-hash { font-size: 15px !important; }
+    /* 關於頁間距收緊：標題→內文、段落之間、CORE SKILLS→技能標籤 */
+    #about .lg\:flex-1 > .space-y-6 { margin-top: 16px !important; }
+    #about .space-y-6 > p + p { margin-top: 14px !important; }
+    #about .lg\:flex-1 > .pt-6 { margin-top: 28px !important; padding-top: 0 !important; }
+    #about h3 { margin-bottom: 6px !important; }
+    /* 手機、平板：技能標籤靠左對齊，短的可以並排 */
+    @media (max-width: 1023px) {
+        #about .skill-list { text-align: left !important; margin-left: 0 !important; margin-right: 0 !important; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+        #about .skill-item { display: inline-flex !important; margin: 0 !important; }
+    }
+    /* 手機：導航列高度 80px → 56px，內容的上方留白跟著縮 */
+    @media (max-width: 767px) {
+        #navbar > div.h-20 { height: 56px !important; }
+        #brand-logo { font-size: 20px !important; }
+        html.hero-gone[data-view="about"] #about { padding-top: calc(56px + 2rem) !important; }
+        #mobile-menu-close { top: 4px !important; }   /* 叉叉和漢堡選單同一個位置 */
+        #mobile-menu .mobile-link { font-weight: 400 !important; }   /* 選單文字不要太粗 */
+    }
+    /* 手機選單：白底 60%＋ASCII 字元背景 */
+    #mobile-menu { background: rgba(255, 255, 255, 0.6) !important; }
+    #menu-ascii { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+    #mobile-menu > a { position: relative; z-index: 1; }
+    #mobile-menu > #mobile-menu-close { z-index: 2; }
     /* ---------- 控制面板 ---------- */
     #demo-panel { display: none !important; }   /* 面板先隱藏：效果維持目前的預設組合 */
     #demo-panel {
@@ -3695,7 +3759,7 @@
     html.d6 #modal-media-container.is-zoomed { cursor: grab !important; }
     html.d6 #modal-media-container.is-zoomed:active { cursor: grabbing !important; }
     html.d6 #modal-media-container.gal-cursor, html.d6 #modal-media-container.gal-cursor * { cursor: none !important; }
-    #gal-cursor { position: fixed; left: 0; top: 0; z-index: 200; pointer-events: none; width: 44px; height: 44px; margin: -22px 0 0 -22px; color: #111111; opacity: 0; transition: opacity .15s ease, color .2s ease; }
+    #gal-cursor { position: fixed; left: 0; top: 0; z-index: 200; pointer-events: none; width: 35px; height: 35px; margin: -17.5px 0 0 -17.5px; color: #111111; opacity: 0; transition: opacity .15s ease, color .2s ease; }
     #gal-cursor.on { opacity: 1; }
     #gal-cursor svg { width: 100%; height: 100%; transition: transform .2s ease; }
     #gal-cursor.next svg { transform: scaleX(-1); }
@@ -4793,6 +4857,162 @@
             .observe(document.getElementById('project-modal'), { attributes: true, attributeFilter: ['class'] });
     })();
     // =========================================================
+    // 關於頁探照燈（D）：照片在圓心清楚顯示，邊緣化成 ASCII 字元由密到疏，延遲跟隨滑鼠、淡入淡出
+    // =========================================================
+    if (!reduce && window.matchMedia('(hover: hover) and (pointer: fine)').matches) (function spotlightD() {
+        const box = document.getElementById('profile-spotlight'), img = document.getElementById('profile-reveal-img');
+        if (!box || !img) return;
+        document.documentElement.classList.add('spot-d');
+        const cv = document.createElement('canvas'); cv.id = 'profile-spot-d'; cv.setAttribute('aria-hidden', 'true');
+        box.appendChild(cv);
+        const ctx = cv.getContext('2d');
+        const mk = document.createElement('canvas'), m = mk.getContext('2d');
+        const RAMP = '.:-=+*#%@', CELL = 7;
+        let W = 0, H = 0, dpr = 1, tx = 0, ty = 0, x = 0, y = 0, a = 0, on = false, raf = 0, placed = false;
+        function size() {
+            const r = box.getBoundingClientRect(); dpr = Math.min(devicePixelRatio || 1, 2);
+            W = r.width; H = r.height;
+            cv.width = mk.width = Math.round(W * dpr); cv.height = mk.height = Math.round(H * dpr);
+        }
+        const sm = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+        const hsh = (i, j, k) => { let h = (i * 374761393 + j * 668265263 + k * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+        function frame(now) {
+            raf = 0;
+            x += (tx - x) * 0.2; y += (ty - y) * 0.2;
+            a += ((on ? 1 : 0) - a) * 0.16;
+            if (!on && a < 0.01) { a = 0; ctx.clearRect(0, 0, cv.width, cv.height); return; }
+            const R = Math.min(140, W * 0.4), core = R * 0.45, outer = R * 1.2;
+            // 遮罩：中心實心，外圈是 ASCII 字元（越外越稀疏），字元會輕微跳動
+            m.setTransform(dpr, 0, 0, dpr, 0, 0); m.clearRect(0, 0, W, H);
+            m.fillStyle = '#000';
+            // 中心：柔和漸層（不留硬邊），再往外接字元
+            const g = m.createRadialGradient(x, y, 0, x, y, core * 1.25);
+            g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(0.55, 'rgba(0,0,0,1)'); g.addColorStop(0.8, 'rgba(0,0,0,0.55)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+            m.fillStyle = g; m.fillRect(x - core * 1.3, y - core * 1.3, core * 2.6, core * 2.6);
+            m.fillStyle = '#000';
+            m.font = `700 ${CELL * 1.35}px "Geist Mono", ui-monospace, Menlo, monospace`; m.textAlign = 'center'; m.textBaseline = 'middle';
+            const tick = Math.floor(now / 90);
+            const i0 = Math.max(0, Math.floor((x - outer) / CELL)), i1 = Math.min(Math.ceil(W / CELL), Math.ceil((x + outer) / CELL));
+            const j0 = Math.max(0, Math.floor((y - outer) / CELL)), j1 = Math.min(Math.ceil(H / CELL), Math.ceil((y + outer) / CELL));
+            for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+                const cx = i * CELL + CELL / 2, cy = j * CELL + CELL / 2, d = Math.hypot(cx - x, cy - y);
+                if (d < core * 0.7 || d > outer) continue;
+                const f = 1 - sm((d - core) / (outer - core)) + (hsh(i, j, tick) - 0.5) * 0.18;
+                if (f <= 0.02) continue;
+                m.fillText(RAMP[Math.max(0, Math.min(RAMP.length - 1, Math.floor(f * RAMP.length)))], cx, cy);
+            }
+            // 照片 × 遮罩
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+            ctx.clearRect(0, 0, W, H);
+            if (img.complete && img.naturalWidth) {
+                const s = Math.max(W / img.naturalWidth, H / img.naturalHeight), iw = img.naturalWidth * s, ih = img.naturalHeight * s;
+                ctx.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
+            }
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = a; ctx.drawImage(mk, 0, 0);
+            ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+            raf = requestAnimationFrame(frame);
+        }
+        const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
+        box.addEventListener('mouseenter', (e) => { size(); const r = box.getBoundingClientRect(); x = tx = e.clientX - r.left; y = ty = e.clientY - r.top; });
+        box.addEventListener('mousemove', (e) => {
+            const r = box.getBoundingClientRect();
+            if (Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1) size();
+            tx = e.clientX - r.left; ty = e.clientY - r.top;
+            if (!on && a < 0.01) { x = tx; y = ty; }
+            if (!window.__spotPaused) on = true;
+            kick();
+        });
+        box.addEventListener('mouseleave', () => { on = false; kick(); });
+        window.__spotHide = () => { on = false; a = 0; ctx.clearRect(0, 0, cv.width, cv.height); window.__spotPaused = true; setTimeout(() => { window.__spotPaused = false; }, 1400); };
+    })();
+    // =========================================================
+    // 關於頁：點照片切換時，用 ASCII 字元轉場（瞬間蓋滿換圖 → 由點擊處往外解碼消散，只有一次）
+    // =========================================================
+    if (ASCII_FX && !reduce) (function profileSwapFx() {
+        const box = document.getElementById('profile-spotlight');
+        if (!box) return;
+        const cv = document.createElement('canvas');
+        cv.id = 'profile-swap-fx'; cv.setAttribute('aria-hidden', 'true');
+        box.appendChild(cv);
+        const ctx = cv.getContext('2d');
+        let busy = false, pass = false;
+        window.addEventListener('click', (e) => {
+            if (pass || !box.contains(e.target)) return;
+            e.stopPropagation(); e.preventDefault();
+            if (busy) return;
+            busy = true;
+            const r = box.getBoundingClientRect(), W = r.width, H = r.height, dpr = Math.min(devicePixelRatio || 1, 2);
+            cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const ox = e.clientX ? e.clientX - r.left : W / 2, oy = e.clientY ? e.clientY - r.top : H / 2;
+            const fx = asciiDissolve(cv, ctx, W, H, ox, oy, '#3B82F6', { cell: 12, spread: 320, life: 380 });
+            const reveal = document.getElementById('profile-reveal-img');
+            if (reveal) reveal.classList.remove('active');
+            if (window.__spotHide) window.__spotHide();
+            // 和其他轉場一樣只有一次：瞬間蓋滿並換圖，再由點擊處往外解碼消散
+            fx.draw(0);
+            pass = true; box.click(); pass = false;
+            let s0 = null;
+            requestAnimationFrame(function f(now) {
+                if (s0 === null) s0 = now;
+                const t = now - s0; fx.draw(t);
+                if (t < fx.total) return requestAnimationFrame(f);
+                ctx.clearRect(0, 0, W, H); busy = false;
+            });
+        }, true);
+    })();
+    // =========================================================
+    // 手機選單：打開時藍色 ASCII 由漢堡按鈕處擴散解碼，之後背景是緩慢波動的淡色字元
+    // =========================================================
+    if (!reduce) (function menuAscii() {
+        const menu = document.getElementById('mobile-menu'), btn = document.getElementById('mobile-menu-btn');
+        if (!menu) return;
+        const cv = document.createElement('canvas'); cv.id = 'menu-ascii'; cv.setAttribute('aria-hidden', 'true');
+        menu.insertBefore(cv, menu.firstChild);
+        const ctx = cv.getContext('2d');
+        const RAMP = ' .:-=+*%';
+        const CELL = 16;
+        let W = 0, H = 0, dpr = 1, raf = 0, t0 = 0, fx = null, ox = 0, oy = 0;
+        function size() {
+            dpr = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+            cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+        }
+        function field(t) {
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.font = `500 ${CELL * 0.8}px "Geist Mono", ui-monospace, Menlo, monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.32)';
+            const k = t / 1000;
+            for (let y = CELL / 2; y < H; y += CELL) for (let x = CELL / 2; x < W; x += CELL) {
+                const v = Math.sin(x * 0.018 + k * 0.9) * Math.cos(y * 0.014 - k * 0.7) + Math.sin((x + y) * 0.009 + k * 0.5);
+                const i = Math.floor((v + 2) / 4 * RAMP.length);
+                const ch = RAMP[Math.max(0, Math.min(RAMP.length - 1, i))];
+                if (ch !== ' ') ctx.fillText(ch, x, y);
+            }
+        }
+        function frame(now) {
+            raf = 0;
+            if (menu.classList.contains('opacity-0')) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); return; }
+            const t = now - t0;
+            ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+            field(t);
+            if (fx && t < fx.total) { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); fx.draw(t); }   // 開場擴散疊在上面
+            raf = requestAnimationFrame(frame);
+        }
+        new MutationObserver(() => {
+            if (menu.classList.contains('opacity-0')) return;
+            size();
+            const r = btn ? btn.getBoundingClientRect() : { left: W, top: 0, width: 0, height: 0 };
+            ox = r.left + r.width / 2; oy = r.top + r.height / 2;
+            const fake = { width: cv.width, height: cv.height };
+            fx = typeof asciiDissolve === 'function' ? asciiDissolve(fake, { clearRect() {}, fillRect: (...a) => ctx.fillRect(...a), fillText: (...a) => ctx.fillText(...a),
+                set font(v) { ctx.font = v; }, set textAlign(v) { ctx.textAlign = v; }, set textBaseline(v) { ctx.textBaseline = v; },
+                set fillStyle(v) { ctx.fillStyle = v; }, set globalAlpha(v) { ctx.globalAlpha = v; }, get globalAlpha() { return ctx.globalAlpha; } },
+                W, H, ox, oy, '#3B82F6', { cell: 22, spread: 420, life: 460 }) : null;
+            t0 = performance.now();
+            if (!raf) raf = requestAnimationFrame(frame);
+        }).observe(menu, { attributes: true, attributeFilter: ['class'] });
+    })();
+    // =========================================================
     // 8. ASCII 字元風格
     // =========================================================
     if (on.has('8')) {
@@ -4966,7 +5186,7 @@
             window.drawHalftone = function () {
                 const W = innerWidth, H = innerHeight, G = SMALL() ? 15 : 22;
                 halftoneCtx.clearRect(0, 0, W, H);
-                halftoneCtx.strokeStyle = 'rgba(148,163,155,0.10)';
+                halftoneCtx.strokeStyle = 'rgba(148,163,184,0.07)';   // 比照專案內容頁的背景，減弱
                 halftoneCtx.lineWidth = 1;
                 halftoneCtx.beginPath();
                 for (let x = 0.5; x <= W; x += G) { halftoneCtx.moveTo(x, 0); halftoneCtx.lineTo(x, H); }
@@ -4974,7 +5194,7 @@
                 halftoneCtx.stroke();
                 halftoneCtx.font = `700 ${SMALL() ? 9 : 13}px ${FONT}`;
                 halftoneCtx.textAlign = 'center'; halftoneCtx.textBaseline = 'middle';
-                halftoneCtx.fillStyle = 'rgba(120,135,150,0.55)';
+                halftoneCtx.fillStyle = 'rgba(120,135,155,0.3)';
                 for (let x = 0; x < W + G; x += G) for (let y = 0; y < H + G; y += G) {
                     const nx = x * htWaveScale, ny = y * htWaveScale;
                     const v = (Math.sin(nx * 3 + htTime) * Math.cos(ny * 3 + htTime) + Math.sin(nx * 5 - htTime * 0.8) * Math.cos(ny * 5 + htTime * 0.5) + 2) / 4;
