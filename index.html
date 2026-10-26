@@ -3547,6 +3547,7 @@
     /* 年份標籤放在最上層，不被首頁圖示壓住 */
     #hero-section .hero-icon { z-index: 10 !important; }
     /* ---------- 控制面板 ---------- */
+    #demo-panel { display: none !important; }   /* 面板先隱藏：效果維持目前的預設組合 */
     #demo-panel {
         position: fixed; left: 16px; bottom: 16px; z-index: 2147483000;
         background: #111111; color: #ffffff; border-radius: 14px;
@@ -3677,7 +3678,8 @@
     html.d6 #project-modal .modal-embed { box-shadow: none !important; }
     /* 多張圖片的縮圖：直角、無陰影 */
     html.d6 #project-modal .strip-thumb { border-radius: 0 !important; box-shadow: none !important; }
-    html.d6 #project-modal .strip-thumb.is-active { box-shadow: 0 0 0 2px var(--modal-tint), 0 0 0 3.5px #3B82F6 !important; }
+    html.d6 #project-modal .strip-thumb.is-active { box-shadow: none !important; }   /* 不加藍框：目前這張以不透明顯示，其他半透明 */
+    html.d6 #project-modal .strip-thumb:focus { outline: none; }
     /* 專案類別：不用圓角底色，改成文字＋底線 */
     html.d6 #project-modal .modal-tag { position: relative; background: none !important; border-radius: 0 !important; padding: 0 !important; margin-left: 0 !important;
         font-size: 13px; line-height: 1.4; letter-spacing: 0.16em; }
@@ -3723,6 +3725,8 @@
         html.d6 #project-modal .modal-head > *,
         html.d6 #project-modal #modal-description, html.d6 #project-modal #modal-description * { font-size: 14px !important; }
     }
+    /* 內文左右對齊：每行句尾切齊（最後一行靠左） */
+    html.d6 #project-modal #modal-description p, html.d6 #project-modal #modal-description li { text-align: justify; text-justify: inter-character; }
     /* CLOSE：拿掉框和文字，只留叉叉 */
     html.d6 #project-modal .modal-close { border: 0 !important; background: transparent !important; padding: 10px !important; border-radius: 0 !important; color: #111111 !important; }
     html.d6 #project-modal .modal-close::before { content: none !important; }
@@ -3852,6 +3856,8 @@
     #navbar.nav-dark, #navbar.nav-curtain { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
     /* MingFly. 與 ← Home：改成 ASCII 解碼切換，不用上下滑動 */
     html.d8 #brand-logo > span { transition: opacity 0.12s linear !important; transform: none !important; }
+    .word-slot { display: inline-block !important; width: var(--slot) !important; text-align: left !important; white-space: nowrap !important; }
+    @media (max-width: 767px) { .word-slot { text-align: center !important; } }   /* 手機：單字自己一行，置中 */
     #hero-section h1.is-ascii-text { color: transparent; }
     #hero-section h1.is-ascii-text span { color: transparent !important; }
     #contact h2.is-ascii-text, #contact h2.is-ascii-text span { color: transparent !important; }
@@ -3990,6 +3996,29 @@
         }
     }
     // 斜體關鍵字（beautiful、creative）：不轉成 ASCII，只在切換的那一刻用打字機解碼的方式重新出現
+    // 首頁、聯絡頁的藍色單字：每次切換換成下一個字（長度相近，整句不太會移動）
+    const HERO_WORDS = ['beautiful', 'memorable', 'thoughtful', 'wonderful', 'delightful', 'meaningful'];
+    const CONTACT_WORDS = ['creative', 'artistic', 'colorful', 'exciting', 'magical', 'vibrant'];
+    // 固定寬度的「字槽」：寬度＝清單裡最長的字，換字時整句完全不移動（字靠左，短字的右邊留白）
+    const slotCtx = document.createElement('canvas').getContext('2d');
+    function fixSlot(el, list) {
+        if (!el || reduce) return;
+        const cs = getComputedStyle(el);
+        slotCtx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+        const w = Math.max(...list.map(t => slotCtx.measureText(t).width));
+        el.classList.add('word-slot');
+        el.style.setProperty('--slot', Math.ceil(w + parseFloat(cs.fontSize) * 0.12) + 'px');   // 斜體字尾會稍微凸出，多留一點
+    }
+    function swapWord(el, list) {
+        if (!el || reduce) return false;
+        const cur = (el.__word || el.textContent).trim();
+        const nx = list[(list.indexOf(cur) + 1) % list.length];
+        el.__job = (el.__job || 0) + 1;            // 停掉上一次還沒跑完的解碼
+        el.__word = nx;
+        el.style.width = ''; el.style.display = ''; el.style.whiteSpace = ''; el.style.textAlign = '';
+        el.textContent = nx;
+        return true;
+    }
     function decodeWord(el, dur) {
         if (!el || reduce) return;
         const isSvg = el instanceof SVGElement;   // SVG 文字是置中對齊，不需要固定寬度
@@ -5040,6 +5069,7 @@
             let mode = 'text', hide = 1;    // hide：0 = 全部 ASCII，1 = 全部原文字
             // 把標題的每個字依實際位置畫到一張隱藏的畫布上
             function rasterize() {
+                fixSlot(h1.querySelector('.font-serif'), HERO_WORDS);
                 const box = h1.getBoundingClientRect();
                 PAD = 20; dpr = Math.min(devicePixelRatio || 1, 2);
                 W = Math.ceil(box.width + PAD * 2); H = Math.ceil(box.height + PAD * 2);
@@ -5160,6 +5190,7 @@
                 heroSet(!toAscii);                               // 首頁圖示同一刻一起切換
                 const t0 = performance.now();
                 h1.classList.add('is-ascii-text');
+                if (swapWord(h1.querySelector('.font-serif'), HERO_WORDS)) rasterize();   // 換字後重新取樣其他字的位置
                 decodeWord(h1.querySelector('.font-serif'));
                 decodeWord(document.querySelector('#hero-section .drag-item:not(.hero-icon) svg text'));   // 年份標籤：不轉 ASCII，只解碼              // 轉場中與 ASCII 狀態：真正的文字隱藏，由畫布代畫
                 (function step(now) {
@@ -5438,6 +5469,7 @@
         const sm = document.createElement('canvas'), sctx = sm.getContext('2d', { willReadFrequently: true });
         let W = 0, H = 0, P = 20, dpr = 1, cell = 8, cols = 0, rows = 0, data = null, hide = 1, mode = 'text', timer = 0, started = false;
         function rasterize() {
+            fixSlot(h2.querySelector('.font-serif'), CONTACT_WORDS);
             const box = h2.getBoundingClientRect();
             dpr = Math.min(devicePixelRatio || 1, 2);
             W = Math.ceil(box.width + P * 2); H = Math.ceil(box.height + P * 2);
@@ -5476,6 +5508,7 @@
             { const R = document.documentElement; if (R.classList.contains('hero-gone') && R.getAttribute('data-view') === 'contact') { window.__logoFlip && window.__logoFlip(toAscii); } }
             const t0 = performance.now();
             h2.classList.add('is-ascii-text');
+            if (swapWord(h2.querySelector('.font-serif'), CONTACT_WORDS)) rasterize();
             decodeWord(h2.querySelector('.font-serif'));
             (function step(now) {
                 const k = Math.min(1, (now - t0) / FX);
