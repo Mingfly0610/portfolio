@@ -3531,6 +3531,16 @@
         html body #work #filter-btns { gap: 8px 20px !important; max-width: none !important; width: auto !important; justify-content: center; }
         html body #work #filter-btns .filter-btn.filter-btn { font-size: 14px; }
     }
+    /* 導航列：目前所在頁面的文字加底線（樣式同類別底線） */
+    #navbar nav a, #mobile-menu .mobile-link { position: relative; }
+    #navbar nav a::after, #mobile-menu .mobile-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: -3px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+    #mobile-menu .mobile-link::after { height: 2px; bottom: -4px; }
+    html.hero-gone[data-view="work"] #navbar nav a[href="#work"]::after,
+    html.hero-gone[data-view="about"] #navbar nav a[href="#about"]::after,
+    html.hero-gone[data-view="contact"] #navbar nav a[href="#contact"]::after,
+    html.hero-gone[data-view="work"] #mobile-menu a[href="#work"]::after,
+    html.hero-gone[data-view="about"] #mobile-menu a[href="#about"]::after,
+    html.hero-gone[data-view="contact"] #mobile-menu a[href="#contact"]::after { transform: scaleX(1); }
     html body #work #filter-btns .filter-btn.filter-btn:focus-visible { outline: 1px dashed currentColor; outline-offset: 4px; }
     /* 年份標籤放在最上層，不被首頁圖示壓住 */
     #hero-section .hero-icon { z-index: 10 !important; }
@@ -4379,7 +4389,14 @@
 
         function mediaFor(item) {
             const src = item.querySelector('.item-media-el');
-            if (!src) return null;
+            if (!src) {
+                // 沒有縮圖的專案（例如個人作品集網站）：改用專案的示範影片
+                const dv = item.getAttribute('data-video');
+                if (!dv) return null;
+                const v = document.createElement('video');
+                v.src = dv; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.preload = 'auto';
+                return v;
+            }
             if (src.tagName === 'VIDEO') {
                 const v = document.createElement('video');
                 v.src = src.getAttribute('src') || src.currentSrc; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.preload = 'auto';
@@ -4417,8 +4434,8 @@
             const mob = innerWidth < 768;
             const nav = document.getElementById('navbar'), navH = nav ? nav.offsetHeight : 0;
             // 位置：清單右半部（約 47%～79% 的寬度），上緣固定在畫面約 1/4 處；直式作品以高度為限、橫式以寬度為限
-            const boxW = inner * (mob ? 0.5 : 0.32), top = navH + (innerHeight - navH) * (mob ? 0.2 : 0.17);
-            const boxH = innerHeight * 0.9 - top;
+            const boxW = inner * (mob ? 0.5 : 0.42), top = navH + (innerHeight - navH) * (mob ? 0.2 : 0.13);
+            const boxH = innerHeight * (mob ? 0.9 : 0.95) - top;
             let w = boxW, h = w / ar;
             if (h > boxH) { h = boxH; w = h * ar; }
             pic.style.width = w + 'px'; pic.style.height = h + 'px';
