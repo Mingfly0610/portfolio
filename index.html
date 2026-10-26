@@ -3532,6 +3532,37 @@
             grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 96px; padding: 56px 96px 64px;
         }
     }
+    /* =========================================================
+       5. 「全部」：三欄翻卡（每欄一個類別，卡片由左往右翻，無限循環）
+       ========================================================= */
+    #demo-flip { display: none; max-width: 1280px; margin: 0 auto; padding: 8px 48px 40px; }
+    html.d5 #demo-flip.is-on { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+    .fl-col { display: flex; flex-direction: column; gap: 18px; }
+    .fl-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid currentColor; padding-bottom: 10px; }
+    .fl-head b { font-size: 30px; font-weight: 900; letter-spacing: 0.02em; }
+    .fl-head span { font-family: "Playfair Display", serif; font-style: italic; font-size: 18px; color: #3B82F6; }
+    html.d4 .fl-head { color: #ffffff; }
+    html.d4 .fl-head span { color: #FFEC00; }
+    .fl-stage { position: relative; aspect-ratio: var(--stage-ar, 0.7); perspective: 1800px; cursor: pointer; }
+    .fl-card { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 50% 50%; }
+    .fl-card.is-flipping { transition: transform 0.62s cubic-bezier(0.55, 0.05, 0.3, 1); transform: rotateY(-180deg); }   /* 從上往下看是順時針 */
+    .fl-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+        display: flex; align-items: flex-start; justify-content: center; }
+    .fl-face.back { transform: rotateY(180deg); }
+    .fl-face .item-media { box-shadow: 0 1px 2px rgba(17,17,17,0.08), 0 10px 22px -12px rgba(17,17,17,0.35); }
+    .fl-face .item-badge { display: none; }
+    .fl-dots { display: none !important; gap: 6px; justify-content: center; }
+    .fl-dots i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.25; transition: opacity 0.3s, transform 0.3s; }
+    .fl-dots i.on { opacity: 1; transform: scale(1.3); }
+    html.d4 .fl-dots { color: #ffffff; }
+    @media (max-width: 767px) {
+        #demo-flip { padding: 0 16px 30px; }
+        html.d5 #demo-flip.is-on { gap: 10px; }
+        .fl-head { flex-direction: column; align-items: flex-start; gap: 2px; padding-bottom: 6px; }
+        .fl-head b { font-size: 16px; }
+        .fl-head span { font-size: 12px; }
+        .fl-dots i { width: 4px; height: 4px; }
+    }
 </style>
 
 <canvas id="demo-wipe" aria-hidden="true"></canvas>
@@ -3547,6 +3578,7 @@
     <div class="dp-body">
         <label><input type="checkbox" data-f="1"><span class="dp-num">1</span>十字網格與轉場</label>
         <label><input type="checkbox" data-f="3"><span class="dp-num">3</span>拼貼作品牆</label>
+        <label><input type="checkbox" data-f="5"><span class="dp-num">5</span>全部：三欄翻卡</label>
         <label><input type="checkbox" data-f="4"><span class="dp-num">4</span>品牌藍色塊</label>
         <label><input type="checkbox" data-f="6"><span class="dp-num">6</span>整頁專案頁</label>
         <div class="dp-note">勾選後頁面會重新載入。<br>這是測試頁，不影響正式網站。</div>
@@ -3557,7 +3589,7 @@
 (function () {
     // ---------- 讀取要開啟的方向（網址 ?d=1346，預設全開） ----------
     const q = new URLSearchParams(location.search).get('d');
-    const on = new Set((q === null ? '1346' : q).split(''));
+    const on = new Set((q === null ? '13456' : q).split(''));
     const root = document.documentElement;
     on.forEach(f => root.classList.add('d' + f));
 
@@ -3761,6 +3793,88 @@
             }
             setTimeout(() => requestAnimationFrame(tick), 33);
         })();
+    }
+    // =========================================================
+    // 5. 「全部」：三欄翻卡
+    // =========================================================
+    if (on.has('5')) {
+        const CATS = [['event', '活動視覺'], ['animation', '動態設計'], ['programming', '程式設計']];
+        const stage = document.createElement('div');
+        stage.id = 'demo-flip';
+        document.getElementById('portfolio-track-container').before(stage);
+        const ref = allOriginalItems[0] && allOriginalItems[0].querySelector('.item-media-el');
+        function face(item) {
+            const m = item.querySelector('.item-media').cloneNode(true);
+            m.querySelectorAll('.skeleton-shimmer').forEach(n => n.remove());
+            const ar = parseFloat(item.style.getPropertyValue('--ar')) || 1.33;
+            m.style.aspectRatio = ar;
+            // 依比例決定卡片內的大小：直式以高度為準、橫式以寬度為準
+            m.style.width = '100%'; m.style.height = 'auto';   // 一律和欄寬（上方白線）同寬
+            m.querySelectorAll('img').forEach(n => { n.loading = 'eager'; n.classList.remove('opacity-0'); });
+            m.querySelectorAll('video').forEach(v => { v.classList.remove('opacity-0'); v.preload = 'auto'; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.load(); v.play().catch(() => {}); });
+            const src = item.querySelector('.item-media-el');
+            if (on.has('1') && src) {
+                const cs = getComputedStyle(src);
+                m.querySelectorAll('.item-media-el').forEach(n => { n.style.webkitMaskImage = cs.webkitMaskImage; n.style.maskImage = cs.maskImage; n.style.webkitMaskSize = cs.webkitMaskSize; n.style.maskSize = cs.maskSize; n.style.filter = cs.filter; });
+                m.style.background = '#ffffff';
+            }
+            return m;
+        }
+        const cols = CATS.map(([cat, name], ci) => {
+            const list = allOriginalItems.filter(it => it.getAttribute('data-category') === cat);
+            const col = document.createElement('div'); col.className = 'fl-col';
+            col.innerHTML = `<div class="fl-head"><b>${name}</b><span>${String(list.length).padStart(2, '0')} works</span></div>
+                <div class="fl-stage" role="button" tabindex="0"><div class="fl-card"><div class="fl-face front"></div><div class="fl-face back"></div></div></div>
+                <div class="fl-dots">${list.map(() => '<i></i>').join('')}</div>`;
+            stage.appendChild(col);
+            // 舞台高度以這一欄最直長的作品為準，換卡時版面不會跳動
+            col.querySelector('.fl-stage').style.setProperty('--stage-ar', Math.min(...list.map(it => parseFloat(it.style.getPropertyValue('--ar')) || 1.33)));
+            const st = { list, idx: 0, col, card: col.querySelector('.fl-card'), front: col.querySelector('.front'), back: col.querySelector('.back'), dots: [...col.querySelectorAll('.fl-dots i')], paused: false, busy: false };
+            st.front.appendChild(face(list[0]));
+            st.back.appendChild(face(list[1 % list.length]));
+            st.dots[0].classList.add('on');
+            const stg = col.querySelector('.fl-stage');
+            stg.addEventListener('mouseenter', () => { st.paused = true; });
+            stg.addEventListener('mouseleave', () => { st.paused = false; });
+            stg.addEventListener('click', (e) => {
+                const item = st.list[st.idx];
+                if (on.has('1') && typeof dotWipe === 'function') dotWipe(e.clientX, e.clientY, () => openProject(item));
+                else openProject(item);
+            });
+            return st;
+        });
+        function flip(st) {
+            if (st.paused || st.busy || document.hidden) return;
+            if (!document.getElementById('demo-flip').classList.contains('is-on')) return;
+            if (!document.getElementById('project-modal').classList.contains('hidden')) return;
+            st.busy = true;
+            st.card.classList.add('is-flipping');
+            setTimeout(() => {
+                st.idx = (st.idx + 1) % st.list.length;
+                // 翻完：背面變成正面，背面換成下一件
+                st.front.replaceChildren(...st.back.childNodes);
+                st.card.classList.remove('is-flipping');
+                st.back.replaceChildren(face(st.list[(st.idx + 1) % st.list.length]));
+                st.dots.forEach((d, i) => d.classList.toggle('on', i === st.idx));
+                st.busy = false;
+            }, 650);
+        }
+        // 三欄同步翻
+        const PERIOD = 1700;
+        cols.forEach((st, i) => setTimeout(() => { flip(st); setInterval(() => flip(st), PERIOD); }, 600));
+
+        const prevEnable = enableMarquee, prevDisable = disableMarquee;
+        enableMarquee = function () {
+            prevDisable();
+            allOriginalItems.forEach(it => { it.style.display = ''; it.style.opacity = '1'; });
+            document.getElementById('portfolio-track-container').style.display = 'none';
+            stage.classList.add('is-on');
+        };
+        disableMarquee = function () {
+            stage.classList.remove('is-on');
+            document.getElementById('portfolio-track-container').style.display = '';
+            prevDisable();
+        };
     }
 })();
 </script>
