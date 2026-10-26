@@ -1755,9 +1755,9 @@
                 Start your <span class="font-serif italic font-normal text-[#3B82F6]">creative</span><br>
                 journey with me.
             </h2>
-            <p class="text-base md:text-xl text-gray-400">如果您有任何專案想法，<br class="md:hidden">歡迎與我聯繫。</p>
+            <p class="text-base md:text-xl text-white">如果您有任何專案想法，<br class="md:hidden">歡迎與我聯繫。</p>
             
-            <div class="pt-8 md:pt-16 flex justify-center gap-8 text-3xl text-gray-400">
+            <div class="pt-8 md:pt-16 flex justify-center gap-8 text-3xl text-white">
                 <a href="mailto:qwe33885@gmail.com" class="icon-bounce hover:text-[#3B82F6] inline-block" title="發送 Email 給我"><i class="ph ph-envelope-simple"></i></a>
                 <!-- 以下三個社群連結暫時隱藏（未刪除）：日後要加回來，把各自的 style="display:none" 拿掉即可 -->
                 <a href="https://www.instagram.com/mingfly0610?igsh=MWYzamlzemQzd3liaA%3D%3D&utm_source=qr" target="_blank" style="display:none" class="icon-bounce hover:text-[#3B82F6] inline-block" title="Instagram"><i class="ph ph-instagram-logo"></i></a>
@@ -3745,6 +3745,8 @@
     .h1-ascii { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1; }
     .tag-ascii { position: absolute; pointer-events: none; }
     #whale-sea { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 0; }
+    #modal-ascii { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 0; }
+    #modal-content > .modal-scroll { position: relative; z-index: 1; }
     #hero-section .drag-item.is-ascii-tag > svg { visibility: hidden; }
     /* 頂端導覽列：純白，不要半透明模糊 */
     #navbar:not(.nav-dark):not(.nav-curtain) { background: #ffffff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
@@ -3824,6 +3826,70 @@
     // ---------- ASCII 版的開場與轉場：整片色塊一格一格「解碼」成字元後消失 ----------
     const ASCII_FX = on.has('8');
     const WIPE_GLY = '@#8XS%t;:.';
+    // 標題文字的 ASCII 繪製（快速版）：整張 ASCII 先畫好快取起來，轉場時用遮罩一次合成，
+    // 不再每一格各自呼叫繪圖，轉場到最後也不會掉格
+    function fastAsciiText(S, t) {
+        const ctx = S.ctx, cv = ctx.canvas, CW = cv.width, CH = cv.height;
+        const { dpr, cell, cols, rows, data, raw, hide } = S;
+        ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, CW, CH);
+        if (!data || hide >= 1) return;
+        const H3 = (a, b, c) => { let h = (a * 374761393 + b * 668265263 + c * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+        const RP = ':;t%SX8#@', AC = ['#FFEC00', '#F97316', '#EF4444', '#A855F7', '#22C55E', '#06B6D4'];
+        const MONO = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+        const tick = Math.floor(t / 420);
+        // 1) 完整的 ASCII 圖：字元閃爍每 420ms 才更新一次
+        if (!S.asc || S.asc.width !== CW || S.asc.height !== CH || S.ascTick !== tick || S.ascData !== data) {
+            S.asc = S.asc && S.asc.width === CW && S.asc.height === CH ? S.asc : mk(CW, CH);
+            const a2 = S.asc.getContext('2d');
+            a2.setTransform(1, 0, 0, 1, 0, 0); a2.clearRect(0, 0, CW, CH); a2.setTransform(dpr, 0, 0, dpr, 0, 0);
+            a2.font = `700 ${Math.round(cell * 0.8)}px ${MONO}`; a2.textAlign = 'center'; a2.textBaseline = 'middle';
+            const gap = Math.max(0.6, cell * 0.1);
+            for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+                const i = (y * cols + x) * 4, a = data[i + 3] / 255;
+                if (a < 0.3) continue;
+                const R = data[i], G = data[i + 1], B = data[i + 2], px = x * cell, py = y * cell;
+                a2.fillStyle = `rgba(${R},${G},${B},${Math.min(1, a * 1.2)})`;
+                a2.fillRect(px + gap / 2, py + gap / 2, cell - gap, cell - gap);
+                a2.fillStyle = H3(x, y, tick) < 0.03 ? AC[Math.floor(H3(y, x, tick) * AC.length)] : (R > 200 && G > 200 ? 'rgba(17,17,17,0.6)' : 'rgba(255,255,255,0.8)');
+                a2.fillText(RP[Math.min(RP.length - 1, Math.floor(a * RP.length * 0.99))], px + cell / 2, py + cell / 2 + 0.5);
+            }
+            S.ascTick = tick; S.ascData = data;
+        }
+        if (hide <= 0) { ctx.drawImage(S.asc, 0, 0); return; }
+        // 2) 依「左到右＋隨機」的順序，分成：已換回原文字、交界（跳動字元）、還是 ASCII
+        if (!S.km || S.km.width !== cols || S.km.height !== rows) { S.km = mk(cols, rows); S.sm = mk(cols, rows); }
+        const kc = S.km.getContext('2d'), sc = S.sm.getContext('2d');
+        const kd = kc.createImageData(cols, rows), sd = sc.createImageData(cols, rows);
+        const edge = 0.06, P = hide * (1 + edge * 2) - edge, edges = [];
+        for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+            const j = y * cols + x, o = 0.55 * (x / cols) + 0.45 * H3(x, y, S.salt || 13);
+            if (o < P - edge) { sd.data[j * 4 + 3] = 255; continue; }
+            if (data[j * 4 + 3] / 255 < 0.3) continue;
+            if (o < P + edge) edges.push(j); else kd.data[j * 4 + 3] = 255;
+        }
+        kc.putImageData(kd, 0, 0); sc.putImageData(sd, 0, 0);
+        if (!S.ta || S.ta.width !== CW || S.ta.height !== CH) { S.ta = mk(CW, CH); S.tb = mk(CW, CH); }
+        const sw = cols * cell * dpr, sh = rows * cell * dpr;
+        for (const [tmp, src, mask] of [[S.tb, raw, S.sm], [S.ta, S.asc, S.km]]) {
+            const x2 = tmp.getContext('2d');
+            x2.globalCompositeOperation = 'source-over'; x2.clearRect(0, 0, CW, CH);
+            x2.drawImage(src, 0, 0);
+            x2.globalCompositeOperation = 'destination-in'; x2.imageSmoothingEnabled = false;
+            x2.drawImage(mask, 0, 0, cols, rows, 0, 0, sw, sh);
+            x2.globalCompositeOperation = 'source-over';
+            ctx.drawImage(tmp, 0, 0);
+        }
+        // 3) 交界處只剩跳動的字元
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.font = `700 ${Math.round(cell * 0.8)}px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const ft = Math.floor(t / 50);
+        for (const j of edges) {
+            const x = j % cols, y = (j / cols) | 0, i = j * 4;
+            ctx.fillStyle = `rgb(${data[i]},${data[i + 1]},${data[i + 2]})`;
+            ctx.fillText(RP[Math.floor(H3(x, y, ft) * RP.length)], x * cell + cell / 2, y * cell + cell / 2);
+        }
+    }
     // 斜體關鍵字（beautiful、creative）：不轉成 ASCII，只在切換的那一刻用打字機解碼的方式重新出現
     function decodeWord(el, dur) {
         if (!el || reduce) return;
@@ -4305,6 +4371,12 @@
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             const gap = Math.max(0.6, cw * 0.08);
             const tick = Math.floor(t / 420);
+            // 已切換回原圖的格子先記在遮罩上，最後一次合成（比每格各畫一次快很多，轉場尾段不會卡）
+            let mask = null;
+            if (L.hide > 0) {
+                if (!L.mk || L.mk.width !== cols || L.mk.height !== rows) { L.mk = document.createElement('canvas'); L.mk.width = cols; L.mk.height = rows; }
+                mask = L.mk.getContext('2d').createImageData(cols, rows);
+            }
             for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
                 const i = (y * cols + x) * 4;
                 const a = data[i + 3] / 255;
@@ -4316,8 +4388,8 @@
                     const o = 0.55 * (x / cols) + 0.45 * hash(x, y, 11);
                     const edge = 0.07, P = L.hide * (1 + edge * 2) - edge;
                     if (o < P - edge) {
-                        // 已切換的格子：直接畫原圖的這一小塊，原圖就一格一格長出來
-                        ctx.drawImage(src, sx + x * sW / cols, sy + y * sH / rows, sW / cols, sH / rows, px, py, cw + 0.5, ch + 0.5);
+                        // 已切換的格子：記在遮罩上，迴圈結束後一次畫出原圖
+                        mask.data[i + 3] = 255;
                         continue;
                     }
                     if (a < 0.35) continue;   // 網點很稀的格子不畫字元（原圖部分上面已經完整畫出）
@@ -4344,6 +4416,19 @@
                 const flick = hash(x, y, tick) < 0.035;
                 ctx.fillStyle = flick ? ACCENTS[Math.floor(hash(y, x, tick) * ACCENTS.length)] : (lum > 0.6 ? 'rgba(17,17,17,0.55)' : 'rgba(255,255,255,0.78)');
                 ctx.fillText(RAMP[j], px + cw / 2, py + ch / 2 + ch * 0.04);
+            }
+            if (mask) {
+                L.mk.getContext('2d').putImageData(mask, 0, 0);
+                const CW = L.cv.width, CH = L.cv.height;
+                if (!L.tmp || L.tmp.width !== CW || L.tmp.height !== CH) { L.tmp = document.createElement('canvas'); L.tmp.width = CW; L.tmp.height = CH; }
+                const x2 = L.tmp.getContext('2d');
+                x2.globalCompositeOperation = 'source-over'; x2.clearRect(0, 0, CW, CH);
+                x2.drawImage(src, sx, sy, sW, sH, 0, 0, CW, CH);
+                x2.globalCompositeOperation = 'destination-in'; x2.imageSmoothingEnabled = false;
+                x2.drawImage(L.mk, 0, 0, cols, rows, 0, 0, CW, CH);
+                x2.globalCompositeOperation = 'source-over';
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.drawImage(L.tmp, 0, 0);
             }
             L.ok = true;
         }
@@ -4542,31 +4627,10 @@
                 sctx.drawImage(raw, 0, 0, cols, rows);
                 data = sctx.getImageData(0, 0, cols, rows).data;
             }
+            const FX_S = { salt: 13 };
             function draw(t) {
-                if (!data) return;
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                ctx.clearRect(0, 0, W, H);
-                if (hide >= 1) return;
-                ctx.font = `700 ${Math.round(cell * 0.8)}px ${FONT}`;
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                const tick = Math.floor(t / 420), gap = Math.max(0.6, cell * 0.1);
-                const edge = 0.07, P = hide * (1 + edge * 2) - edge;
-                for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-                    const i = (y * cols + x) * 4, a = data[i + 3] / 255;
-                    if (a < 0.3) continue;
-                    const R = data[i], G = data[i + 1], B = data[i + 2];
-                    const px = x * cell, py = y * cell;
-                    if (hide > 0) {
-                        const o = 0.55 * (x / cols) + 0.45 * hash(x, y, 13);
-                        if (o < P - edge) { ctx.drawImage(raw, px * dpr, py * dpr, cell * dpr, cell * dpr, px, py, cell + 0.5, cell + 0.5); continue; }
-                        if (o < P + edge) { ctx.fillStyle = `rgb(${R},${G},${B})`; ctx.fillText(RAMP[Math.floor(hash(x, y, Math.floor(t / 50)) * RAMP.length)], px + cell / 2, py + cell / 2); continue; }
-                    }
-                    ctx.fillStyle = `rgba(${R},${G},${B},${Math.min(1, a * 1.2)})`;
-                    ctx.fillRect(px + gap / 2, py + gap / 2, cell - gap, cell - gap);
-                    const flick = hash(x, y, tick) < 0.03;
-                    ctx.fillStyle = flick ? ACCENTS[Math.floor(hash(y, x, tick) * ACCENTS.length)] : 'rgba(255,255,255,0.8)';
-                    ctx.fillText(RAMP[Math.min(RAMP.length - 1, Math.floor(a * RAMP.length * 0.99))], px + cell / 2, py + cell / 2 + 0.5);
-                }
+                Object.assign(FX_S, { ctx, dpr, cell, cols, rows, data, raw, hide });
+                fastAsciiText(FX_S, t);
             }
             // 年份標籤：和大標題、首頁圖示同步切換成 ASCII（畫布放在標籤裡，拖曳時一起移動）
             const tagFx = (function () {
@@ -4942,26 +5006,10 @@
             sm.width = cols; sm.height = rows; sctx.clearRect(0, 0, cols, rows); sctx.drawImage(raw, 0, 0, cols, rows);
             data = sctx.getImageData(0, 0, cols, rows).data;
         }
+        const FX_S = { salt: 19 };
         function draw(t) {
-            if (!data) return;
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-            if (hide >= 1) return;
-            ctx.font = `700 ${Math.round(cell * 0.8)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            const tick = Math.floor(t / 420), gap = Math.max(0.6, cell * 0.1), edge = 0.07, PP = hide * (1 + edge * 2) - edge;
-            for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-                const i = (y * cols + x) * 4, a = data[i + 3] / 255;
-                if (a < 0.3) continue;
-                const R = data[i], G = data[i + 1], B = data[i + 2], px = x * cell, py = y * cell;
-                if (hide > 0) {
-                    const o = 0.55 * (x / cols) + 0.45 * h3(x, y, 19);
-                    if (o < PP - edge) { ctx.drawImage(raw, px * dpr, py * dpr, cell * dpr, cell * dpr, px, py, cell + 0.5, cell + 0.5); continue; }
-                    if (o < PP + edge) { ctx.fillStyle = `rgb(${R},${G},${B})`; ctx.fillText(RAMP[Math.floor(h3(x, y, Math.floor(t / 50)) * RAMP.length)], px + cell / 2, py + cell / 2); continue; }
-                }
-                ctx.fillStyle = `rgba(${R},${G},${B},${Math.min(1, a * 1.2)})`;
-                ctx.fillRect(px + gap / 2, py + gap / 2, cell - gap, cell - gap);
-                ctx.fillStyle = h3(x, y, tick) < 0.03 ? ACC[Math.floor(h3(y, x, tick) * ACC.length)] : (R > 200 && G > 200 ? 'rgba(17,17,17,0.6)' : 'rgba(255,255,255,0.8)');
-                ctx.fillText(RAMP[Math.min(RAMP.length - 1, Math.floor(a * RAMP.length * 0.99))], px + cell / 2, py + cell / 2 + 0.5);
-            }
+            Object.assign(FX_S, { ctx, dpr, cell, cols, rows, data, raw, hide });
+            fastAsciiText(FX_S, t);
         }
         const HOLD = 3000, FX = 800;
         function run(toAscii) {
@@ -4986,6 +5034,46 @@
             (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { rasterize(); timer = setTimeout(() => run(true), HOLD); });
         }, { threshold: 0.3 }).observe(h2);
         let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (!started) return; rasterize(); if (mode === 'ascii') draw(performance.now()); }, 200); });
+    })();
+    // 專案頁背景：很淡的 ASCII 字元格線，和首頁同一套波動，但只當點綴
+    if (on.has('8')) (function modalAscii() {
+        const card = document.getElementById('modal-content');
+        const modal = document.getElementById('project-modal');
+        if (!card || !modal) return;
+        const cv = document.createElement('canvas');
+        cv.id = 'modal-ascii'; cv.setAttribute('aria-hidden', 'true');
+        card.insertBefore(cv, card.firstChild);
+        const ctx = cv.getContext('2d');
+        const BG = ' .-:;+=%';
+        const FONT = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        let last = 0;
+        function draw(now) {
+            if (modal.classList.contains('hidden')) return;          // 彈窗關閉時停止
+            requestAnimationFrame(draw);
+            if (now - last < 66) return;                              // 約 15fps 就夠，背景很慢
+            last = now;
+            const r = card.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+            const W = Math.round(r.width), H = Math.round(r.height);
+            if (cv.width !== W * dpr || cv.height !== H * dpr) { cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px'; }
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+            const G = innerWidth < 768 ? 16 : 22;
+            ctx.strokeStyle = 'rgba(148,163,184,0.07)'; ctx.lineWidth = 1; ctx.beginPath();
+            for (let x = 0.5; x <= W; x += G) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+            for (let y = 0.5; y <= H; y += G) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+            ctx.stroke();
+            ctx.font = `700 ${innerWidth < 768 ? 9 : 12}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'rgba(120,135,155,0.22)';
+            const T = (typeof htTime === 'number' ? htTime : now / 2000) * 0.8, k = 0.0028;
+            for (let x = 0; x < W + G; x += G) for (let y = 0; y < H + G; y += G) {
+                const nx = x * k, ny = y * k;
+                const v = (Math.sin(nx * 3 + T) * Math.cos(ny * 3 + T) + Math.sin(nx * 5 - T * 0.8) * Math.cos(ny * 5 + T * 0.5) + 2) / 4;
+                const n = Math.floor(Math.pow(v, 2.6) * BG.length);
+                if (n <= 0) continue;
+                ctx.fillText(BG[Math.min(BG.length - 1, n)], x + G / 2, y + G / 2);
+            }
+        }
+        new MutationObserver(() => { if (!modal.classList.contains('hidden')) { last = 0; requestAnimationFrame(draw); } })
+            .observe(modal, { attributes: true, attributeFilter: ['class'] });
     })();
 })();
 </script>
