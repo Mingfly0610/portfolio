@@ -3422,10 +3422,13 @@
     </script>
 
 <!-- ===================== 風格 DEMO 層（只存在於 demo.html，不影響正式網站） ===================== -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Micro+5&display=swap">
 <style id="demo-style">
     /* 年份標籤：改用像素字 Micro 5（黃色描邊樣式不變） */
-    #hero-section h1 .drag-item svg text { font-family: "Micro 5", "Playfair Display", serif; font-weight: 400; font-size: 72px; letter-spacing: 1px; }
+    /* 字型直接內嵌（只含數字與連字號，約 8KB），不必等 Google Fonts，也不會載入失敗 */
+    @font-face { font-family: "Micro5Year"; src: url(data:font/ttf;base64,AAEAAAAQAQAABAAAR1BPU0R2THUAABbUAAAAIEdTVUK4+rj0AAAW9AAAACpPUy8yZWtf/gAABTwAAABgY21hcABYAIYAAAWcAAAAPGN2dCAOEgT7AAAUjAAAADhmcGdtYi77ewAABdgAAA4MZ2FzcAAAABAAABbMAAAACGdseWa339QcAAABDAAAA3ZoZWFkKBtqTwAABMAAAAA2aGhlYQlZCC4AAAUYAAAAJGhtdHgJYAAAAAAE+AAAACBsb2NhBZ4ErQAABKQAAAAabWF4cAE4DoAAAASEAAAAIG5hbWUoYT+HAAAUxAAAAehwb3N0/58AMgAAFqwAAAAgcHJlcOxIypwAABPkAAAApwACAAAAAAHCAu4AAwAHACdAJAAAAAJfAAICEE0EAQEBA18AAwMRA04AAAcGBQQAAwADEQUHFyslESMRAyERIQEslpYBwv4+lgHC/j4CWP0SAAEAAAAAASwC7gAFABlAFgAAAAFfAAEBEE0AAgIRAk4RERADBxkrEyM1IREjlpYBLJYCWJb9EgAAAQAAAAABwgLuAAsAKUAmAAAAAwQAA2cAAQECXwACAhBNAAQEBV8ABQURBU4RERERERAGBxwrESE1ITUhESEVIRUhASz+1AHC/tQBLP4+AcKWlv4+lpYAAAEAAAAAAcIC7gALAClAJgACAAEAAgFnAAMDBF8ABAQQTQAAAAVfAAUFEQVOEREREREQBgccKzUhNSM1MzUhNSERIQEslpb+1AHC/j6WlpaWlv0SAAEAAAAAAcIC7gAJAB9AHAACAAAEAgBoAwEBARBNAAQEEQROERERERAFBxsrASERMxEzETMRIwEs/tSWlpaWASwBwv7UASz9EgAAAQAAAAABwgLuAAsAKUAmAAQAAQAEAWcAAwMCXwACAhBNAAAABV8ABQURBU4RERERERAGBxwrNSE1IREhFSEVIREhASz+1AHC/tQBLP4+lpYBwpaW/j4AAAIAAAAAAcIC7gAHAAsAKUAmAAAABQQABWcAAwMCXwACAhBNAAQEAV8AAQERAU4RERERERAGBxwrEyERIREhFSERMzUjlgEs/j4Bwv7UlpYBwv4+Au6W/j6WAAIAAAAAAcIC7gAFAAkAKEAlAAIAAwACA4AAAAABXwABARBNAAMDBF8ABAQRBE4REREREAUHGysBITUhESMjMxEjASz+1AHClpaWlgJYlv4+/tQAAAMAAAAAAcIC7gADAAcACwAxQC4GAQMABQQDBWcAAgIAXwAAABBNAAQEAV8AAQERAU4EBAsKCQgEBwQHEhEQBwcZKxEhESEBNSMVETM1IwHC/j4BLJaWlgLu/RIBwpaW/tSWAAACAAAAAAHCAu4AAwALAClAJgAAAAMCAANnAAEBBF8ABAQQTQACAgVfAAUFEQVOEREREREQBgccKxMzNSMDITUhESERIZaWlpYBLP7UAcL+PgHClv4+lgHC/RIAAAEAAAEsAcIBwgADABhAFQAAAQEAVwAAAAFfAAEAAU8REAIHGCsRIRUhAcL+PgHClgAAAAABAAAADAAkAAkAAAAAAAIAJABOAI0AAABxDgwAAAAAAAAAAAAoAEQAcACaAL8A6wEYAUIBdAGiAbsAAAABAAAAAQBCsqDmel8PPPUADwZyAAAAAOCinvwAAAAA46WEIP9q/j4FRgVGAAAABgACAAAAAAAAAu4AAAJYAAABwgAAAlgAAAAAAAAAAAAAAAAAAAAAAAAAAQAABKb+NAAABdz/av2oBUYGcgAAAAAAAAAAAAAAAAAAAAQABAJJAZAABQAABDED3gAAAHwEMQPeAAACQgAyAWgAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAATk9ORQDAAC0AOQSm/jQAAAVGAcwAAAABAAAAAAJYAu4AAAAgAAIAAAACAAAAAwAAABQAAwABAAAAFAAEACgAAAAGAAQAAQACAC0AOf//AAAALQAw////3v/RAAEAAAAAAACwACwgsABVWEVZICBLuAAOUUuwBlNaWLA0G7AoWWBmIIpVWLACJWG5CAAIAGNjI2IbISGwAFmwAEMjRLIAAQBDYEItsAEssCBgZi2wAiwjISMhLbADLCBkswMUFQBCQ7ATQyBgYEKxAhRDQrElA0OwAkNUeCCwDCOwAkNDYWSwBFB4sgICAkNgQrAhZRwhsAJDQ7IOFQFCHCCwAkMjQrITARNDYEIjsABQWGVZshYBAkNgQi2wBCywAyuwFUNYIyEjIbAWQ0MjsABQWGVZGyBkILDAULAEJlqyKAENQ0VjRbAGRVghsAMlWVJbWCEjIRuKWCCwUFBYIbBAWRsgsDhQWCGwOFlZILEBDUNFY0VhZLAoUFghsQENQ0VjRSCwMFBYIbAwWRsgsMBQWCBmIIqKYSCwClBYYBsgsCBQWCGwCmAbILA2UFghsDZgG2BZWVkbsAIlsAxDY7AAUliwAEuwClBYIbAMQxtLsB5QWCGwHkthuBAAY7AMQ2O4BQBiWVlkYVmwAStZWSOwAFBYZVlZIGSwFkMjQlktsAUsIEUgsAQlYWQgsAdDUFiwByNCsAgjQhshIVmwAWAtsAYsIyEjIbADKyBksQdiQiCwCCNCsAZFWBuxAQ1DRWOxAQ1DsAFgRWOwBSohILAIQyCKIIqwASuxMAUlsAQmUVhgUBthUllYI1khWSCwQFNYsAErGyGwQFkjsABQWGVZLbAHLLAJQyuyAAIAQ2BCLbAILLAJI0IjILAAI0JhsAJiZrABY7ABYLAHKi2wCSwgIEUgsA5DY7gEAGIgsABQWLBAYFlmsAFjYESwAWAtsAossgkOAENFQiohsgABAENgQi2wCyywAEMjRLIAAQBDYEItsAwsICBFILABKyOwAEOwBCVgIEWKI2EgZCCwIFBYIbAAG7AwUFiwIBuwQFlZI7AAUFhlWbADJSNhRESwAWAtsA0sICBFILABKyOwAEOwBCVgIEWKI2EgZLAkUFiwABuwQFkjsABQWGVZsAMlI2FERLABYC2wDiwgsAAjQrMNDAADRVBYIRsjIVkqIS2wDyyxAgJFsGRhRC2wECywAWAgILAPQ0qwAFBYILAPI0JZsBBDSrAAUlggsBAjQlktsBEsILAQYmawAWMguAQAY4ojYbARQ2AgimAgsBEjQiMtsBIsS1RYsQRkRFkksA1lI3gtsBMsS1FYS1NYsQRkRFkbIVkksBNlI3gtsBQssQASQ1VYsRISQ7ABYUKwEStZsABDsAIlQrEPAiVCsRACJUKwARYjILADJVBYsQEAQ2CwBCVCioogiiNhsBAqISOwAWEgiiNhsBAqIRuxAQBDYLACJUKwAiVhsBAqIVmwD0NHsBBDR2CwAmIgsABQWLBAYFlmsAFjILAOQ2O4BABiILAAUFiwQGBZZrABY2CxAAATI0SwAUOwAD6yAQEBQ2BCLbAVLACxAAJFVFiwEiNCIEWwDiNCsA0jsAFgQiBgtxgYAQARABMAQkJCimAgsBQjQrABYbEUCCuwiysbIlktsBYssQAVKy2wFyyxARUrLbAYLLECFSstsBkssQMVKy2wGiyxBBUrLbAbLLEFFSstsBwssQYVKy2wHSyxBxUrLbAeLLEIFSstsB8ssQkVKy2wKywjILAQYmawAWOwBmBLVFgjIC6wAV0bISFZLbAsLCMgsBBiZrABY7AWYEtUWCMgLrABcRshIVktsC0sIyCwEGJmsAFjsCZgS1RYIyAusAFyGyEhWS2wICwAsA8rsQACRVRYsBIjQiBFsA4jQrANI7ABYEIgYLABYbUYGAEAEQBCQopgsRQIK7CLKxsiWS2wISyxACArLbAiLLEBICstsCMssQIgKy2wJCyxAyArLbAlLLEEICstsCYssQUgKy2wJyyxBiArLbAoLLEHICstsCkssQggKy2wKiyxCSArLbAuLCA8sAFgLbAvLCBgsBhgIEMjsAFgQ7ACJWGwAWCwLiohLbAwLLAvK7AvKi2wMSwgIEcgILAOQ2O4BABiILAAUFiwQGBZZrABY2AjYTgjIIpVWCBHICCwDkNjuAQAYiCwAFBYsEBgWWawAWNgI2E4GyFZLbAyLACxAAJFVFixDgZFQrABFrAxKrEFARVFWDBZGyJZLbAzLACwDyuxAAJFVFixDgZFQrABFrAxKrEFARVFWDBZGyJZLbA0LCA1sAFgLbA1LACxDgZFQrABRWO4BABiILAAUFiwQGBZZrABY7ABK7AOQ2O4BABiILAAUFiwQGBZZrABY7ABK7AAFrQAAAAAAEQ+IzixNAEVKiEtsDYsIDwgRyCwDkNjuAQAYiCwAFBYsEBgWWawAWNgsABDYTgtsDcsLhc8LbA4LCA8IEcgsA5DY7gEAGIgsABQWLBAYFlmsAFjYLAAQ2GwAUNjOC2wOSyxAgAWJSAuIEewACNCsAIlSYqKRyNHI2EgWGIbIVmwASNCsjgBARUUKi2wOiywABawFyNCsAQlsAQlRyNHI2GxDABCsAtDK2WKLiMgIDyKOC2wOyywABawFyNCsAQlsAQlIC5HI0cjYSCwBiNCsQwAQrALQysgsGBQWCCwQFFYswQgBSAbswQmBRpZQkIjILAKQyCKI0cjRyNhI0ZgsAZDsAJiILAAUFiwQGBZZrABY2AgsAErIIqKYSCwBENgZCOwBUNhZFBYsARDYRuwBUNgWbADJbACYiCwAFBYsEBgWWawAWNhIyAgsAQmI0ZhOBsjsApDRrACJbAKQ0cjRyNhYCCwBkOwAmIgsABQWLBAYFlmsAFjYCMgsAErI7AGQ2CwASuwBSVhsAUlsAJiILAAUFiwQGBZZrABY7AEJmEgsAQlYGQjsAMlYGRQWCEbIyFZIyAgsAQmI0ZhOFktsDwssAAWsBcjQiAgILAFJiAuRyNHI2EjPDgtsD0ssAAWsBcjQiCwCiNCICAgRiNHsAErI2E4LbA+LLAAFrAXI0KwAyWwAiVHI0cjYbAAVFguIDwjIRuwAiWwAiVHI0cjYSCwBSWwBCVHI0cjYbAGJbAFJUmwAiVhuQgACABjYyMgWGIbIVljuAQAYiCwAFBYsEBgWWawAWNgIy4jICA8ijgjIVktsD8ssAAWsBcjQiCwCkMgLkcjRyNhIGCwIGBmsAJiILAAUFiwQGBZZrABYyMgIDyKOC2wQCwjIC5GsAIlRrAXQ1hQG1JZWCA8WS6xMAEUKy2wQSwjIC5GsAIlRrAXQ1hSG1BZWCA8WS6xMAEUKy2wQiwjIC5GsAIlRrAXQ1hQG1JZWCA8WSMgLkawAiVGsBdDWFIbUFlYIDxZLrEwARQrLbBDLLA6KyMgLkawAiVGsBdDWFAbUllYIDxZLrEwARQrLbBELLA7K4ogIDywBiNCijgjIC5GsAIlRrAXQ1hQG1JZWCA8WS6xMAEUK7AGQy6wMCstsEUssAAWsAQlsAQmICAgRiNHYbAMI0IuRyNHI2GwC0MrIyA8IC4jOLEwARQrLbBGLLEKBCVCsAAWsAQlsAQlIC5HI0cjYSCwBiNCsQwAQrALQysgsGBQWCCwQFFYswQgBSAbswQmBRpZQkIjIEewBkOwAmIgsABQWLBAYFlmsAFjYCCwASsgiophILAEQ2BkI7AFQ2FkUFiwBENhG7AFQ2BZsAMlsAJiILAAUFiwQGBZZrABY2GwAiVGYTgjIDwjOBshICBGI0ewASsjYTghWbEwARQrLbBHLLEAOisusTABFCstsEgssQA7KyEjICA8sAYjQiM4sTABFCuwBkMusDArLbBJLLAAFSBHsAAjQrIAAQEVFBMusDYqLbBKLLAAFSBHsAAjQrIAAQEVFBMusDYqLbBLLLEAARQTsDcqLbBMLLA5Ki2wTSywABZFIyAuIEaKI2E4sTABFCstsE4ssAojQrBNKy2wTyyyAABGKy2wUCyyAAFGKy2wUSyyAQBGKy2wUiyyAQFGKy2wUyyyAABHKy2wVCyyAAFHKy2wVSyyAQBHKy2wViyyAQFHKy2wVyyzAAAAQystsFgsswABAEMrLbBZLLMBAABDKy2wWiyzAQEAQystsFssswAAAUMrLbBcLLMAAQFDKy2wXSyzAQABQystsF4sswEBAUMrLbBfLLIAAEUrLbBgLLIAAUUrLbBhLLIBAEUrLbBiLLIBAUUrLbBjLLIAAEgrLbBkLLIAAUgrLbBlLLIBAEgrLbBmLLIBAUgrLbBnLLMAAABEKy2waCyzAAEARCstsGksswEAAEQrLbBqLLMBAQBEKy2wayyzAAABRCstsGwsswABAUQrLbBtLLMBAAFEKy2wbiyzAQEBRCstsG8ssQA8Ky6xMAEUKy2wcCyxADwrsEArLbBxLLEAPCuwQSstsHIssAAWsQA8K7BCKy2wcyyxATwrsEArLbB0LLEBPCuwQSstsHUssAAWsQE8K7BCKy2wdiyxAD0rLrEwARQrLbB3LLEAPSuwQCstsHgssQA9K7BBKy2weSyxAD0rsEIrLbB6LLEBPSuwQCstsHsssQE9K7BBKy2wfCyxAT0rsEIrLbB9LLEAPisusTABFCstsH4ssQA+K7BAKy2wfyyxAD4rsEErLbCALLEAPiuwQistsIEssQE+K7BAKy2wgiyxAT4rsEErLbCDLLEBPiuwQistsIQssQA/Ky6xMAEUKy2whSyxAD8rsEArLbCGLLEAPyuwQSstsIcssQA/K7BCKy2wiCyxAT8rsEArLbCJLLEBPyuwQSstsIossQE/K7BCKy2wiyyyCwADRVBYsAYbsgQCA0VYIyEbIVlZQiuwCGWwAyRQeLEFARVFWDBZLQBLuADIUlixAQGOWbABuQgACABjcLEAB0KyGQEAKrEAB0KzDAoBCiqxAAdCsxYGAQoqsQAIQroDQAABAAsqsQAJQroAwAABAAsquQADAABEsSQBiFFYsECIWLkAAwBkRLEoAYhRWLgIAIhYuQADAABEWRuxJwGIUVi6CIAAAQRAiGNUWLkAAwAARFlZWVlZsxAGAQ4quAH/hbAEjbECAESzBWQGAEREAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJYAlgCWAJYBLABLAu4AAALuAlgAAP9qAu4AAALuAlgAAP9qAAAABwBaAAMAAQQJAAAAsgAAAAMAAQQJAAEADgCyAAMAAQQJAAIADgDAAAMAAQQJAAMAMgDOAAMAAQQJAAQAHgEAAAMAAQQJAAUAVAEeAAMAAQQJAAYAHAFyAEMAbwBwAHkAcgBpAGcAaAB0ACAAMgAwADIAMwAgAFQAaABlACAAUwBvAGYAdAAgAFQAeQBwAGUAIABQAHIAbwBqAGUAYwB0ACAAQQB1AHQAaABvAHIAcwAgACgAaAB0AHQAcABzADoALwAvAGcAaQB0AGgAdQBiAC4AYwBvAG0ALwBzAGMAZgByAGkAZQBkAC8AcwBvAGYAdAAtAHQAeQBwAGUALQBtAGkAYwByAG8AKQBNAGkAYwByAG8AIAA1AFIAZQBnAHUAbABhAHIAMQAuADAAMAAxADsATgBPAE4ARQA7AE0AaQBjAHIAbwA1AC0AUgBlAGcAdQBsAGEAcgBNAGkAYwByAG8AIAA1ACAAUgBlAGcAdQBsAGEAcgBWAGUAcgBzAGkAbwBuACAAMQAuADAAMAAxADsAIAB0AHQAZgBhAHUAdABvAGgAaQBuAHQAIAAoAHYAMQAuADgALgA0AC4ANwAtADUAZAA1AGIAKQBNAGkAYwByAG8ANQAtAFIAZQBnAHUAbABhAHIAAwAAAAAAAP+cADIAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAH//wAPAAEAAAAKABwAHgABREZMVAAIAAQAAAAA//8AAAAAAAAAAQAAAAoAJgAoAAJERkxUAA5sYXRuABgABAAAAAD//wAAAAAAAAAAAAAAAA==) format("truetype"); font-display: block; }
+    /* 年份標籤放在最上層，不被首頁圖示壓住 */
+    #hero-section .hero-icon { z-index: 10 !important; }
+    #hero-section h1 .drag-item svg text { font-family: "Micro5Year", "Micro 5", "Playfair Display", serif; font-weight: 400; font-size: 72px; letter-spacing: 1px; }
     /* ---------- 控制面板 ---------- */
     #demo-panel {
         position: fixed; left: 16px; bottom: 16px; z-index: 2147483000;
@@ -3657,12 +3660,14 @@
     .ascii-layer { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; transition: opacity 0.45s ease; }
     html.d8 .portfolio-item:hover .ascii-layer, html.d8 .portfolio-item:focus-visible .ascii-layer,
     html.d8 .portfolio-item.is-revealed .ascii-layer { opacity: 0; }
-    html.d8 .hero-icon > img.is-ascii { opacity: 0; transition: opacity 0.45s ease; }
+    html.d8 .hero-icon > img.is-ascii { opacity: 0; }
     /* 首頁四個圖示：不能拖曳，改成點一下四個一起在 ASCII 與原本的網點圖之間切換 */
     html.d8 #hero-section .hero-icon { pointer-events: auto !important; cursor: pointer; touch-action: auto; -webkit-tap-highlight-color: transparent; }
-    html.d8.hero-raw .hero-icon > img.is-ascii { opacity: 1; }
-    html.d8.hero-raw .hero-icon .ascii-layer { opacity: 0; }
     html.d8 .hero-icon .ascii-layer { z-index: 1; }
+    /* 大標題的 ASCII 圖層：疊在文字上、年份標籤之下 */
+    .h1-ascii { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1; }
+    #hero-section h1.is-ascii-text { color: transparent; }
+    #hero-section h1.is-ascii-text span { color: transparent !important; }
     html.d8 #halftone-bg { opacity: 1; }
     /* 「觀看作品」：終端機字樣＋像素方格畫圈 */
     html.d8 .cta-circle { display: none; }
@@ -4141,6 +4146,7 @@
     // 8. ASCII 字元風格
     // =========================================================
     if (on.has('8')) {
+        const SMALL = () => innerWidth < 768;   // 手機：格子縮小，圖案比較細緻
         const RAMP = ':;t%SX8#@';                 // 由淺到深
         const ACCENTS = ['#FFEC00', '#F97316', '#EF4444', '#A855F7', '#22C55E', '#06B6D4'];
         const FONT = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
@@ -4166,7 +4172,7 @@
             const sw = src.videoWidth || src.naturalWidth, sh = src.videoHeight || src.naturalHeight;
             if (!sw || !sh) return;
             const dpr = Math.min(devicePixelRatio || 1, 2);
-            const cell = L.opt.cell;
+            const cell = typeof L.opt.cell === 'function' ? L.opt.cell() : L.opt.cell;
             const cols = Math.max(4, Math.round(r.width / cell)), rows = Math.max(4, Math.round(r.height / cell));
             const cw = r.width / cols, ch = r.height / rows;
             if (L.cv.width !== Math.round(r.width * dpr) || L.cv.height !== Math.round(r.height * dpr)) {
@@ -4198,6 +4204,22 @@
                 const a = data[i + 3] / 255;
                 if (a < 0.35) continue;
                 const R = data[i], G = data[i + 1], B = data[i + 2];
+                // 首頁圖示切換中：依「左到右＋隨機」的順序一格一格消失或出現，交界處只剩跳動的字元
+                if (L.hide > 0) {
+                    const px = x * cw, py = y * ch;
+                    const o = 0.55 * (x / cols) + 0.45 * hash(x, y, 11);
+                    const edge = 0.07, P = L.hide * (1 + edge * 2) - edge;
+                    if (o < P - edge) {
+                        // 已切換的格子：直接畫原圖的這一小塊，原圖就一格一格長出來
+                        ctx.drawImage(src, sx + x * sW / cols, sy + y * sH / rows, sW / cols, sH / rows, px, py, cw + 0.5, ch + 0.5);
+                        continue;
+                    }
+                    if (o < P + edge) {
+                        ctx.fillStyle = `rgb(${R},${G},${B})`;
+                        ctx.fillText(RAMP[Math.floor(hash(x, y, Math.floor(t / 50)) * RAMP.length)], x * cw + cw / 2, y * ch + ch / 2);
+                        continue;
+                    }
+                }
                 const lum = (0.299 * R + 0.587 * G + 0.114 * B) / 255;
                 const ink = 1 - lum;
                 const px = x * cw, py = y * ch;
@@ -4223,8 +4245,35 @@
                 if (m.__ascii) return;
                 const el = m.querySelector('.item-media-el');
                 if (!el) return;
-                m.__ascii = makeLayer(m, el, { cell: 7, cover: true, paper: '#ffffff', video: el.tagName === 'VIDEO' });
+                m.__ascii = makeLayer(m, el, { cell: () => (SMALL() ? 4.5 : 7), cover: true, paper: '#ffffff', video: el.tagName === 'VIDEO' });
             });
+        }
+        // 首頁圖示：每 2 秒在 ASCII 與原本的網點圖之間切換，用 ASCII 轉場（不是淡入淡出）
+        let heroRaw = false, heroTimer = 0;
+        const HERO_HOLD = 2000, HERO_FX = 750;
+        function heroSwitch() {
+            clearTimeout(heroTimer);
+            const toRaw = !heroRaw;
+            heroRaw = toRaw;
+            const ls = layers.filter(L => L.opt.hero);
+            ls.forEach(L => { L.anim = true; });
+            const t0 = performance.now();
+            (function step(now) {
+                const k = Math.min(1, (now - t0) / HERO_FX);
+                ls.forEach(L => { L.hide = toRaw ? k : 1 - k; });
+                if (k < 1) return requestAnimationFrame(step);
+                ls.forEach(L => {
+                    L.anim = false;
+                    L.hide = toRaw ? 1 : 0;
+                    L.ok = false;
+                });
+                heroTimer = setTimeout(heroSwitch, HERO_HOLD);
+            })(t0);
+        }
+        function heroAuto() {
+            if (heroTimer || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const wait = () => document.documentElement.classList.contains('splash-on') ? setTimeout(wait, 100) : (heroTimer = setTimeout(heroSwitch, HERO_HOLD));
+            wait();
         }
         function heroToggle() {
             document.querySelectorAll('#hero-section .hero-icon').forEach(icon => {
@@ -4234,7 +4283,7 @@
                     icon.removeEventListener('mousedown', dragStart);
                     icon.removeEventListener('touchstart', dragStart);
                 }
-                icon.addEventListener('click', () => document.documentElement.classList.toggle('hero-raw'));
+                icon.addEventListener('click', () => heroSwitch());
             });
         }
         function attachHero() {
@@ -4243,7 +4292,7 @@
                 const host = img.parentElement;
                 if (host.__ascii) return;
                 img.classList.add('is-ascii');
-                host.__ascii = makeLayer(host, img, { cell: 9, cover: false, paper: null });
+                host.__ascii = makeLayer(host, img, { cell: () => (SMALL() ? 5 : 9), cover: false, paper: null, hero: true });
                 host.__ascii.cv.style.objectFit = 'contain';
             });
         }
@@ -4252,7 +4301,7 @@
         if (typeof drawHalftone === 'function') {
             const BG = ' .-:;+=%';
             window.drawHalftone = function () {
-                const W = innerWidth, H = innerHeight, G = 22;
+                const W = innerWidth, H = innerHeight, G = SMALL() ? 15 : 22;
                 halftoneCtx.clearRect(0, 0, W, H);
                 halftoneCtx.strokeStyle = 'rgba(148,163,155,0.10)';
                 halftoneCtx.lineWidth = 1;
@@ -4260,7 +4309,7 @@
                 for (let x = 0.5; x <= W; x += G) { halftoneCtx.moveTo(x, 0); halftoneCtx.lineTo(x, H); }
                 for (let y = 0.5; y <= H; y += G) { halftoneCtx.moveTo(0, y); halftoneCtx.lineTo(W, y); }
                 halftoneCtx.stroke();
-                halftoneCtx.font = `700 13px ${FONT}`;
+                halftoneCtx.font = `700 ${SMALL() ? 9 : 13}px ${FONT}`;
                 halftoneCtx.textAlign = 'center'; halftoneCtx.textBaseline = 'middle';
                 halftoneCtx.fillStyle = 'rgba(120,135,150,0.55)';
                 for (let x = 0; x < W + G; x += G) for (let y = 0; y < H + G; y += G) {
@@ -4284,13 +4333,15 @@
             cv.className = 'cta-ascii'; cv.setAttribute('aria-hidden', 'true');
             host.appendChild(cv);
             const ctx = cv.getContext('2d');
-            const CELL = 12;
+            let CELL = 12;
             let cells = [], W = 0, H = 0, hover = false;
             host.addEventListener('mouseenter', () => { hover = true; });
             host.addEventListener('mouseleave', () => { hover = false; });
             function setup() {
+                CELL = SMALL() ? 6 : 12;
                 const r = a.getBoundingClientRect();
-                const cols = Math.round(r.width * 1.32 / CELL), rows = Math.round(r.height * 1.9 / CELL);
+                const sx = SMALL() ? 1.0 : 1.32, sy = SMALL() ? 1.35 : 1.9;   // 手機：圈縮小貼近文字
+                const cols = Math.round(r.width * sx / CELL), rows = Math.round(r.height * sy / CELL);
                 W = cols * CELL; H = rows * CELL;
                 const dpr = Math.min(devicePixelRatio || 1, 2);
                 cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -4340,6 +4391,107 @@
             (document.fonts ? document.fonts.ready : Promise.resolve()).then(go);
             window.addEventListener('resize', setup);
         })();
+        // 大標題：每 3 秒在正常文字與 ASCII 之間切換（同樣用一格一格的 ASCII 轉場）
+        (function headline() {
+            const h1 = document.querySelector('#hero-section h1');
+            if (!h1) return;
+            const tag = h1.querySelector('.drag-item');
+            const cv = document.createElement('canvas');
+            cv.className = 'h1-ascii'; cv.setAttribute('aria-hidden', 'true');
+            h1.appendChild(cv);
+            const ctx = cv.getContext('2d');
+            const raw = document.createElement('canvas'), rctx = raw.getContext('2d', { willReadFrequently: true });
+            const small = document.createElement('canvas'), sctx = small.getContext('2d', { willReadFrequently: true });
+            let W = 0, H = 0, PAD = 0, dpr = 1, cols = 0, rows = 0, cell = 8, data = null;
+            let mode = 'text', hide = 1;    // hide：0 = 全部 ASCII，1 = 全部原文字
+            // 把標題的每個字依實際位置畫到一張隱藏的畫布上
+            function rasterize() {
+                const box = h1.getBoundingClientRect();
+                PAD = 20; dpr = Math.min(devicePixelRatio || 1, 2);
+                W = Math.ceil(box.width + PAD * 2); H = Math.ceil(box.height + PAD * 2);
+                cv.style.left = -PAD + 'px'; cv.style.top = -PAD + 'px';
+                cv.style.width = W + 'px'; cv.style.height = H + 'px';
+                cv.width = W * dpr; cv.height = H * dpr;
+                raw.width = W * dpr; raw.height = H * dpr;
+                rctx.setTransform(dpr, 0, 0, dpr, 0, 0); rctx.clearRect(0, 0, W, H);
+                const walker = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT, { acceptNode: n => (tag && tag.contains(n)) || !n.textContent.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+                const range = document.createRange();
+                let n;
+                while ((n = walker.nextNode())) {
+                    const cs = getComputedStyle(n.parentElement);
+                    const was = h1.classList.contains('is-ascii-text');
+                    rctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+                    rctx.fillStyle = n.parentElement.closest('.text-\\[\\#3B82F6\\]') ? '#3B82F6' : '#111111';
+                    rctx.textBaseline = 'alphabetic';
+                    const m = rctx.measureText('Hg');
+                    const fa = m.fontBoundingBoxAscent, fd = m.fontBoundingBoxDescent;
+                    for (let i = 0; i < n.textContent.length; i++) {
+                        const ch = n.textContent[i];
+                        if (!ch.trim()) continue;
+                        range.setStart(n, i); range.setEnd(n, i + 1);
+                        const r = range.getClientRects()[0];
+                        if (!r) continue;
+                        const x = r.left - box.left + PAD, y = r.top - box.top + PAD + (r.height - fa - fd) / 2 + fa;
+                        rctx.fillText(ch, x, y);
+                    }
+                }
+                cell = SMALL() ? 5 : 8;
+                cols = Math.ceil(W / cell); rows = Math.ceil(H / cell);
+                small.width = cols; small.height = rows;
+                sctx.clearRect(0, 0, cols, rows);
+                sctx.drawImage(raw, 0, 0, cols, rows);
+                data = sctx.getImageData(0, 0, cols, rows).data;
+            }
+            function draw(t) {
+                if (!data) return;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, W, H);
+                if (hide >= 1) return;
+                ctx.font = `700 ${Math.round(cell * 0.8)}px ${FONT}`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                const tick = Math.floor(t / 420), gap = Math.max(0.6, cell * 0.1);
+                const edge = 0.07, P = hide * (1 + edge * 2) - edge;
+                for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+                    const i = (y * cols + x) * 4, a = data[i + 3] / 255;
+                    if (a < 0.3) continue;
+                    const R = data[i], G = data[i + 1], B = data[i + 2];
+                    const px = x * cell, py = y * cell;
+                    if (hide > 0) {
+                        const o = 0.55 * (x / cols) + 0.45 * hash(x, y, 13);
+                        if (o < P - edge) { ctx.drawImage(raw, px * dpr, py * dpr, cell * dpr, cell * dpr, px, py, cell + 0.5, cell + 0.5); continue; }
+                        if (o < P + edge) { ctx.fillStyle = `rgb(${R},${G},${B})`; ctx.fillText(RAMP[Math.floor(hash(x, y, Math.floor(t / 50)) * RAMP.length)], px + cell / 2, py + cell / 2); continue; }
+                    }
+                    ctx.fillStyle = `rgba(${R},${G},${B},${Math.min(1, a * 1.2)})`;
+                    ctx.fillRect(px + gap / 2, py + gap / 2, cell - gap, cell - gap);
+                    const flick = hash(x, y, tick) < 0.03;
+                    ctx.fillStyle = flick ? ACCENTS[Math.floor(hash(y, x, tick) * ACCENTS.length)] : 'rgba(255,255,255,0.8)';
+                    ctx.fillText(RAMP[Math.min(RAMP.length - 1, Math.floor(a * RAMP.length * 0.99))], px + cell / 2, py + cell / 2 + 0.5);
+                }
+            }
+            const HOLD = 3000, FX = 800;
+            function run(toAscii) {
+                const t0 = performance.now();
+                h1.classList.add('is-ascii-text');              // 轉場中與 ASCII 狀態：真正的文字隱藏，由畫布代畫
+                (function step(now) {
+                    const k = Math.min(1, (now - t0) / FX);
+                    hide = toAscii ? 1 - k : k;
+                    draw(now);
+                    if (k < 1) return requestAnimationFrame(step);
+                    mode = toAscii ? 'ascii' : 'text';
+                    if (mode === 'text') { h1.classList.remove('is-ascii-text'); ctx.clearRect(0, 0, W, H); }
+                    else (function idle(n) { if (mode !== 'ascii') return; draw(n); setTimeout(() => requestAnimationFrame(idle), 400); })(performance.now());
+                    setTimeout(() => run(mode === 'text'), HOLD);
+                })(t0);
+            }
+            const begin = () => {
+                if (document.documentElement.classList.contains('splash-on')) return setTimeout(begin, 100);
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                rasterize();
+                setTimeout(() => run(true), HOLD);
+            };
+            (document.fonts ? document.fonts.ready : Promise.resolve()).then(begin);
+            let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { rasterize(); if (mode === 'ascii') draw(performance.now()); }, 200); });
+        })();
         let raf = 0;
         function loop(t) {
             const vh = innerHeight;
@@ -4347,11 +4499,14 @@
                 const r = L.host.getBoundingClientRect();
                 if (r.bottom < -50 || r.top > vh + 50 || r.right < -50 || r.left > innerWidth + 50) continue;
                 // 影片每秒更新約 10 次；靜態圖每 420ms 只換字元閃爍
-                if (!L.ok || t - L.last > (L.opt.video ? 100 : 420)) { draw(L, t); L.last = t; }
+                if (L.anim || !L.ok || t - L.last > (L.opt.video ? 100 : 420)) {
+                    if (L.opt.hero && heroRaw && !L.anim) { if (!L.ok) { L.hide = 1; draw(L, t); } L.ok = true; continue; }  // 原圖狀態：整張畫原圖，不再更新
+                    draw(L, t); L.last = t;
+                }
             }
             raf = requestAnimationFrame(loop);
         }
-        function start() { attachThumbs(); attachHero(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
+        function start() { attachThumbs(); attachHero(); heroAuto(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
         if (document.readyState === 'complete') start(); else window.addEventListener('load', start);
         setTimeout(start, 1200);
         // 切換分類或跑馬燈複製出新的卡片時，補上 ASCII 圖層
