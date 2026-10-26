@@ -20,7 +20,9 @@
     <style>
         html.splash-on { overflow: hidden; }
         /* 剛進站：先停在首頁，按「觀看作品」（或導覽列）後才解鎖往下捲 */
-        html.scroll-locked, html.scroll-locked body { overflow: hidden; overscroll-behavior: none; }
+        /* 兩個「頁面」：首頁（不能捲動）與作品頁（專案一覽 → About → 聯絡）。作品頁不能往上捲回首頁 */
+        html.on-hero, html.on-hero body { overflow: hidden; overscroll-behavior: none; }
+        html.hero-gone #hero-section { display: none; }
         #splash {
             position: fixed; inset: 0; z-index: 100000;
             display: flex; align-items: center; justify-content: center;
@@ -700,6 +702,18 @@
             .track-marquee #portfolio-clone { display: none; }
             #portfolio-track-container { overflow-x: auto; }
         }
+
+        /* 左上角 MingFly.：在作品頁時，每 3 秒和「← Home」箭頭互換 */
+        #brand-logo { display: inline-grid; align-items: center; overflow: hidden; height: 2.2rem; }
+        #brand-logo > span { grid-area: 1 / 1; transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.4s ease; }
+        #brand-logo .brand-arrow { display: inline-flex; align-items: center; gap: 0.3em; font-family: "Noto Sans TC", sans-serif; font-size: 0.68em; letter-spacing: 0.12em; opacity: 0; transform: translateY(110%); }
+        #brand-logo .brand-arrow svg { flex: 0 0 auto; }
+        #brand-logo.show-arrow .brand-txt { opacity: 0; transform: translateY(-110%); }
+        #brand-logo.show-arrow .brand-arrow { opacity: 1; transform: none; }
+        /* 換頁時的進場：內容由下往上淡入，像打開新的頁面 */
+        @keyframes view-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+        html.view-enter #dynamic-content-area, html.view-enter #hero-section { animation: view-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @media (prefers-reduced-motion: reduce) { html.view-enter #dynamic-content-area, html.view-enter #hero-section { animation: none; } #brand-logo > span { transition: none; } }
     </style>
 
     <script>
@@ -749,8 +763,8 @@
             var MIN_SHOW = 900;      // 至少顯示這麼久，避免一閃而過
             var EXTRA_WAIT = 5000;   // 等首頁內容全部就緒的上限；超過就先揭開，避免網路很慢時一直卡在藍色畫面
             root.classList.add('splash-on');
-            // 從頁首進站才鎖住；網址帶有 #作品 之類的錨點，或重新整理時已經捲動過，就不鎖
-            if (!location.hash && !(history.state && history.state.unlocked)) root.classList.add('scroll-locked');
+            // 網址帶有 #work／#about／#contact（例如分享連結或重新整理）就直接進作品頁，否則先停在首頁
+            root.classList.add(/^#(work|about|contact)$/.test(location.hash) ? 'hero-gone' : 'on-hero');
             window.scrollTo(0, 0);
             // 字樣是內嵌的向量圖，不需要等字型：下一個畫格就淡入
             requestAnimationFrame(function () { requestAnimationFrame(function () { logo.classList.add('is-in'); }); });
@@ -873,7 +887,7 @@
 
     <header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
-            <a href="#" class="font-serif text-2xl font-bold tracking-tighter text-brand-black hover:text-[#3B82F6] transition-colors duration-300">MingFly.</a>
+            <a href="#" id="brand-logo" aria-label="MingFly. 回到首頁" class="font-serif text-2xl font-bold tracking-tighter text-brand-black hover:text-[#3B82F6] transition-colors duration-300"><span class="brand-txt">MingFly.</span><span class="brand-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="1.25em" height="1.25em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6"/></svg><span>Home</span></span></a>
             
             <nav class="hidden md:flex gap-8 text-sm font-medium tracking-wide">
                 <a class="cursor-pointer hover:text-[#3B82F6] transition-colors" href="#work">作品 Work</a>
@@ -2832,17 +2846,86 @@
 
         // 首頁問候語：一開始藏在大標題下方，隨捲動距離滑出；停止捲動就停住。
         // 只會前進不會後退，到定位後就固定，直到重新整理。
-        // 進站時的捲動鎖：點擊站內錨點（觀看作品、作品／關於／聯絡）就解鎖，之後不再鎖回去
+        // 首頁與作品頁的切換：首頁不能捲動；點「觀看作品」或導覽列進入作品頁後，首頁隱藏、無法往上捲回，
+        // 只有點左上角 MingFly. 才回到首頁（瀏覽器的上一頁也可以）
         (function () {
             const root = document.documentElement;
-            if (!root.classList.contains('scroll-locked')) return;
-            if (window.scrollY > 0) { root.classList.remove('scroll-locked'); return; }
+            const logo = document.getElementById('brand-logo');
+            const NAV = /^#(work|about|contact)$/;
+            let pushedWorks = false;
+            try { history.scrollRestoration = 'manual'; } catch (err) {}   // 上一頁／下一頁時由這裡決定捲動位置
+            function animateIn() {
+                root.classList.remove('view-enter'); void root.offsetWidth; root.classList.add('view-enter');
+                clearTimeout(animateIn.t); animateIn.t = setTimeout(() => root.classList.remove('view-enter'), 700);
+            }
+            function scrollToTarget(hash) {
+                const el = document.querySelector(hash);
+                const nav = document.getElementById('navbar');
+                const y = (hash === '#work' || !el) ? 0 : el.getBoundingClientRect().top + window.scrollY - (nav ? nav.offsetHeight : 0);
+                window.scrollTo({ top: Math.max(0, y), behavior: 'instant' });
+            }
+            function showWorks(hash, push) {
+                const fromHero = root.classList.contains('on-hero');
+                root.classList.remove('on-hero');
+                root.classList.add('hero-gone');
+                scrollToTarget(hash);
+                if (fromHero) animateIn();
+                if (push) { try { history.pushState({ view: 'works' }, '', hash); pushedWorks = true; } catch (err) {} }
+                window.dispatchEvent(new Event('scroll'));
+            }
+            function showHero(push) {
+                root.classList.remove('hero-gone');
+                root.classList.add('on-hero');
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                logo.classList.remove('show-arrow');
+                animateIn();
+                if (push) { try { history.pushState({ view: 'hero' }, '', location.pathname + location.search); } catch (err) {} }
+                window.dispatchEvent(new Event('scroll'));
+            }
+            // 換頁轉場：有設定轉場效果（例如 demo 的 ASCII）就用它蓋住畫面再換，否則直接換
+            function swap(e, fn) {
+                if (typeof window.__viewWipe === 'function') window.__viewWipe(e.clientX || innerWidth / 2, e.clientY || innerHeight / 2, fn);
+                else fn();
+            }
+            if (root.classList.contains('hero-gone')) {
+                try { history.replaceState({ view: 'works' }, ''); } catch (err) {}
+            }
             document.addEventListener('click', (e) => {
                 const a = e.target.closest && e.target.closest('a[href^="#"]');
-                if (!a || !root.classList.contains('scroll-locked')) return;
-                root.classList.remove('scroll-locked');
-                try { history.replaceState(Object.assign({}, history.state, { unlocked: true }), ''); } catch (err) {}
+                if (!a) return;
+                const href = a.getAttribute('href');
+                if (a === logo) {
+                    e.preventDefault();
+                    if (root.classList.contains('hero-gone')) {
+                        swap(e, () => {
+                            if (pushedWorks) history.back();   // 從首頁進來的：回上一頁，瀏覽器的上一頁／下一頁也對得上
+                            else showHero(true);
+                        });
+                    } else window.scrollTo({ top: 0, behavior: 'instant' });
+                    return;
+                }
+                if (root.classList.contains('on-hero') && NAV.test(href)) {
+                    e.preventDefault();                    // 不讓瀏覽器從首頁一路捲下去，改成直接換頁
+                    swap(e, () => showWorks(href, true));
+                }
             }, true);
+            window.addEventListener('popstate', (e) => {
+                const st = e.state || {};
+                if (st.view === 'works' || NAV.test(location.hash)) {
+                    if (root.classList.contains('on-hero')) showWorks(NAV.test(location.hash) ? location.hash : '#work', false);
+                } else if (root.classList.contains('hero-gone')) {
+                    showHero(false);
+                    pushedWorks = false;
+                }
+            });
+            // MingFly. 每 3 秒和箭頭互換（只在作品頁）；滑鼠停在上面時維持箭頭，一看就知道可以點
+            let hovering = false;
+            logo.addEventListener('mouseenter', () => { hovering = true; if (root.classList.contains('hero-gone')) logo.classList.add('show-arrow'); });
+            logo.addEventListener('mouseleave', () => { hovering = false; });
+            setInterval(() => {
+                if (!root.classList.contains('hero-gone')) { logo.classList.remove('show-arrow'); return; }
+                if (!hovering) logo.classList.toggle('show-arrow');
+            }, 3000);
         })();
 
         const heroHello = document.getElementById('hero-hello');
@@ -3428,7 +3511,7 @@
     @font-face { font-family: "Micro5Year"; src: url(data:font/ttf;base64,AAEAAAAQAQAABAAAR1BPU0R2THUAABbUAAAAIEdTVUK4+rj0AAAW9AAAACpPUy8yZWtf/gAABTwAAABgY21hcABYAIYAAAWcAAAAPGN2dCAOEgT7AAAUjAAAADhmcGdtYi77ewAABdgAAA4MZ2FzcAAAABAAABbMAAAACGdseWa339QcAAABDAAAA3ZoZWFkKBtqTwAABMAAAAA2aGhlYQlZCC4AAAUYAAAAJGhtdHgJYAAAAAAE+AAAACBsb2NhBZ4ErQAABKQAAAAabWF4cAE4DoAAAASEAAAAIG5hbWUoYT+HAAAUxAAAAehwb3N0/58AMgAAFqwAAAAgcHJlcOxIypwAABPkAAAApwACAAAAAAHCAu4AAwAHACdAJAAAAAJfAAICEE0EAQEBA18AAwMRA04AAAcGBQQAAwADEQUHFyslESMRAyERIQEslpYBwv4+lgHC/j4CWP0SAAEAAAAAASwC7gAFABlAFgAAAAFfAAEBEE0AAgIRAk4RERADBxkrEyM1IREjlpYBLJYCWJb9EgAAAQAAAAABwgLuAAsAKUAmAAAAAwQAA2cAAQECXwACAhBNAAQEBV8ABQURBU4RERERERAGBxwrESE1ITUhESEVIRUhASz+1AHC/tQBLP4+AcKWlv4+lpYAAAEAAAAAAcIC7gALAClAJgACAAEAAgFnAAMDBF8ABAQQTQAAAAVfAAUFEQVOEREREREQBgccKzUhNSM1MzUhNSERIQEslpb+1AHC/j6WlpaWlv0SAAEAAAAAAcIC7gAJAB9AHAACAAAEAgBoAwEBARBNAAQEEQROERERERAFBxsrASERMxEzETMRIwEs/tSWlpaWASwBwv7UASz9EgAAAQAAAAABwgLuAAsAKUAmAAQAAQAEAWcAAwMCXwACAhBNAAAABV8ABQURBU4RERERERAGBxwrNSE1IREhFSEVIREhASz+1AHC/tQBLP4+lpYBwpaW/j4AAAIAAAAAAcIC7gAHAAsAKUAmAAAABQQABWcAAwMCXwACAhBNAAQEAV8AAQERAU4RERERERAGBxwrEyERIREhFSERMzUjlgEs/j4Bwv7UlpYBwv4+Au6W/j6WAAIAAAAAAcIC7gAFAAkAKEAlAAIAAwACA4AAAAABXwABARBNAAMDBF8ABAQRBE4REREREAUHGysBITUhESMjMxEjASz+1AHClpaWlgJYlv4+/tQAAAMAAAAAAcIC7gADAAcACwAxQC4GAQMABQQDBWcAAgIAXwAAABBNAAQEAV8AAQERAU4EBAsKCQgEBwQHEhEQBwcZKxEhESEBNSMVETM1IwHC/j4BLJaWlgLu/RIBwpaW/tSWAAACAAAAAAHCAu4AAwALAClAJgAAAAMCAANnAAEBBF8ABAQQTQACAgVfAAUFEQVOEREREREQBgccKxMzNSMDITUhESERIZaWlpYBLP7UAcL+PgHClv4+lgHC/RIAAAEAAAEsAcIBwgADABhAFQAAAQEAVwAAAAFfAAEAAU8REAIHGCsRIRUhAcL+PgHClgAAAAABAAAADAAkAAkAAAAAAAIAJABOAI0AAABxDgwAAAAAAAAAAAAoAEQAcACaAL8A6wEYAUIBdAGiAbsAAAABAAAAAQBCsqDmel8PPPUADwZyAAAAAOCinvwAAAAA46WEIP9q/j4FRgVGAAAABgACAAAAAAAAAu4AAAJYAAABwgAAAlgAAAAAAAAAAAAAAAAAAAAAAAAAAQAABKb+NAAABdz/av2oBUYGcgAAAAAAAAAAAAAAAAAAAAQABAJJAZAABQAABDED3gAAAHwEMQPeAAACQgAyAWgAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAATk9ORQDAAC0AOQSm/jQAAAVGAcwAAAABAAAAAAJYAu4AAAAgAAIAAAACAAAAAwAAABQAAwABAAAAFAAEACgAAAAGAAQAAQACAC0AOf//AAAALQAw////3v/RAAEAAAAAAACwACwgsABVWEVZICBLuAAOUUuwBlNaWLA0G7AoWWBmIIpVWLACJWG5CAAIAGNjI2IbISGwAFmwAEMjRLIAAQBDYEItsAEssCBgZi2wAiwjISMhLbADLCBkswMUFQBCQ7ATQyBgYEKxAhRDQrElA0OwAkNUeCCwDCOwAkNDYWSwBFB4sgICAkNgQrAhZRwhsAJDQ7IOFQFCHCCwAkMjQrITARNDYEIjsABQWGVZshYBAkNgQi2wBCywAyuwFUNYIyEjIbAWQ0MjsABQWGVZGyBkILDAULAEJlqyKAENQ0VjRbAGRVghsAMlWVJbWCEjIRuKWCCwUFBYIbBAWRsgsDhQWCGwOFlZILEBDUNFY0VhZLAoUFghsQENQ0VjRSCwMFBYIbAwWRsgsMBQWCBmIIqKYSCwClBYYBsgsCBQWCGwCmAbILA2UFghsDZgG2BZWVkbsAIlsAxDY7AAUliwAEuwClBYIbAMQxtLsB5QWCGwHkthuBAAY7AMQ2O4BQBiWVlkYVmwAStZWSOwAFBYZVlZIGSwFkMjQlktsAUsIEUgsAQlYWQgsAdDUFiwByNCsAgjQhshIVmwAWAtsAYsIyEjIbADKyBksQdiQiCwCCNCsAZFWBuxAQ1DRWOxAQ1DsAFgRWOwBSohILAIQyCKIIqwASuxMAUlsAQmUVhgUBthUllYI1khWSCwQFNYsAErGyGwQFkjsABQWGVZLbAHLLAJQyuyAAIAQ2BCLbAILLAJI0IjILAAI0JhsAJiZrABY7ABYLAHKi2wCSwgIEUgsA5DY7gEAGIgsABQWLBAYFlmsAFjYESwAWAtsAossgkOAENFQiohsgABAENgQi2wCyywAEMjRLIAAQBDYEItsAwsICBFILABKyOwAEOwBCVgIEWKI2EgZCCwIFBYIbAAG7AwUFiwIBuwQFlZI7AAUFhlWbADJSNhRESwAWAtsA0sICBFILABKyOwAEOwBCVgIEWKI2EgZLAkUFiwABuwQFkjsABQWGVZsAMlI2FERLABYC2wDiwgsAAjQrMNDAADRVBYIRsjIVkqIS2wDyyxAgJFsGRhRC2wECywAWAgILAPQ0qwAFBYILAPI0JZsBBDSrAAUlggsBAjQlktsBEsILAQYmawAWMguAQAY4ojYbARQ2AgimAgsBEjQiMtsBIsS1RYsQRkRFkksA1lI3gtsBMsS1FYS1NYsQRkRFkbIVkksBNlI3gtsBQssQASQ1VYsRISQ7ABYUKwEStZsABDsAIlQrEPAiVCsRACJUKwARYjILADJVBYsQEAQ2CwBCVCioogiiNhsBAqISOwAWEgiiNhsBAqIRuxAQBDYLACJUKwAiVhsBAqIVmwD0NHsBBDR2CwAmIgsABQWLBAYFlmsAFjILAOQ2O4BABiILAAUFiwQGBZZrABY2CxAAATI0SwAUOwAD6yAQEBQ2BCLbAVLACxAAJFVFiwEiNCIEWwDiNCsA0jsAFgQiBgtxgYAQARABMAQkJCimAgsBQjQrABYbEUCCuwiysbIlktsBYssQAVKy2wFyyxARUrLbAYLLECFSstsBkssQMVKy2wGiyxBBUrLbAbLLEFFSstsBwssQYVKy2wHSyxBxUrLbAeLLEIFSstsB8ssQkVKy2wKywjILAQYmawAWOwBmBLVFgjIC6wAV0bISFZLbAsLCMgsBBiZrABY7AWYEtUWCMgLrABcRshIVktsC0sIyCwEGJmsAFjsCZgS1RYIyAusAFyGyEhWS2wICwAsA8rsQACRVRYsBIjQiBFsA4jQrANI7ABYEIgYLABYbUYGAEAEQBCQopgsRQIK7CLKxsiWS2wISyxACArLbAiLLEBICstsCMssQIgKy2wJCyxAyArLbAlLLEEICstsCYssQUgKy2wJyyxBiArLbAoLLEHICstsCkssQggKy2wKiyxCSArLbAuLCA8sAFgLbAvLCBgsBhgIEMjsAFgQ7ACJWGwAWCwLiohLbAwLLAvK7AvKi2wMSwgIEcgILAOQ2O4BABiILAAUFiwQGBZZrABY2AjYTgjIIpVWCBHICCwDkNjuAQAYiCwAFBYsEBgWWawAWNgI2E4GyFZLbAyLACxAAJFVFixDgZFQrABFrAxKrEFARVFWDBZGyJZLbAzLACwDyuxAAJFVFixDgZFQrABFrAxKrEFARVFWDBZGyJZLbA0LCA1sAFgLbA1LACxDgZFQrABRWO4BABiILAAUFiwQGBZZrABY7ABK7AOQ2O4BABiILAAUFiwQGBZZrABY7ABK7AAFrQAAAAAAEQ+IzixNAEVKiEtsDYsIDwgRyCwDkNjuAQAYiCwAFBYsEBgWWawAWNgsABDYTgtsDcsLhc8LbA4LCA8IEcgsA5DY7gEAGIgsABQWLBAYFlmsAFjYLAAQ2GwAUNjOC2wOSyxAgAWJSAuIEewACNCsAIlSYqKRyNHI2EgWGIbIVmwASNCsjgBARUUKi2wOiywABawFyNCsAQlsAQlRyNHI2GxDABCsAtDK2WKLiMgIDyKOC2wOyywABawFyNCsAQlsAQlIC5HI0cjYSCwBiNCsQwAQrALQysgsGBQWCCwQFFYswQgBSAbswQmBRpZQkIjILAKQyCKI0cjRyNhI0ZgsAZDsAJiILAAUFiwQGBZZrABY2AgsAErIIqKYSCwBENgZCOwBUNhZFBYsARDYRuwBUNgWbADJbACYiCwAFBYsEBgWWawAWNhIyAgsAQmI0ZhOBsjsApDRrACJbAKQ0cjRyNhYCCwBkOwAmIgsABQWLBAYFlmsAFjYCMgsAErI7AGQ2CwASuwBSVhsAUlsAJiILAAUFiwQGBZZrABY7AEJmEgsAQlYGQjsAMlYGRQWCEbIyFZIyAgsAQmI0ZhOFktsDwssAAWsBcjQiAgILAFJiAuRyNHI2EjPDgtsD0ssAAWsBcjQiCwCiNCICAgRiNHsAErI2E4LbA+LLAAFrAXI0KwAyWwAiVHI0cjYbAAVFguIDwjIRuwAiWwAiVHI0cjYSCwBSWwBCVHI0cjYbAGJbAFJUmwAiVhuQgACABjYyMgWGIbIVljuAQAYiCwAFBYsEBgWWawAWNgIy4jICA8ijgjIVktsD8ssAAWsBcjQiCwCkMgLkcjRyNhIGCwIGBmsAJiILAAUFiwQGBZZrABYyMgIDyKOC2wQCwjIC5GsAIlRrAXQ1hQG1JZWCA8WS6xMAEUKy2wQSwjIC5GsAIlRrAXQ1hSG1BZWCA8WS6xMAEUKy2wQiwjIC5GsAIlRrAXQ1hQG1JZWCA8WSMgLkawAiVGsBdDWFIbUFlYIDxZLrEwARQrLbBDLLA6KyMgLkawAiVGsBdDWFAbUllYIDxZLrEwARQrLbBELLA7K4ogIDywBiNCijgjIC5GsAIlRrAXQ1hQG1JZWCA8WS6xMAEUK7AGQy6wMCstsEUssAAWsAQlsAQmICAgRiNHYbAMI0IuRyNHI2GwC0MrIyA8IC4jOLEwARQrLbBGLLEKBCVCsAAWsAQlsAQlIC5HI0cjYSCwBiNCsQwAQrALQysgsGBQWCCwQFFYswQgBSAbswQmBRpZQkIjIEewBkOwAmIgsABQWLBAYFlmsAFjYCCwASsgiophILAEQ2BkI7AFQ2FkUFiwBENhG7AFQ2BZsAMlsAJiILAAUFiwQGBZZrABY2GwAiVGYTgjIDwjOBshICBGI0ewASsjYTghWbEwARQrLbBHLLEAOisusTABFCstsEgssQA7KyEjICA8sAYjQiM4sTABFCuwBkMusDArLbBJLLAAFSBHsAAjQrIAAQEVFBMusDYqLbBKLLAAFSBHsAAjQrIAAQEVFBMusDYqLbBLLLEAARQTsDcqLbBMLLA5Ki2wTSywABZFIyAuIEaKI2E4sTABFCstsE4ssAojQrBNKy2wTyyyAABGKy2wUCyyAAFGKy2wUSyyAQBGKy2wUiyyAQFGKy2wUyyyAABHKy2wVCyyAAFHKy2wVSyyAQBHKy2wViyyAQFHKy2wVyyzAAAAQystsFgsswABAEMrLbBZLLMBAABDKy2wWiyzAQEAQystsFssswAAAUMrLbBcLLMAAQFDKy2wXSyzAQABQystsF4sswEBAUMrLbBfLLIAAEUrLbBgLLIAAUUrLbBhLLIBAEUrLbBiLLIBAUUrLbBjLLIAAEgrLbBkLLIAAUgrLbBlLLIBAEgrLbBmLLIBAUgrLbBnLLMAAABEKy2waCyzAAEARCstsGksswEAAEQrLbBqLLMBAQBEKy2wayyzAAABRCstsGwsswABAUQrLbBtLLMBAAFEKy2wbiyzAQEBRCstsG8ssQA8Ky6xMAEUKy2wcCyxADwrsEArLbBxLLEAPCuwQSstsHIssAAWsQA8K7BCKy2wcyyxATwrsEArLbB0LLEBPCuwQSstsHUssAAWsQE8K7BCKy2wdiyxAD0rLrEwARQrLbB3LLEAPSuwQCstsHgssQA9K7BBKy2weSyxAD0rsEIrLbB6LLEBPSuwQCstsHsssQE9K7BBKy2wfCyxAT0rsEIrLbB9LLEAPisusTABFCstsH4ssQA+K7BAKy2wfyyxAD4rsEErLbCALLEAPiuwQistsIEssQE+K7BAKy2wgiyxAT4rsEErLbCDLLEBPiuwQistsIQssQA/Ky6xMAEUKy2whSyxAD8rsEArLbCGLLEAPyuwQSstsIcssQA/K7BCKy2wiCyxAT8rsEArLbCJLLEBPyuwQSstsIossQE/K7BCKy2wiyyyCwADRVBYsAYbsgQCA0VYIyEbIVlZQiuwCGWwAyRQeLEFARVFWDBZLQBLuADIUlixAQGOWbABuQgACABjcLEAB0KyGQEAKrEAB0KzDAoBCiqxAAdCsxYGAQoqsQAIQroDQAABAAsqsQAJQroAwAABAAsquQADAABEsSQBiFFYsECIWLkAAwBkRLEoAYhRWLgIAIhYuQADAABEWRuxJwGIUVi6CIAAAQRAiGNUWLkAAwAARFlZWVlZsxAGAQ4quAH/hbAEjbECAESzBWQGAEREAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJYAlgCWAJYBLABLAu4AAALuAlgAAP9qAu4AAALuAlgAAP9qAAAABwBaAAMAAQQJAAAAsgAAAAMAAQQJAAEADgCyAAMAAQQJAAIADgDAAAMAAQQJAAMAMgDOAAMAAQQJAAQAHgEAAAMAAQQJAAUAVAEeAAMAAQQJAAYAHAFyAEMAbwBwAHkAcgBpAGcAaAB0ACAAMgAwADIAMwAgAFQAaABlACAAUwBvAGYAdAAgAFQAeQBwAGUAIABQAHIAbwBqAGUAYwB0ACAAQQB1AHQAaABvAHIAcwAgACgAaAB0AHQAcABzADoALwAvAGcAaQB0AGgAdQBiAC4AYwBvAG0ALwBzAGMAZgByAGkAZQBkAC8AcwBvAGYAdAAtAHQAeQBwAGUALQBtAGkAYwByAG8AKQBNAGkAYwByAG8AIAA1AFIAZQBnAHUAbABhAHIAMQAuADAAMAAxADsATgBPAE4ARQA7AE0AaQBjAHIAbwA1AC0AUgBlAGcAdQBsAGEAcgBNAGkAYwByAG8AIAA1ACAAUgBlAGcAdQBsAGEAcgBWAGUAcgBzAGkAbwBuACAAMQAuADAAMAAxADsAIAB0AHQAZgBhAHUAdABvAGgAaQBuAHQAIAAoAHYAMQAuADgALgA0AC4ANwAtADUAZAA1AGIAKQBNAGkAYwByAG8ANQAtAFIAZQBnAHUAbABhAHIAAwAAAAAAAP+cADIAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAH//wAPAAEAAAAKABwAHgABREZMVAAIAAQAAAAA//8AAAAAAAAAAQAAAAoAJgAoAAJERkxUAA5sYXRuABgABAAAAAD//wAAAAAAAAAAAAAAAA==) format("truetype"); font-display: block; }
     /* 年份標籤放在最上層，不被首頁圖示壓住 */
     #hero-section .hero-icon { z-index: 10 !important; }
-    #hero-section h1 .drag-item svg text { font-family: "Micro5Year", "Micro 5", "Playfair Display", serif; font-weight: 400; font-size: 72px; letter-spacing: 1px; }
+    #hero-section .drag-item:not(.hero-icon) svg text { font-family: "Micro5Year", "Micro 5", "Playfair Display", serif; font-weight: 400; font-size: 72px; letter-spacing: 1px; }
     /* ---------- 控制面板 ---------- */
     #demo-panel {
         position: fixed; left: 16px; bottom: 16px; z-index: 2147483000;
@@ -3666,6 +3749,13 @@
     html.d8 .hero-icon .ascii-layer { z-index: 1; }
     /* 大標題的 ASCII 圖層：疊在文字上、年份標籤之下 */
     .h1-ascii { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1; }
+    .tag-ascii { position: absolute; pointer-events: none; }
+    #hero-section .drag-item.is-ascii-tag > svg { visibility: hidden; }
+    /* 頂端導覽列：純白，不要半透明模糊 */
+    #navbar:not(.nav-dark):not(.nav-curtain) { background: #ffffff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+    #navbar.nav-dark, #navbar.nav-curtain { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+    /* MingFly. 與 ← Home：改成 ASCII 解碼切換，不用上下滑動 */
+    html.d8 #brand-logo > span { transition: opacity 0.12s linear !important; transform: none !important; }
     #hero-section h1.is-ascii-text { color: transparent; }
     #hero-section h1.is-ascii-text span { color: transparent !important; }
     html.d8 #halftone-bg { opacity: 1; }
@@ -4202,7 +4292,7 @@
             for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
                 const i = (y * cols + x) * 4;
                 const a = data[i + 3] / 255;
-                if (a < 0.35) continue;
+                if (a === 0) continue;
                 const R = data[i], G = data[i + 1], B = data[i + 2];
                 // 首頁圖示切換中：依「左到右＋隨機」的順序一格一格消失或出現，交界處只剩跳動的字元
                 if (L.hide > 0) {
@@ -4214,12 +4304,14 @@
                         ctx.drawImage(src, sx + x * sW / cols, sy + y * sH / rows, sW / cols, sH / rows, px, py, cw + 0.5, ch + 0.5);
                         continue;
                     }
+                    if (a < 0.35) continue;   // 網點很稀的格子不畫字元（原圖部分上面已經完整畫出）
                     if (o < P + edge) {
                         ctx.fillStyle = `rgb(${R},${G},${B})`;
                         ctx.fillText(RAMP[Math.floor(hash(x, y, Math.floor(t / 50)) * RAMP.length)], x * cw + cw / 2, y * ch + ch / 2);
                         continue;
                     }
                 }
+                if (a < 0.35) continue;
                 const lum = (0.299 * R + 0.587 * G + 0.114 * B) / 255;
                 const ink = 1 - lum;
                 const px = x * cw, py = y * ch;
@@ -4248,32 +4340,24 @@
                 m.__ascii = makeLayer(m, el, { cell: () => (SMALL() ? 4.5 : 7), cover: true, paper: '#ffffff', video: el.tagName === 'VIDEO' });
             });
         }
-        // 首頁圖示：每 2 秒在 ASCII 與原本的網點圖之間切換，用 ASCII 轉場（不是淡入淡出）
-        let heroRaw = false, heroTimer = 0;
-        const HERO_HOLD = 2000, HERO_FX = 750;
-        function heroSwitch() {
-            clearTimeout(heroTimer);
-            const toRaw = !heroRaw;
+        // 首頁圖示：和大標題用同一個時鐘切換（由大標題的計時器帶動），一律同時進入 ASCII 或原本的樣子
+        let heroRaw = true;
+        const HERO_FX = 800;
+        function heroSet(toRaw) {
             heroRaw = toRaw;
             const ls = layers.filter(L => L.opt.hero);
-            ls.forEach(L => { L.anim = true; });
+            ls.forEach(L => { L.anim = true; L.src.style.opacity = '0'; });   // 轉場時由畫布接手
             const t0 = performance.now();
             (function step(now) {
                 const k = Math.min(1, (now - t0) / HERO_FX);
                 ls.forEach(L => { L.hide = toRaw ? k : 1 - k; });
                 if (k < 1) return requestAnimationFrame(step);
-                ls.forEach(L => {
-                    L.anim = false;
-                    L.hide = toRaw ? 1 : 0;
-                    L.ok = false;
-                });
-                heroTimer = setTimeout(heroSwitch, HERO_HOLD);
+                ls.forEach(L => { L.anim = false; L.hide = toRaw ? 1 : 0; L.ok = false; });
             })(t0);
         }
         function heroAuto() {
-            if (heroTimer || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            const wait = () => document.documentElement.classList.contains('splash-on') ? setTimeout(wait, 100) : (heroTimer = setTimeout(heroSwitch, HERO_HOLD));
-            wait();
+            // 開場先和大標題一樣是原本的樣子
+            layers.filter(L => L.opt.hero).forEach(L => { L.hide = 1; L.ok = false; });
         }
         function heroToggle() {
             document.querySelectorAll('#hero-section .hero-icon').forEach(icon => {
@@ -4283,7 +4367,7 @@
                     icon.removeEventListener('mousedown', dragStart);
                     icon.removeEventListener('touchstart', dragStart);
                 }
-                icon.addEventListener('click', () => heroSwitch());
+                icon.addEventListener('click', () => { if (window.__heroFlip) window.__heroFlip(); });
             });
         }
         function attachHero() {
@@ -4468,29 +4552,106 @@
                     ctx.fillText(RAMP[Math.min(RAMP.length - 1, Math.floor(a * RAMP.length * 0.99))], px + cell / 2, py + cell / 2 + 0.5);
                 }
             }
+            // 年份標籤：和大標題、首頁圖示同步切換成 ASCII（畫布放在標籤裡，拖曳時一起移動）
+            const tagFx = (function () {
+                const host = document.querySelector('#hero-section .drag-item:not(.hero-icon)');
+                const svg = host && host.querySelector('svg');
+                if (!svg) return { set() {}, rasterize() {} };
+                const cv = document.createElement('canvas');
+                cv.className = 'tag-ascii'; cv.setAttribute('aria-hidden', 'true');
+                host.appendChild(cv);
+                const c = cv.getContext('2d');
+                const raw = document.createElement('canvas'), r = raw.getContext('2d');
+                const sm = document.createElement('canvas'), sc = sm.getContext('2d', { willReadFrequently: true });
+                let W = 0, H = 0, P = 0, dp = 1, cl = 5, co = 0, ro = 0, d = null, h = 1;
+                function rasterize() {
+                    const b = svg.getBoundingClientRect();
+                    const box = host.getBoundingClientRect();
+                    const w = svg.clientWidth || b.width, hh = svg.clientHeight || b.height;
+                    if (!w) return;
+                    const k = w / 280;                         // svg 的 viewBox 是 280 × 80
+                    P = 14 * k; dp = Math.min(devicePixelRatio || 1, 2);
+                    W = Math.ceil(w + P * 2); H = Math.ceil(hh + P * 2);
+                    cv.style.left = -P + 'px'; cv.style.top = -P + 'px';   // svg 就在標籤的左上角（SVG 元素沒有 offsetTop）
+                    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+                    cv.width = W * dp; cv.height = H * dp; raw.width = W * dp; raw.height = H * dp;
+                    r.setTransform(dp, 0, 0, dp, 0, 0); r.clearRect(0, 0, W, H);
+                    const t = svg.querySelector('text'), cs = getComputedStyle(t);
+                    const fs = parseFloat(cs.fontSize) * k;
+                    r.font = `400 ${fs}px ${cs.fontFamily}`;
+                    try { r.letterSpacing = (1 * k) + 'px'; } catch (e) {}
+                    // 依 svg 裡文字實際的外框置中，位置和原本的標籤完全重疊
+                    const bb = t.getBBox();
+                    const m = r.measureText('2025-2026');
+                    r.textAlign = 'center'; r.textBaseline = 'alphabetic';
+                    const x = P + (bb.x + bb.width / 2) * k;
+                    const y = P + (bb.y + bb.height / 2) * k + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+                    r.lineJoin = 'round'; r.lineWidth = 12 * k; r.strokeStyle = '#FFEC00';
+                    r.strokeText('2025-2026', x, y);
+                    r.fillStyle = '#111111'; r.fillText('2025-2026', x, y);
+                    cl = SMALL() ? 3 : 5;
+                    co = Math.ceil(W / cl); ro = Math.ceil(H / cl);
+                    sm.width = co; sm.height = ro; sc.clearRect(0, 0, co, ro);
+                    sc.drawImage(raw, 0, 0, co, ro);
+                    d = sc.getImageData(0, 0, co, ro).data;
+                }
+                function draw(t) {
+                    if (!d) return;
+                    c.setTransform(dp, 0, 0, dp, 0, 0); c.clearRect(0, 0, W, H);
+                    if (h >= 1) return;
+                    c.font = `700 ${Math.round(cl * 0.85)}px ${FONT}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+                    const edge = 0.07, PP = h * (1 + edge * 2) - edge, tick = Math.floor(t / 420);
+                    for (let y = 0; y < ro; y++) for (let x = 0; x < co; x++) {
+                        const i = (y * co + x) * 4, a = d[i + 3] / 255;
+                        if (a < 0.3) continue;
+                        const R = d[i], G = d[i + 1], B = d[i + 2], px = x * cl, py = y * cl;
+                        if (h > 0) {
+                            const o = 0.55 * (x / co) + 0.45 * hash(x, y, 17);
+                            if (o < PP - edge) { c.drawImage(raw, px * dp, py * dp, cl * dp, cl * dp, px, py, cl + 0.5, cl + 0.5); continue; }
+                            if (o < PP + edge) { c.fillStyle = `rgb(${R},${G},${B})`; c.fillText(RAMP[Math.floor(hash(x, y, Math.floor(t / 50)) * RAMP.length)], px + cl / 2, py + cl / 2); continue; }
+                        }
+                        c.fillStyle = `rgb(${R},${G},${B})`;
+                        c.fillRect(px + 0.4, py + 0.4, cl - 0.8, cl - 0.8);
+                        if (cl >= 4) {
+                            c.fillStyle = hash(x, y, tick) < 0.04 ? ACCENTS[Math.floor(hash(y, x, tick) * ACCENTS.length)] : (R > 200 && G > 200 ? 'rgba(17,17,17,0.5)' : 'rgba(255,255,255,0.75)');
+                            c.fillText(RAMP[Math.floor(hash(x, y, 5) * RAMP.length)], px + cl / 2, py + cl / 2 + 0.3);
+                        }
+                    }
+                }
+                return {
+                    rasterize,
+                    set(v, t) { h = v; host.classList.toggle('is-ascii-tag', v < 1); draw(t); }
+                };
+            })();
             const HOLD = 3000, FX = 800;
+            let timer = 0, busy = false;
             function run(toAscii) {
+                clearTimeout(timer); busy = true;
+                heroSet(!toAscii);                               // 首頁圖示同一刻一起切換
                 const t0 = performance.now();
                 h1.classList.add('is-ascii-text');              // 轉場中與 ASCII 狀態：真正的文字隱藏，由畫布代畫
                 (function step(now) {
                     const k = Math.min(1, (now - t0) / FX);
                     hide = toAscii ? 1 - k : k;
-                    draw(now);
+                    draw(now); tagFx.set(hide, now);
                     if (k < 1) return requestAnimationFrame(step);
                     mode = toAscii ? 'ascii' : 'text';
-                    if (mode === 'text') { h1.classList.remove('is-ascii-text'); ctx.clearRect(0, 0, W, H); }
-                    else (function idle(n) { if (mode !== 'ascii') return; draw(n); setTimeout(() => requestAnimationFrame(idle), 400); })(performance.now());
-                    setTimeout(() => run(mode === 'text'), HOLD);
+                    if (mode === 'text') { h1.classList.remove('is-ascii-text'); ctx.clearRect(0, 0, W, H); tagFx.set(1, now); }
+                    else (function idle(n) { if (mode !== 'ascii') return; draw(n); tagFx.set(0, n); setTimeout(() => requestAnimationFrame(idle), 400); })(performance.now());
+                    busy = false;
+                    timer = setTimeout(() => run(mode === 'text'), HOLD);
                 })(t0);
             }
             const begin = () => {
                 if (document.documentElement.classList.contains('splash-on')) return setTimeout(begin, 100);
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-                rasterize();
-                setTimeout(() => run(true), HOLD);
+                rasterize(); tagFx.rasterize();
+                timer = setTimeout(() => run(true), HOLD);
             };
+            // 點首頁圖示：馬上一起切換，並從這裡重新計時
+            window.__heroFlip = () => { if (!busy && data) run(mode === 'text'); };
             (document.fonts ? document.fonts.ready : Promise.resolve()).then(begin);
-            let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { rasterize(); if (mode === 'ascii') draw(performance.now()); }, 200); });
+            let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { rasterize(); tagFx.rasterize(); if (mode === 'ascii') { draw(performance.now()); tagFx.set(0, performance.now()); } }, 200); });
         })();
         let raf = 0;
         function loop(t) {
@@ -4500,7 +4661,7 @@
                 if (r.bottom < -50 || r.top > vh + 50 || r.right < -50 || r.left > innerWidth + 50) continue;
                 // 影片每秒更新約 10 次；靜態圖每 420ms 只換字元閃爍
                 if (L.anim || !L.ok || t - L.last > (L.opt.video ? 100 : 420)) {
-                    if (L.opt.hero && heroRaw && !L.anim) { if (!L.ok) { L.hide = 1; draw(L, t); } L.ok = true; continue; }  // 原圖狀態：整張畫原圖，不再更新
+                    if (L.opt.hero && heroRaw && !L.anim) { if (!L.ok) { L.ctx.clearRect(0, 0, L.cv.width, L.cv.height); L.src.style.opacity = '1'; } L.ok = true; continue; }  // 原圖狀態：直接顯示原本的圖片（細節完整）
                     draw(L, t); L.last = t;
                 }
             }
@@ -4512,6 +4673,31 @@
         // 切換分類或跑馬燈複製出新的卡片時，補上 ASCII 圖層
         new MutationObserver(() => attachThumbs()).observe(document.getElementById('portfolio-track'), { childList: true, subtree: true });
         window.addEventListener('resize', () => layers.forEach(L => { L.ok = false; }));
+    }
+    // 換頁（首頁 ⇄ 作品頁）用 ASCII 轉場
+    if (on.has('8')) {
+        window.__viewWipe = (x, y, cb) => dotWipe(x, y, cb, '#3B82F6');
+        // MingFly. ⇄ ← Home：字元先亂跳成 ASCII，再由左到右解碼成新的字
+        const logo = document.getElementById('brand-logo');
+        if (logo) {
+            const GL = '@#8XS%t;:.';
+            const txt = logo.querySelector('.brand-txt'), home = logo.querySelector('.brand-arrow > span');
+            const orig = new Map([[txt, txt.textContent], [home, home ? home.textContent : '']]);
+            let last = logo.classList.contains('show-arrow'), job = 0;
+            new MutationObserver(() => {
+                const now = logo.classList.contains('show-arrow');
+                if (now === last) return; last = now;
+                const el = now ? home : txt;
+                if (!el) return;
+                const target = orig.get(el), id = ++job, t0 = performance.now(), DUR = 520;
+                (function f(t) {
+                    if (id !== job) { el.textContent = target; return; }
+                    const k = Math.min(1, (t - t0) / DUR), done = Math.floor(k * target.length);
+                    el.textContent = target.split('').map((ch, i) => i < done ? ch : GL[Math.floor(Math.random() * GL.length)]).join('');
+                    if (k < 1) requestAnimationFrame(f); else el.textContent = target;
+                })(t0);
+            }).observe(logo, { attributes: true, attributeFilter: ['class'] });
+        }
     }
 })();
 </script>
