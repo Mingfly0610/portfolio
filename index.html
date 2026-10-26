@@ -2178,6 +2178,7 @@
             if (modalVideo.getAttribute('src') && !modalVideo.error) {
                 modalSkeleton.classList.add('hidden');
                 modalVideo.classList.remove('hidden', 'opacity-0');
+                fitVideo();
                 const p = modalVideo.play();
                 if (p && p.catch) p.catch(() => {});
             } else {
@@ -2211,6 +2212,25 @@
             modalEmbed.style.transform = `scale(${scale})`;
         }
         window.addEventListener('resize', fitEmbed);
+
+        // 一般影片：依顯示區大小等比例放大，解析度較低的影片也會填滿（不只照原始像素大小顯示）
+        function fitVideo() {
+            const plain = !modalContent.classList.contains('is-phone-media') && !modalContent.classList.contains('is-browser-media');
+            if (!plain || modalVideo.classList.contains('hidden')) { modalVideo.style.width = ''; modalVideo.style.height = ''; return; }
+            const viewport = modalVideo.parentElement;
+            const cs = getComputedStyle(viewport);
+            const availW = viewport.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+            const availH = viewport.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+            if (availW <= 0 || availH <= 0) return;
+            const ar = (modalVideo.videoWidth && modalVideo.videoHeight) ? modalVideo.videoWidth / modalVideo.videoHeight
+                : (parseFloat(currentProject && currentProject.getAttribute('data-modal-ar')) || 1.7778);
+            let w = availW, h = w / ar;
+            if (h > availH) { h = availH; w = h * ar; }
+            modalVideo.style.width = Math.floor(w) + 'px';
+            modalVideo.style.height = Math.floor(h) + 'px';
+        }
+        modalVideo.addEventListener('loadedmetadata', fitVideo);
+        window.addEventListener('resize', fitVideo);
 
         function updateGalleryView() {
             reset3DState(); 
@@ -2538,6 +2558,7 @@
             if (autoEmbed) enterEmbed();
             fitEmbed(); // 彈窗顯示後才量得到顯示區大小
             requestAnimationFrame(fitEmbed);
+            fitVideo(); requestAnimationFrame(fitVideo);
         }
 
         // 整頁捲軸：捲動時顯示，停止 0.8 秒後淡出；顯示期間可以用滑鼠抓著拖
@@ -3435,6 +3456,8 @@
     html.d4 #portfolio-grid.demo-collage .demo-group + .demo-group { border-top-color: rgba(255,255,255,0.35); }
     #portfolio-grid.demo-collage .portfolio-item { width: auto !important; max-width: none; margin: 0; align-self: start; }
     #portfolio-grid.demo-collage .item-cat { display: none; }
+    /* 手機作品統一比例，五件測驗大小完全一致 */
+    #portfolio-grid.demo-collage .portfolio-item.is-phone .item-media { aspect-ratio: 0.56; }
     #portfolio-grid.demo-collage .portfolio-item.is-featured .item-title { font-size: 19px; }
     #portfolio-grid.demo-collage .portfolio-item.is-featured .item-year { font-size: 22px; }
     .demo-marker {
@@ -3442,7 +3465,7 @@
         padding: 0 0 28px; color: #111111; pointer-events: none;
     }
     .demo-marker .dm-num { font-family: "Playfair Display", serif; font-style: italic; font-size: 20px; color: #3B82F6; }
-    .demo-marker .dm-zh { font-size: clamp(54px, 6.2vw, 104px); font-weight: 900; line-height: 0.95; letter-spacing: -0.02em; margin-top: 6px; }
+    .demo-marker .dm-zh { font-size: clamp(54px, 6.2vw, 104px); font-weight: 900; line-height: 1.12; letter-spacing: -0.02em; margin-top: 6px; }
     .demo-marker .dm-en { font-size: 12px; font-weight: 700; letter-spacing: 0.3em; margin-top: 14px; color: #6b7280; }
     @media (max-width: 767px) {
         #portfolio-grid.demo-collage { padding: 0 20px; }
@@ -3640,7 +3663,7 @@
     // 3. 拼貼作品牆
     // =========================================================
     if (on.has('3')) {
-        const FEATURED = ['岡山', '消防局', '台橡旺年會ELT', '2026年 台灣就業通雲嘉南區就業博覽會啟動', '客家魂', '活動電子抽獎', '3D PART'];
+        const FEATURED = ['岡山', '消防局', '台橡旺年會ELT', '2026年 台灣就業通雲嘉南區就業博覽會啟動', '活動電子抽獎', '3D PART'];
         const CAT = {
             event: { zh: '活動\n視覺', en: 'EVENT VISUAL' },
             animation: { zh: '動態\n設計', en: 'MOTION' },
@@ -3656,7 +3679,7 @@
             const f = it.classList.contains('is-featured');
             const a = ar(it);
             let s;
-            if (it.classList.contains('is-phone')) s = f ? 3 : 2;
+            if (it.classList.contains('is-phone')) s = 3;   // 手機測驗一律同樣大小
             else if (a < 0.95) s = f ? 4 : 3;
             else if (a >= 1.9) s = f ? 8 : 6;
             else s = f ? 6 : 4;
