@@ -2690,6 +2690,7 @@
         modalMediaContainer.addEventListener('mousedown', (e) => {
             if (window.innerWidth < 1024) return;
             if (currentMediaType !== 'image') return; // 影片與嵌入程式不提供 3D 拖曳
+            if (currentScale <= 1.001) return;   // 沒有放大就不需要拖曳
             if (e.target.closest('button, .modal-strip')) return; // 箭頭與縮圖列不觸發拖曳
             
             if (e.target.tagName === 'IMG' || e.target.tagName === 'DIV') {
@@ -2748,7 +2749,7 @@
             
             const zoomSpeed = 0.002;
             currentScale -= e.deltaY * zoomSpeed;
-            currentScale = Math.max(0.3, Math.min(currentScale, 5)); 
+            currentScale = Math.max(1, Math.min(currentScale, 5)); if (currentScale <= 1.001) { currentPanX = 0; currentPanY = 0; }
             
             const targetElement = currentMediaType === 'video' ? modalVideo : modalImg;
             targetElement.style.transition = 'transform 0.1s ease-out';
@@ -3678,10 +3679,56 @@
     html.d6 #project-modal .strip-thumb { border-radius: 0 !important; box-shadow: none !important; }
     html.d6 #project-modal .strip-thumb.is-active { box-shadow: 0 0 0 2px var(--modal-tint), 0 0 0 3.5px #3B82F6 !important; }
     /* 專案類別：不用圓角底色，改成文字＋底線 */
-    html.d6 #project-modal .modal-tag { background: none !important; border-radius: 0 !important; padding: 0 0 4px !important; margin-left: 0 !important;
-        border-bottom: 1px solid currentColor; font-size: 13px; letter-spacing: 0.16em; }
+    html.d6 #project-modal .modal-tag { position: relative; background: none !important; border-radius: 0 !important; padding: 0 !important; margin-left: 0 !important;
+        font-size: 13px; line-height: 1.4; letter-spacing: 0.16em; }
+    html.d6 #project-modal .modal-tag::after { content: ""; position: absolute; left: 0; right: 0.16em; bottom: 1px; height: 1px; background: currentColor; }   /* 和網站其他底線一樣貼近文字 */
     /* 年份：縮小到大約專案名稱兩個中文字的寬度 */
-    html.d6 #project-modal .modal-year { font-size: clamp(31px, 3.55vw, 58px) !important; margin-top: 22px; }
+    html.d6 #project-modal .modal-year { margin-top: 22px; }
+    /* 專案名稱：縮小、一行（字級由程式依欄寬自動計算，年份跟著等比例） */
+    html.d6 #project-modal .modal-title { text-wrap: nowrap; }
+    html.d6 #project-modal .modal-title br { display: none !important; }
+    /* 多張圖片：不顯示左右箭頭按鈕，改用跟著滑鼠的箭頭（左半邊上一張、右半邊下一張） */
+    html.d6 #project-modal .modal-card.img-gal .modal-arrow { display: none !important; }
+    html.d6 #modal-media-container { cursor: auto !important; }
+    html.d6 #modal-media-container.is-zoomed { cursor: grab !important; }
+    html.d6 #modal-media-container.is-zoomed:active { cursor: grabbing !important; }
+    html.d6 #modal-media-container.gal-cursor, html.d6 #modal-media-container.gal-cursor * { cursor: none !important; }
+    #gal-cursor { position: fixed; left: 0; top: 0; z-index: 200; pointer-events: none; width: 44px; height: 44px; margin: -22px 0 0 -22px; color: #111111; opacity: 0; transition: opacity .15s ease, color .2s ease; }
+    #gal-cursor.on { opacity: 1; }
+    #gal-cursor svg { width: 100%; height: 100%; transition: transform .2s ease; }
+    #gal-cursor.next svg { transform: scaleX(-1); }
+    @media (min-width: 1024px) {
+        html.d6 #project-modal .modal-card.is-landscape .modal-info { display: flex !important; flex-direction: column; max-width: 1100px !important; }
+    }
+    /* ===== 專案內容頁：細體、15px 統一 ===== */
+    /* 專案類別、年份、專案名稱：同字體、同字級、同行距，三行靠近 */
+    html.d6 #project-modal .modal-head { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+    html.d6 #project-modal .modal-head > * { margin: 0 !important; font-family: 'Noto Sans TC', sans-serif !important; font-style: normal !important;
+        font-size: 15px !important; font-weight: 700 !important; line-height: 1.5 !important; letter-spacing: 0.04em !important; }
+    html.d6 #project-modal .modal-tag { color: #111111; }
+    html.d6 #project-modal .modal-tag::after { content: none !important; }   /* 類別不加底線 */
+    html.d6 #project-modal .modal-year { color: #3B82F6 !important; }
+    html.d6 #project-modal .modal-title { color: #111111; text-wrap: nowrap; }
+    /* 專案內容：15px 細體，段落之間拉開一點（前往程式網頁、QR Code 不變） */
+    html.d6 #project-modal #modal-description, html.d6 #project-modal #modal-description * { font-size: 15px !important; font-weight: 400 !important; line-height: 1.5 !important; letter-spacing: 0.03em; }
+    html.d6 #project-modal #modal-description { color: #374151; }
+    html.d6 #project-modal #modal-description strong, html.d6 #project-modal #modal-description b { font-weight: 500 !important; color: #111111; }
+    html.d6 #project-modal #modal-description h4 { color: #3B82F6 !important; font-weight: 500 !important; letter-spacing: 0.2em !important; margin: 0 0 6px !important; }
+    html.d6 #project-modal #modal-description p, html.d6 #project-modal #modal-description ul { margin: 0 0 28px !important; }
+    html.d6 #project-modal #modal-description li + li { margin-top: 6px; }
+    html.d6 #project-modal #modal-description > :last-child { margin-bottom: 0 !important; }
+    html.d6 #project-modal .mi-scroll { gap: 36px !important; }
+    /* 手機版：專案內容頁的文字全部小一號（15px → 14px） */
+    @media (max-width: 767px) {
+        html.d6 #project-modal .modal-head > *,
+        html.d6 #project-modal #modal-description, html.d6 #project-modal #modal-description * { font-size: 14px !important; }
+    }
+    /* CLOSE：拿掉框和文字，只留叉叉 */
+    html.d6 #project-modal .modal-close { border: 0 !important; background: transparent !important; padding: 10px !important; border-radius: 0 !important; color: #111111 !important; }
+    html.d6 #project-modal .modal-close::before { content: none !important; }
+    html.d6 #project-modal .modal-close:focus { outline: none; }
+    html.d6 #project-modal .modal-close:focus-visible { color: #3B82F6 !important; }
+    html.d6 #project-modal .modal-close:hover { color: #3B82F6 !important; background: transparent !important; }
     /* 上一件／下一件固定顯示，不跟著內文捲動 */
     html.d6 #project-modal .mi-scroll { display: flex; flex-direction: column; gap: 22px; }
     html.d6 #project-modal .modal-nav { background: var(--modal-tint); }
@@ -4641,6 +4688,80 @@
         new MutationObserver(() => { arrange(); sc.scrollTop = 0; }).observe(document.getElementById('modal-title'), { childList: true, characterData: true, subtree: true });
         window.addEventListener('resize', arrange);
         arrange();
+
+        // ---- 專案名稱一行：依欄寬自動算字級（最大約 32px），年份跟著縮放到約兩個中文字寬 ----
+        const title = document.getElementById('modal-title'), year = document.getElementById('modal-year');
+        function fitTitle() {
+            // 專案名稱統一 15px；一行放得下就一行，真的放不下（手機）才換行
+            title.querySelectorAll('wbr, br').forEach(n => n.remove());
+            title.style.fontSize = ''; year.style.fontSize = '';
+            title.style.whiteSpace = 'nowrap';
+            if (title.scrollWidth > title.clientWidth + 1) title.style.whiteSpace = 'normal';
+        }
+        const refit = () => requestAnimationFrame(() => requestAnimationFrame(fitTitle));
+        new MutationObserver(refit).observe(title, { childList: true, characterData: true, subtree: true });
+        new MutationObserver(refit).observe(document.getElementById('project-modal'), { attributes: true, attributeFilter: ['class'] });
+        new MutationObserver(refit).observe(card, { attributes: true, attributeFilter: ['class'] });
+        window.addEventListener('resize', refit);
+        if (document.fonts) document.fonts.ready.then(refit);
+
+        // ---- 多張圖片：滑鼠變成箭頭，圖片左半邊上一張、右半邊下一張；放大後才可以拖曳 ----
+        const box = document.getElementById('modal-media-container'), vp = card.querySelector('.modal-viewport');
+        const img = document.getElementById('modal-img'), prevB = document.getElementById('prev-img'), nextB = document.getElementById('next-img');
+        const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const cur = document.createElement('div');
+        cur.id = 'gal-cursor'; cur.setAttribute('aria-hidden', 'true');
+        cur.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>';
+        document.body.appendChild(cur);
+        const zoomed = () => { const m = /scale\(([\d.]+)\)/.exec(img.style.transform || ''); return m && parseFloat(m[1]) > 1.001; };
+        const isImgGallery = () => !prevB.classList.contains('hidden') && !img.classList.contains('hidden');
+        function syncState() {
+            card.classList.toggle('img-gal', isImgGallery());
+            box.classList.toggle('is-zoomed', !img.classList.contains('hidden') && zoomed());
+        }
+        new MutationObserver(syncState).observe(prevB, { attributes: true, attributeFilter: ['class'] });
+        new MutationObserver(syncState).observe(img, { attributes: true, attributeFilter: ['class', 'style'] });
+        // 取樣圖片亮度：箭頭在淺色上是黑色、深色上是白色
+        const smp = document.createElement('canvas'), sx = smp.getContext('2d', { willReadFrequently: true });
+        let smpSrc = '', smpOk = false;
+        function prepSample() {
+            if (smpSrc === img.currentSrc || !img.complete || !img.naturalWidth) return;
+            smpSrc = img.currentSrc; smpOk = false;
+            try { smp.width = 96; smp.height = Math.max(1, Math.round(96 * img.naturalHeight / img.naturalWidth)); sx.drawImage(img, 0, 0, smp.width, smp.height); sx.getImageData(0, 0, 1, 1); smpOk = true; } catch (e) {}
+        }
+        img.addEventListener('load', () => { smpSrc = ''; prepSample(); });
+        function colorAt(x, y) {
+            const r = img.getBoundingClientRect();
+            if (x < r.left || x > r.right || y < r.top || y > r.bottom) return '#111111';   // 圖片外是淺灰底
+            prepSample();
+            if (!smpOk) return '#111111';
+            const px = Math.floor((x - r.left) / r.width * smp.width), py = Math.floor((y - r.top) / r.height * smp.height);
+            const d = sx.getImageData(Math.max(0, px - 2), Math.max(0, py - 2), 5, 5).data;
+            let sum = 0, n = 0;
+            for (let i = 0; i < d.length; i += 4) { if (d[i + 3] < 20) { sum += 243; n++; continue; } sum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; n++; }
+            return n && sum / n > 140 ? '#111111' : '#ffffff';
+        }
+        let side = 0;
+        function galActive(e) {
+            return fine && isImgGallery() && !zoomed() && e.target instanceof Element && vp.contains(e.target) && !e.target.closest('button, .modal-strip');
+        }
+        window.addEventListener('pointermove', (e) => {
+            if (!galActive(e)) { cur.classList.remove('on'); box.classList.remove('gal-cursor'); side = 0; return; }
+            const r = img.getBoundingClientRect(), mid = r.width ? r.left + r.width / 2 : vp.getBoundingClientRect().left + vp.clientWidth / 2;
+            side = e.clientX < mid ? -1 : 1;
+            cur.classList.toggle('next', side > 0);
+            cur.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+            cur.style.color = colorAt(e.clientX, e.clientY);
+            cur.classList.add('on'); box.classList.add('gal-cursor');
+        }, { passive: true });
+        vp.addEventListener('click', (e) => {
+            if (!galActive(e) || !side) return;
+            e.preventDefault();
+            (side < 0 ? prevB : nextB).click();
+        });
+        document.addEventListener('mouseleave', () => cur.classList.remove('on'));
+        new MutationObserver(() => { if (document.getElementById('project-modal').classList.contains('hidden')) { cur.classList.remove('on'); box.classList.remove('gal-cursor'); } })
+            .observe(document.getElementById('project-modal'), { attributes: true, attributeFilter: ['class'] });
     })();
     // =========================================================
     // 8. ASCII 字元風格
