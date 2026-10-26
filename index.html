@@ -3426,20 +3426,21 @@
     /* =========================================================
        1. 網點系統：作品縮圖平常是網點，滑過才顯影
        ========================================================= */
-    @property --dot-r { syntax: '<length>'; inherits: true; initial-value: 0px; }
+    /* 十字網格：間距 4.15 px，每格一個十字（臂長 3.2 px、粗 1.1 px） */
     html.d1 .portfolio-item .item-media { background: #ffffff; }
     html.d1 .portfolio-item .item-media-el {
-        --dot-r: 2.35px;
-        -webkit-mask-image: radial-gradient(circle at center, #000 var(--dot-r), transparent calc(var(--dot-r) + 0.7px));
-                mask-image: radial-gradient(circle at center, #000 var(--dot-r), transparent calc(var(--dot-r) + 0.7px));
-        -webkit-mask-size: 6.5px 6.5px; mask-size: 6.5px 6.5px;
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%274.15%27%20height%3D%274.15%27%20viewBox%3D%270%200%204.15%204.15%27%3E%3Cpath%20d%3D%27M0.475%201.525h3.2v1.1h-3.2zM1.525%200.475h1.1v3.2h-1.1z%27%20fill%3D%27black%27/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%274.15%27%20height%3D%274.15%27%20viewBox%3D%270%200%204.15%204.15%27%3E%3Cpath%20d%3D%27M0.475%201.525h3.2v1.1h-3.2zM1.525%200.475h1.1v3.2h-1.1z%27%20fill%3D%27black%27/%3E%3C/svg%3E");
+        -webkit-mask-size: 4.15px 4.15px; mask-size: 4.15px 4.15px;
         filter: url(#demo-duotone);
-        transition: --dot-r 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.7s ease, opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
+    /* 滑過顯影：拿掉十字網格、恢復原色，並從半透明淡入 */
     html.d1 .portfolio-item:hover .item-media-el,
-    html.d1 .portfolio-item:focus-visible .item-media-el { --dot-r: 4.8px; filter: none; }
-    /* 觸控裝置沒有滑過：改成捲到畫面中央的那件顯影 */
-    html.d1 .portfolio-item.is-revealed .item-media-el { --dot-r: 4.8px; filter: none; }
+    html.d1 .portfolio-item:focus-visible .item-media-el,
+    html.d1 .portfolio-item.is-revealed .item-media-el {
+        -webkit-mask-image: none; mask-image: none; filter: none;
+        animation: demo-reveal 0.55s ease-out;
+    }
+    @keyframes demo-reveal { from { opacity: 0.25; } to { opacity: 1; } }
 
     /* =========================================================
        3. 拼貼作品牆：大小不一、重點作品放大、分類大字標記
@@ -3544,7 +3545,7 @@
 <div id="demo-panel" aria-label="風格 DEMO 切換">
     <div class="dp-head"><b>Style Demo</b><span>點此收合</span></div>
     <div class="dp-body">
-        <label><input type="checkbox" data-f="1"><span class="dp-num">1</span>網點系統與轉場</label>
+        <label><input type="checkbox" data-f="1"><span class="dp-num">1</span>十字網格與轉場</label>
         <label><input type="checkbox" data-f="3"><span class="dp-num">3</span>拼貼作品牆</label>
         <label><input type="checkbox" data-f="4"><span class="dp-num">4</span>品牌藍色塊</label>
         <label><input type="checkbox" data-f="6"><span class="dp-num">6</span>整頁專案頁</label>
