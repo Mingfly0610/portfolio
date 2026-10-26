@@ -775,8 +775,9 @@
             function stylesReady() {
                 return new Promise(function (r) {
                     (function check() {
-                        var hero = document.getElementById('hero-section');
-                        if (hero && getComputedStyle(hero).display === 'flex') r(); else setTimeout(check, 40);
+                        // 用導覽列判斷（首頁可能被隱藏，例如帶 #work 進站）：樣式載入後導覽列才會固定在頂端
+                        var nav = document.getElementById('navbar');
+                        if (nav && getComputedStyle(nav).position === 'fixed') r(); else setTimeout(check, 40);
                     })();
                 });
             }
@@ -943,7 +944,7 @@
                 digital experiences.
             </h1>
             <div class="hero-hello-mask">
-                <p id="hero-hello" class="text-xl md:text-2xl text-gray-500 leading-relaxed">你好，我是 MingFly</p>
+                <p id="hero-hello" class="text-xl md:text-2xl text-gray-500 leading-relaxed">你好，我是 MingFly.</p>
             </div>
             
             <div class="pt-6 md:pt-12 pointer-events-auto flex justify-center">
@@ -1769,9 +1770,6 @@
         <div class="absolute inset-x-0 bottom-0 text-sm text-gray-500">
             <div class="max-w-7xl mx-auto px-6 lg:px-12 pb-6 md:pb-0 md:h-20 flex flex-col md:flex-row justify-between items-center">
                 <p>&copy; 2026 MingFly. All rights reserved.</p>
-                <a href="#top" class="mt-2 md:mt-0 hover:text-[#3B82F6] transition-colors flex items-center gap-2">
-                    Back to top <i class="ph ph-arrow-up" aria-hidden="true"></i>
-                </a>
             </div>
         </div>
     </footer>
@@ -3506,12 +3504,8 @@
 
 <!-- ===================== 風格 DEMO 層（只存在於 demo.html，不影響正式網站） ===================== -->
 <style id="demo-style">
-    /* 年份標籤：改用像素字 Micro 5（黃色描邊樣式不變） */
-    /* 字型直接內嵌（只含數字與連字號，約 8KB），不必等 Google Fonts，也不會載入失敗 */
-    @font-face { font-family: "Micro5Year"; src: url(data:font/ttf;base64,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) format("truetype"); font-display: block; }
     /* 年份標籤放在最上層，不被首頁圖示壓住 */
     #hero-section .hero-icon { z-index: 10 !important; }
-    #hero-section .drag-item:not(.hero-icon) svg text { font-family: "Micro5Year", "Micro 5", "Playfair Display", serif; font-weight: 400; font-size: 72px; letter-spacing: 1px; }
     /* ---------- 控制面板 ---------- */
     #demo-panel {
         position: fixed; left: 16px; bottom: 16px; z-index: 2147483000;
@@ -3750,6 +3744,7 @@
     /* 大標題的 ASCII 圖層：疊在文字上、年份標籤之下 */
     .h1-ascii { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1; }
     .tag-ascii { position: absolute; pointer-events: none; }
+    #whale-sea { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 0; }
     #hero-section .drag-item.is-ascii-tag > svg { visibility: hidden; }
     /* 頂端導覽列：純白，不要半透明模糊 */
     #navbar:not(.nav-dark):not(.nav-curtain) { background: #ffffff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
@@ -3758,6 +3753,9 @@
     html.d8 #brand-logo > span { transition: opacity 0.12s linear !important; transform: none !important; }
     #hero-section h1.is-ascii-text { color: transparent; }
     #hero-section h1.is-ascii-text span { color: transparent !important; }
+    #contact h2.is-ascii-text, #contact h2.is-ascii-text span { color: transparent !important; }
+    /* 斜體關鍵字不參與 ASCII，一直保持原本的樣子 */
+    #hero-section h1.is-ascii-text span.font-serif, #contact h2.is-ascii-text span.font-serif { color: #3B82F6 !important; }
     html.d8 #halftone-bg { opacity: 1; }
     /* 「觀看作品」：終端機字樣＋像素方格畫圈 */
     html.d8 .cta-circle { display: none; }
@@ -3826,6 +3824,24 @@
     // ---------- ASCII 版的開場與轉場：整片色塊一格一格「解碼」成字元後消失 ----------
     const ASCII_FX = on.has('8');
     const WIPE_GLY = '@#8XS%t;:.';
+    // 斜體關鍵字（beautiful、creative）：不轉成 ASCII，只在切換的那一刻用打字機解碼的方式重新出現
+    function decodeWord(el, dur) {
+        if (!el || reduce) return;
+        const isSvg = el instanceof SVGElement;   // SVG 文字是置中對齊，不需要固定寬度
+        const target = el.__word || (el.__word = isSvg ? el.textContent.trim() : el.textContent);   // SVG 原始碼裡有換行縮排，要去掉
+        const id = (el.__job = (el.__job || 0) + 1);
+        // 固定寬度：解碼中字元寬度不同，避免整行跟著晃動或換行
+        if (!isSvg) el.style.display = 'inline-block'; el.style.whiteSpace = 'nowrap'; el.style.textAlign = 'left';
+        if (!isSvg) { el.style.width = ''; el.style.width = el.getBoundingClientRect().width + 'px'; }
+        const t0 = performance.now(), D = dur || 650;
+        (function f(t) {
+            if (el.__job !== id) return;
+            const k = Math.min(1, (t - t0) / D), done = Math.floor(k * target.length);
+            el.textContent = target.split('').map((ch, i) => i < done || ch === '-' ? ch : WIPE_GLY[Math.floor(Math.random() * WIPE_GLY.length)]).join('');
+            if (k < 1) requestAnimationFrame(f);
+            else { el.textContent = target; if (!isSvg) { el.style.width = ''; el.style.display = ''; el.style.whiteSpace = ''; el.style.textAlign = ''; } }
+        })(t0);
+    }
     function asciiDissolve(cv, ctx, W, H, ox, oy, color, opt) {
         const CELL = opt.cell || 22, SPREAD = opt.spread || 480, LIFE = opt.life || 520;
         const cols = Math.ceil(W / CELL) + 1, rows = Math.ceil(H / CELL) + 1;
@@ -4498,7 +4514,7 @@
                 cv.width = W * dpr; cv.height = H * dpr;
                 raw.width = W * dpr; raw.height = H * dpr;
                 rctx.setTransform(dpr, 0, 0, dpr, 0, 0); rctx.clearRect(0, 0, W, H);
-                const walker = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT, { acceptNode: n => (tag && tag.contains(n)) || !n.textContent.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+                const walker = document.createTreeWalker(h1, NodeFilter.SHOW_TEXT, { acceptNode: n => (tag && tag.contains(n)) || n.parentElement.closest('.font-serif') || !n.textContent.trim() ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
                 const range = document.createRange();
                 let n;
                 while ((n = walker.nextNode())) {
@@ -4519,7 +4535,7 @@
                         rctx.fillText(ch, x, y);
                     }
                 }
-                cell = SMALL() ? 5 : 8;
+                cell = SMALL() ? 3.5 : 5;   // 格子縮小，字形更細緻
                 cols = Math.ceil(W / cell); rows = Math.ceil(H / cell);
                 small.width = cols; small.height = rows;
                 sctx.clearRect(0, 0, cols, rows);
@@ -4578,7 +4594,7 @@
                     r.setTransform(dp, 0, 0, dp, 0, 0); r.clearRect(0, 0, W, H);
                     const t = svg.querySelector('text'), cs = getComputedStyle(t);
                     const fs = parseFloat(cs.fontSize) * k;
-                    r.font = `400 ${fs}px ${cs.fontFamily}`;
+                    r.font = `${cs.fontWeight} ${fs}px ${cs.fontFamily}`;
                     try { r.letterSpacing = (1 * k) + 'px'; } catch (e) {}
                     // 依 svg 裡文字實際的外框置中，位置和原本的標籤完全重疊
                     const bb = t.getBBox();
@@ -4623,13 +4639,16 @@
                     set(v, t) { h = v; host.classList.toggle('is-ascii-tag', v < 1); draw(t); }
                 };
             })();
+            tagFx.set = () => {};   // 年份標籤改成和 beautiful 一樣只解碼，不轉成 ASCII
             const HOLD = 3000, FX = 800;
             let timer = 0, busy = false;
             function run(toAscii) {
                 clearTimeout(timer); busy = true;
                 heroSet(!toAscii);                               // 首頁圖示同一刻一起切換
                 const t0 = performance.now();
-                h1.classList.add('is-ascii-text');              // 轉場中與 ASCII 狀態：真正的文字隱藏，由畫布代畫
+                h1.classList.add('is-ascii-text');
+                decodeWord(h1.querySelector('.font-serif'));
+                decodeWord(document.querySelector('#hero-section .drag-item:not(.hero-icon) svg text'));   // 年份標籤：不轉 ASCII，只解碼              // 轉場中與 ASCII 狀態：真正的文字隱藏，由畫布代畫
                 (function step(now) {
                     const k = Math.min(1, (now - t0) / FX);
                     hide = toAscii ? 1 - k : k;
@@ -4699,6 +4718,275 @@
             }).observe(logo, { attributes: true, attributeFilter: ['class'] });
         }
     }
+    // =========================================================
+    // 聯絡區：黑底上的 ASCII 鯨魚（靈感來自 stackedlol/ascii-sharks，MIT；鯨魚造型與動態為自行撰寫）
+    // =========================================================
+    if (on.has('8')) (function whales() {
+        const foot = document.getElementById('contact');
+        if (!foot) return;
+        const hc = document.getElementById('halftone-contact');
+        if (hc) hc.style.display = 'none';
+        const cv = document.createElement('canvas');
+        cv.id = 'whale-sea'; cv.setAttribute('aria-hidden', 'true');
+        foot.insertBefore(cv, foot.firstChild);
+        const ctx = cv.getContext('2d');
+        const off = document.createElement('canvas'), o = off.getContext('2d', { willReadFrequently: true });
+        const FONT = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const RAMP = '.:-=+*%#@';
+        const SS = 3;                                   // 每格取樣 3×3
+        const h3 = (a, b, c) => { let h = (a * 374761393 + b * 668265263 + c * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+        let W = 0, H = 0, dpr = 1, CELL = 11, cols = 0, rows = 0, wake = null, visible = false;
+        const mq = () => innerWidth < 768;
+
+        function resize() {
+            const r = foot.getBoundingClientRect();
+            W = Math.round(r.width); H = Math.round(r.height);
+            dpr = Math.min(devicePixelRatio || 1, 2);
+            CELL = mq() ? 8 : 11;
+            cols = Math.ceil(W / CELL); rows = Math.ceil(H / CELL);
+            cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+            off.width = cols * SS; off.height = rows * SS;
+            wake = new Float32Array(cols * rows);
+            whalesList.forEach(w => w.fit());
+        }
+
+        // ---- 鯨魚：側面的座頭鯨，身體隨游動起伏，尾鰭上下拍動 ----
+        function Whale(scale, depth, speed, delay) {
+            this.scale = scale; this.depth = depth; this.speed = speed; this.t = delay; this.dir = -1;
+            this.fit = () => { this.L = Math.max(mq() ? 200 : 300, W * this.scale * (mq() ? 1.5 : 1)); this.y = H * this.depth; if (this.x === undefined) this.x = W * (this.scale > 0.3 ? 0.42 : 0.5); };
+        }
+        const whalesList = [new Whale(0.46, 0.55, 30, 0), new Whale(0.24, 0.3, 30, 1.3)];
+        // 第二隻是小鯨魚，跟在大鯨魚的上方後面
+        function halfH(s) {
+            if (s < 0.12) return 0.118 * Math.sqrt(1 - Math.pow(1 - s / 0.12, 2));
+            if (s < 0.4) return 0.118 + 0.004 * Math.sin((s - 0.12) / 0.28 * Math.PI);
+            if (s < 0.9) return 0.02 + 0.098 * Math.pow(1 - (s - 0.4) / 0.5, 1.5);
+            return 0.02 - 0.006 * ((s - 0.9) / 0.1);
+        }
+        function spine(w, s, t) {
+            const amp = w.L * 0.032 * Math.pow(s, 1.8);
+            return Math.sin(t * 1.5 - s * 3.6) * amp + Math.sin(t * 0.35) * w.L * 0.012;
+        }
+        function drawWhale(w, t) {
+            const f = SS / CELL, L = w.L, dir = w.dir;
+            const X = s => (w.x + dir * -1 * 0 + (dir < 0 ? s * L : -s * L)) * f;   // 頭朝游動方向
+            const Y = (s, k) => (w.y + spine(w, s, t) + k * halfH(s) * L) * f;
+            const N = 60, top = [], bot = [];
+            for (let i = 0; i <= N; i++) { const s = i / N; top.push([X(s), Y(s, -0.86)]); bot.push([X(s), Y(s, 1.14)]); }
+            // 身體：背部深藍灰、腹部淺白
+            const yTop = Y(0.3, -0.86), yBot = Y(0.3, 1.14);
+            const g = o.createLinearGradient(0, yTop, 0, yBot);
+            g.addColorStop(0, 'rgb(70,96,138)'); g.addColorStop(0.55, 'rgb(122,152,196)'); g.addColorStop(1, 'rgb(225,236,250)');
+            o.fillStyle = g;
+            o.beginPath(); o.moveTo(top[0][0], top[0][1]);
+            for (const p of top) o.lineTo(p[0], p[1]);
+            for (let i = bot.length - 1; i >= 0; i--) o.lineTo(bot[i][0], bot[i][1]);
+            o.closePath(); o.fill();
+            // 尾鰭：兩片向後張開，隨拍動傾斜
+            const sx = X(1), sy = Y(1, 0);
+            const slope = (spine(w, 1, t) - spine(w, 0.94, t)) / (0.06 * L);
+            const tilt = Math.atan(slope) * 1.6;
+            const back = (dir < 0 ? 1 : -1) * L * 0.1 * f;
+            o.fillStyle = 'rgb(84,110,150)';
+            for (const side of [-1, 1]) {
+                const ang = tilt + side * 0.55;
+                const tipX = sx + back * Math.cos(ang), tipY = sy + Math.abs(back) * Math.sin(ang) * (dir < 0 ? 1 : -1) * (side < 0 ? 1 : 1);
+                o.beginPath(); o.moveTo(sx, sy - side * L * 0.008 * f);
+                o.quadraticCurveTo(sx + back * 0.4, sy + side * L * 0.05 * f, tipX, sy + side * L * 0.075 * f + Math.sin(tilt) * L * 0.05 * f);
+                o.quadraticCurveTo(sx + back * 0.7, sy + side * L * 0.015 * f, sx + back * 0.15, sy);
+                o.closePath(); o.fill();
+            }
+            // 胸鰭：座頭鯨很長的白色胸鰭，緩慢擺動
+            const px = X(0.3), py = Y(0.3, 0.7), fl = L * 0.3 * f, fa = 0.45 + Math.sin(t * 0.9) * 0.12;
+            const fdx = (dir < 0 ? 1 : -1) * Math.cos(fa) * fl, fdy = Math.sin(fa) * fl;
+            o.fillStyle = 'rgb(205,220,240)';
+            o.beginPath(); o.moveTo(px, py);
+            o.quadraticCurveTo(px + fdx * 0.5, py + fdy * 0.2, px + fdx, py + fdy);
+            o.quadraticCurveTo(px + fdx * 0.45, py + fdy * 0.75, px - (dir < 0 ? -1 : 1) * L * 0.04 * f, py + L * 0.02 * f);
+            o.closePath(); o.fill();
+            // 腹部的褶紋
+            o.strokeStyle = 'rgba(120,145,185,0.9)'; o.lineWidth = Math.max(1, L * 0.004 * f);
+            for (let k = 0; k < 4; k++) {
+                o.beginPath();
+                for (let i = 0; i <= 20; i++) { const s = 0.04 + i / 20 * 0.36; const yy = Y(s, 0.55 + k * 0.15); i ? o.lineTo(X(s), yy) : o.moveTo(X(s), yy); }
+                o.stroke();
+            }
+            // 嘴線與眼睛
+            o.strokeStyle = 'rgb(40,58,92)'; o.lineWidth = Math.max(1, L * 0.005 * f);
+            o.beginPath(); for (let i = 0; i <= 12; i++) { const s = 0.01 + i / 12 * 0.17; const yy = Y(s, 0.25 + s * 0.6); i ? o.lineTo(X(s), yy) : o.moveTo(X(s), yy); } o.stroke();
+            o.fillStyle = 'rgb(20,30,50)'; o.beginPath(); o.arc(X(0.15), Y(0.15, 0.32), Math.max(1.2, L * 0.008 * f), 0, Math.PI * 2); o.fill();
+            // 尾巴附近留下水波
+            const cx = Math.floor(X(0.97) / SS), cy = Math.floor(Y(0.97, 0) / SS);
+            for (let k = 0; k < 6; k++) {
+                const xx = cx + Math.round((h3(k, Math.floor(t * 20), 1) - 0.5) * 6), yy = cy + Math.round((h3(k, Math.floor(t * 20), 2) - 0.5) * 6);
+                if (xx >= 0 && yy >= 0 && xx < cols && yy < rows) wake[yy * cols + xx] = 1;
+            }
+            return { bx: X(0.06) / f, by: Y(0.06, -0.86) / f };
+        }
+
+        // ---- 氣泡與小魚 ----
+        const bubbles = [];
+        const fish = Array.from({ length: 22 }, (_, i) => ({ x: Math.random(), y: 0.75 + Math.random() * 0.12, vx: -0.02 - Math.random() * 0.01, ph: Math.random() * 6 }));
+
+        let last = 0, T = 0;
+        function frame(now) {
+            if (!visible) return;
+            requestAnimationFrame(frame);
+            if (now - last < 33) return;                // 約 30fps
+            const dt = Math.min(0.1, (now - last) / 1000); last = now; T += dt;
+            if (!W) resize();
+            o.clearRect(0, 0, off.width, off.height);
+            const heads = [];
+            whalesList.forEach((w, i) => {
+                w.t += dt;
+                w.x += w.dir * w.speed * dt * (W / 1200);
+                if (w.dir < 0 && w.x + w.L * 1.15 < 0) { w.x = W + w.L * 0.15 + (i ? W * 0.12 : 0); w.depth = i ? 0.22 + Math.random() * 0.12 : 0.48 + Math.random() * 0.12; w.fit(); }
+                heads.push(drawWhale(w, w.t));
+            });
+            if (Math.random() < dt * 0.9) { const hd = heads[0]; for (let k = 0; k < 4; k++) bubbles.push({ x: hd.bx + (Math.random() - 0.5) * 20, y: hd.by, v: 30 + Math.random() * 30, life: 0 }); }
+            const img = o.getImageData(0, 0, off.width, off.height).data;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, W, H);
+            ctx.font = `700 ${Math.round(CELL * 0.92)}px ${FONT}`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            const tick = Math.floor(T * 3);
+            for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+                let r = 0, g = 0, b = 0, a = 0;
+                for (let j = 0; j < SS; j++) for (let i2 = 0; i2 < SS; i2++) {
+                    const k = ((y * SS + j) * off.width + (x * SS + i2)) * 4;
+                    const al = img[k + 3]; if (!al) continue;
+                    r += img[k] * al; g += img[k + 1] * al; b += img[k + 2] * al; a += al;
+                }
+                const cx = x * CELL + CELL / 2, cy = y * CELL + CELL / 2;
+                const wi = y * cols + x;
+                if (a > 0) {
+                    const cov = a / (255 * SS * SS);
+                    r /= a; g /= a; b /= a;
+                    if (cov < 0.12) continue;
+                    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                    const glyph = cov < 0.55 ? (cov < 0.3 ? '.' : ':') : RAMP[Math.max(0, Math.min(RAMP.length - 1, Math.floor((lum + (h3(x, y, 4) - 0.5) * 0.28) * RAMP.length)))];
+                    ctx.fillStyle = `rgba(${r | 0},${g | 0},${b | 0},${0.16 * cov})`;
+                    ctx.fillRect(x * CELL + 0.5, y * CELL + 0.5, CELL - 1, CELL - 1);
+                    const flick = h3(x, y, tick) < 0.012;
+                    ctx.fillStyle = flick ? '#FFEC00' : `rgb(${Math.min(255, r * 1.1) | 0},${Math.min(255, g * 1.1) | 0},${Math.min(255, b * 1.1) | 0})`;
+                    ctx.fillText(glyph, cx, cy);
+                    continue;
+                }
+                // 海水：稀疏的小點，尾巴劃過的地方亮成青色
+                const wv = wake[wi];
+                if (wv > 0.05) { ctx.fillStyle = `rgba(110,230,255,${wv * 0.8})`; ctx.fillText(wv > 0.5 ? '~' : '-', cx, cy); wake[wi] = wv * 0.94; }
+                else if (h3(x, y, 9) < 0.06) { ctx.fillStyle = 'rgba(80,110,170,0.35)'; ctx.fillText('.', cx + Math.sin(T * 0.6 + y * 0.3) * 2, cy); }
+            }
+            // 氣泡往上飄
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                const bb = bubbles[i]; bb.life += dt; bb.y -= bb.v * dt; bb.x += Math.sin(bb.life * 4 + i) * 0.4;
+                if (bb.y < -10 || bb.life > 6) { bubbles.splice(i, 1); continue; }
+                ctx.fillStyle = `rgba(170,215,255,${Math.max(0, 0.85 - bb.life * 0.12)})`;
+                ctx.fillText(bb.life < 1 ? '.' : bb.life < 2.5 ? 'o' : 'O', Math.round(bb.x / CELL) * CELL + CELL / 2, Math.round(bb.y / CELL) * CELL + CELL / 2);
+            }
+            // 一小群魚
+            fish.forEach((fi, i) => {
+                fi.x += fi.vx * dt; fi.ph += dt * 3;
+                if (fi.x < -0.05) { fi.x = 1.05; fi.y = 0.72 + Math.random() * 0.16; }
+                const fx = Math.round(fi.x * W / CELL) * CELL + CELL / 2, fy = Math.round((fi.y * H + Math.sin(fi.ph) * 4) / CELL) * CELL + CELL / 2;
+                ctx.fillStyle = 'rgba(190,212,255,0.75)'; ctx.fillText(i % 4 ? '<' : '-', fx, fy);
+            });
+        }
+        new IntersectionObserver(([en]) => {
+            const was = visible; visible = en.isIntersecting;
+            if (visible && !was) { last = performance.now(); requestAnimationFrame(frame); }
+        }).observe(foot);
+        let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 150); });
+        resize();
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { visible = true; frame(performance.now() + 100); visible = false; }
+    })();
+    // 聯絡區標題：和首頁大標題一樣，每 3 秒在正常文字與 ASCII 之間切換
+    if (on.has('8')) (function contactHeadline() {
+        const h2 = document.querySelector('#contact h2');
+        if (!h2) return;
+        h2.style.position = 'relative';
+        const FONT = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+        const RAMP = ':;t%SX8#@', ACC = ['#FFEC00', '#F97316', '#22C55E', '#A855F7', '#06B6D4'];
+        const h3 = (a, b, c) => { let h = (a * 374761393 + b * 668265263 + c * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+        const cv = document.createElement('canvas');
+        cv.className = 'h1-ascii'; cv.setAttribute('aria-hidden', 'true');
+        h2.appendChild(cv);
+        const ctx = cv.getContext('2d');
+        const raw = document.createElement('canvas'), rctx = raw.getContext('2d');
+        const sm = document.createElement('canvas'), sctx = sm.getContext('2d', { willReadFrequently: true });
+        let W = 0, H = 0, P = 20, dpr = 1, cell = 8, cols = 0, rows = 0, data = null, hide = 1, mode = 'text', timer = 0, started = false;
+        function rasterize() {
+            const box = h2.getBoundingClientRect();
+            dpr = Math.min(devicePixelRatio || 1, 2);
+            W = Math.ceil(box.width + P * 2); H = Math.ceil(box.height + P * 2);
+            Object.assign(cv.style, { left: -P + 'px', top: -P + 'px', width: W + 'px', height: H + 'px' });
+            cv.width = W * dpr; cv.height = H * dpr; raw.width = W * dpr; raw.height = H * dpr;
+            rctx.setTransform(dpr, 0, 0, dpr, 0, 0); rctx.clearRect(0, 0, W, H);
+            const walker = document.createTreeWalker(h2, NodeFilter.SHOW_TEXT, { acceptNode: n => n.textContent.trim() && !n.parentElement.closest('.font-serif') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+            const range = document.createRange();
+            let n;
+            while ((n = walker.nextNode())) {
+                const cs = getComputedStyle(n.parentElement);
+                rctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+                rctx.fillStyle = n.parentElement.closest('.text-\\[\\#3B82F6\\]') ? '#3B82F6' : '#ffffff';
+                const m = rctx.measureText('Hg'), fa = m.fontBoundingBoxAscent, fd = m.fontBoundingBoxDescent;
+                for (let i = 0; i < n.textContent.length; i++) {
+                    const ch = n.textContent[i]; if (!ch.trim()) continue;
+                    range.setStart(n, i); range.setEnd(n, i + 1);
+                    const r = range.getClientRects()[0]; if (!r) continue;
+                    rctx.fillText(ch, r.left - box.left + P, r.top - box.top + P + (r.height - fa - fd) / 2 + fa);
+                }
+            }
+            cell = innerWidth < 768 ? 3.5 : 5;
+            cols = Math.ceil(W / cell); rows = Math.ceil(H / cell);
+            sm.width = cols; sm.height = rows; sctx.clearRect(0, 0, cols, rows); sctx.drawImage(raw, 0, 0, cols, rows);
+            data = sctx.getImageData(0, 0, cols, rows).data;
+        }
+        function draw(t) {
+            if (!data) return;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+            if (hide >= 1) return;
+            ctx.font = `700 ${Math.round(cell * 0.8)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            const tick = Math.floor(t / 420), gap = Math.max(0.6, cell * 0.1), edge = 0.07, PP = hide * (1 + edge * 2) - edge;
+            for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+                const i = (y * cols + x) * 4, a = data[i + 3] / 255;
+                if (a < 0.3) continue;
+                const R = data[i], G = data[i + 1], B = data[i + 2], px = x * cell, py = y * cell;
+                if (hide > 0) {
+                    const o = 0.55 * (x / cols) + 0.45 * h3(x, y, 19);
+                    if (o < PP - edge) { ctx.drawImage(raw, px * dpr, py * dpr, cell * dpr, cell * dpr, px, py, cell + 0.5, cell + 0.5); continue; }
+                    if (o < PP + edge) { ctx.fillStyle = `rgb(${R},${G},${B})`; ctx.fillText(RAMP[Math.floor(h3(x, y, Math.floor(t / 50)) * RAMP.length)], px + cell / 2, py + cell / 2); continue; }
+                }
+                ctx.fillStyle = `rgba(${R},${G},${B},${Math.min(1, a * 1.2)})`;
+                ctx.fillRect(px + gap / 2, py + gap / 2, cell - gap, cell - gap);
+                ctx.fillStyle = h3(x, y, tick) < 0.03 ? ACC[Math.floor(h3(y, x, tick) * ACC.length)] : (R > 200 && G > 200 ? 'rgba(17,17,17,0.6)' : 'rgba(255,255,255,0.8)');
+                ctx.fillText(RAMP[Math.min(RAMP.length - 1, Math.floor(a * RAMP.length * 0.99))], px + cell / 2, py + cell / 2 + 0.5);
+            }
+        }
+        const HOLD = 3000, FX = 800;
+        function run(toAscii) {
+            clearTimeout(timer);
+            const t0 = performance.now();
+            h2.classList.add('is-ascii-text');
+            decodeWord(h2.querySelector('.font-serif'));
+            (function step(now) {
+                const k = Math.min(1, (now - t0) / FX);
+                hide = toAscii ? 1 - k : k; draw(now);
+                if (k < 1) return requestAnimationFrame(step);
+                mode = toAscii ? 'ascii' : 'text';
+                if (mode === 'text') { h2.classList.remove('is-ascii-text'); ctx.clearRect(0, 0, W, H); }
+                else (function idle(n) { if (mode !== 'ascii') return; draw(n); setTimeout(() => requestAnimationFrame(idle), 400); })(performance.now());
+                timer = setTimeout(() => run(mode === 'text'), HOLD);
+            })(t0);
+        }
+        // 捲到聯絡區時才開始：先顯示 3 秒正常文字，再切換
+        new IntersectionObserver(([en]) => {
+            if (!en.isIntersecting || started || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            started = true;
+            (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { rasterize(); timer = setTimeout(() => run(true), HOLD); });
+        }, { threshold: 0.3 }).observe(h2);
+        let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (!started) return; rasterize(); if (mode === 'ascii') draw(performance.now()); }, 200); });
+    })();
 })();
 </script>
 
