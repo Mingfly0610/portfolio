@@ -3059,6 +3059,7 @@
                 // 由後往前放回，確保每個物件的「下一個兄弟節點」已經就位
                 Array.from(dragItems).reverse().forEach(item => {
                     item.classList.remove('is-away', 'is-snapped');
+                    if (item.__ghost) { item.__ghost.remove(); item.__ghost = null; }
                     const origin = dragOrigins.get(item);
                     if (origin && item.parentElement !== origin.parent) {
                         const ref = origin.next && origin.next.parentNode === origin.parent ? origin.next : null;
@@ -3091,6 +3092,21 @@
             item.__glideTimer = setTimeout(() => { if (item !== activeDragItem) item.style.transition = 'filter 0.3s ease, transform 0.3s ease'; }, ms + 40);
         }
 
+        function homeOf(item) {
+            const g = item && item.__ghost;
+            if (!g || !g.isConnected) return homeOf(item);
+            const c = item.closest('section') || document.body;
+            const cr = c.getBoundingClientRect(), gr = g.getBoundingClientRect();
+            return { x: gr.left - cr.left, y: gr.top - cr.top };
+        }
+        // 回到原位後，把物件放回原本的位置（取代佔位物件），恢復成跟著版面自動排列
+        function restoreHome(item, delay) {
+            setTimeout(() => {
+                if (!item || item === activeDragItem || item.classList.contains('is-away') || item.classList.contains('is-snapped') || !item.__ghost) return;
+                item.__ghost.replaceWith(item); item.__ghost = null;
+                ['left', 'top', 'right', 'bottom', 'transition', 'zIndex'].forEach(p => { item.style[p] = ''; });
+            }, delay);
+        }
         function dragStart(e) {
             if (this.classList.contains('no-touch-drag') && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
             activeDragItem = this;
@@ -3101,6 +3117,16 @@
             const rect = activeDragItem.getBoundingClientRect();
             
             if (activeDragItem.parentElement !== container) {
+                // 換裝物件：在原本的位置留一個看不見的佔位物件，原位永遠以它為準（視窗大小、全螢幕切換都不會偏）
+                if (activeDragItem.classList.contains('dress-item') && !activeDragItem.__ghost) {
+                    const g = activeDragItem.cloneNode(true);
+                    g.classList.add('dress-ghost'); g.classList.remove('is-dragging', 'is-away', 'is-snapped');
+                    g.setAttribute('aria-hidden', 'true'); g.removeAttribute('tabindex');
+                    ['left', 'top', 'right', 'bottom', 'transition', 'zIndex'].forEach(p => { g.style[p] = ''; });
+                    g.style.visibility = 'hidden'; g.style.pointerEvents = 'none';
+                    activeDragItem.parentElement.insertBefore(g, activeDragItem);
+                    activeDragItem.__ghost = g;
+                }
                 container.appendChild(activeDragItem);
             }
             
@@ -3177,9 +3203,10 @@
                     // 同一個位置已經有別的物件（例如另一副眼鏡）時，先把它送回原位
                     document.querySelectorAll('.dress-item.is-snapped').forEach(other => {
                         if (other === snapItem || other.dataset.snapSlot !== snapItem.dataset.snapSlot) return;
-                        const home = initialPositions.get(other);
+                        const home = homeOf(other);
                         other.classList.remove('is-snapped', 'is-away');
                         if (home) glideTo(other, home.x, home.y, 'cubic-bezier(0.34, 1.56, 0.64, 1)', 400);
+                        restoreHome(other, 440);
                     });
                     snapItem.classList.add('is-snapped', 'is-away');
                     glideTo(snapItem, snap.x, snap.y, 'cubic-bezier(0.22, 1, 0.36, 1)', 260);
@@ -3190,7 +3217,7 @@
                     document.removeEventListener('touchend', dragEnd);
                     return;
                 }
-                const initialPos = initialPositions.get(activeDragItem);
+                const initialPos = homeOf(activeDragItem);
                 const currentLeft = parseFloat(activeDragItem.style.left);
                 const currentTop = parseFloat(activeDragItem.style.top);
                 
@@ -3206,6 +3233,7 @@
                         setTimeout(() => {
                             if (activeDragItem) activeDragItem.style.transition = 'filter 0.3s ease, transform 0.3s ease';
                         }, 400);
+                        restoreHome(activeDragItem, 440);
                     } else {
                         activeDragItem.style.transition = 'filter 0.3s ease, transform 0.3s ease';
                     }
@@ -3567,7 +3595,7 @@
     /* 探照燈改用畫布繪製（ASCII 字元溶解邊）：原本的遮罩圖層不顯示 */
     html.spot-d #profile-reveal-img { opacity: 0 !important; visibility: hidden !important; }
     #profile-spot-d { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none; }
-    #profile-swap-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
+    #profile-swap-fx { position: fixed; z-index: 900; pointer-events: none; }
     /* 關於頁：# 字號跟文字同色；CORE SKILLS 標題改成和技能文字同色 */
     #about .skill-hash { color: inherit !important; }
     #about h3 { color: #111111 !important; }
@@ -3609,6 +3637,9 @@
     #menu-ascii { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
     #mobile-menu > a { position: relative; z-index: 1; }
     #mobile-menu > #mobile-menu-close { z-index: 2; }
+    /* 手機橫式影片：左右只留 16px，影片寬度拉滿 */
+    @media (max-width: 767px) { #project-modal .modal-card:not(.is-phone-media):not(.is-browser-media) .modal-art.is-video, #project-modal .modal-embed { border-radius: 4px !important; } }   /* 手機：影片圓角收小 */
+    @media (max-width: 767px) { #project-modal .modal-card.mob-wide-video .modal-viewport { padding-left: 16px !important; padding-right: 16px !important; } }
     /* ---------- 控制面板 ---------- */
     #demo-panel { display: none !important; }   /* 面板先隱藏：效果維持目前的預設組合 */
     #demo-panel {
@@ -4940,7 +4971,7 @@
         if (!box) return;
         const cv = document.createElement('canvas');
         cv.id = 'profile-swap-fx'; cv.setAttribute('aria-hidden', 'true');
-        box.appendChild(cv);
+        document.body.appendChild(cv);   // 放在最上層：ASCII 轉場會蓋過換裝物件
         const ctx = cv.getContext('2d');
         let busy = false, pass = false;
         window.addEventListener('click', (e) => {
@@ -4950,6 +4981,8 @@
             busy = true;
             const r = box.getBoundingClientRect(), W = r.width, H = r.height, dpr = Math.min(devicePixelRatio || 1, 2);
             cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const nav = document.getElementById('navbar'), nb = nav ? nav.getBoundingClientRect().bottom : 0;
+            Object.assign(cv.style, { left: r.left + 'px', top: r.top + 'px', width: W + 'px', height: H + 'px', clipPath: `inset(${Math.max(0, nb - r.top)}px 0 0 0)` });
             const ox = e.clientX ? e.clientX - r.left : W / 2, oy = e.clientY ? e.clientY - r.top : H / 2;
             const fx = asciiDissolve(cv, ctx, W, H, ox, oy, '#3B82F6', { cell: 12, spread: 320, life: 380 });
             const reveal = document.getElementById('profile-reveal-img');
@@ -5017,6 +5050,60 @@
             t0 = performance.now();
             if (!raf) raf = requestAnimationFrame(frame);
         }).observe(menu, { attributes: true, attributeFilter: ['class'] });
+    })();
+    // =========================================================
+    // 手機：橫式影片的專案，影片寬度拉滿（等比例），圖片不調整
+    // =========================================================
+    (function mobileWideVideo() {
+        const card = document.getElementById('modal-content'), v = document.getElementById('modal-video');
+        if (!card || !v) return;
+        const media = card.querySelector('.modal-media'), vp = card.querySelector('.modal-viewport');
+        let busy = false;
+        function fit() {
+            if (busy) return; busy = true;
+            const mob = innerWidth < 768;
+            const plain = !card.classList.contains('is-phone-media') && !card.classList.contains('is-browser-media');
+            const on = mob && plain && !v.classList.contains('hidden') && card.classList.contains('is-landscape');
+            card.classList.toggle('mob-wide-video', on);
+            if (!on) { media.style.height = ''; busy = false; return; }
+            const ar = (v.videoWidth && v.videoHeight) ? v.videoWidth / v.videoHeight : (parseFloat(window.currentProject && currentProject.getAttribute('data-modal-ar')) || 1.7778);
+            if (ar < 1) { card.classList.remove('mob-wide-video'); media.style.height = ''; busy = false; return; }
+            const cs = getComputedStyle(vp);
+            const w = vp.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+            const extra = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+            const strip = [...media.children].filter(c => c !== vp && !c.classList.contains('hidden')).reduce((a, c) => a + c.offsetHeight, 0);
+            media.style.height = Math.ceil(w / ar + extra + strip) + 'px';
+            busy = false;
+            window.dispatchEvent(new Event('resize'));   // 讓原本的影片尺寸計算用新的高度重算
+        }
+        const later = () => requestAnimationFrame(() => requestAnimationFrame(fit));
+        v.addEventListener('loadedmetadata', later);
+        new MutationObserver(later).observe(v, { attributes: true, attributeFilter: ['class'] });
+        new MutationObserver(later).observe(card, { attributes: true, attributeFilter: ['class'] });
+        let lw = innerWidth; window.addEventListener('resize', () => { if (innerWidth !== lw) { lw = innerWidth; later(); } });
+    })();
+    // =========================================================
+    // 換裝物件：視窗大小改變（含只改高度，例如全螢幕切換）時，吸附在照片上的物件跟著照片重新定位
+    // =========================================================
+    (function dressKeep() {
+        const photo = document.getElementById('profile-spotlight');
+        if (!photo) return;
+        let t = 0;
+        window.addEventListener('resize', () => {
+            clearTimeout(t);
+            t = setTimeout(() => {
+                document.querySelectorAll('.dress-item.is-snapped').forEach(it => {
+                    if (it.classList.contains('dress-ghost')) return;
+                    const c = it.closest('section'); if (!c) return;
+                    const p = photo.getBoundingClientRect(), cr = c.getBoundingClientRect();
+                    const fx = parseFloat(it.dataset.snapX), fy = parseFloat(it.dataset.snapY);
+                    if (isNaN(fx) || isNaN(fy)) return;
+                    it.style.transition = 'none';
+                    it.style.left = (p.left - cr.left + fx * p.width - it.offsetWidth / 2) + 'px';
+                    it.style.top = (p.top - cr.top + fy * p.height - it.offsetHeight / 2) + 'px';
+                });
+            }, 120);
+        });
     })();
     // =========================================================
     // 8. ASCII 字元風格
