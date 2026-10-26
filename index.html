@@ -23,6 +23,11 @@
         /* 兩個「頁面」：首頁（不能捲動）與作品頁（專案一覽 → About → 聯絡）。作品頁不能往上捲回首頁 */
         html.on-hero, html.on-hero body { overflow: hidden; overscroll-behavior: none; }
         html.hero-gone #hero-section { display: none; }
+        /* 專案、關於、聯絡各自是一頁：只顯示目前這一頁，不能捲到其他頁，只能從導覽列切換 */
+        html.hero-gone[data-view="work"] #about, html.hero-gone[data-view="work"] #contact,
+        html.hero-gone[data-view="about"] #work, html.hero-gone[data-view="about"] #contact,
+        html.hero-gone[data-view="contact"] #work, html.hero-gone[data-view="contact"] #about { display: none; }
+        html.hero-gone[data-view="about"] #about { min-height: 100dvh; padding-top: calc(5rem + 3rem); }
         #splash {
             position: fixed; inset: 0; z-index: 100000;
             display: flex; align-items: center; justify-content: center;
@@ -262,7 +267,7 @@
             width: max-content;
             animation: marquee-scroll 75s linear infinite;
             will-change: transform; 
-            padding-top: 3rem; 
+            padding-top: 1.25rem; 
             padding-bottom: 3rem;
         }
         .track-marquee:hover,
@@ -712,8 +717,8 @@
         #brand-logo.show-arrow .brand-arrow { opacity: 1; transform: none; }
         /* 換頁時的進場：內容由下往上淡入，像打開新的頁面 */
         @keyframes view-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-        html.view-enter #dynamic-content-area, html.view-enter #hero-section { animation: view-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        @media (prefers-reduced-motion: reduce) { html.view-enter #dynamic-content-area, html.view-enter #hero-section { animation: none; } #brand-logo > span { transition: none; } }
+        html.view-enter #dynamic-content-area, html.view-enter #hero-section, html.view-enter #contact { animation: view-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @media (prefers-reduced-motion: reduce) { html.view-enter #dynamic-content-area, html.view-enter #hero-section, html.view-enter #contact { animation: none; } #brand-logo > span { transition: none; } }
     </style>
 
     <script>
@@ -764,7 +769,9 @@
             var EXTRA_WAIT = 5000;   // 等首頁內容全部就緒的上限；超過就先揭開，避免網路很慢時一直卡在藍色畫面
             root.classList.add('splash-on');
             // 網址帶有 #work／#about／#contact（例如分享連結或重新整理）就直接進作品頁，否則先停在首頁
-            root.classList.add(/^#(work|about|contact)$/.test(location.hash) ? 'hero-gone' : 'on-hero');
+            var startView = (location.hash.match(/^#(work|about|contact)$/) || [])[1];
+            root.classList.add(startView ? 'hero-gone' : 'on-hero');
+            if (startView) root.setAttribute('data-view', startView);
             window.scrollTo(0, 0);
             // 字樣是內嵌的向量圖，不需要等字型：下一個畫格就淡入
             requestAnimationFrame(function () { requestAnimationFrame(function () { logo.classList.add('is-in'); }); });
@@ -891,7 +898,7 @@
             <a href="#" id="brand-logo" aria-label="MingFly. 回到首頁" class="font-serif text-2xl font-bold tracking-tighter text-brand-black hover:text-[#3B82F6] transition-colors duration-300"><span class="brand-txt">MingFly.</span><span class="brand-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="1.25em" height="1.25em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6"/></svg><span>Home</span></span></a>
             
             <nav class="hidden md:flex gap-8 text-sm font-medium tracking-wide">
-                <a class="cursor-pointer hover:text-[#3B82F6] transition-colors" href="#work">作品 Work</a>
+                <a class="cursor-pointer hover:text-[#3B82F6] transition-colors" href="#work">專案 Project</a>
                 <a class="cursor-pointer hover:text-[#3B82F6] transition-colors" href="#about">關於 About</a>
                 <a class="cursor-pointer hover:text-[#3B82F6] transition-colors" href="#contact">聯絡 Contact</a>
             </nav>
@@ -906,7 +913,7 @@
         <button id="mobile-menu-close" type="button" aria-label="關閉選單" ontouchstart="" style="-webkit-tap-highlight-color:transparent" class="absolute top-4 right-3 w-12 h-12 flex items-center justify-center text-brand-black active:text-[#3B82F6] transition-colors">
             <i class="ph ph-x text-2xl" aria-hidden="true"></i>
         </button>
-        <a href="#work" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">作品 Work</a>
+        <a href="#work" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">專案 Project</a>
         <a href="#about" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">關於 About</a>
         <a href="#contact" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">聯絡 Contact</a>
     </div>
@@ -983,10 +990,9 @@
         
         <section id="work" class="py-24 scroll-mt-20">
             <div class="max-w-7xl mx-auto px-6 lg:px-12">
-                <div class="flex flex-col items-center md:flex-row md:items-end justify-between mb-16 gap-6">
+                <div class="flex flex-col items-center md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-6">
                     <div class="text-center md:text-left">
-                        <h2 class="text-4xl md:text-5xl font-bold mb-4">Selected Works</h2>
-                        <p class="text-gray-500 text-lg">近期精選的設計專案與視覺實驗。</p>
+                        <h2 class="text-4xl md:text-5xl font-bold">Project</h2>
                     </div>
                     
                     <div class="flex flex-wrap justify-center md:justify-start w-full max-w-[250px] mx-auto md:mx-0 md:w-auto md:max-w-none gap-2 md:gap-4" id="filter-btns">
@@ -1396,7 +1402,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">客家魂</span><wbr><span class="tw">大揭秘</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">客家魂</span><wbr><span class="tw">大揭秘</span></h3>
                             </div>
                             <div class="modal-title-src hidden">客家魂大揭秘</div>
                             <div class="project-details hidden">
@@ -1422,7 +1428,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">測測你是哪種</span><wbr><span class="tw">馬路動物人格</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">測測你是哪種</span><wbr><span class="tw">馬路動物人格</span></h3>
                             </div>
                             <div class="modal-title-src hidden">測測你是哪種馬路動物人格</div>
                             <div class="project-details hidden">
@@ -1448,7 +1454,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">測測你是哪種</span><wbr><span class="tw">職場神獸</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">測測你是哪種</span><wbr><span class="tw">職場神獸</span></h3>
                             </div>
                             <div class="modal-title-src hidden">測測你是哪種職場神獸</div>
                             <div class="project-details hidden">
@@ -1474,7 +1480,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">探索你的</span><wbr><span class="tw">職場動物風格</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">探索你的</span><wbr><span class="tw">職場動物風格</span></h3>
                             </div>
                             <div class="modal-title-src hidden">探索你的職場動物風格</div>
                             <div class="project-details hidden">
@@ -1500,7 +1506,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">求職適性測驗</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">求職適性測驗</span></h3>
                             </div>
                             <div class="modal-title-src hidden">求職適性測驗</div>
                             <div class="project-details hidden">
@@ -1526,7 +1532,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">活動</span><wbr><span class="tw">電子抽獎程式</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">活動</span><wbr><span class="tw">電子抽獎程式</span></h3>
                             </div>
                             <div class="modal-title-src hidden">活動電子抽獎程式</div>
                             <div class="project-details hidden">
@@ -1552,7 +1558,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">互動展示</span><wbr><span class="tw">塗鴉牆</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">互動展示</span><wbr><span class="tw">塗鴉牆</span></h3>
                             </div>
                             <div class="modal-title-src hidden">互動展示塗鴉牆</div>
                             <div class="project-details hidden">
@@ -1580,7 +1586,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">3D PART BUILDER</span><wbr> <span class="tw">&amp; ASSEMBLY</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">3D PART BUILDER</span><wbr> <span class="tw">&amp; ASSEMBLY</span></h3>
                             </div>
                             <div class="modal-title-src hidden">3D PART BUILDER &amp; ASSEMBLY</div>
                             <div class="project-details hidden">
@@ -1620,7 +1626,7 @@
                             </div>
                             <div class="item-caption">
                                 <span class="item-cat">程式設計</span>
-                                <h3 class="item-title"><span class="tw">個人</span><wbr><span class="tw">作品集網站</span></h3>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">個人</span><wbr><span class="tw">作品集網站</span></h3>
                             </div>
                             <div class="modal-title-src hidden">個人作品集網站</div>
                             <div class="project-details hidden">
@@ -1768,7 +1774,7 @@
         </div>
         <!-- 版權列：貼在最底，高度與左右邊界和最上方的導覽列對稱 -->
         <div class="absolute inset-x-0 bottom-0 text-sm text-gray-500">
-            <div class="max-w-7xl mx-auto px-6 lg:px-12 pb-6 md:pb-0 md:h-20 flex flex-col md:flex-row justify-between items-center">
+            <div class="max-w-7xl mx-auto px-6 lg:px-12 pb-6 md:pb-0 md:h-20 flex flex-col md:flex-row justify-center items-center text-center">
                 <p>&copy; 2026 MingFly. All rights reserved.</p>
             </div>
         </div>
@@ -2854,22 +2860,18 @@
             try { history.scrollRestoration = 'manual'; } catch (err) {}   // 上一頁／下一頁時由這裡決定捲動位置
             function animateIn() {
                 root.classList.remove('view-enter'); void root.offsetWidth; root.classList.add('view-enter');
-                clearTimeout(animateIn.t); animateIn.t = setTimeout(() => root.classList.remove('view-enter'), 700);
+                clearTimeout(animateIn.t); animateIn.t = setTimeout(() => { root.classList.remove('view-enter'); window.dispatchEvent(new Event('scroll')); }, 700);   // 動畫結束後更新導覽列顏色
             }
-            function scrollToTarget(hash) {
-                const el = document.querySelector(hash);
-                const nav = document.getElementById('navbar');
-                const y = (hash === '#work' || !el) ? 0 : el.getBoundingClientRect().top + window.scrollY - (nav ? nav.offsetHeight : 0);
-                window.scrollTo({ top: Math.max(0, y), behavior: 'instant' });
-            }
+            // 換到某一頁（專案／關於／聯絡）：只顯示那一頁，並回到頁首
             function showWorks(hash, push) {
-                const fromHero = root.classList.contains('on-hero');
                 root.classList.remove('on-hero');
                 root.classList.add('hero-gone');
-                scrollToTarget(hash);
-                if (fromHero) animateIn();
-                if (push) { try { history.pushState({ view: 'works' }, '', hash); pushedWorks = true; } catch (err) {} }
+                root.setAttribute('data-view', hash.slice(1));
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                animateIn();
+                if (push) { try { history.pushState({ view: 'works', page: hash }, '', hash); pushedWorks = true; } catch (err) {} }
                 window.dispatchEvent(new Event('scroll'));
+                window.dispatchEvent(new Event('resize'));
             }
             function showHero(push) {
                 root.classList.remove('hero-gone');
@@ -2895,22 +2897,24 @@
                 if (a === logo) {
                     e.preventDefault();
                     if (root.classList.contains('hero-gone')) {
-                        swap(e, () => {
-                            if (pushedWorks) history.back();   // 從首頁進來的：回上一頁，瀏覽器的上一頁／下一頁也對得上
-                            else showHero(true);
-                        });
+                        swap(e, () => showHero(true));
                     } else window.scrollTo({ top: 0, behavior: 'instant' });
                     return;
                 }
-                if (root.classList.contains('on-hero') && NAV.test(href)) {
-                    e.preventDefault();                    // 不讓瀏覽器從首頁一路捲下去，改成直接換頁
+                if (NAV.test(href)) {
+                    e.preventDefault();                    // 不讓瀏覽器捲過去，改成直接換頁
+                    if (root.classList.contains('hero-gone') && root.getAttribute('data-view') === href.slice(1)) {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });   // 已經在這一頁：回到頁首
+                        return;
+                    }
                     swap(e, () => showWorks(href, true));
                 }
             }, true);
             window.addEventListener('popstate', (e) => {
                 const st = e.state || {};
                 if (st.view === 'works' || NAV.test(location.hash)) {
-                    if (root.classList.contains('on-hero')) showWorks(NAV.test(location.hash) ? location.hash : '#work', false);
+                    const h = NAV.test(location.hash) ? location.hash : '#work';
+                    if (root.classList.contains('on-hero') || root.getAttribute('data-view') !== h.slice(1)) showWorks(h, false);
                 } else if (root.classList.contains('hero-gone')) {
                     showHero(false);
                     pushedWorks = false;
@@ -3232,7 +3236,9 @@
             if (window.scrollY > 50) navbar.classList.add('shadow-sm');
             else navbar.classList.remove('shadow-sm');
             // 聯絡區（黑色）捲到導覽列底下時，導覽列跟著變黑
-            const contactTop = document.getElementById('contact').getBoundingClientRect().top;
+            const contactEl = document.getElementById('contact');
+            // 聯絡頁沒有顯示（在專案或關於頁）時，當作不在畫面上
+            const contactTop = contactEl.offsetParent === null && getComputedStyle(contactEl).display === 'none' ? Infinity : contactEl.getBoundingClientRect().top;
             const navH = navbar.offsetHeight;
             const covered = Math.max(0, Math.min(1, (navH - contactTop) / navH)); // 黑色區塊蓋住導覽列的比例
             navbar.style.setProperty('--nav-edge', `${Math.max(0, contactTop)}px`);
@@ -3504,6 +3510,28 @@
 
 <!-- ===================== 風格 DEMO 層（只存在於 demo.html，不影響正式網站） ===================== -->
 <style id="demo-style">
+    /* 類別按鈕：純文字＋底線（和索引清單同一套語言），選中的類別實心白字＋底線，滑過時底線由左到右畫出 */
+    html body #work #filter-btns { gap: 30px !important; align-items: flex-end; }
+    html body #work #filter-btns .filter-btn.filter-btn {
+        all: unset; position: relative; display: inline-block; cursor: pointer;
+        font-size: 16px; font-weight: 300; line-height: 1.4; letter-spacing: 0.04em;
+        padding: 0; color: #111111; opacity: 0.55; transition: opacity 0.25s ease;
+        background: transparent !important; border: 0 !important; box-shadow: none !important; transform: none !important;
+    }
+    html body #work #filter-btns .filter-btn.filter-btn::after {
+        content: ""; position: absolute; left: 0; right: 0; bottom: 1px; height: 1px; background: currentColor;   /* 和專案名稱的底線一樣貼近文字 */
+        transform: scaleX(0); transform-origin: left center; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    html body #work #filter-btns .filter-btn.filter-btn:hover { opacity: 1; }
+    html body #work #filter-btns .filter-btn.filter-btn:hover::after { transform: scaleX(1); }
+    html body #work #filter-btns .filter-btn.filter-btn.bg-\[\#3B82F6\] { opacity: 1; font-weight: 400; }
+    html body #work #filter-btns .filter-btn.filter-btn.bg-\[\#3B82F6\]::after { transform: scaleX(1); }
+    html.d4 body #work #filter-btns .filter-btn.filter-btn { color: #ffffff !important; }
+    @media (max-width: 767px) {
+        html body #work #filter-btns { gap: 8px 20px !important; max-width: none !important; width: auto !important; justify-content: center; }
+        html body #work #filter-btns .filter-btn.filter-btn { font-size: 14px; }
+    }
+    html body #work #filter-btns .filter-btn.filter-btn:focus-visible { outline: 1px dashed currentColor; outline-offset: 4px; }
     /* 年份標籤放在最上層，不被首頁圖示壓住 */
     #hero-section .hero-icon { z-index: 10 !important; }
     /* ---------- 控制面板 ---------- */
@@ -3586,6 +3614,13 @@
        ========================================================= */
     html.d4 #work { position: relative; background: #3B82F6; color: #ffffff; clip-path: inset(0); }
     html.d4 #work > * { position: relative; z-index: 1; }
+    /* 專案頁滿版藍：下方不露灰底 */
+    html.d4.hero-gone[data-view="work"], html.d4.hero-gone[data-view="work"] body { background: #3B82F6 !important; }
+    html.d4.hero-gone[data-view="work"] #work { min-height: 100dvh; }
+    /* 專案頁導航列：藍底白字，懸浮變黑 */
+    html.d4.hero-gone[data-view="work"] #navbar#navbar { background: #3B82F6 !important; border-bottom: 1px solid rgba(255,255,255,0.3) !important; box-shadow: none !important; }
+    html.d4.hero-gone[data-view="work"] #navbar a, html.d4.hero-gone[data-view="work"] #navbar button { color: #ffffff !important; }
+    html.d4.hero-gone[data-view="work"] #navbar a:hover, html.d4.hero-gone[data-view="work"] #navbar button:hover { color: #FFEC00 !important; }
     html.d4 #demo-work-dots { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0 !important; opacity: 0.55; }
     html.d4 #work h2 { color: #ffffff; }
     html.d4 #work h2 + p { color: rgba(255,255,255,0.75); }
@@ -3687,15 +3722,18 @@
     .ix-layer { position: relative; }
     .ix-head, .ix-row { display: grid; grid-template-columns: 56px 64px minmax(0, 1fr) 150px; gap: 18px; align-items: baseline; }
     .ix-head { font-size: 12px; font-weight: 300; letter-spacing: 0.04em; color: #6b7280; padding-bottom: 10px; }
-    .ix-row { font-size: 15px; font-weight: 300; line-height: 1.5; padding: 3px 0; color: #111111; cursor: pointer; transition: opacity 0.25s ease; }
+    .ix-row { position: relative; font-size: 15px; font-weight: 300; line-height: 1.5; padding: 3px 0; color: #111111; cursor: pointer; }
+    /* 懸浮的專案：只有專案名稱底下一條線由左到右畫出 */
+    .ix-row .ti { position: relative; justify-self: start; max-width: 100%; }
+    .ix-row .ti::after { content: ""; position: absolute; left: 0; right: 0; bottom: 1px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left center; transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .ix-row.is-hot .ti::after { transform: scaleX(1); }
+    .ix-row.is-hidden { display: none; }
     .ix-row .ti { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ix-row .n, .ix-row .yr { font-variant-numeric: tabular-nums; }
-    #demo-index.is-hovering .ix-row { opacity: 0.35; }
-    #demo-index.is-hovering .ix-row.is-hot { opacity: 1; }
     html.d4 #demo-index .ix-row { color: #ffffff; }
-    html.d4 #demo-index .ix-head { color: rgba(255, 255, 255, 0.7); }
+    html.d4 #demo-index .ix-head { color: #ffffff; }
     /* 預覽圖：在右側，壓在文字下方 */
-    #ix-pic { position: absolute; z-index: 1; left: 34%; width: 36%; pointer-events: none; opacity: 0; transition: opacity 0.2s ease; overflow: hidden; }
+    #ix-pic { position: fixed; z-index: 1; left: 34%; width: 36%; pointer-events: none; opacity: 0; transition: opacity 0.2s ease; overflow: hidden; }
     #ix-pic.is-on { opacity: 1; }
     #ix-pic > img, #ix-pic > video { display: block; width: 100%; height: 100%; object-fit: cover; }
     .ix-layer.base { z-index: 0; }
@@ -3779,7 +3817,7 @@
 (function () {
     // ---------- 讀取要開啟的方向（網址 ?d=1346，預設全開） ----------
     const q = new URLSearchParams(location.search).get('d');
-    const on = new Set((q === null ? '134568' : q).split(''));
+    const on = new Set((q === null ? '14678' : q).split(''));
     const root = document.documentElement;
     on.forEach(f => root.classList.add('d' + f));
 
@@ -4026,7 +4064,7 @@
                 return;
             }
             const fb = e.target.closest && e.target.closest('.filter-btn');
-            if (fb && !fb.classList.contains('bg-[#3B82F6]')) {
+            if (fb && !fb.classList.contains('bg-[#3B82F6]') && !document.querySelector('#demo-index.is-on')) {
                 e.stopPropagation(); e.preventDefault();
                 dotWipe(e.clientX, e.clientY, () => { bypass = true; fb.click(); bypass = false; });
             }
@@ -4101,7 +4139,7 @@
                 g.style.display = visible.length ? '' : 'none';
                 if (!visible.length) return;
                 const m = g.querySelector('.demo-marker');
-                m.innerHTML = `<span class="dm-num">${String(visible.length).padStart(2, '0')} works</span><span class="dm-zh">${CAT[c].zh.replace('\n', '<br>')}</span><span class="dm-en">${CAT[c].en}</span>`;
+                m.innerHTML = `<span class="dm-num">${String(visible.length).padStart(2, '0')} projects</span><span class="dm-zh">${CAT[c].zh.replace('\n', '<br>')}</span><span class="dm-en">${CAT[c].en}</span>`;
                 m.style.gridColumn = `span ${cols === 2 ? 2 : 3}`;
                 visible.forEach(it => { it.style.gridColumn = `span ${spanFor(it, cols)}`; it.style.width = ''; });
             });
@@ -4175,7 +4213,7 @@
         const cols = CATS.map(([cat, name], ci) => {
             const list = allOriginalItems.filter(it => it.getAttribute('data-category') === cat);
             const col = document.createElement('div'); col.className = 'fl-col';
-            col.innerHTML = `<div class="fl-head"><b>${name}</b><span>${String(list.length).padStart(2, '0')} works</span></div>
+            col.innerHTML = `<div class="fl-head"><b>${name}</b><span>${String(list.length).padStart(2, '0')} projects</span></div>
                 <div class="fl-stage" role="button" tabindex="0"><div class="fl-card"><div class="fl-face front"></div><div class="fl-face back"></div></div></div>
                 <div class="fl-dots">${list.map(() => '<i></i>').join('')}</div>`;
             stage.appendChild(col);
@@ -4321,7 +4359,7 @@
         const box = document.createElement('div');
         box.id = 'demo-index';
         document.getElementById('portfolio-track-container').before(box);
-        const head = '<div class="ix-head"><span>N°</span><span>Year</span><span>Project</span><span>Category</span></div>';
+        const head = '<div class="ix-head"><span>No</span><span>Year</span><span>Project</span><span>Category</span></div>';
         const rowsHTML = [], info = [];
         allOriginalItems.forEach((item, k) => {
             const y = item.querySelector('.item-year');
@@ -4370,23 +4408,27 @@
                 r.style.color = n && sum / n / 255 > 0.55 ? '#111111' : '#ffffff';
             });
         }
-        function place(row) {
-            const br = box.getBoundingClientRect(), rr = row.getBoundingClientRect();
+        // 圖片固定在畫面上同一個位置（右側、上下置中），不隨捲動或專案位置移動
+        function place() {
+            const br = box.getBoundingClientRect();
+            const pad = parseFloat(getComputedStyle(box).paddingLeft) || 0;
+            const inner = br.width - pad * 2;
             const ar = parseFloat(cur.style.getPropertyValue('--ar')) || 1.33;
-            const w = pic.offsetWidth || br.width * 0.3;
-            let h = w / ar;
-            const maxH = innerHeight * 0.7;
-            if (h > maxH) h = maxH;
-            pic.style.height = h + 'px';
-            let top = rr.top - br.top + rr.height / 2 - h / 2;
-            top = Math.max(0, Math.min(box.scrollHeight - h, top));
-            pic.style.top = top + 'px';
+            const mob = innerWidth < 768;
+            const nav = document.getElementById('navbar'), navH = nav ? nav.offsetHeight : 0;
+            // 位置：清單右半部（約 47%～79% 的寬度），上緣固定在畫面約 1/4 處；直式作品以高度為限、橫式以寬度為限
+            const boxW = inner * (mob ? 0.5 : 0.32), top = navH + (innerHeight - navH) * (mob ? 0.2 : 0.17);
+            const boxH = innerHeight * 0.9 - top;
+            let w = boxW, h = w / ar;
+            if (h > boxH) { h = boxH; w = h * ar; }
+            pic.style.width = w + 'px'; pic.style.height = h + 'px';
+            pic.style.left = (br.left + pad + inner * (mob ? 0.45 : 0.47)) + 'px';
+            pic.style.top = (top + (boxH - h) / 2 * (ar >= 1 ? 1 : 0)) + 'px';   // 橫式：在框內上下置中；直式：維持上緣對齊
         }
         function show(row) {
             const item = info[+row.dataset.k];
             baseRows.forEach(r => r.classList.toggle('is-hot', r === row));
             overRows.forEach(r => r.classList.toggle('is-hot', r.dataset.k === row.dataset.k));
-            box.classList.add('is-hovering');
             hot = row;
             if (cur !== item) {
                 cur = item;
@@ -4399,14 +4441,15 @@
                     if (media.play) media.play().catch(() => {});
                 }
             }
-            place(row);
+            place();
             pic.classList.add('is-on');
             recolor();
             clearInterval(lumTimer);
             if (media && media.tagName === 'VIDEO') lumTimer = setInterval(recolor, 250);   // 影片畫面會變：持續更新文字顏色
         }
         function hide() {
-            pic.classList.remove('is-on'); box.classList.remove('is-hovering');
+            pic.classList.remove('is-on');
+            overRows.forEach(r => r.classList.remove('is-hot'));
             baseRows.forEach(r => r.classList.remove('is-hot'));
             over.style.clipPath = 'inset(0 0 100% 0)';
             clearInterval(lumTimer); hot = null;
@@ -4428,20 +4471,107 @@
         });
         if (!touch) box.addEventListener('mouseleave', hide);
         window.addEventListener('scroll', () => { if (hot) recolor(); }, { passive: true });
-        window.addEventListener('resize', () => { if (hot) { place(hot); recolor(); } });
+        window.addEventListener('resize', () => { if (hot) { place(); recolor(); } });
 
+        // 依目前顯示的作品更新清單（點分類時只留下該類別，編號重新排）
+        // 分類切換動畫：不符合的專案變成 ASCII 字元飛出（左側文字往左、右側類別往右），
+        // 留下的往上補位、編號重新解碼；新出現的專案從兩側以 ASCII 飛入再解碼成文字
+        const ASC = '#%@*+=-:;~<>/\\|01';
+        const rnd = () => ASC[Math.random() * ASC.length | 0];
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let ixReady = false;
+        function scramble(el, final, dur, toAscii) {
+            const chars = [...final], t0 = performance.now();
+            const order = chars.map(() => Math.random());
+            (function tick(now) {
+                const p = Math.min(1, (now - t0) / dur);
+                el.textContent = chars.map((c, i) => {
+                    if (/\s/.test(c)) return c;
+                    const done = toAscii ? order[i] < p : order[i] >= p;
+                    return done ? rnd() : c;
+                }).join('');
+                if (p < 1) requestAnimationFrame(tick);
+                else el.textContent = toAscii ? chars.map(c => /\s/.test(c) ? c : rnd()).join('') : final;
+            })(t0);
+        }
+        function flyOut(row, i) {
+            const r = row.getBoundingClientRect(), cs = getComputedStyle(row);
+            const wrap = document.createElement('div');
+            wrap.className = 'ix-fly';
+            Object.assign(wrap.style, { position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', zIndex: 40, pointerEvents: 'none',
+                color: cs.color, fontSize: cs.fontSize, fontWeight: cs.fontWeight, fontFamily: cs.fontFamily, lineHeight: cs.lineHeight, letterSpacing: cs.letterSpacing });
+            const c = row.cloneNode(true);
+            c.classList.remove('is-hidden', 'is-hot'); c.removeAttribute('tabindex');
+            c.style.margin = '0'; c.style.padding = cs.padding; c.style.color = cs.color;
+            wrap.appendChild(c); document.body.appendChild(wrap);
+            const delay = Math.min(i * 14, 220);
+            [...c.children].forEach(sp => {
+                const right = sp.classList.contains('tg');
+                sp.style.display = 'inline-block'; sp.style.whiteSpace = 'nowrap';
+                setTimeout(() => scramble(sp, sp.textContent, 220, true), delay);
+                sp.animate([{ transform: 'translateX(0)', opacity: 1 }, { transform: `translateX(${right ? '' : '-'}${innerWidth * 0.9}px)`, opacity: 0 }],
+                    { duration: 620, delay: delay + 160, easing: 'cubic-bezier(.55,0,.85,.3)', fill: 'both' });
+            });
+            setTimeout(() => wrap.remove(), delay + 900);
+        }
+        function flyIn(row, i) {
+            const delay = 260 + Math.min(i * 14, 220);
+            [...row.children].forEach(sp => {
+                const right = sp.classList.contains('tg'), txt = sp.textContent;
+                sp.style.display = 'inline-block';
+                sp.textContent = [...txt].map(ch => /\s/.test(ch) ? ch : rnd()).join('');
+                sp.animate([{ transform: `translateX(${right ? '' : '-'}${innerWidth * 0.6}px)`, opacity: 0 }, { transform: 'translateX(0)', opacity: 1 }],
+                    { duration: 560, delay, easing: 'cubic-bezier(.15,.7,.25,1)', fill: 'backwards' });
+                setTimeout(() => scramble(sp, txt, 380, false), delay + 320);
+            });
+        }
+        function syncRows() {
+            const animate = ixReady && !reduce && box.classList.contains('is-on') && box.offsetParent !== null;
+            ixReady = true;
+            let before = null;
+            if (animate) {
+                hide();
+                document.querySelectorAll('.ix-fly').forEach(n => n.remove());
+                baseRows.forEach(r => { r.getAnimations({ subtree: true }).forEach(a => a.finish()); });
+                before = baseRows.map(r => r.classList.contains('is-hidden') ? null : { top: r.getBoundingClientRect().top, n: r.querySelector('.n').textContent });
+                let j = 0;
+                info.forEach((item, k) => { if (before[k] && item.style.display === 'none') flyOut(baseRows[k], j++); });
+            }
+            let n = 0;
+            info.forEach((item, k) => {
+                const show = item.style.display !== 'none';
+                if (show) n++;
+                [baseRows[k], overRows[k]].forEach(r => {
+                    r.classList.toggle('is-hidden', !show);
+                    r.querySelector('.n').textContent = String(n).padStart(2, '0');
+                });
+            });
+            if (!animate) return;
+            let j = 0;
+            baseRows.forEach((r, k) => {
+                if (r.classList.contains('is-hidden')) return;
+                if (!before[k]) { flyIn(r, j++); return; }
+                const dy = before[k].top - r.getBoundingClientRect().top;
+                if (Math.abs(dy) > 0.5) r.animate([{ transform: `translateY(${dy}px)` }, { transform: 'translateY(0)' }],
+                    { duration: 560, delay: 220, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+                const nEl = r.querySelector('.n'), now = nEl.textContent;
+                if (now !== before[k].n) { nEl.textContent = before[k].n; setTimeout(() => scramble(nEl, now, 360, false), 300); }
+            });
+        }
         const prevDisable = disableMarquee;
+        // 選了索引清單：「全部」和每個分類都用清單呈現
         enableMarquee = function () {
             prevDisable();
             allOriginalItems.forEach(it => { it.style.display = ''; it.style.opacity = '1'; });
             document.getElementById('portfolio-track-container').style.display = 'none';
-            box.classList.add('is-on');
+            box.classList.add('is-on'); hide(); syncRows();
         };
         disableMarquee = function () {
-            box.classList.remove('is-on'); hide();
-            document.getElementById('portfolio-track-container').style.display = '';
             prevDisable();
+            document.getElementById('portfolio-track-container').style.display = 'none';
+            box.classList.add('is-on'); hide();
         };
+        layoutWall = function () { syncRows(); };
     }
     // =========================================================
     // 8. ASCII 字元風格
