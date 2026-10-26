@@ -3559,11 +3559,10 @@
         #about { --pw: min(400px, calc((100dvh - 80px - 96px) / 1.85)); }
         #about .max-w-6xl > div:first-child > div.relative { width: var(--pw); max-width: none; margin-bottom: calc(var(--pw) * 0.6); }
         #about .max-w-6xl > div:first-child > div.relative > #profile-spotlight { margin-top: 0; }
-        #about .max-w-6xl > div:first-child > div.relative > .dress-item { width: calc(var(--pw) * 0.36); height: calc(var(--pw) * 0.36); }
-        #about .max-w-6xl > div:first-child > div.relative > .dress-item:nth-child(2),
-        #about .max-w-6xl > div:first-child > div.relative > .dress-item:nth-child(3) { bottom: calc(var(--pw) * -0.36); }
-        #about .max-w-6xl > div:first-child > div.relative > .dress-item:nth-child(4),
-        #about .max-w-6xl > div:first-child > div.relative > .dress-item:nth-child(5) { bottom: calc(var(--pw) * -0.55); }
+        /* 換裝物件：尺寸套用到所有物件（拖出照片區後也一樣大）；位置用物件自己的類型判斷，不用排列順序（點一下移出後才不會讓其他物件跳位） */
+        #about .dress-item { width: calc(var(--pw) * 0.36) !important; height: calc(var(--pw) * 0.36) !important; }
+        #about .max-w-6xl > div:first-child > div.relative > .dress-item[data-snap-slot="eyes"] { bottom: calc(var(--pw) * -0.36); }
+        #about .max-w-6xl > div:first-child > div.relative > .dress-item:is([data-snap-slot="collar"], [data-snap-slot="nose"]) { bottom: calc(var(--pw) * -0.55); }
     }
     /* 探照燈改用畫布繪製（ASCII 字元溶解邊）：原本的遮罩圖層不顯示 */
     html.spot-d #profile-reveal-img { opacity: 0 !important; visibility: hidden !important; }
@@ -3875,6 +3874,8 @@
     .ix-row .ti::after { content: ""; position: absolute; left: 0; right: 0; bottom: 1px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left center; transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); }
     .ix-row.is-hot .ti::after { transform: scaleX(1); }
     .ix-row.is-hidden { display: none; }
+    #demo-index { overflow-x: clip; }                       /* 飛入飛出的文字不撐開頁面（手機不會被縮小） */
+    #ix-fly-layer { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 40; }
     .ix-row .ti { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ix-row .n, .ix-row .yr { font-variant-numeric: tabular-nums; }
     html.d4 #demo-index .ix-row { color: #ffffff; }
@@ -3890,9 +3891,13 @@
     @media (max-width: 767px) {
         #demo-index { padding: 0 20px 30px; }
         .ix-layer.over { left: 20px; right: 20px; }
-        .ix-head, .ix-row { grid-template-columns: 30px minmax(0, 1fr) 40px; gap: 10px; }
-        .ix-head span:nth-child(4), .ix-row .tg { display: none; }
-        .ix-head span:nth-child(2), .ix-row .yr { order: 3; text-align: right; }
+        /* 手機：No｜Project（最多約 12 字，其餘用 …）｜Year｜Category，每個專案一行 */
+        .ix-head, .ix-row { grid-template-columns: 22px minmax(0, 1fr) 34px 4.2em; gap: 10px; }   /* 年份、類別靠右，填滿右半邊 */
+        .ix-row .ti { max-width: 13em; }
+        .ix-head span:nth-child(4), .ix-row .tg { text-align: right; }
+        .ix-head span:nth-child(2), .ix-row .yr { order: 3; }
+        .ix-head span:nth-child(3), .ix-row .ti { order: 2; }
+        .ix-head span:nth-child(4), .ix-row .tg { order: 4; white-space: nowrap; }
         .ix-row { font-size: 13px; padding: 4px 0; }
         #ix-pic { left: 45%; width: 50%; }
     }
@@ -4677,16 +4682,18 @@
             const r = row.getBoundingClientRect(), cs = getComputedStyle(row);
             const wrap = document.createElement('div');
             wrap.className = 'ix-fly';
-            Object.assign(wrap.style, { position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', zIndex: 40, pointerEvents: 'none',
+            Object.assign(wrap.style, { position: 'absolute', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', zIndex: 40, pointerEvents: 'none',
                 color: cs.color, fontSize: cs.fontSize, fontWeight: cs.fontWeight, fontFamily: cs.fontFamily, lineHeight: cs.lineHeight, letterSpacing: cs.letterSpacing });
             const c = row.cloneNode(true);
             c.classList.remove('is-hidden', 'is-hot'); c.removeAttribute('tabindex');
             c.style.margin = '0'; c.style.padding = cs.padding; c.style.color = cs.color;
-            wrap.appendChild(c); document.body.appendChild(wrap);
+            wrap.appendChild(c);
+            let layer = document.getElementById('ix-fly-layer');
+            if (!layer) { layer = document.createElement('div'); layer.id = 'ix-fly-layer'; document.body.appendChild(layer); }
+            layer.appendChild(wrap);
             const delay = Math.min(i * 14, 220);
             [...c.children].forEach(sp => {
                 const right = sp.classList.contains('tg');
-                sp.style.display = 'inline-block'; sp.style.whiteSpace = 'nowrap';
                 setTimeout(() => scramble(sp, sp.textContent, 220, true), delay);
                 sp.animate([{ transform: 'translateX(0)', opacity: 1 }, { transform: `translateX(${right ? '' : '-'}${innerWidth * 0.9}px)`, opacity: 0 }],
                     { duration: 620, delay: delay + 160, easing: 'cubic-bezier(.55,0,.85,.3)', fill: 'both' });
@@ -4697,7 +4704,6 @@
             const delay = 260 + Math.min(i * 14, 220);
             [...row.children].forEach(sp => {
                 const right = sp.classList.contains('tg'), txt = sp.textContent;
-                sp.style.display = 'inline-block';
                 sp.textContent = [...txt].map(ch => /\s/.test(ch) ? ch : rnd()).join('');
                 sp.animate([{ transform: `translateX(${right ? '' : '-'}${innerWidth * 0.6}px)`, opacity: 0 }, { transform: 'translateX(0)', opacity: 1 }],
                     { duration: 560, delay, easing: 'cubic-bezier(.15,.7,.25,1)', fill: 'backwards' });
