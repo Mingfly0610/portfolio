@@ -789,6 +789,7 @@
             }
             // 網點散開：圓點的間距與位置和網站背景的網點一致（每 35px 一顆）
             function leave() {
+                if (window.__splashLeave) return window.__splashLeave(splash, root);
                 var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                 var cv = document.createElement('canvas'), ctx = cv.getContext && cv.getContext('2d');
                 if (reduce || !ctx) { fadeOut(); return; }
@@ -3633,6 +3634,16 @@
     html.d8 .hero-icon > img.is-ascii { opacity: 0; }
     html.d8 .hero-icon .ascii-layer { z-index: 1; }
     html.d8 #halftone-bg { opacity: 1; }
+    /* 「觀看作品」：終端機字樣＋像素方格畫圈 */
+    html.d8 .cta-circle { display: none; }
+    html.d8 .cta-ascii { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 0; }
+    html.d8 a[href="#work"].cta-term { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.02em; gap: 0.35em; padding: 14px 26px; }
+    .cta-term .pr { color: #3B82F6; font-weight: 700; }
+    .cta-term .tx { font-family: "Noto Sans TC", sans-serif; font-weight: 900; padding: 2px 6px; margin: 0 -6px; transition: background 0.15s, color 0.15s; }
+    .cta-term .cr { display: inline-block; width: 0.55em; height: 1.05em; background: #111111; transform: translateY(0.12em); animation: cta-caret 1s steps(1) infinite; }
+    @keyframes cta-caret { 50% { opacity: 0; } }
+    .group:hover .cta-term .tx { background: #3B82F6; color: #ffffff; }
+    .group:hover .cta-term .cr { background: #3B82F6; }
 </style>
 
 <canvas id="demo-wipe" aria-hidden="true"></canvas>
@@ -3687,6 +3698,65 @@
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // ---------- ASCII 版的開場與轉場：整片色塊一格一格「解碼」成字元後消失 ----------
+    const ASCII_FX = on.has('8');
+    const WIPE_GLY = '@#8XS%t;:.';
+    function asciiDissolve(cv, ctx, W, H, ox, oy, color, opt) {
+        const CELL = opt.cell || 22, SPREAD = opt.spread || 480, LIFE = opt.life || 520;
+        const cols = Math.ceil(W / CELL) + 1, rows = Math.ceil(H / CELL) + 1;
+        const far = Math.max(Math.hypot(ox, oy), Math.hypot(W - ox, oy), Math.hypot(ox, H - oy), Math.hypot(W - ox, H - oy)) || 1;
+        const cells = [];
+        for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+            const cx = x * CELL + CELL / 2, cy = y * CELL + CELL / 2;
+            const rnd = ((x * 73856093) ^ (y * 19349663)) >>> 0;
+            cells.push([x * CELL, y * CELL, Math.hypot(cx - ox, cy - oy) / far * SPREAD + (rnd % 90), rnd]);
+        }
+        const font = `700 ${Math.round(CELL * 0.72)}px "Geist Mono", ui-monospace, Menlo, monospace`;
+        function draw(t) {
+            ctx.clearRect(0, 0, W, H);
+            ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            const tick = Math.floor(t / 60);
+            for (const c of cells) {
+                const p = (t - c[2]) / LIFE;
+                if (p >= 1) continue;
+                const gx = c[0] + CELL / 2, gy = c[1] + CELL / 2 + 0.5;
+                if (p < 0.35) {
+                    // 還是實心色塊：塊上有跳動的字元
+                    ctx.fillStyle = color; ctx.fillRect(c[0], c[1], CELL, CELL);
+                    if (p > 0) { ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.fillText(WIPE_GLY[(c[3] + tick) % 4], gx, gy); }
+                } else {
+                    // 色塊消失，只剩字元由密到疏：@ # 8 X S % t ; : .
+                    const k = Math.min(WIPE_GLY.length - 1, Math.floor((p - 0.35) / 0.65 * WIPE_GLY.length));
+                    ctx.fillStyle = color; ctx.globalAlpha = 1 - (p - 0.35) / 0.65 * 0.6;
+                    ctx.fillText(WIPE_GLY[k], gx, gy);
+                    ctx.globalAlpha = 1;
+                }
+            }
+        }
+        return { draw, total: SPREAD + 90 + LIFE };
+    }
+    if (ASCII_FX && !reduce) {
+        // 開場：藍色畫面變成格子，由中央往外解碼消失
+        window.__splashLeave = function (splash, root) {
+            const W = innerWidth, H = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+            const cv = document.createElement('canvas');
+            cv.id = 'splash-dots'; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+            const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const fx = asciiDissolve(cv, ctx, W, H, W / 2, H / 2, '#3B82F6', { cell: 22, spread: 520, life: 560 });
+            fx.draw(0);
+            splash.insertBefore(cv, splash.firstChild);
+            splash.classList.add('is-dots');
+            root.classList.remove('splash-on');
+            const start = performance.now();
+            (function tick(now) {
+                const t = now - start;
+                if (t >= fx.total) { if (splash.parentNode) splash.parentNode.removeChild(splash); return; }
+                fx.draw(t); requestAnimationFrame(tick);
+            })(start);
+            setTimeout(() => { if (splash.parentNode) splash.parentNode.removeChild(splash); }, fx.total + 1500);
+        };
+    }
+
     // =========================================================
     // 網點轉場：和開場畫面同一套圓點，從點擊的位置擴散蓋滿，再退開
     // =========================================================
@@ -3696,6 +3766,21 @@
     function dotWipe(ox, oy, onCovered, color) {
         if (reduce || wiping) { onCovered(); return; }
         wiping = true;
+        if (ASCII_FX) {
+            const W = innerWidth, H = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+            cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const fx = asciiDissolve(cv, ctx, W, H, ox, oy, color || '#111111', { cell: 22, spread: 380, life: 460 });
+            fx.draw(0); cv.classList.add('is-on'); onCovered();
+            let s0 = null;
+            requestAnimationFrame(function f(now) {
+                if (s0 === null) s0 = now;
+                const t = now - s0; fx.draw(t);
+                if (t < fx.total) return requestAnimationFrame(f);
+                ctx.clearRect(0, 0, W, H); cv.classList.remove('is-on'); wiping = false;
+            });
+            return;
+        }
         const W = innerWidth, H = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
         cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -4146,6 +4231,73 @@
             };
         }
 
+        // 「觀看作品」：文字改成終端機提示字樣，手繪圈改成一格一格亮起的像素圈
+        (function ctaAscii() {
+            const a = document.querySelector('#hero-section a[href="#work"]');
+            if (!a) return;
+            a.classList.add('cta-term');
+            a.innerHTML = '<span class="pr">&gt;</span><span class="tx">觀看作品</span><span class="cr"></span>';
+            const host = a.parentElement;
+            const cv = document.createElement('canvas');
+            cv.className = 'cta-ascii'; cv.setAttribute('aria-hidden', 'true');
+            host.appendChild(cv);
+            const ctx = cv.getContext('2d');
+            const CELL = 12;
+            let cells = [], W = 0, H = 0, hover = false;
+            host.addEventListener('mouseenter', () => { hover = true; });
+            host.addEventListener('mouseleave', () => { hover = false; });
+            function setup() {
+                const r = a.getBoundingClientRect();
+                const cols = Math.round(r.width * 1.32 / CELL), rows = Math.round(r.height * 1.9 / CELL);
+                W = cols * CELL; H = rows * CELL;
+                const dpr = Math.min(devicePixelRatio || 1, 2);
+                cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                // 沿著橢圓取格子，起點在左下（和原本手繪圈一樣），順時針一圈多一點
+                const cx = cols / 2 - 0.5, cy = rows / 2 - 0.5, rx = cols / 2 - 0.9, ry = rows / 2 - 0.9;
+                const seen = new Set(); cells = [];
+                for (let i = 0; i <= 900; i++) {
+                    const th = 2.4 + (i / 900) * Math.PI * 2.15;
+                    const x = Math.round(cx + rx * Math.cos(th)), y = Math.round(cy + ry * Math.sin(th));
+                    const k = x + ',' + y;
+                    if (seen.has(k)) continue;
+                    seen.add(k); cells.push([x, y]);
+                }
+            }
+            const GLY = ':;t%SX8#@';
+            const ACC = ['#FFEC00', '#F97316', '#22C55E', '#A855F7'];
+            const PERIOD = 2400;
+            let t0 = null;
+            function frame(now) {
+                requestAnimationFrame(frame);
+                if (document.documentElement.classList.contains('splash-on')) { t0 = null; return; }
+                if (t0 === null) t0 = now;
+                const t = ((now - t0) % PERIOD) / PERIOD;
+                const n = cells.length;
+                let from = 0, to = n;
+                if (!hover) {
+                    if (t < 0.5) to = Math.floor(n * (t / 0.5));         // 畫圈
+                    else if (t < 0.72) to = n;                             // 停住
+                    else from = Math.floor(n * ((t - 0.72) / 0.28));       // 從起點收掉
+                }
+                ctx.clearRect(0, 0, W, H);
+                ctx.font = `700 ${Math.round(CELL * 0.78)}px "Geist Mono", ui-monospace, Menlo, monospace`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                const tick = Math.floor(now / (hover ? 70 : 140));
+                for (let i = from; i < to; i++) {
+                    const [x, y] = cells[i];
+                    const head = !hover && t < 0.5 && i > to - 4;
+                    ctx.fillStyle = head ? '#111111' : '#3B82F6';
+                    ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
+                    const h = hash(x, y, tick);
+                    ctx.fillStyle = h < 0.06 ? ACC[Math.floor(h * 100) % ACC.length] : 'rgba(255,255,255,0.85)';
+                    ctx.fillText(GLY[Math.floor(hash(y, x, tick) * GLY.length)], x * CELL + CELL / 2, y * CELL + CELL / 2 + 0.5);
+                }
+            }
+            const go = () => { setup(); requestAnimationFrame(frame); };
+            (document.fonts ? document.fonts.ready : Promise.resolve()).then(go);
+            window.addEventListener('resize', setup);
+        })();
         let raf = 0;
         function loop(t) {
             const vh = innerHeight;
