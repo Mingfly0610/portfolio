@@ -3591,36 +3591,33 @@
         cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.fillStyle = color || '#111111';
-        const GAP = 35, R = 26, SPREAD = 300, GROW = 260;
+        // 比照開場畫面：先整片蓋住並換頁，再由點擊處往外，圓點逐一縮小消失（只有一次擴散）
+        const GAP = 35, R = 26, SPREAD = 420, SHRINK = 480;
         const far = Math.max(Math.hypot(ox, oy), Math.hypot(W - ox, oy), Math.hypot(ox, H - oy), Math.hypot(W - ox, H - oy)) || 1;
         const dots = [];
         for (let x = 0; x <= W + GAP; x += GAP) for (let y = 0; y <= H + GAP; y += GAP) dots.push([x, y, Math.hypot(x - ox, y - oy) / far * SPREAD]);
         const ease = p => p * p * (3 - 2 * p);
-        function draw(t, grow) {
+        function draw(t) {
             ctx.clearRect(0, 0, W, H); ctx.beginPath();
             for (const d of dots) {
-                const p = Math.max(0, Math.min(1, (t - d[2]) / GROW));
-                const r = R * (grow ? ease(p) : 1 - ease(p));
+                const p = Math.max(0, Math.min(1, (t - d[2]) / SHRINK));
+                const r = R * (1 - ease(p));
                 if (r > 0.2) { ctx.moveTo(d[0] + r, d[1]); ctx.arc(d[0], d[1], r, 0, Math.PI * 2); }
             }
             ctx.fill();
         }
+        draw(0);
         cv.classList.add('is-on');
-        const total = SPREAD + GROW;
-        let t0 = performance.now();
-        (function cover(now) {
-            const t = now - t0; draw(t, true);
-            if (t < total) return requestAnimationFrame(cover);
-            onCovered();
-            setTimeout(() => {
-                t0 = performance.now();
-                (function reveal(n) {
-                    const t2 = n - t0; draw(t2, false);
-                    if (t2 < total) return requestAnimationFrame(reveal);
-                    ctx.clearRect(0, 0, W, H); cv.classList.remove('is-on'); wiping = false;
-                })(t0);
-            }, 380);
-        })(t0);
+        onCovered();
+        const END = SPREAD + SHRINK;
+        let t0 = null;
+        requestAnimationFrame(function frame(now) {
+            if (t0 === null) t0 = now;          // 換頁的內容畫好之後才開始計時
+            const t = now - t0;
+            draw(t);
+            if (t < END) return requestAnimationFrame(frame);
+            ctx.clearRect(0, 0, W, H); cv.classList.remove('is-on'); wiping = false;
+        });
     }
 
     if (on.has('1')) {
