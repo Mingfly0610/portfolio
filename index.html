@@ -5010,7 +5010,10 @@
             document.addEventListener('click', (ev) => {
                 if (!(ev.target instanceof Element) || !ev.target.closest('#embed-toggle') || typeof asciiDissolve !== 'function') return;
                 job++; sizeFx(); fx.classList.add('on');
-                const vr = vpEl.getBoundingClientRect(), myJob = job;
+                // 立即試玩：整個左半邊（作品區＋下方按鈕列）都蓋滿
+                const mediaEl = card.querySelector('.modal-media') || vpEl;
+                const vr = mediaEl.getBoundingClientRect(), myJob = job;
+                fx.style.clipPath = `inset(${Math.max(0, vr.top)}px ${Math.max(0, innerWidth - vr.right)}px ${Math.max(0, innerHeight - vr.bottom)}px ${Math.max(0, vr.left)}px)`;
                 const fake = { clearRect: () => fc.clearRect(0, 0, innerWidth, innerHeight) };
                 fc.save(); fc.translate(vr.left, vr.top);
                 const d = asciiDissolve(fx, fc, vr.width, vr.height, ev.clientX - vr.left, ev.clientY - vr.top, '#3B82F6', { cell: 16, spread: 320, life: 360 });
