@@ -2743,6 +2743,7 @@
         });
 
         modalMediaContainer.addEventListener('wheel', (e) => {
+            return;   // 不再提供圖片放大看細節（滾輪交給頁面捲動）
             if (window.innerWidth < 1024) return;
             if (currentMediaType !== 'image') return;
             e.preventDefault(); 
@@ -3638,8 +3639,23 @@
     #mobile-menu > a { position: relative; z-index: 1; }
     #mobile-menu > #mobile-menu-close { z-index: 2; }
     /* 手機橫式影片：左右只留 16px，影片寬度拉滿 */
-    @media (max-width: 767px) { #project-modal .modal-card:not(.is-phone-media):not(.is-browser-media) .modal-art.is-video, #project-modal .modal-embed { border-radius: 4px !important; } }   /* 手機：影片圓角收小 */
+    /* 影片：一般影片與嵌入畫面改直角；瀏覽器外框維持；手機外框圓角降低 */
+    #project-modal .modal-card:not(.is-phone-media):not(.is-browser-media) .modal-art.is-video,
+    #project-modal .modal-card:not(.is-phone-media) .modal-embed { border-radius: 0 !important; }
+    #project-modal .modal-card.is-phone-media .modal-art.is-video { border-radius: 20px !important; }
+    #project-modal .modal-card.is-phone-media .modal-embed { border-radius: 24px !important; }
+    @media (min-width: 1024px) { #project-modal .modal-card.is-phone-media .modal-art.is-video { border-radius: 24px !important; } }
     @media (max-width: 767px) { #project-modal .modal-card.mob-wide-video .modal-viewport { padding-left: 16px !important; padding-right: 16px !important; } }
+    /* 多張圖片：不再顯示下方的縮圖列 */
+    html.d6 #project-modal #gallery-indicator { display: none !important; }
+    /* 解碼中暫時不左右對齊，避免亂碼字元寬度不同把字距撐開 */
+    html.d6 #project-modal #modal-description.is-decoding p, html.d6 #project-modal #modal-description.is-decoding li { text-align: left !important; }
+    html.d6 #project-modal .is-decoding, html.d6 #project-modal .is-decoding * { word-break: break-all; overflow-wrap: anywhere; }   /* 亂碼沒有斷行點，讓它在欄寬內換行 */
+    html.d6 #project-modal .modal-nav-title.is-decoding { overflow: hidden; }
+    /* 上一件／下一件：作品圖 ASCII 飛出、飛入 */
+    #media-swap-fx { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 160; pointer-events: none; display: none; }
+    #media-swap-fx.on { display: block; }
+    #project-modal .modal-card.media-fx .modal-art, #project-modal .modal-card.media-fx #modal-skeleton { visibility: hidden !important; }
     /* ---------- 控制面板 ---------- */
     #demo-panel { display: none !important; }   /* 面板先隱藏：效果維持目前的預設組合 */
     #demo-panel {
@@ -3804,7 +3820,7 @@
     html.d6 #project-modal .modal-tag { color: #111111; }
     html.d6 #project-modal .modal-tag::after { content: none !important; }   /* 類別不加底線 */
     html.d6 #project-modal .modal-year { color: #3B82F6 !important; }
-    html.d6 #project-modal .modal-title { color: #111111; text-wrap: nowrap; }
+    html.d6 #project-modal .modal-title { color: #111111; text-wrap: nowrap; max-width: 100%; }   /* 寬度不超出欄位，放不下才換行 */
     /* 專案內容：15px 細體，段落之間拉開一點（前往程式網頁、QR Code 不變） */
     html.d6 #project-modal #modal-description, html.d6 #project-modal #modal-description * { font-size: 15px !important; font-weight: 400 !important; line-height: 1.5 !important; letter-spacing: 0.03em; }
     html.d6 #project-modal #modal-description { color: #374151; }
@@ -4826,7 +4842,8 @@
             title.querySelectorAll('wbr, br').forEach(n => n.remove());
             title.style.fontSize = ''; year.style.fontSize = '';
             title.style.whiteSpace = 'nowrap';
-            if (title.scrollWidth > title.clientWidth + 1) title.style.whiteSpace = 'normal';
+            title.style.textWrap = 'nowrap';
+            if (title.scrollWidth > title.clientWidth + 1) { title.style.whiteSpace = 'normal'; title.style.textWrap = 'wrap'; }   // 放不下（手機）才換行
         }
         const refit = () => requestAnimationFrame(() => requestAnimationFrame(fitTitle));
         new MutationObserver(refit).observe(title, { childList: true, characterData: true, subtree: true });
@@ -4834,6 +4851,136 @@
         new MutationObserver(refit).observe(card, { attributes: true, attributeFilter: ['class'] });
         window.addEventListener('resize', refit);
         if (document.fonts) document.fonts.ready.then(refit);
+
+        // ---- 上一件／下一件：專案類別、年份、名稱用亂碼解碼的方式切換（比照首頁藍色斜體字） ----
+        const GLY = '@#8XS%t;:.';
+        let pendingDecode = false;
+        ['modal-prev-project', 'modal-next-project'].forEach(id => {
+            const b = document.getElementById(id);
+            if (b) b.addEventListener('click', () => { pendingDecode = true; }, true);
+        });
+        // 把元素裡所有文字（含段落、小標、條列）一起亂碼，再由左到右解碼
+        function decodeText(el) {
+            if (!el) return;
+            const nodes = [];
+            const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, { acceptNode: n => n.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+            let n; while ((n = w.nextNode())) nodes.push([n, n.textContent]);
+            if (!nodes.length) return;
+            const id = (el.__dj = (el.__dj || 0) + 1), t0 = performance.now(), HOLD = 100, D = 400;   // 先整段亂碼 0.1 秒，再用 0.4 秒由左到右解碼（總共 0.5 秒）
+            let last = 0;
+            el.classList.add('is-decoding');
+            (function f(t) {
+                if (el.__dj !== id) return;
+                const k = Math.max(0, Math.min(1, (t - t0 - HOLD) / D));
+                if (t - last < 55 && k < 1) { requestAnimationFrame(f); return; }   // 亂碼每 55ms 換一次，看得清楚
+                last = t;
+                nodes.forEach(([node, target]) => {
+                    const done = Math.floor(k * target.length);
+                    node.textContent = k >= 1 ? target : [...target].map((ch, i) => i < done || /\s/.test(ch) ? ch : GLY[Math.floor(Math.random() * GLY.length)]).join('');
+                });
+                if (k < 1) requestAnimationFrame(f); else el.classList.remove('is-decoding');
+            })(t0);
+        }
+        new MutationObserver(() => {
+            if (!pendingDecode || reduce) return;
+            pendingDecode = false;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                fitTitle();
+                [document.getElementById('modal-category'), year, title, document.getElementById('modal-description'), ...card.querySelectorAll('.modal-nav-title')].forEach(decodeText);
+            }));
+        }).observe(title, { childList: true, characterData: true, subtree: true });
+
+        // ---- 上一件／下一件：左邊作品圖先化成 ASCII 字元散開飛出，新作品的字元再飛入匯集成圖 ----
+        (function mediaSwapFx() {
+            if (reduce) return;
+            const vpEl = card.querySelector('.modal-viewport');
+            const imgEl = document.getElementById('modal-img'), vidEl = document.getElementById('modal-video');
+            const fx = document.createElement('canvas'); fx.id = 'media-swap-fx'; fx.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(fx);
+            const fc = fx.getContext('2d');
+            const smp2 = document.createElement('canvas'), s2 = smp2.getContext('2d', { willReadFrequently: true });
+            const RAMP = '.:-=+*#%@';
+            let job = 0;
+            function curMedia() {
+                if (vidEl && !vidEl.classList.contains('hidden') && vidEl.readyState >= 2) return vidEl;
+                if (imgEl && !imgEl.classList.contains('hidden') && imgEl.complete && imgEl.naturalWidth) return imgEl;
+                return null;
+            }
+            function cellsOf(m) {
+                const r = m.getBoundingClientRect(); if (r.width < 4 || r.height < 4) return null;
+                const CELL = innerWidth < 768 ? 7 : 9;
+                const cols = Math.ceil(r.width / CELL), rows = Math.ceil(r.height / CELL);
+                smp2.width = cols; smp2.height = rows;
+                let d;
+                try { s2.clearRect(0, 0, cols, rows); s2.drawImage(m, 0, 0, cols, rows); d = s2.getImageData(0, 0, cols, rows).data; } catch (e) { return null; }
+                const out = [];
+                for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+                    const i = (y * cols + x) * 4; if (d[i + 3] < 40) continue;
+                    const L = (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
+                    const ch = RAMP[Math.min(RAMP.length - 1, Math.floor((1 - L) * RAMP.length))];
+                    const px = r.left + x * CELL + CELL / 2, py = r.top + y * CELL + CELL / 2;
+                    const ang = Math.atan2(py - (r.top + r.height / 2), px - (r.left + r.width / 2)) + (Math.random() - 0.5) * 1.2;
+                    const dist = 180 + Math.random() * 420;
+                    out.push({ px, py, dx: Math.cos(ang) * dist, dy: Math.sin(ang) * dist, ch: ch === '.' ? ':' : ch, col: `rgb(${d[i]},${d[i + 1]},${d[i + 2]})`, delay: Math.random() * 0.25 });
+                }
+                return { cells: out, CELL };
+            }
+            function sizeFx() {
+                const dpr = Math.min(devicePixelRatio || 1, 2);
+                fx.width = Math.round(innerWidth * dpr); fx.height = Math.round(innerHeight * dpr);
+                fc.setTransform(dpr, 0, 0, dpr, 0, 0);
+                const vr = vpEl.getBoundingClientRect();
+                fx.style.clipPath = `inset(${Math.max(0, vr.top)}px ${Math.max(0, innerWidth - vr.right)}px ${Math.max(0, innerHeight - vr.bottom)}px ${Math.max(0, vr.left)}px)`;
+            }
+            function play(data, dir, ms, done) {   // dir: 1 = 飛出散開, -1 = 飛入匯集
+                const id = job; const t0 = performance.now();
+                (function f(now) {
+                    if (id !== job) return;
+                    const k = Math.min(1, (now - t0) / ms);
+                    fc.clearRect(0, 0, innerWidth, innerHeight);
+                    fc.font = `700 ${Math.round(data.CELL * 1.15)}px "Geist Mono", ui-monospace, Menlo, monospace`;
+                    fc.textAlign = 'center'; fc.textBaseline = 'middle';
+                    for (const c of data.cells) {
+                        const q = Math.max(0, Math.min(1, (k - c.delay) / (1 - c.delay)));
+                        const prog = dir > 0 ? q * q : Math.pow(1 - q, 3);   // 飛出：越飛越快；飛入：越接近原位越慢
+                        fc.globalAlpha = 1 - prog * 0.95;
+                        fc.fillStyle = c.col;
+                        fc.fillText(c.ch, c.px + c.dx * prog, c.py + c.dy * prog);
+                    }
+                    fc.globalAlpha = 1;
+                    if (k < 1) requestAnimationFrame(f); else done && done();
+                })(t0);
+            }
+            function waitNew(cb) {
+                const t0 = performance.now();
+                (function f() {
+                    const m = curMedia();
+                    const ready = m && !(m === imgEl && imgEl.classList.contains('opacity-0') && performance.now() - t0 < 1500);
+                    if (ready || performance.now() - t0 > 2000) return cb(m);
+                    setTimeout(f, 40);
+                })();
+            }
+            // 在 document 的捕捉階段先處理：這時舊作品還沒被換掉，才能把它拆成字元
+            document.addEventListener('click', (ev) => {
+                    if (!(ev.target instanceof Element) || !ev.target.closest('#modal-prev-project, #modal-next-project')) return;
+                    const m = curMedia(); job++;
+                    sizeFx(); fx.classList.add('on');
+                    card.classList.add('media-fx');
+                    const outD = m ? cellsOf(m) : null;
+                    const goIn = () => {
+                        waitNew(nm => {
+                            requestAnimationFrame(() => {
+                                const inD = nm ? cellsOf(nm) : null;
+                                if (!inD) { card.classList.remove('media-fx'); fx.classList.remove('on'); fc.clearRect(0, 0, innerWidth, innerHeight); return; }
+                                sizeFx();
+                                play(inD, -1, 520, () => { card.classList.remove('media-fx'); fc.clearRect(0, 0, innerWidth, innerHeight); fx.classList.remove('on'); });
+                            });
+                        });
+                    };
+                    if (outD) play(outD, 1, 360, goIn); else goIn();
+            }, true);
+            document.getElementById('modal-close') && document.getElementById('modal-close').addEventListener('click', () => { job++; card.classList.remove('media-fx'); fx.classList.remove('on'); fc.clearRect(0, 0, innerWidth, innerHeight); }, true);
+        })();
 
         // ---- 多張圖片：滑鼠變成箭頭，圖片左半邊上一張、右半邊下一張；放大後才可以拖曳 ----
         const box = document.getElementById('modal-media-container'), vp = card.querySelector('.modal-viewport');
