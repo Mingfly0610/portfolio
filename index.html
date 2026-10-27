@@ -5314,8 +5314,9 @@
             host.addEventListener('mouseenter', () => { hover = true; });
             host.addEventListener('mouseleave', () => { hover = false; });
             function setup() {
-                CELL = SMALL() ? 6 : 12;
                 const r = a.getBoundingClientRect();
+                if (!r.width || !r.height) return;   // 首頁沒顯示時（在專案、關於、聯絡頁）不要重算，否則圈會變成 0 格而消失
+                CELL = SMALL() ? 6 : 12;
                 const sx = SMALL() ? 1.0 : 1.32, sy = SMALL() ? 1.35 : 1.9;   // 手機：圈縮小貼近文字
                 const cols = Math.round(r.width * sx / CELL), rows = Math.round(r.height * sy / CELL);
                 W = cols * CELL; H = rows * CELL;
@@ -5366,6 +5367,9 @@
             const go = () => { setup(); requestAnimationFrame(frame); };
             (document.fonts ? document.fonts.ready : Promise.resolve()).then(go);
             window.addEventListener('resize', setup);
+            // 回到首頁時重新量一次（期間視窗大小可能改變過）
+            new MutationObserver(() => { if (document.documentElement.classList.contains('on-hero')) requestAnimationFrame(setup); })
+                .observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
         })();
         // 大標題：每 3 秒在正常文字與 ASCII 之間切換（同樣用一格一格的 ASCII 轉場）
         (function headline() {
