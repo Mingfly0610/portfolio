@@ -2224,7 +2224,9 @@
             if (h > availH) { h = availH; w = h * ar; }
             const isPhone = modalContent.classList.contains('is-phone-media');
             const frame = isPhone ? parseFloat(getComputedStyle(modalEmbedWrap).borderLeftWidth) * 2 : 0; // 手機外框的厚度
-            const innerW = w - frame, innerH = h - frame;
+            const sbH = isPhone ? Math.round((w - frame) * 34 / 300) : 0;   // 手機外框：上方狀態列
+            const innerW = w - frame, innerH = h - frame - sbH;
+            modalEmbedWrap.style.setProperty('--sbh', sbH + 'px');
             // 內部排版寬度：手機作品用手機寬度（直式），其餘用桌機寬度
             const baseW = isPhone ? 390 : Math.max(1280, innerW);
             const scale = innerW / baseW;
@@ -2233,6 +2235,7 @@
             modalEmbed.style.width = baseW + 'px';
             modalEmbed.style.height = (innerH / scale) + 'px';
             modalEmbed.style.transform = `scale(${scale})`;
+            modalEmbed.style.top = sbH + 'px';
         }
         window.addEventListener('resize', fitEmbed);
 
@@ -3643,9 +3646,6 @@
     /* 影片：一般影片與嵌入畫面改直角；瀏覽器外框維持；手機外框圓角降低 */
     #project-modal .modal-card:not(.is-phone-media):not(.is-browser-media) .modal-art.is-video,
     #project-modal .modal-card:not(.is-phone-media) .modal-embed { border-radius: 0 !important; }
-    #project-modal .modal-card.is-phone-media .modal-art.is-video { border-radius: 20px !important; }
-    #project-modal .modal-card.is-phone-media .modal-embed { border-radius: 24px !important; }
-    @media (min-width: 1024px) { #project-modal .modal-card.is-phone-media .modal-art.is-video { border-radius: 24px !important; } }
     @media (max-width: 767px) { #project-modal .modal-card.mob-wide-video .modal-viewport { padding-left: 16px !important; padding-right: 16px !important; } }
     /* 多張圖片：不再顯示下方的縮圖列 */
     html.d6 #project-modal #gallery-indicator { display: none !important; }
@@ -4006,6 +4006,63 @@
     /* 觀看作品：一般字體＋亂碼解碼（比照首頁 beautiful），外圈為細緻字元圈 */
     html.d8 a[href="#work"].cta-term { letter-spacing: 0.06em; padding: 14px 26px; }
     .cta-term .tx { display: inline-block; text-align: center; white-space: nowrap; }
+
+/* ── 按鈕 D：終端機方括號 ── */
+#project-modal #modal-external-link, #project-modal #embed-toggle {
+  background: transparent; border: 0; border-radius: 0; box-shadow: none; transform: none;
+  padding: 4px 6px; gap: 8px; font-size: 15px; font-weight: 500; letter-spacing: .02em;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  transition: background .15s, color .15s;
+}
+#project-modal #modal-external-link { color: #111; }
+#project-modal #embed-toggle { color: #3B82F6; }
+#project-modal #embed-toggle.is-playing { color: #111; }
+#project-modal #modal-external-link::before, #project-modal #embed-toggle::before { content: '['; }
+#project-modal #modal-external-link::after, #project-modal #embed-toggle::after { content: ']'; }
+#project-modal #modal-external-link:hover, #project-modal #embed-toggle:hover,
+#project-modal #embed-toggle.is-playing:hover { background: #3B82F6; color: #fff; transform: none; }
+#project-modal #modal-external-link:focus-visible, #project-modal #embed-toggle:focus-visible { outline: 2px solid #3B82F6; outline-offset: 2px; }
+
+/* ── QR Code：圓點點陣（E 款），靠右對齊文字欄，說明文字置中於 QR 下方 ── */
+#project-modal #external-link-container { align-items: center; justify-content: space-between; width: 100%; }
+#project-modal #qr-container.qr-dots { margin-left: auto; display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+#project-modal #qr-container.qr-dots > div:first-child { padding: 6px; background: #fff; border: 0; border-radius: 0; box-shadow: none; line-height: 0; }
+#project-modal #qr-container.qr-dots #modal-qr { display: none; }
+#project-modal #qr-container .qr-canvas { display: block; width: 104px; height: 104px; }
+#project-modal #qr-container.qr-dots > span { font-size: 12px; font-weight: 400; letter-spacing: .12em; text-transform: none; color: #6b7280; text-align: center; line-height: 1.4; }
+
+/* ── 手機外框：iPhone 18 Pro 宇宙黑（A 款）──
+   黑色邊框 = 元素本身的 border；宇宙黑金屬邊 = outline；狀態列（時間／動態島／訊號）= 上方留白＋背景圖 */
+:root { --sb: #111111; }
+.portfolio-item.is-phone .item-media {
+  container-type: inline-size;
+  border: 6px solid #050505 !important; background: #050505;
+  outline: 3px solid #35363a; outline-offset: 0;
+}
+.portfolio-item.is-phone .item-media { border-radius: 34px; }
+.portfolio-item.is-phone .item-media::before {
+  content: ''; position: absolute; left: 0; top: 0; right: 0; height: 11.33cqw; z-index: 2; pointer-events: none;
+  background: var(--sb-img-l) center / 100% 100% no-repeat, var(--sb);
+}
+.portfolio-item.is-phone .item-media.sb-dark::before { background: var(--sb-img-d) center / 100% 100% no-repeat, var(--sb); }
+.portfolio-item.is-phone .item-media-el, .portfolio-item.is-phone .skeleton-shimmer {
+  position: absolute !important; left: 0; top: 11.33cqw; width: 100%; height: calc(100% - 11.33cqw) !important; border-radius: 0 !important; object-fit: cover;
+}
+#project-modal .modal-card.is-phone-media .modal-art.is-video,
+#project-modal .modal-card.is-phone-media .modal-embed {
+  box-sizing: border-box; border: var(--pb, 10px) solid #050505 !important; border-radius: var(--pr, 56px) !important;
+  outline: 3px solid #35363a; outline-offset: 0;
+  background: var(--sb-img-l) center top / 100% var(--sbh, 34px) no-repeat, var(--sb) !important;
+}
+#project-modal .modal-card.is-phone-media.sb-dark .modal-art.is-video,
+#project-modal .modal-card.is-phone-media.sb-dark .modal-embed { background: var(--sb-img-d) center top / 100% var(--sbh, 34px) no-repeat, var(--sb) !important; }
+#project-modal .modal-card.is-phone-media .modal-art.is-video { padding: var(--sbh, 34px) 0 0 !important; object-fit: cover !important; max-width: none !important; max-height: none !important; }
+#phone-keys { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 101; display: none; }
+#phone-keys i { position: absolute; width: 3px; background: #2e2f33; border-radius: 2px; }
+
+/* 專案內容與「前往程式網頁／QR」之間不要分隔線 */
+#project-modal .modal-link { border-top: 0 !important; padding-top: 0 !important; margin-top: 40px; }
+#project-modal #modal-external-link .ext-arrow { width: 14px; height: 14px; flex: 0 0 auto; }
 </style>
 
 <canvas id="demo-wipe" aria-hidden="true"></canvas>
@@ -6108,6 +6165,130 @@
             .observe(modal, { attributes: true, attributeFilter: ['class'] });
     })();
 })();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@2.0.4/dist/qrcode.js"></script>
+<script>
+/* QR Code 改成在頁面上自己畫圓點點陣；載入失敗時保留原本的 QR 圖片 */
+(() => {
+    const box = document.getElementById('qr-container'), img = document.getElementById('modal-qr');
+    if (!box || !img) return;
+    const cap = box.querySelector('span'); if (cap) cap.textContent = '手機體驗效果更佳';
+    const cv = document.createElement('canvas'); cv.className = 'qr-canvas'; cv.setAttribute('role', 'img'); cv.setAttribute('aria-label', 'QR Code');
+    img.after(cv);
+    const SIZE = 104;
+    function render() {
+        let url = ''; try { url = new URL(img.src).searchParams.get('data') || ''; } catch (e) {}
+        if (!url || typeof qrcode !== 'function') { box.classList.remove('qr-dots'); return; }
+        const q = qrcode(0, 'M'); q.addData(url); q.make();
+        const n = q.getModuleCount(), s = SIZE / n, d = Math.max(2, window.devicePixelRatio || 1);
+        cv.width = cv.height = SIZE * d; const c = cv.getContext('2d'); c.setTransform(d, 0, 0, d, 0, 0);
+        c.fillStyle = '#fff'; c.fillRect(0, 0, SIZE, SIZE); c.fillStyle = '#111';
+        const finder = (r, k) => (r < 7 && k < 7) || (r < 7 && k >= n - 7) || (r >= n - 7 && k < 7);
+        for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) {
+            if (!q.isDark(r, k)) continue;
+            if (finder(r, k)) c.fillRect(k * s, r * s, s + .4, s + .4);   // 三個定位角維持方塊，確保好掃
+            else { c.beginPath(); c.arc(k * s + s / 2, r * s + s / 2, s * .42, 0, 7); c.fill(); }
+        }
+        box.classList.add('qr-dots');
+    }
+    new MutationObserver(render).observe(img, { attributes: true, attributeFilter: ['src'] });
+    if (img.getAttribute('src')) render();
+})();
+</script>
+
+<script>
+/* 手機外框：狀態列時間（跟隨裝置時間、24 小時制）、狀態列顏色取自作品畫面最上方、彈窗影片尺寸、側邊按鍵 */
+(() => {
+    const SB = 34 / 300, R = 0.16;   // 狀態列高度、螢幕圓角（相對於螢幕寬度）
+    const root = document.documentElement;
+    function svg(time, ink) {
+        const s = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 34'>`
+          + `<text x='30' y='22' font-family='-apple-system,BlinkMacSystemFont,Helvetica Neue,Arial,sans-serif' font-size='13' font-weight='600' fill='${ink}'>${time}</text>`
+          + `<rect x='115.5' y='7' width='69' height='20' rx='10' fill='#000'/><circle cx='174' cy='17' r='4.2' fill='#1b2236'/>`
+          + `<g fill='${ink}'><rect x='226' y='19' width='3' height='3' rx='.7'/><rect x='230.5' y='17' width='3' height='5' rx='.7'/><rect x='235' y='14.5' width='3' height='7.5' rx='.7'/><rect x='239.5' y='12' width='3' height='10' rx='.7'/>`
+          + `<path d='M253 14.2c2 0 3.8.8 5.1 2.1l1-1a8.6 8.6 0 0 0-6.1-2.5 8.6 8.6 0 0 0-6.1 2.5l1 1a7.2 7.2 0 0 1 5.1-2.1zm0 3c1.2 0 2.2.5 3 1.2l1-1a5.6 5.6 0 0 0-4-1.6 5.6 5.6 0 0 0-4 1.6l1 1c.8-.7 1.8-1.2 3-1.2zm0 4.8 1.9-1.9a2.7 2.7 0 0 0-3.8 0z'/>`
+          + `<rect x='265.5' y='11.5' width='21' height='10' rx='3' fill='none' stroke='${ink}' stroke-opacity='.5'/><rect x='267' y='13' width='16' height='7' rx='1.8'/><rect x='287.5' y='14.5' width='1.6' height='4' rx='.8' fill-opacity='.5'/></g></svg>`;
+        return `url("data:image/svg+xml,${encodeURIComponent(s)}")`;
+    }
+    function tick() {
+        const d = new Date(), t = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        root.style.setProperty('--sb-img-l', svg(t, '#ffffff'));
+        root.style.setProperty('--sb-img-d', svg(t, '#111111'));
+        setTimeout(tick, 60000 - d.getSeconds() * 1000 - d.getMilliseconds() + 50);
+    }
+    tick();
+
+    // 取畫面最上方一排的顏色，讓狀態列和作品融在一起
+    const cv = document.createElement('canvas'); cv.width = 8; cv.height = 1;
+    const cx = cv.getContext('2d', { willReadFrequently: true });
+    function topColor(el) {
+        const w = el.videoWidth || el.naturalWidth, h = el.videoHeight || el.naturalHeight;
+        if (!w || !h) return null;
+        try { cx.drawImage(el, 0, 0, w, Math.max(1, h * 0.01), 0, 0, 8, 1); const d = cx.getImageData(0, 0, 8, 1).data;
+            let r = 0, g = 0, b = 0; for (let i = 0; i < 32; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+            r /= 8; g /= 8; b /= 8; return { c: `rgb(${r | 0},${g | 0},${b | 0})`, light: (0.299 * r + 0.587 * g + 0.114 * b) > 165 };
+        } catch (e) { return null; }
+    }
+    function paint(target, el) { const t = topColor(el); if (!t) return; target.style.setProperty('--sb', t.c); target.classList.toggle('sb-dark', t.light); }
+    const modal = document.getElementById('project-modal'), card = document.getElementById('modal-content');
+    const video = document.getElementById('modal-video'), wrap = document.getElementById('modal-embed-wrap');
+    // 首頁卡片（包含複製出來的卡片）＋彈窗影片
+    ['loadeddata', 'load'].forEach(ev => document.addEventListener(ev, e => {
+        const el = e.target; if (!el || !el.classList) return;
+        if (el === video) { if (card.classList.contains('is-phone-media')) paint(card, video); return; }
+        const m = el.classList.contains('item-media-el') && el.closest('.portfolio-item.is-phone .item-media');
+        if (m) paint(m, el);
+    }, true));
+
+    // 彈窗手機影片：依顯示區算出外框、狀態列與影片的尺寸
+    function fitPhone() {
+        if (!card.classList.contains('is-phone-media') || video.classList.contains('hidden')) return;
+        const vp = video.parentElement, cs = getComputedStyle(vp);
+        const aw = vp.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 8;
+        const ah = vp.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 8;
+        if (aw <= 0 || ah <= 0) return;
+        const ar = (video.videoWidth && video.videoHeight) ? video.videoWidth / video.videoHeight : 0.5625;
+        const b = innerWidth >= 1024 ? 10 : 7;
+        const sw = Math.floor(Math.min(aw - 2 * b, (ah - 2 * b) / (1 / ar + SB)));
+        const sbh = Math.round(sw * SB);
+        video.style.width = (sw + 2 * b) + 'px';
+        video.style.height = (Math.round(sw / ar) + sbh + 2 * b) + 'px';
+        card.style.setProperty('--sbh', sbh + 'px'); card.style.setProperty('--pb', b + 'px'); card.style.setProperty('--pr', Math.round(sw * R + b) + 'px');
+    }
+    video.addEventListener('loadedmetadata', fitPhone); addEventListener('resize', fitPhone);
+    new MutationObserver(fitPhone).observe(video, { attributes: true, attributeFilter: ['class', 'src'] });
+    new MutationObserver(fitPhone).observe(card, { attributes: true, attributeFilter: ['class'] });
+    // 試玩畫面：fitEmbed 算好尺寸後，同步圓角與狀態列高度
+    new MutationObserver(() => {
+        if (!card.classList.contains('is-phone-media')) return;
+        const b = parseFloat(getComputedStyle(wrap).borderLeftWidth) || 0, sw = wrap.offsetWidth - 2 * b;
+        if (sw > 0) card.style.setProperty('--pr', Math.round(sw * R + b) + 'px');
+    }).observe(wrap, { attributes: true, attributeFilter: ['style'] });
+
+    // 側邊按鍵（動作鍵、音量鍵、電源鍵、相機控制）：只在桌機顯示，跟著手機位置
+    const keys = document.createElement('div'); keys.id = 'phone-keys';
+    const K = [['l', .16, .037], ['l', .235, .077], ['l', .33, .077], ['r', .25, .117], ['r', .5, .057]];
+    keys.innerHTML = K.map(() => '<i></i>').join(''); modal.appendChild(keys);
+    function loop() {
+        requestAnimationFrame(loop);
+        const on = !modal.classList.contains('hidden') && card.classList.contains('is-phone-media') && innerWidth >= 1024;
+        const t = !on ? null : (!wrap.classList.contains('hidden') && wrap.offsetWidth ? wrap : (!video.classList.contains('hidden') ? video : null));
+        if (!t) { keys.style.display = 'none'; return; }
+        const r = t.getBoundingClientRect(); if (!r.width) { keys.style.display = 'none'; return; }
+        let o = 1; for (let el = t; el && el !== modal; el = el.parentElement) o *= +getComputedStyle(el).opacity;
+        keys.style.display = 'block'; keys.style.opacity = o;
+        [...keys.children].forEach((k, i) => { const [side, y, h] = K[i];
+            k.style.left = (side === 'l' ? r.left - 6 : r.right + 3) + 'px'; k.style.top = (r.top + r.height * y) + 'px'; k.style.height = (r.height * h) + 'px'; });
+    }
+    loop();
+})();
+</script>
+
+<script>
+/* 「前往程式網頁」的箭頭改用內嵌圖示，不依賴外部圖示字型（字型沒載到時箭頭會變空白） */
+(() => { const i = document.querySelector('#modal-external-link i.ph'); if (!i) return;
+  i.outerHTML = '<svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>'; })();
 </script>
 
 </body>
