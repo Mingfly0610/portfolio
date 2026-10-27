@@ -6040,5 +6040,14 @@ window.__helloFx = function (el, finish, fallback) {
 };
 </script>
 
+<script>
+/* 直接用網址開啟聯絡頁（#contact）時，導覽列也要變黑：切換頁面後補發一次捲動事件，讓導覽列重新判斷顏色 */
+(() => {
+    const kick = () => requestAnimationFrame(() => requestAnimationFrame(() => dispatchEvent(new Event('scroll'))));
+    new MutationObserver(kick).observe(document.documentElement, { attributes: true, attributeFilter: ['data-view', 'class'] });
+    addEventListener('load', kick); addEventListener('hashchange', kick);
+})();
+</script>
+
 </body>
 </html>
