@@ -3674,80 +3674,10 @@
     /* 上下兩條列都是純底色：蓋過背景的格線字元 */
     html.d6 #project-modal .modal-card > .modal-nav, html.d6 #project-modal .modal-info > .modal-nav { position: relative; z-index: 3; background: var(--modal-tint); }
     /* ---------- 控制面板 ---------- */
-    #demo-panel { display: none !important; }   /* 面板先隱藏：效果維持目前的預設組合 */
-    #demo-panel {
-        position: fixed; left: 16px; bottom: 16px; z-index: 2147483000;
-        background: #111111; color: #ffffff; border-radius: 14px;
-        font: 500 13px/1.4 "Noto Sans TC", sans-serif; letter-spacing: 0.02em;
-        box-shadow: 0 18px 40px -12px rgba(0,0,0,0.45);
-        width: 238px; overflow: hidden; user-select: none;
-    }
-    #demo-panel .dp-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; cursor: pointer; }
-    #demo-panel .dp-head b { font-family: "Playfair Display", serif; font-size: 15px; letter-spacing: 0; }
-    #demo-panel .dp-head span { font-size: 11px; color: #9ca3af; }
-    #demo-panel .dp-body { padding: 2px 14px 14px; display: grid; gap: 8px; }
-    #demo-panel.is-min .dp-body { display: none; }
-    #demo-panel label { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.06); }
-    #demo-panel label:hover { background: rgba(255,255,255,0.12); }
-    #demo-panel input { accent-color: #3B82F6; width: 16px; height: 16px; }
-    #demo-panel .dp-num { display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: #3B82F6; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex: 0 0 auto; }
-    #demo-panel .dp-note { font-size: 11px; color: #9ca3af; line-height: 1.5; margin-top: 2px; }
-    @media (max-width: 767px) { #demo-panel { left: 10px; bottom: 10px; width: 210px; } }
 
     /* ---------- 網點轉場畫布 ---------- */
     #demo-wipe { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 2147482000; pointer-events: none; display: none; }
     #demo-wipe.is-on { display: block; pointer-events: auto; }
-
-    /* =========================================================
-       1. 網點系統：作品縮圖平常是網點，滑過才顯影
-       ========================================================= */
-    /* 十字網格：間距 4.15 px，每格一個十字（臂長 3.2 px、粗 1.1 px） */
-    html.d1 .portfolio-item .item-media { background: #ffffff; }
-    html.d1 .portfolio-item .item-media-el {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%274.15%27%20height%3D%274.15%27%20viewBox%3D%270%200%204.15%204.15%27%3E%3Cpath%20d%3D%27M0.475%201.525h3.2v1.1h-3.2zM1.525%200.475h1.1v3.2h-1.1z%27%20fill%3D%27black%27/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%274.15%27%20height%3D%274.15%27%20viewBox%3D%270%200%204.15%204.15%27%3E%3Cpath%20d%3D%27M0.475%201.525h3.2v1.1h-3.2zM1.525%200.475h1.1v3.2h-1.1z%27%20fill%3D%27black%27/%3E%3C/svg%3E");
-        -webkit-mask-size: 4.15px 4.15px; mask-size: 4.15px 4.15px;
-        filter: url(#demo-duotone);
-    }
-    /* 滑過顯影：拿掉十字網格、恢復原色，並從半透明淡入 */
-    html.d1 .portfolio-item:hover .item-media-el,
-    html.d1 .portfolio-item:focus-visible .item-media-el,
-    html.d1 .portfolio-item.is-revealed .item-media-el {
-        -webkit-mask-image: none; mask-image: none; filter: none;
-        animation: demo-reveal 0.55s ease-out;
-    }
-    @keyframes demo-reveal { from { opacity: 0.25; } to { opacity: 1; } }
-
-    /* =========================================================
-       3. 拼貼作品牆：大小不一、重點作品放大、分類大字標記
-       ========================================================= */
-    html.d3 #portfolio-track { margin-left: 0 !important; padding-top: 0 !important; }
-    html.d3 #portfolio-clone { display: none !important; }
-    #portfolio-grid.demo-collage { display: block; max-width: 1280px; margin: 0 auto; padding: 0 48px; }
-    #portfolio-grid.demo-collage .demo-group {
-        display: grid; grid-template-columns: repeat(var(--cols, 12), minmax(0, 1fr));
-        grid-auto-rows: 8px; grid-auto-flow: row dense; column-gap: 28px; row-gap: 0;
-        padding-bottom: 72px;
-    }
-    #portfolio-grid.demo-collage .demo-group + .demo-group { padding-top: 64px; border-top: 1px solid rgba(17,17,17,0.12); }
-    html.d4 #portfolio-grid.demo-collage .demo-group + .demo-group { border-top-color: rgba(255,255,255,0.35); }
-    #portfolio-grid.demo-collage .portfolio-item { width: auto !important; max-width: none; margin: 0; align-self: start; }
-    #portfolio-grid.demo-collage .item-cat { display: none; }
-    /* 手機作品統一比例，五件測驗大小完全一致 */
-    #portfolio-grid.demo-collage .portfolio-item.is-phone .item-media { aspect-ratio: 0.56; }
-    #portfolio-grid.demo-collage .portfolio-item.is-featured .item-title { font-size: 19px; }
-    #portfolio-grid.demo-collage .portfolio-item.is-featured .item-year { font-size: 22px; }
-    .demo-marker {
-        align-self: start; display: flex; flex-direction: column; justify-content: flex-end;
-        padding: 0 0 28px; color: #111111; pointer-events: none;
-    }
-    .demo-marker .dm-num { font-family: "Playfair Display", serif; font-style: italic; font-size: 20px; color: #3B82F6; }
-    .demo-marker .dm-zh { font-size: clamp(54px, 6.2vw, 104px); font-weight: 900; line-height: 1.12; letter-spacing: -0.02em; margin-top: 6px; }
-    .demo-marker .dm-en { font-size: 12px; font-weight: 700; letter-spacing: 0.3em; margin-top: 14px; color: #6b7280; }
-    @media (max-width: 767px) {
-        #portfolio-grid.demo-collage { padding: 0 20px; }
-        #portfolio-grid.demo-collage .demo-group { column-gap: 14px; }
-        .demo-marker .dm-zh { font-size: 52px; }
-    }
 
     /* =========================================================
        4. 色塊：作品區整塊換成品牌藍，白字白網點
@@ -3767,16 +3697,6 @@
     html.d4 #work .filter-btn { background: transparent !important; color: #ffffff !important; border-color: rgba(255,255,255,0.55) !important; }
     html.d4 #work .filter-btn:hover { background: rgba(255,255,255,0.14) !important; }
     html.d4 #work .filter-btn.bg-\[\#3B82F6\] { background: #ffffff !important; color: #3B82F6 !important; border-color: #ffffff !important; }
-    html.d4 #work .item-title { color: #ffffff; }
-    html.d4 #work .item-year { color: #FFEC00; }
-    html.d4 #work .item-cat { color: rgba(255,255,255,0.65); }
-    html.d4 #work .portfolio-item:hover .item-title { color: #FFEC00; }
-    html.d4 #work .demo-marker { color: #ffffff; }
-    html.d4 #work .demo-marker .dm-num { color: #FFEC00; }
-    html.d4 #work .demo-marker .dm-en { color: rgba(255,255,255,0.7); }
-    html.d4 #work .item-media { box-shadow: 0 1px 2px rgba(0,0,0,0.12), 0 18px 34px -16px rgba(10, 30, 90, 0.55); }
-    /* 網點版縮圖在藍底上：用白底襯著，像印在紙上 */
-    html.d4.d1 #work .portfolio-item .item-media { background: #ffffff; }
 
     /* =========================================================
        6. 整頁專案頁：彈窗改成滿版、雜誌式排版
@@ -3888,46 +3808,6 @@
         }
     }
     /* =========================================================
-       5. 「全部」：三欄翻卡（每欄一個類別，卡片由左往右翻，無限循環）
-       ========================================================= */
-    #demo-flip { display: none; max-width: 1280px; margin: 0 auto; padding: 8px 48px 40px; }
-    html.d5 #demo-flip.is-on { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
-    .fl-col { display: flex; flex-direction: column; gap: 18px; }
-    .fl-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid currentColor; padding-bottom: 10px; }
-    .fl-head b { font-size: 30px; font-weight: 900; letter-spacing: 0.02em; }
-    .fl-head span { font-family: "Playfair Display", serif; font-style: italic; font-size: 18px; color: #3B82F6; }
-    html.d4 .fl-head { color: #ffffff; }
-    html.d4 .fl-head span { color: #FFEC00; }
-    .fl-stage { position: relative; aspect-ratio: 0.7071; perspective: 1800px; cursor: pointer; }   /* 三欄一律是直式海報比例（A 系列 1:√2） */
-    .fl-card { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 50% 50%; }
-    .fl-fx { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 2; }
-    .fl-card.is-flipping { transition: transform 0.62s cubic-bezier(0.55, 0.05, 0.3, 1); transform: rotateY(-180deg); }   /* 從上往下看是順時針 */
-    .fl-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-        display: flex; align-items: flex-start; justify-content: center; }
-    .fl-face.back { transform: rotateY(180deg); }
-    /* 滑鼠停在卡片上：停止翻轉（程式控制），並顯示原始色彩 */
-    .fl-stage:hover .item-media-el {
-        -webkit-mask-image: none !important; mask-image: none !important; filter: none !important;
-        animation: demo-reveal 0.45s ease-out;
-    }
-    .fl-face .item-media { box-shadow: 0 1px 2px rgba(17,17,17,0.08), 0 10px 22px -12px rgba(17,17,17,0.35); }
-    .fl-face .item-badge { display: none; }
-    /* 縮圖填滿整個方框（橫式等比例放大裁切），方正直角 */
-    .fl-face .item-media { position: absolute; inset: 0; width: 100% !important; height: 100% !important; aspect-ratio: auto !important; border-radius: 0 !important; box-shadow: none; overflow: hidden; }
-    .fl-face .item-media-el { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 0 !important; }
-    .fl-dots { display: none !important; gap: 6px; justify-content: center; }
-    .fl-dots i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.25; transition: opacity 0.3s, transform 0.3s; }
-    .fl-dots i.on { opacity: 1; transform: scale(1.3); }
-    html.d4 .fl-dots { color: #ffffff; }
-    @media (max-width: 767px) {
-        #demo-flip { padding: 0 16px 30px; }
-        html.d5 #demo-flip.is-on { gap: 10px; }
-        .fl-head { flex-direction: column; align-items: flex-start; gap: 2px; padding-bottom: 6px; }
-        .fl-head b { font-size: 16px; }
-        .fl-head span { font-size: 12px; }
-        .fl-dots i { width: 4px; height: 4px; }
-    }
-    /* =========================================================
        7. 「全部」：索引清單（細字清單＋右側預覽圖，圖片壓在文字下方）
        ========================================================= */
     #demo-index { display: none; position: relative; max-width: 1280px; margin: 0 auto; padding: 0 48px 40px; }
@@ -3972,10 +3852,7 @@
        8. ASCII 字元風格（靈感來自 stackedlol/ascii-sharks，MIT）
           圖片切成方格，每格是一個色塊＋一個字元，滑過顯示原圖
        ========================================================= */
-    html.d8 .portfolio-item .item-media-el { -webkit-mask-image: none !important; mask-image: none !important; filter: none !important; animation: none !important; }
     .ascii-layer { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; transition: opacity 0.45s ease; }
-    html.d8 .portfolio-item:hover .ascii-layer, html.d8 .portfolio-item:focus-visible .ascii-layer,
-    html.d8 .portfolio-item.is-revealed .ascii-layer { opacity: 0; }
     html.d8 .hero-icon > img.is-ascii { opacity: 0; }
     /* 首頁四個圖示：不能拖曳，改成點一下四個一起在 ASCII 與原本的網點圖之間切換 */
     html.d8 #hero-section .hero-icon { pointer-events: auto !important; cursor: pointer; touch-action: auto; -webkit-tap-highlight-color: transparent; }
@@ -4034,20 +3911,6 @@
 /* ── 手機外框：iPhone 18 Pro 宇宙黑（A 款）──
    黑色邊框 = 元素本身的 border；宇宙黑金屬邊 = outline；狀態列（時間／動態島／訊號）= 上方留白＋背景圖 */
 :root { --sb: #111111; }
-.portfolio-item.is-phone .item-media {
-  container-type: inline-size;
-  border: 6px solid #050505 !important; background: #050505;
-  outline: 3px solid #35363a; outline-offset: 0;
-}
-.portfolio-item.is-phone .item-media { border-radius: 34px; }
-.portfolio-item.is-phone .item-media::before {
-  content: ''; position: absolute; left: 0; top: 0; right: 0; height: 11.33cqw; z-index: 2; pointer-events: none;
-  background: var(--sb-img-l) center / 100% 100% no-repeat, var(--sb);
-}
-.portfolio-item.is-phone .item-media.sb-dark::before { background: var(--sb-img-d) center / 100% 100% no-repeat, var(--sb); }
-.portfolio-item.is-phone .item-media-el, .portfolio-item.is-phone .skeleton-shimmer {
-  position: absolute !important; left: 0; top: 11.33cqw; width: 100%; height: calc(100% - 11.33cqw) !important; border-radius: 0 !important; object-fit: cover;
-}
 #project-modal .modal-card.is-phone-media .modal-art.is-video,
 #project-modal .modal-card.is-phone-media .modal-embed {
   box-sizing: border-box; border: var(--pb, 10px) solid #050505 !important; border-radius: var(--pr, 56px) !important;
@@ -4063,58 +3926,22 @@
 /* 專案內容與「前往程式網頁／QR」之間不要分隔線 */
 #project-modal .modal-link { border-top: 0 !important; padding-top: 0 !important; margin-top: 40px; }
 #project-modal #modal-external-link .ext-arrow { width: 14px; height: 14px; flex: 0 0 auto; }
+
+/* 專案頁捲軸：隱藏原生捲軸，改用 ASCII 捲軸（捲動時匯聚出現、靜止時消散） */
+#project-modal .mi-scroll, #project-modal .modal-scroll, #project-modal .modal-info { scrollbar-width: none !important; }
+#project-modal .mi-scroll::-webkit-scrollbar, #project-modal .modal-scroll::-webkit-scrollbar, #project-modal .modal-info::-webkit-scrollbar { display: none !important; width: 0 !important; }
+#ascii-scrollbar { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 102; }
 </style>
 
 <canvas id="demo-wipe" aria-hidden="true"></canvas>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <filter id="demo-duotone" color-interpolation-filters="sRGB">
-        <feComponentTransfer><feFuncR type="linear" slope="1.55" intercept="-0.22"/><feFuncG type="linear" slope="1.55" intercept="-0.22"/><feFuncB type="linear" slope="1.55" intercept="-0.22"/></feComponentTransfer>
-        <feColorMatrix type="matrix" values="0.1883 0.6336 0.0640 0 0.114  0.1475 0.4963 0.0501 0 0.306  0.0325 0.1094 0.0110 0 0.847  0 0 0 1 0"/>
-    </filter>
-</svg>
-
-<div id="demo-panel" aria-label="風格 DEMO 切換">
-    <div class="dp-head"><b>Style Demo</b><span>點此收合</span></div>
-    <div class="dp-body">
-        <label><input type="checkbox" data-f="1"><span class="dp-num">1</span>十字網格與轉場</label>
-        <label><input type="checkbox" data-f="8"><span class="dp-num">8</span>ASCII 字元風格</label>
-        <label><input type="checkbox" data-f="3"><span class="dp-num">3</span>拼貼作品牆</label>
-        <label><input type="checkbox" data-f="5"><span class="dp-num">5</span>全部：三欄 ASCII 換卡</label>
-        <label><input type="checkbox" data-f="7"><span class="dp-num">7</span>全部：索引清單</label>
-        <label><input type="checkbox" data-f="4"><span class="dp-num">4</span>品牌藍色塊</label>
-        <label><input type="checkbox" data-f="6"><span class="dp-num">6</span>整頁專案頁</label>
-        <div class="dp-note">勾選後頁面會重新載入。<br>這是測試頁，不影響正式網站。</div>
-    </div>
-</div>
 
 <script id="demo-script">
 (function () {
-    // ---------- 讀取要開啟的方向（網址 ?d=1346，預設全開） ----------
-    const q = new URLSearchParams(location.search).get('d');
-    const on = new Set((q === null ? '14678' : q).split(''));
+    // 目前採用的方向：1 十字網格與轉場、4 品牌藍色塊、6 整頁專案頁、7 全部：索引清單、8 ASCII 字元風格
+    const on = new Set(['1', '4', '6', '7', '8']);
     const root = document.documentElement;
     on.forEach(f => root.classList.add('d' + f));
 
-    const panel = document.getElementById('demo-panel');
-    panel.querySelectorAll('input').forEach(inp => {
-        inp.checked = on.has(inp.dataset.f);
-        inp.addEventListener('change', () => {
-            // 「全部」的兩種排法只能擇一
-            if (inp.checked && (inp.dataset.f === '5' || inp.dataset.f === '7')) {
-                const other = panel.querySelector(`input[data-f="${inp.dataset.f === '5' ? '7' : '5'}"]`);
-                if (other) other.checked = false;
-            }
-            const sel = [...panel.querySelectorAll('input')].filter(i => i.checked).map(i => i.dataset.f).join('');
-            const u = new URL(location.href); u.searchParams.set('d', sel || '0'); location.href = u.toString();
-        });
-    });
-    try { if (localStorage.getItem('demoPanelMin') === '1') panel.classList.add('is-min'); } catch (e) {}
-    panel.querySelector('.dp-head').addEventListener('click', () => {
-        panel.classList.toggle('is-min');
-        try { localStorage.setItem('demoPanelMin', panel.classList.contains('is-min') ? '1' : '0'); } catch (e) {}
-    });
-
-    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // ---------- ASCII 版的開場與轉場：整片色塊一格一格「解碼」成字元後消失 ----------
@@ -4343,12 +4170,6 @@
         let bypass = false;
         document.addEventListener('click', (e) => {
             if (bypass) return;
-            const item = e.target.closest && e.target.closest('#portfolio-track .portfolio-item');
-            if (item) {
-                e.stopPropagation(); e.preventDefault();
-                dotWipe(e.clientX, e.clientY, () => openProject(item));
-                return;
-            }
             const close = e.target.closest && e.target.closest('#modal-close, #modal-backdrop');
             if (close && !document.getElementById('project-modal').classList.contains('hidden')) {
                 e.stopPropagation(); e.preventDefault();
@@ -4366,99 +4187,6 @@
                 dotWipe(e.clientX, e.clientY, () => { bypass = true; fb.click(); bypass = false; });
             }
         }, true);
-
-        // 觸控裝置：捲到畫面中央的作品自動顯影
-        if (!finePointer) {
-            const io = new IntersectionObserver(entries => entries.forEach(en => en.target.classList.toggle('is-revealed', en.isIntersecting)),
-                { rootMargin: '-38% 0px -38% 0px' });
-            document.querySelectorAll('.portfolio-item').forEach(it => io.observe(it));
-        }
-    }
-
-    // =========================================================
-    // 3. 拼貼作品牆
-    // =========================================================
-    if (on.has('3')) {
-        const FEATURED = ['岡山', '消防局', '台橡旺年會ELT', '2026年 台灣就業通雲嘉南區就業博覽會啟動', '活動電子抽獎', '3D PART'];
-        const CAT = {
-            event: { zh: '活動\n視覺', en: 'EVENT VISUAL' },
-            animation: { zh: '動態\n設計', en: 'MOTION' },
-            programming: { zh: '程式\n設計', en: 'INTERACTIVE' }
-        };
-        allOriginalItems.forEach(it => {
-            const label = it.getAttribute('aria-label') || '';
-            if (FEATURED.some(k => label.includes(k))) it.classList.add('is-featured');
-        });
-        const ar = it => parseFloat(it.style.getPropertyValue('--ar')) || 1.3333;
-
-        function spanFor(it, cols) {
-            const f = it.classList.contains('is-featured');
-            const a = ar(it);
-            let s;
-            if (it.classList.contains('is-phone')) s = 3;   // 手機測驗一律同樣大小
-            else if (a < 0.95) s = f ? 4 : 3;
-            else if (a >= 1.9) s = f ? 8 : 6;
-            else s = f ? 6 : 4;
-            if (cols === 12) return s;
-            if (cols === 8) return Math.max(2, Math.min(8, Math.round(s * 8 / 12)));
-            return (f || a >= 1.4) ? 2 : 1;
-        }
-
-        // 依分類分成三組，每組各自是一面拼貼牆（組內緊密排列，組與組之間不混在一起）
-        const groups = {};
-        function ensureGroups() {
-            ['event', 'animation', 'programming'].forEach(c => {
-                if (groups[c]) return;
-                const g = document.createElement('div');
-                g.className = 'demo-group'; g.dataset.cat = c;
-                const m = document.createElement('div');
-                m.className = 'demo-marker';
-                g.appendChild(m);
-                portfolioGrid.appendChild(g);
-                groups[c] = g;
-            });
-            allOriginalItems.forEach(it => {
-                const g = groups[it.getAttribute('data-category')];
-                if (g && it.parentElement !== g) g.appendChild(it);
-            });
-        }
-
-        layoutWall = function () {
-            if (portfolioGrid.classList.contains('grid-marquee')) return;   // 「全部」是跑馬燈，不排拼貼
-            const grid = portfolioGrid;
-            grid.className = 'demo-collage';
-            grid.querySelectorAll('.wall-break').forEach(el => el.remove());
-            ensureGroups();
-            const cols = innerWidth >= 1024 ? 12 : innerWidth >= 768 ? 8 : 2;
-            grid.style.setProperty('--cols', cols);
-            Object.entries(groups).forEach(([c, g]) => {
-                const visible = allOriginalItems.filter(it => it.getAttribute('data-category') === c && it.style.display !== 'none');
-                g.style.display = visible.length ? '' : 'none';
-                if (!visible.length) return;
-                const m = g.querySelector('.demo-marker');
-                m.innerHTML = `<span class="dm-num">${String(visible.length).padStart(2, '0')} projects</span><span class="dm-zh">${CAT[c].zh.replace('\n', '<br>')}</span><span class="dm-en">${CAT[c].en}</span>`;
-                m.style.gridColumn = `span ${cols === 2 ? 2 : 3}`;
-                visible.forEach(it => { it.style.gridColumn = `span ${spanFor(it, cols)}`; it.style.width = ''; });
-            });
-            // 依實際高度（作品＋標題）決定佔幾列，讓下面的作品往上補空位
-            requestAnimationFrame(() => {
-                Object.values(groups).forEach(g => {
-                    [...g.children].forEach(el => {
-                        if (el.style.display === 'none') return;
-                        const h = el.getBoundingClientRect().height;
-                        el.style.gridRow = `span ${Math.ceil((h + (cols === 2 ? 30 : 56)) / 8)}`;
-                    });
-                });
-            });
-        };
-        enableMarquee = function () {
-            disableMarquee();
-            allOriginalItems.forEach(item => { item.style.display = ''; item.style.opacity = '1'; item.style.transform = ''; });
-            layoutWall();
-        };
-        // 媒體載入或字型換好後高度會變：再排一次
-        window.addEventListener('load', () => setTimeout(() => { layoutWall(); }, 200));
-        document.fonts && document.fonts.ready.then(() => layoutWall());
     }
 
     // =========================================================
@@ -4482,175 +4210,9 @@
         })();
     }
     // =========================================================
-    // 5. 「全部」：三欄翻卡
-    // =========================================================
-    if (on.has('5')) {
-        const CATS = [['event', '活動視覺'], ['animation', '動態設計'], ['programming', '程式設計']];
-        const stage = document.createElement('div');
-        stage.id = 'demo-flip';
-        document.getElementById('portfolio-track-container').before(stage);
-        const ref = allOriginalItems[0] && allOriginalItems[0].querySelector('.item-media-el');
-        function face(item) {
-            const m = item.querySelector('.item-media').cloneNode(true);
-            m.querySelectorAll('.skeleton-shimmer').forEach(n => n.remove());
-            const ar = parseFloat(item.style.getPropertyValue('--ar')) || 1.33;
-            m.style.aspectRatio = ar;
-            // 依比例決定卡片內的大小：直式以高度為準、橫式以寬度為準
-            m.style.width = '100%'; m.style.height = 'auto';   // 一律和欄寬（上方白線）同寬
-            m.querySelectorAll('img').forEach(n => { n.loading = 'eager'; n.classList.remove('opacity-0'); });
-            m.querySelectorAll('video').forEach(v => { v.classList.remove('opacity-0'); v.preload = 'auto'; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.load(); v.play().catch(() => {}); });
-            const src = item.querySelector('.item-media-el');
-            if (on.has('1') && !on.has('8') && src) {   // ASCII 模式下卡片顯示原圖，換卡時才用 ASCII 消散重組
-                const cs = getComputedStyle(src);
-                m.querySelectorAll('.item-media-el').forEach(n => { n.style.webkitMaskImage = cs.webkitMaskImage; n.style.maskImage = cs.maskImage; n.style.webkitMaskSize = cs.webkitMaskSize; n.style.maskSize = cs.maskSize; n.style.filter = cs.filter; });
-                m.style.background = '#ffffff';
-            }
-            return m;
-        }
-        const cols = CATS.map(([cat, name], ci) => {
-            const list = allOriginalItems.filter(it => it.getAttribute('data-category') === cat);
-            const col = document.createElement('div'); col.className = 'fl-col';
-            col.innerHTML = `<div class="fl-head"><b>${name}</b><span>${String(list.length).padStart(2, '0')} projects</span></div>
-                <div class="fl-stage" role="button" tabindex="0"><div class="fl-card"><div class="fl-face front"></div><div class="fl-face back"></div></div></div>
-                <div class="fl-dots">${list.map(() => '<i></i>').join('')}</div>`;
-            stage.appendChild(col);
-            // 舞台高度以這一欄最直長的作品為準，換卡時版面不會跳動
-            const st = { list, idx: 0, col, card: col.querySelector('.fl-card'), front: col.querySelector('.front'), back: col.querySelector('.back'), dots: [...col.querySelectorAll('.fl-dots i')], paused: false, busy: false };
-            st.front.appendChild(face(list[0]));
-            st.back.appendChild(face(list[1 % list.length]));
-            st.dots[0].classList.add('on');
-            const stg = col.querySelector('.fl-stage');
-            stg.addEventListener('mouseenter', () => { st.paused = true; });
-            stg.addEventListener('mouseleave', () => { st.paused = false; });
-            stg.addEventListener('click', (e) => {
-                const item = st.list[st.idx];
-                if (on.has('1') && typeof dotWipe === 'function') dotWipe(e.clientX, e.clientY, () => openProject(item));
-                else openProject(item);
-            });
-            return st;
-        });
-        // 換下一件：目前的縮圖碎成 ASCII 字元消散，下一件再由字元飛回來重組成圖（取代原本的翻卡）
-        const DIS_GLY = '@#8XS%t;:.';
-        const dh = (a, b, c) => { let h = (a * 374761393 + b * 668265263 + c * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
-        const mediaOf = el => el && el.querySelector('img, video');
-        // 和 object-fit: cover 一樣的裁切：放大填滿，多出來的部分從中間裁掉
-        function coverCrop(src, W, H) {
-            const sw = src.videoWidth || src.naturalWidth, sh = src.videoHeight || src.naturalHeight;
-            let sx = 0, sy = 0, cw = sw, ch = sh;
-            if (sw / sh > W / H) { cw = sh * W / H; sx = (sw - cw) / 2; } else { ch = sw * H / W; sy = (sh - ch) / 2; }
-            return [sx, sy, cw, ch];
-        }
-        function sample(src, cols, rows, W, H) {
-            const c = document.createElement('canvas'); c.width = cols; c.height = rows;
-            const x = c.getContext('2d', { willReadFrequently: true });
-            try { x.drawImage(src, ...coverCrop(src, W, H), 0, 0, cols, rows); return x.getImageData(0, 0, cols, rows).data; } catch (e) { return null; }
-        }
-        function flip(st) {
-            if (st.paused || st.busy || document.hidden) return;
-            if (!document.getElementById('demo-flip').classList.contains('is-on')) return;
-            if (!document.getElementById('project-modal').classList.contains('hidden')) return;
-            const stg = st.col.querySelector('.fl-stage');
-            const curM = st.front.querySelector('.item-media'), nxtM = st.back.querySelector('.item-media');
-            const A = mediaOf(curM), B = mediaOf(nxtM);
-            const ready = m => m && ((m.tagName === 'IMG' && m.complete && m.naturalWidth) || (m.tagName === 'VIDEO' && m.readyState >= 2));
-            const swap = () => {
-                st.idx = (st.idx + 1) % st.list.length;
-                st.front.replaceChildren(...st.back.childNodes);
-                st.back.replaceChildren(face(st.list[(st.idx + 1) % st.list.length]));
-                st.dots.forEach((d, i) => d.classList.toggle('on', i === st.idx));
-                st.front.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
-            };
-            if (!ready(A) || !ready(B) || reduce) { swap(); return; }   // 圖還沒載好或減少動態：直接換
-            st.busy = true;
-            const W = stg.clientWidth, dpr = Math.min(devicePixelRatio || 1, 2);
-            const H = stg.clientHeight, hA = H, hB = H;   // 三欄同一個直式方框，縮圖都填滿
-            const cell = innerWidth < 768 ? 6 : 9;
-            const cols = Math.ceil(W / cell), rA = Math.ceil(hA / cell), rB = Math.ceil(hB / cell);
-            const dA = sample(A, cols, rA, W, H), dB = sample(B, cols, rB, W, H);
-            if (!dA || !dB) { st.busy = false; swap(); return; }
-            if (!st.cv) {
-                st.cv = document.createElement('canvas'); st.cv.className = 'fl-fx'; st.cv.setAttribute('aria-hidden', 'true');
-                stg.appendChild(st.cv);
-            }
-            const cv = st.cv, ctx = cv.getContext('2d');
-            cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-            cv.style.width = W + 'px'; cv.style.height = H + 'px';
-            const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
-            const mA = mk(cols, rA), mB = mk(cols, rB), tA = mk(cv.width, cv.height), tB = mk(cv.width, cv.height);
-            st.front.style.visibility = 'hidden';
-            const DUR = 1150, t0 = performance.now();
-            const ease = x => x * x * (3 - 2 * x);
-            (function step(now) {
-                const k = Math.min(1, (now - t0) / DUR);
-                ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
-                const iA = mA.getContext('2d').createImageData(cols, rA), iB = mB.getContext('2d').createImageData(cols, rB);
-                const glyphs = [];
-                // 目前這件：一格一格變成字元，往外飄散並淡出
-                for (let y = 0; y < rA; y++) for (let x = 0; x < cols; x++) {
-                    const j = y * cols + x, a = dA[j * 4 + 3];
-                    const start = 0.03 + 0.34 * (0.4 * (y / rA) + 0.6 * dh(x, y, 31));
-                    const l = (k - start) / 0.26;
-                    if (l <= 0) { iA.data[j * 4 + 3] = 255; continue; }
-                    if (l >= 1 || a < 60) continue;
-                    const e = ease(l), ang = dh(x, y, 32) * Math.PI * 2, dist = (1.5 + dh(x, y, 33) * 3) * cell * e;
-                    glyphs.push([x * cell + cell / 2 + Math.cos(ang) * dist, y * cell + cell / 2 + Math.sin(ang) * dist - e * cell * 2, dA, j, 1 - e, DIS_GLY[Math.min(DIS_GLY.length - 1, Math.floor(e * DIS_GLY.length))]]);
-                }
-                // 下一件：字元從四周飛回定位，到位後變回圖
-                for (let y = 0; y < rB; y++) for (let x = 0; x < cols; x++) {
-                    const j = y * cols + x, a = dB[j * 4 + 3];
-                    const start = 0.42 + 0.3 * (0.4 * (y / rB) + 0.6 * dh(x, y, 41));
-                    const l = (k - start) / 0.26;
-                    if (l <= 0 || a < 60 && l < 1) continue;
-                    if (l >= 1) { iB.data[j * 4 + 3] = 255; continue; }
-                    const e = ease(l), ang = dh(x, y, 42) * Math.PI * 2, dist = (1.5 + dh(x, y, 43) * 3) * cell * (1 - e);
-                    glyphs.push([x * cell + cell / 2 + Math.cos(ang) * dist, y * cell + cell / 2 + Math.sin(ang) * dist, dB, j, e, DIS_GLY[Math.min(DIS_GLY.length - 1, Math.floor((1 - e) * DIS_GLY.length))]]);
-                }
-                mA.getContext('2d').putImageData(iA, 0, 0); mB.getContext('2d').putImageData(iB, 0, 0);
-                for (const [tmp, src, mask, h, rows] of [[tA, A, mA, hA, rA], [tB, B, mB, hB, rB]]) {
-                    const x2 = tmp.getContext('2d');
-                    x2.globalCompositeOperation = 'source-over'; x2.clearRect(0, 0, tmp.width, tmp.height);
-                    x2.drawImage(src, ...coverCrop(src, W, H), 0, 0, W * dpr, h * dpr);
-                    x2.globalCompositeOperation = 'destination-in'; x2.imageSmoothingEnabled = false;
-                    x2.drawImage(mask, 0, 0, cols, rows, 0, 0, cols * cell * dpr, rows * cell * dpr);
-                    x2.globalCompositeOperation = 'source-over';
-                    ctx.drawImage(tmp, 0, 0);
-                }
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                ctx.font = `700 ${Math.round(cell * 1.05)}px "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace`;
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                for (const [gx, gy, d, j, al, ch] of glyphs) {
-                    ctx.globalAlpha = Math.max(0, Math.min(1, al));
-                    ctx.fillStyle = `rgb(${d[j * 4]},${d[j * 4 + 1]},${d[j * 4 + 2]})`;
-                    ctx.fillText(ch, gx, gy);
-                }
-                ctx.globalAlpha = 1;
-                if (k < 1) return requestAnimationFrame(step);
-                swap();
-                st.front.style.visibility = '';
-                requestAnimationFrame(() => { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); st.busy = false; });
-            })(t0);
-        }
-        // 三欄同步換：每次換卡約 1.15 秒，換完停留一下再換下一件
-        const PERIOD = 3000;
-        cols.forEach((st, i) => setTimeout(() => { flip(st); setInterval(() => flip(st), PERIOD); }, 600));
-
-        const prevEnable = enableMarquee, prevDisable = disableMarquee;
-        enableMarquee = function () {
-            prevDisable();
-            allOriginalItems.forEach(it => { it.style.display = ''; it.style.opacity = '1'; });
-            document.getElementById('portfolio-track-container').style.display = 'none';
-            stage.classList.add('is-on');
-        };
-        disableMarquee = function () {
-            stage.classList.remove('is-on');
-            document.getElementById('portfolio-track-container').style.display = '';
-            prevDisable();
-        };
-    }
-    // =========================================================
     // 7. 「全部」：索引清單＋游標預覽
     // =========================================================
-    if (on.has('7') && !on.has('5')) {
+    if (on.has('7')) {
         const CAT = { event: '活動視覺', animation: '動態設計', programming: '程式設計' };
         const touch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
         const box = document.createElement('div');
@@ -5488,14 +5050,6 @@
             L.ok = true;
         }
 
-        function attachThumbs() {
-            document.querySelectorAll('.portfolio-item .item-media').forEach(m => {
-                if (m.__ascii) return;
-                const el = m.querySelector('.item-media-el');
-                if (!el) return;
-                m.__ascii = makeLayer(m, el, { cell: () => (SMALL() ? 4.5 : 7), cover: true, paper: '#ffffff', video: el.tagName === 'VIDEO' });
-            });
-        }
         // 首頁圖示：和大標題用同一個時鐘切換（由大標題的計時器帶動），一律同時進入 ASCII 或原本的樣子
         let heroRaw = true;
         const HERO_FX = 800;
@@ -5826,11 +5380,10 @@
             }
             raf = requestAnimationFrame(loop);
         }
-        function start() { attachThumbs(); attachHero(); heroAuto(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
+        function start() { attachHero(); heroAuto(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
         if (document.readyState === 'complete') start(); else window.addEventListener('load', start);
         setTimeout(start, 1200);
         // 切換分類或跑馬燈複製出新的卡片時，補上 ASCII 圖層
-        new MutationObserver(() => attachThumbs()).observe(document.getElementById('portfolio-track'), { childList: true, subtree: true });
         window.addEventListener('resize', () => layers.forEach(L => { L.ok = false; }));
     }
     // 換頁（首頁 ⇄ 作品頁）用 ASCII 轉場
@@ -6206,7 +5759,7 @@
         const s = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 34'>`
           + `<text x='30' y='22' font-family='-apple-system,BlinkMacSystemFont,Helvetica Neue,Arial,sans-serif' font-size='13' font-weight='600' fill='${ink}'>${time}</text>`
           + `<rect x='115.5' y='7' width='69' height='20' rx='10' fill='#000'/><circle cx='174' cy='17' r='4.2' fill='#1b2236'/>`
-          + `<g fill='${ink}'><rect x='226' y='19' width='3' height='3' rx='.7'/><rect x='230.5' y='17' width='3' height='5' rx='.7'/><rect x='235' y='14.5' width='3' height='7.5' rx='.7'/><rect x='239.5' y='12' width='3' height='10' rx='.7'/>`
+          + `<g fill='${ink}' transform='translate(-17 0)'><rect x='226' y='19' width='3' height='3' rx='.7'/><rect x='230.5' y='17' width='3' height='5' rx='.7'/><rect x='235' y='14.5' width='3' height='7.5' rx='.7'/><rect x='239.5' y='12' width='3' height='10' rx='.7'/>`
           + `<path d='M253 14.2c2 0 3.8.8 5.1 2.1l1-1a8.6 8.6 0 0 0-6.1-2.5 8.6 8.6 0 0 0-6.1 2.5l1 1a7.2 7.2 0 0 1 5.1-2.1zm0 3c1.2 0 2.2.5 3 1.2l1-1a5.6 5.6 0 0 0-4-1.6 5.6 5.6 0 0 0-4 1.6l1 1c.8-.7 1.8-1.2 3-1.2zm0 4.8 1.9-1.9a2.7 2.7 0 0 0-3.8 0z'/>`
           + `<rect x='265.5' y='11.5' width='21' height='10' rx='3' fill='none' stroke='${ink}' stroke-opacity='.5'/><rect x='267' y='13' width='16' height='7' rx='1.8'/><rect x='287.5' y='14.5' width='1.6' height='4' rx='.8' fill-opacity='.5'/></g></svg>`;
         return `url("data:image/svg+xml,${encodeURIComponent(s)}")`;
@@ -6233,12 +5786,10 @@
     function paint(target, el) { const t = topColor(el); if (!t) return; target.style.setProperty('--sb', t.c); target.classList.toggle('sb-dark', t.light); }
     const modal = document.getElementById('project-modal'), card = document.getElementById('modal-content');
     const video = document.getElementById('modal-video'), wrap = document.getElementById('modal-embed-wrap');
-    // 首頁卡片（包含複製出來的卡片）＋彈窗影片
+    // 彈窗影片載入後取色
     ['loadeddata', 'load'].forEach(ev => document.addEventListener(ev, e => {
         const el = e.target; if (!el || !el.classList) return;
-        if (el === video) { if (card.classList.contains('is-phone-media')) paint(card, video); return; }
-        const m = el.classList.contains('item-media-el') && el.closest('.portfolio-item.is-phone .item-media');
-        if (m) paint(m, el);
+        if (el === video && card.classList.contains('is-phone-media')) paint(card, video);
     }, true));
 
     // 彈窗手機影片：依顯示區算出外框、狀態列與影片的尺寸
@@ -6289,6 +5840,104 @@
 /* 「前往程式網頁」的箭頭改用內嵌圖示，不依賴外部圖示字型（字型沒載到時箭頭會變空白） */
 (() => { const i = document.querySelector('#modal-external-link i.ph'); if (!i) return;
   i.outerHTML = '<svg class="ext-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>'; })();
+</script>
+
+<script>
+/* 專案頁的 ASCII 捲軸：長度是原本捲軸的 1/4；開始捲動時字元從四周匯聚成捲軸，停止捲動後再消散成字元 */
+(() => {
+    const modal = document.getElementById('project-modal'), card = document.getElementById('modal-content');
+    if (!modal || !card) return;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cv = document.createElement('canvas'); cv.id = 'ascii-scrollbar'; cv.setAttribute('aria-hidden', 'true');
+    modal.appendChild(cv);
+    const ctx = cv.getContext('2d');
+    const GLY = '@#8XS%t;:.';                 // 由密到疏
+    const CELL = 6, W = 6, IN = 420, OUT = 480, IDLE = 650;
+    const INK = 'rgba(17,17,17,', BAR_A = 0.3;
+    let sc = null, state = 'off', t0 = 0, idleTimer = 0, raf = 0, seeds = [];
+    const rnd = i => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
+
+    function size() {
+        const d = Math.min(devicePixelRatio || 1, 2), w = innerWidth, h = innerHeight;
+        if (cv.width !== Math.round(w * d) || cv.height !== Math.round(h * d)) { cv.width = Math.round(w * d); cv.height = Math.round(h * d); }
+        ctx.setTransform(d, 0, 0, d, 0, 0);
+    }
+    // 捲軸位置：手機避開上方標題列與下方的上一件／下一件
+    function geom() {
+        if (!sc || sc.scrollHeight <= sc.clientHeight + 2) return null;
+        const r = sc.getBoundingClientRect();
+        let top = r.top + 8, bot = r.bottom - 8;
+        if (innerWidth < 1024) {
+            top = Math.max(top, 64);
+            const nav = card.querySelector(':scope > .modal-nav');
+            if (nav) { const n = nav.getBoundingClientRect(); if (n.top > top + 80) bot = Math.min(bot, n.top - 8); }
+        }
+        const trackH = bot - top; if (trackH < 40) return null;
+        const full = trackH * sc.clientHeight / sc.scrollHeight;          // 原本捲軸的長度
+        const h = Math.max(18, Math.round(full / 4 / CELL) * CELL);        // 縮成 1/4
+        const k = sc.scrollTop / (sc.scrollHeight - sc.clientHeight);
+        return { x: Math.round(r.right - W - 6), y: top + k * (trackH - h), h };
+    }
+    function bar(g, a) {
+        ctx.fillStyle = INK + a + ')';
+        ctx.beginPath(); ctx.roundRect ? ctx.roundRect(g.x, g.y, W, g.h, W / 2) : ctx.rect(g.x, g.y, W, g.h); ctx.fill();
+    }
+    function frame(now) {
+        raf = 0; size(); ctx.clearRect(0, 0, innerWidth, innerHeight);
+        const g = geom();
+        if (!g || state === 'off' || modal.classList.contains('hidden')) return;
+        const rows = Math.ceil(g.h / CELL);
+        while (seeds.length < rows) seeds.push(seeds.length);
+        const t = now - t0;
+        if (state === 'on') { bar(g, BAR_A); return; }
+        const dur = state === 'in' ? IN : OUT;
+        ctx.font = `700 ${CELL + 2}px "Geist Mono", ui-monospace, Menlo, monospace`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        let alive = false;
+        for (let i = 0; i < rows; i++) {
+            const delay = rnd(i + 3) * dur * 0.35, life = dur * 0.65;
+            let q = Math.min(1, Math.max(0, (t - delay) / life));
+            if (q < 1) alive = true;
+            const ease = 1 - Math.pow(1 - q, 3);
+            const dx = (rnd(i + 11) - 0.5) * 36, dy = (rnd(i + 29) - 0.5) * 70;
+            const cy = g.y + i * CELL + CELL / 2, cx = g.x + W / 2;
+            if (state === 'in') {
+                if (q <= 0) continue;
+                const x = cx + dx * (1 - ease), y = cy + dy * (1 - ease);
+                if (q >= 1) { ctx.fillStyle = INK + BAR_A + ')'; ctx.fillRect(g.x, cy - CELL / 2, W, CELL); continue; }
+                const gi = GLY.length - 1 - Math.min(GLY.length - 1, Math.floor(q * GLY.length));   // 疏 → 密
+                ctx.fillStyle = INK + (0.25 + 0.45 * q) + ')'; ctx.fillText(GLY[gi], x, y);
+            } else {
+                if (q >= 1) continue;
+                if (q <= 0) { ctx.fillStyle = INK + BAR_A + ')'; ctx.fillRect(g.x, cy - CELL / 2, W, CELL); continue; }
+                const x = cx + dx * ease, y = cy + dy * ease;
+                const gi = Math.min(GLY.length - 1, Math.floor(q * GLY.length));                      // 密 → 疏
+                ctx.fillStyle = INK + (0.6 * (1 - q)) + ')'; ctx.fillText(GLY[gi], x, y);
+            }
+        }
+        if (!alive) { state = state === 'in' ? 'on' : 'off'; if (state === 'on') bar(g, BAR_A); else ctx.clearRect(0, 0, innerWidth, innerHeight); return; }
+        raf = requestAnimationFrame(frame);
+    }
+    const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
+    function go(next) {
+        if (reduce) { state = next === 'in' ? 'on' : 'off'; kick(); return; }
+        if (next === 'in' && (state === 'in' || state === 'on')) return;
+        if (next === 'out' && (state === 'out' || state === 'off')) return;
+        state = next; t0 = performance.now(); kick();
+    }
+    modal.addEventListener('scroll', e => {
+        const el = e.target;
+        if (!el.classList || !(el.classList.contains('mi-scroll') || el.classList.contains('modal-scroll') || el.classList.contains('modal-info'))) return;
+        if (el.scrollHeight <= el.clientHeight + 2) return;
+        if (sc !== el) { sc = el; seeds = []; }
+        go('in'); kick();
+        clearTimeout(idleTimer); idleTimer = setTimeout(() => go('out'), IDLE);
+    }, true);
+    addEventListener('resize', kick);
+    // 關閉或換專案時立即清掉
+    new MutationObserver(() => { if (modal.classList.contains('hidden')) { state = 'off'; sc = null; kick(); } })
+        .observe(modal, { attributes: true, attributeFilter: ['class'] });
+})();
 </script>
 
 </body>
