@@ -3875,6 +3875,9 @@
         /* 直式作品：左邊作品佔大半，右邊是可以捲動的文章欄 */
         html.d6 #project-modal .modal-card.is-portrait { width: 100vw !important; height: 100dvh !important; }
         html.d6 #project-modal .modal-card.is-portrait .modal-info { flex: 0 0 min(40vw, 620px); padding: 120px 64px 48px 24px; }
+        /* 文字捲到離畫面頂端 60px 才消失（起始位置不變） */
+        html.d6 #project-modal .modal-card.is-portrait .modal-info { padding-top: 60px !important; }
+        html.d6 #project-modal .modal-card.is-portrait .mi-scroll { padding-top: 60px; }
         html.d6 #project-modal .modal-card.is-portrait .modal-viewport { padding: 80px 72px 40px; }
         /* 橫式作品：作品滿版在上，下面是兩欄的文章 */
         html.d6 #project-modal .modal-card.is-landscape .modal-media { height: 86vh; }
