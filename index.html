@@ -3984,13 +3984,9 @@
     /* 「觀看作品」：終端機字樣＋像素方格畫圈 */
     html.d8 .cta-circle { display: none; }
     html.d8 .cta-ascii { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 0; }
-    html.d8 a[href="#work"].cta-term { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.02em; gap: 0.35em; padding: 14px 26px; }
-    .cta-term .pr { color: #3B82F6; font-weight: 700; }
-    .cta-term .tx { font-family: "Noto Sans TC", sans-serif; font-weight: 900; padding: 2px 6px; margin: 0 -6px; transition: background 0.15s, color 0.15s; }
-    .cta-term .cr { display: inline-block; width: 0.55em; height: 1.05em; background: #111111; transform: translateY(0.12em); animation: cta-caret 1s steps(1) infinite; }
-    @keyframes cta-caret { 50% { opacity: 0; } }
-    .group:hover .cta-term .tx { background: #3B82F6; color: #ffffff; }
-    .group:hover .cta-term .cr { background: #3B82F6; }
+    /* 觀看作品：一般字體＋亂碼解碼（比照首頁 beautiful），外圈為細緻字元圈 */
+    html.d8 a[href="#work"].cta-term { letter-spacing: 0.06em; padding: 14px 26px; }
+    .cta-term .tx { display: inline-block; text-align: center; white-space: nowrap; }
 </style>
 
 <canvas id="demo-wipe" aria-hidden="true"></canvas>
@@ -5491,7 +5487,22 @@
             const a = document.querySelector('#hero-section a[href="#work"]');
             if (!a) return;
             a.classList.add('cta-term');
-            a.innerHTML = '<span class="pr">&gt;</span><span class="tx">觀看作品</span><span class="cr"></span>';
+            a.innerHTML = '<span class="tx">觀看作品</span>';
+            const tx = a.querySelector('.tx'), TXT = '觀看作品', WG = '@#8XS%t;:.';
+            let djob = 0;
+            function decodeCta() {   // 整組亂碼 → 由左到右解碼回「觀看作品」
+                if (reduce) return;
+                const id = ++djob, t0 = performance.now(), HOLD = 280, D = 620; let last = 0;
+                (function f(t) {
+                    if (id !== djob) return;
+                    const k = Math.max(0, Math.min(1, (t - t0 - HOLD) / D));
+                    if (t - last < 60 && k < 1) { requestAnimationFrame(f); return; }
+                    last = t;
+                    const done = Math.floor(k * TXT.length);
+                    tx.textContent = [...TXT].map((c, i) => i < done ? c : WG[Math.random() * WG.length | 0] + WG[Math.random() * WG.length | 0]).join('');
+                    if (k < 1) requestAnimationFrame(f); else tx.textContent = TXT;
+                })(t0);
+            }
             const host = a.parentElement;
             const cv = document.createElement('canvas');
             cv.className = 'cta-ascii'; cv.setAttribute('aria-hidden', 'true');
@@ -5504,7 +5515,8 @@
             function setup() {
                 const r = a.getBoundingClientRect();
                 if (!r.width || !r.height) return;   // 首頁沒顯示時（在專案、關於、聯絡頁）不要重算，否則圈會變成 0 格而消失
-                CELL = SMALL() ? 6 : 12;
+                CELL = SMALL() ? 6 : 8;   // 細緻字元圈
+                tx.style.width = ''; tx.style.width = tx.getBoundingClientRect().width + 'px';   // 固定寬度，亂碼時不晃動
                 const sx = SMALL() ? 1.0 : 1.32, sy = SMALL() ? 1.35 : 1.9;   // 手機：圈縮小貼近文字
                 const cols = Math.round(r.width * sx / CELL), rows = Math.round(r.height * sy / CELL);
                 W = cols * CELL; H = rows * CELL;
@@ -5525,7 +5537,7 @@
             const GLY = ':;t%SX8#@';
             const ACC = ['#FFEC00', '#F97316', '#22C55E', '#A855F7'];
             const PERIOD = 2400;
-            let t0 = null;
+            let t0 = null, lastT = 0;
             function frame(now) {
                 requestAnimationFrame(frame);
                 if (document.documentElement.classList.contains('splash-on')) { t0 = null; return; }
@@ -5539,16 +5551,15 @@
                     else from = Math.floor(n * ((t - 0.72) / 0.28));       // 從起點收掉
                 }
                 ctx.clearRect(0, 0, W, H);
-                ctx.font = `700 ${Math.round(CELL * 0.78)}px "Geist Mono", ui-monospace, Menlo, monospace`;
+                ctx.font = `700 ${Math.round(CELL * (SMALL() ? 1.3 : 1.15))}px "Geist Mono", ui-monospace, Menlo, monospace`;
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 const tick = Math.floor(now / (hover ? 70 : 140));
+                if (!hover && lastT < 0.5 && t >= 0.5) decodeCta();   // 圈畫完的瞬間，文字跟著亂碼解碼
+                lastT = t;
                 for (let i = from; i < to; i++) {
                     const [x, y] = cells[i];
                     const head = !hover && t < 0.5 && i > to - 4;
                     ctx.fillStyle = head ? '#111111' : '#3B82F6';
-                    ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
-                    const h = hash(x, y, tick);
-                    ctx.fillStyle = h < 0.06 ? ACC[Math.floor(h * 100) % ACC.length] : 'rgba(255,255,255,0.85)';
                     ctx.fillText(GLY[Math.floor(hash(y, x, tick) * GLY.length)], x * CELL + CELL / 2, y * CELL + CELL / 2 + 0.5);
                 }
             }
