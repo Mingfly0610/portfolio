@@ -4564,8 +4564,7 @@
                     const sn = window.__phoneSnap(m); if (sn) { src = sn.cv; r = sn.rect; }
                 }
                 if (r.width < 4 || r.height < 4) return null;
-                // 字元數量上限約 1600 顆：畫面越大格子越大，避免大圖時字元太多而卡頓
-                const CELL = Math.max(innerWidth < 768 ? 8 : 10, Math.ceil(Math.sqrt(r.width * r.height / 1600)));
+                const CELL = innerWidth < 768 ? 8 : 10;
                 const cols = Math.ceil(r.width / CELL), rows = Math.ceil(r.height / CELL);
                 smp2.width = cols; smp2.height = rows;
                 let d;
@@ -4591,7 +4590,7 @@
                 return { cells: out, CELL };
             }
             function sizeFx() {
-                const dpr = 1;   // 轉場字元在移動中，用 1 倍解析度就夠（像素量只剩 1/4，順很多）
+                const dpr = Math.min(devicePixelRatio || 1, 2);
                 fx.width = Math.round(innerWidth * dpr); fx.height = Math.round(innerHeight * dpr);
                 fc.setTransform(dpr, 0, 0, dpr, 0, 0);
                 const vr = vpEl.getBoundingClientRect();
@@ -4639,14 +4638,12 @@
                     const outD = m ? cellsOf(m, side) : null;
                     const goIn = () => {
                         waitNew(nm => {
-                            // 大圖先在背景解碼好再取樣，避免取樣時才同步解碼造成停頓
-                            const dec = nm && nm.tagName === 'IMG' && nm.decode ? nm.decode().catch(() => {}) : Promise.resolve();
-                            dec.then(() => requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
                                 const inD = nm ? cellsOf(nm, -side, side) : null;
                                 if (!inD) { card.classList.remove('media-fx'); fx.classList.remove('on'); fc.clearRect(0, 0, innerWidth, innerHeight); return; }
                                 sizeFx();
                                 play(inD, -1, 520, () => { card.classList.remove('media-fx'); fc.clearRect(0, 0, innerWidth, innerHeight); fx.classList.remove('on'); });
-                            }));
+                            });
                         });
                     };
                     if (outD) play(outD, 1, 360, goIn); else goIn();
@@ -5718,7 +5715,6 @@
             if (modal.classList.contains('hidden')) return;          // 彈窗關閉時停止
             requestAnimationFrame(draw);
             if (now - last < 66) return;                              // 約 15fps 就夠，背景很慢
-            if (card.classList.contains('media-fx') || document.getElementById('media-swap-fx')?.classList.contains('on')) return;   // 轉場時背景先停，讓出效能
             last = now;
             const r = card.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
             const W = Math.round(r.width), H = Math.round(r.height);
