@@ -2933,7 +2933,7 @@
                 if (!root.classList.contains('hero-gone')) { logo.classList.remove('show-arrow'); return; }
                 if (window.__logoSynced && window.__logoSynced()) return;
                 if (!hovering) logo.classList.toggle('show-arrow');
-            }, 3000);
+            }, 2000);
         })();
 
         const heroHello = document.getElementById('hero-hello');
@@ -2966,7 +2966,7 @@
                 };
                 const waitSplash = () => {
                     if (document.documentElement.classList.contains('splash-on')) return setTimeout(waitSplash, 100);
-                    setTimeout(playHello, HELLO_DELAY);
+                    setTimeout(() => (window.__helloFx ? window.__helloFx(heroHello, finishHello, playHello) : playHello()), 2000);
                 };
                 waitSplash();
             }
@@ -4557,7 +4557,7 @@
                 if (imgEl && !imgEl.classList.contains('hidden') && imgEl.complete && imgEl.naturalWidth) return imgEl;
                 return null;
             }
-            function cellsOf(m) {
+            function cellsOf(m, side, motion = side) {   // side：0 = 由中心往外散開；-1 = 往左飛；1 = 往右飛
                 let r = m.getBoundingClientRect(), src = m;
                 // 手機作品：把整支手機（外框、狀態列、側鍵）一起拆成字元
                 if (m === vidEl && card.classList.contains('is-phone-media') && window.__phoneSnap) {
@@ -4575,9 +4575,17 @@
                     const L = (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
                     const ch = RAMP[Math.min(RAMP.length - 1, Math.floor((1 - L) * RAMP.length))];
                     const px = r.left + x * CELL + CELL / 2, py = r.top + y * CELL + CELL / 2;
-                    const ang = Math.atan2(py - (r.top + r.height / 2), px - (r.left + r.width / 2)) + (Math.random() - 0.5) * 1.2;
-                    const dist = 180 + Math.random() * 420;
-                    out.push({ px, py, dx: Math.cos(ang) * dist, dy: Math.sin(ang) * dist, ch: ch === '.' ? ':' : ch, col: `rgb(${d[i] & 0xF0},${d[i + 1] & 0xF0},${d[i + 2] & 0xF0})`, delay: Math.random() * 0.25 });
+                    let dx, dy;
+                    if (side) {   // 同一專案換圖：整批往左或往右飛，越靠前進方向的字元越早出發
+                        const dist = r.width * 0.5 + 160 + Math.random() * 420;
+                        dx = side * dist; dy = (Math.random() - 0.5) * 70;
+                    } else {
+                        const ang = Math.atan2(py - (r.top + r.height / 2), px - (r.left + r.width / 2)) + (Math.random() - 0.5) * 1.2;
+                        const dist = 180 + Math.random() * 420;
+                        dx = Math.cos(ang) * dist; dy = Math.sin(ang) * dist;
+                    }
+                    const lead = side ? ((motion < 0 ? (px - r.left) : (r.right - px)) / r.width) * 0.22 : 0;   // 前進方向最前面的字元先動
+                    out.push({ px, py, dx, dy, ch: ch === '.' ? ':' : ch, col: `rgb(${d[i] & 0xF0},${d[i + 1] & 0xF0},${d[i + 2] & 0xF0})`, delay: side ? Math.min(0.3, lead + Math.random() * 0.08) : Math.random() * 0.25 });
                 }
                 return { cells: out, CELL };
             }
@@ -4624,11 +4632,14 @@
                     const m = curMedia(); job++;
                     sizeFx(); fx.classList.add('on');
                     card.classList.add('media-fx');
-                    const outD = m ? cellsOf(m) : null;
+                    // 同一專案換圖：下一張 → 舊圖往左飛走、新圖從右邊飛進來；上一張相反。換專案維持由中心散開
+                    const gal = ev.target.closest('#prev-img, #next-img');
+                    const side = gal ? (gal.id === 'next-img' ? -1 : 1) : 0;
+                    const outD = m ? cellsOf(m, side) : null;
                     const goIn = () => {
                         waitNew(nm => {
                             requestAnimationFrame(() => {
-                                const inD = nm ? cellsOf(nm) : null;
+                                const inD = nm ? cellsOf(nm, -side, side) : null;
                                 if (!inD) { card.classList.remove('media-fx'); fx.classList.remove('on'); fc.clearRect(0, 0, innerWidth, innerHeight); return; }
                                 sizeFx();
                                 play(inD, -1, 520, () => { card.classList.remove('media-fx'); fc.clearRect(0, 0, innerWidth, innerHeight); fx.classList.remove('on'); });
@@ -5344,7 +5355,7 @@
                 };
             })();
             tagFx.set = () => {};   // 年份標籤改成和 beautiful 一樣只解碼，不轉成 ASCII
-            const HOLD = 3000, FX = 800;
+            const HOLD = 2000, FX = 800;   // 每 2 秒切換
             let timer = 0, busy = false;
             function run(toAscii) {
                 clearTimeout(timer); busy = true;
@@ -5661,7 +5672,7 @@
             Object.assign(FX_S, { ctx, dpr, cell, cols, rows, data, raw, hide });
             fastAsciiText(FX_S, t);
         }
-        const HOLD = 3000, FX = 800;
+        const HOLD = 2000, FX = 800;   // 每 2 秒切換
         window.__contactAscii = () => mode === 'ascii';
         function run(toAscii) {
             clearTimeout(timer);
@@ -5973,6 +5984,60 @@
     new MutationObserver(() => { if (modal.classList.contains('hidden')) { state = 'off'; sc = null; kick(); } })
         .observe(modal, { attributes: true, attributeFilter: ['class'] });
 })();
+</script>
+
+<script>
+/* 首頁「你好，我是 MingFly.」：字元從四周匯聚飛入，組成文字後換成真正的文字 */
+window.__helloFx = function (el, finish, fallback) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return fallback();
+    const node = el.firstChild; if (!node) return fallback();
+    el.style.transform = ''; el.style.opacity = '0';          // 先放到最終位置（看不見），量出文字的位置
+    const rg = document.createRange(); rg.selectNodeContents(el);
+    const tr = rg.getBoundingClientRect(); if (!tr.width) { finish(); return; }
+    const cs = getComputedStyle(el);
+    // 1. 把文字畫到小畫布上取樣
+    const W = Math.ceil(tr.width) + 4, H = Math.ceil(tr.height) + 4;
+    const raw = document.createElement('canvas'); raw.width = W; raw.height = H;
+    const rx = raw.getContext('2d');
+    rx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; rx.textBaseline = 'middle'; rx.fillStyle = '#000';
+    if ('letterSpacing' in rx) rx.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing;
+    rx.fillText(el.textContent, 2, H / 2);
+    const CELL = innerWidth < 768 ? 3 : 4, cols = Math.ceil(W / CELL), rows = Math.ceil(H / CELL);
+    const sm = document.createElement('canvas'); sm.width = cols; sm.height = rows;
+    const sx = sm.getContext('2d', { willReadFrequently: true }); sx.drawImage(raw, 0, 0, cols, rows);
+    const d = sx.getImageData(0, 0, cols, rows).data;
+    const RAMP = ':-=+*#%@', cells = [];
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        const a = d[(y * cols + x) * 4 + 3]; if (a < 50) continue;
+        const ang = Math.random() * Math.PI * 2, dist = 90 + Math.random() * 260;
+        cells.push({ x: x * CELL + CELL / 2 - 2, y: y * CELL + CELL / 2 - 2, dx: Math.cos(ang) * dist, dy: Math.sin(ang) * dist * 0.6,
+            ch: RAMP[Math.min(RAMP.length - 1, Math.floor(a / 256 * RAMP.length))], delay: Math.random() * 0.35 });
+    }
+    // 2. 全畫面畫布：字元由散開的位置飛回文字上
+    const cv = document.createElement('canvas'); cv.setAttribute('aria-hidden', 'true');
+    cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40';
+    document.body.appendChild(cv);
+    const dpr = Math.min(devicePixelRatio || 1, 2); cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(innerHeight * dpr);
+    const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const DUR = 1000, FADE = 220, color = cs.color, t0 = performance.now();
+    (function f(now) {
+        const k = Math.min(1, (now - t0) / DUR), r = rg.getBoundingClientRect();
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        ctx.font = `700 ${CELL + 2}px "Geist Mono", ui-monospace, Menlo, monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = color;
+        const tail = Math.max(0, (now - t0 - (DUR - FADE)) / FADE);          // 最後一段：字元淡出、真正的文字淡入
+        ctx.globalAlpha = 1 - tail;
+        for (const c of cells) {
+            const q = Math.max(0, Math.min(1, (k - c.delay) / (1 - c.delay)));
+            if (q <= 0) continue;
+            const p = Math.pow(1 - q, 3);                                     // 越接近定位越慢
+            ctx.fillText(c.ch, r.left + c.x + c.dx * p, r.top + c.y + c.dy * p);
+        }
+        el.style.opacity = String(tail);
+        if (k < 1) return requestAnimationFrame(f);
+        cv.remove(); finish();
+    })(t0);
+};
 </script>
 
 </body>
