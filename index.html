@@ -4199,9 +4199,11 @@
         work.insertBefore(c, work.firstChild);
         const cx = c.getContext('2d');
         const src = document.getElementById('halftone-bg');
+        const pm = document.getElementById('project-modal');
         (function tick() {
             const r = work.getBoundingClientRect();
-            if (r.bottom > 0 && r.top < innerHeight) {
+            // 專案頁打開時作品區被蓋住，不用重畫（省下整片畫布的複製，轉場比較順）
+            if (r.bottom > 0 && r.top < innerHeight && !document.hidden && (!pm || pm.classList.contains('hidden'))) {
                 if (c.width !== src.width || c.height !== src.height) { c.width = src.width; c.height = src.height; }
                 cx.globalCompositeOperation = 'copy'; cx.drawImage(src, 0, 0);
                 cx.globalCompositeOperation = 'source-in'; cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, c.width, c.height);
@@ -4556,12 +4558,17 @@
                 return null;
             }
             function cellsOf(m) {
-                const r = m.getBoundingClientRect(); if (r.width < 4 || r.height < 4) return null;
-                const CELL = innerWidth < 768 ? 7 : 9;
+                let r = m.getBoundingClientRect(), src = m;
+                // 手機作品：把整支手機（外框、狀態列、側鍵）一起拆成字元
+                if (m === vidEl && card.classList.contains('is-phone-media') && window.__phoneSnap) {
+                    const sn = window.__phoneSnap(m); if (sn) { src = sn.cv; r = sn.rect; }
+                }
+                if (r.width < 4 || r.height < 4) return null;
+                const CELL = innerWidth < 768 ? 8 : 10;
                 const cols = Math.ceil(r.width / CELL), rows = Math.ceil(r.height / CELL);
                 smp2.width = cols; smp2.height = rows;
                 let d;
-                try { s2.clearRect(0, 0, cols, rows); s2.drawImage(m, 0, 0, cols, rows); d = s2.getImageData(0, 0, cols, rows).data; } catch (e) { return null; }
+                try { s2.clearRect(0, 0, cols, rows); s2.drawImage(src, 0, 0, cols, rows); d = s2.getImageData(0, 0, cols, rows).data; } catch (e) { return null; }
                 const out = [];
                 for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
                     const i = (y * cols + x) * 4; if (d[i + 3] < 40) continue;
@@ -4570,7 +4577,7 @@
                     const px = r.left + x * CELL + CELL / 2, py = r.top + y * CELL + CELL / 2;
                     const ang = Math.atan2(py - (r.top + r.height / 2), px - (r.left + r.width / 2)) + (Math.random() - 0.5) * 1.2;
                     const dist = 180 + Math.random() * 420;
-                    out.push({ px, py, dx: Math.cos(ang) * dist, dy: Math.sin(ang) * dist, ch: ch === '.' ? ':' : ch, col: `rgb(${d[i]},${d[i + 1]},${d[i + 2]})`, delay: Math.random() * 0.25 });
+                    out.push({ px, py, dx: Math.cos(ang) * dist, dy: Math.sin(ang) * dist, ch: ch === '.' ? ':' : ch, col: `rgb(${d[i] & 0xF0},${d[i + 1] & 0xF0},${d[i + 2] & 0xF0})`, delay: Math.random() * 0.25 });
                 }
                 return { cells: out, CELL };
             }
@@ -4581,23 +4588,25 @@
                 const vr = vpEl.getBoundingClientRect();
                 fx.style.clipPath = `inset(${Math.max(0, vr.top)}px ${Math.max(0, innerWidth - vr.right)}px ${Math.max(0, innerHeight - vr.bottom)}px ${Math.max(0, vr.left)}px)`;
             }
+            // 效能：顏色量化後依顏色排序，每種顏色只切換一次畫筆；整體淡出淡入改由畫布透明度處理，不再逐格設定透明度
             function play(data, dir, ms, done) {   // dir: 1 = 飛出散開, -1 = 飛入匯集
                 const id = job; const t0 = performance.now();
+                if (!data.sorted) { data.cells.sort((a, b) => (a.col < b.col ? -1 : a.col > b.col ? 1 : 0)); data.sorted = true; }
+                const font = `700 ${Math.round(data.CELL * 1.15)}px "Geist Mono", ui-monospace, Menlo, monospace`;
                 (function f(now) {
                     if (id !== job) return;
                     const k = Math.min(1, (now - t0) / ms);
                     fc.clearRect(0, 0, innerWidth, innerHeight);
-                    fc.font = `700 ${Math.round(data.CELL * 1.15)}px "Geist Mono", ui-monospace, Menlo, monospace`;
-                    fc.textAlign = 'center'; fc.textBaseline = 'middle';
+                    fc.font = font; fc.textAlign = 'center'; fc.textBaseline = 'middle';
+                    fx.style.opacity = dir > 0 ? String(1 - k * k * 0.85) : String(0.15 + 0.85 * Math.min(1, k * 1.6));
+                    let last = '';
                     for (const c of data.cells) {
                         const q = Math.max(0, Math.min(1, (k - c.delay) / (1 - c.delay)));
                         const prog = dir > 0 ? q * q : Math.pow(1 - q, 3);   // 飛出：越飛越快；飛入：越接近原位越慢
-                        fc.globalAlpha = 1 - prog * 0.95;
-                        fc.fillStyle = c.col;
+                        if (c.col !== last) { fc.fillStyle = c.col; last = c.col; }
                         fc.fillText(c.ch, c.px + c.dx * prog, c.py + c.dy * prog);
                     }
-                    fc.globalAlpha = 1;
-                    if (k < 1) requestAnimationFrame(f); else done && done();
+                    if (k < 1) requestAnimationFrame(f); else { fx.style.opacity = ''; done && done(); }
                 })(t0);
             }
             function waitNew(cb) {
@@ -5094,7 +5103,9 @@
         // 背景：把漂浮的圓點換成格線上的字元
         if (typeof drawHalftone === 'function') {
             const BG = ' .-:;+=%';
+            const pmH = document.getElementById('project-modal');
             window.drawHalftone = function () {
+                if (pmH && !pmH.classList.contains('hidden')) return;   // 專案頁蓋滿畫面時，背景不用重畫
                 const W = innerWidth, H = innerHeight, G = SMALL() ? 15 : 22;
                 halftoneCtx.clearRect(0, 0, W, H);
                 halftoneCtx.strokeStyle = 'rgba(148,163,184,0.07)';   // 比照專案內容頁的背景，減弱
@@ -5764,10 +5775,12 @@
           + `<rect x='265.5' y='11.5' width='21' height='10' rx='3' fill='none' stroke='${ink}' stroke-opacity='.5'/><rect x='267' y='13' width='16' height='7' rx='1.8'/><rect x='287.5' y='14.5' width='1.6' height='4' rx='.8' fill-opacity='.5'/></g></svg>`;
         return `url("data:image/svg+xml,${encodeURIComponent(s)}")`;
     }
+    const sbImg = {};
     function tick() {
         const d = new Date(), t = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
         root.style.setProperty('--sb-img-l', svg(t, '#ffffff'));
         root.style.setProperty('--sb-img-d', svg(t, '#111111'));
+        [['l', '#ffffff'], ['d', '#111111']].forEach(([k, ink]) => { const im = new Image(); im.src = svg(t, ink).slice(5, -2); sbImg[k] = im; });
         setTimeout(tick, 60000 - d.getSeconds() * 1000 - d.getMilliseconds() + 50);
     }
     tick();
@@ -5824,7 +5837,7 @@
     function loop() {
         requestAnimationFrame(loop);
         const on = !modal.classList.contains('hidden') && card.classList.contains('is-phone-media') && innerWidth >= 1024;
-        const t = !on ? null : (!wrap.classList.contains('hidden') && wrap.offsetWidth ? wrap : (!video.classList.contains('hidden') ? video : null));
+        const t = !on || card.classList.contains('media-fx') ? null : (!wrap.classList.contains('hidden') && wrap.offsetWidth ? wrap : (!video.classList.contains('hidden') ? video : null));
         if (!t) { keys.style.display = 'none'; return; }
         const r = t.getBoundingClientRect(); if (!r.width) { keys.style.display = 'none'; return; }
         let o = 1; for (let el = t; el && el !== modal; el = el.parentElement) o *= +getComputedStyle(el).opacity;
@@ -5833,6 +5846,28 @@
             k.style.left = (side === 'l' ? r.left - 6 : r.right + 3) + 'px'; k.style.top = (r.top + r.height * y) + 'px'; k.style.height = (r.height * h) + 'px'; });
     }
     loop();
+
+    // 換作品的 ASCII 轉場用：把整支手機（金屬邊、黑邊、狀態列、影片、側鍵）畫成一張圖
+    window.__phoneSnap = function (v) {
+        const r = v.getBoundingClientRect(); if (!r.width) return null;
+        const cs = getComputedStyle(v), b = parseFloat(cs.borderLeftWidth) || 0, sbh = parseFloat(cs.paddingTop) || 0;
+        const pr = parseFloat(cs.borderTopLeftRadius) || 0, side = innerWidth >= 1024 ? 7 : 4, pad = 4;
+        const L = r.left - side, T = r.top - pad, W = r.width + side * 2, H = r.height + pad * 2;
+        const c = document.createElement('canvas'); c.width = Math.ceil(W); c.height = Math.ceil(H);
+        const x = c.getContext('2d'); x.translate(side, pad);
+        const rr = (X, Y, w, h, rad) => { x.beginPath(); x.roundRect ? x.roundRect(X, Y, w, h, rad) : x.rect(X, Y, w, h); };
+        if (innerWidth >= 1024) { x.fillStyle = '#2e2f33'; K.forEach(([sd, y, h]) => x.fillRect(sd === 'l' ? -6 : r.width + 3, r.height * y, 3, r.height * h)); }
+        x.fillStyle = '#35363a'; rr(-3, -3, r.width + 6, r.height + 6, pr + 3); x.fill();
+        x.fillStyle = '#050505'; rr(0, 0, r.width, r.height, pr); x.fill();
+        x.save(); rr(b, b, r.width - 2 * b, r.height - 2 * b, Math.max(0, pr - b)); x.clip();
+        x.fillStyle = getComputedStyle(card).getPropertyValue('--sb').trim() || '#111'; x.fillRect(b, b, r.width - 2 * b, sbh + 1);
+        const im = sbImg[card.classList.contains('sb-dark') ? 'd' : 'l']; if (im && im.complete && im.naturalWidth) x.drawImage(im, b, b, r.width - 2 * b, sbh);
+        const cw = r.width - 2 * b, ch = r.height - 2 * b - sbh, vw = v.videoWidth || cw, vh = v.videoHeight || ch;
+        const sc = Math.max(cw / vw, ch / vh), dw = vw * sc, dh = vh * sc;
+        try { x.drawImage(v, b + (cw - dw) / 2, b + sbh + (ch - dh) / 2, dw, dh); } catch (e) {}
+        x.restore();
+        return { cv: c, rect: { left: L, top: T, width: W, height: H } };
+    };
 })();
 </script>
 
