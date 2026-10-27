@@ -2916,9 +2916,9 @@
                 const st = e.state || {};
                 if (st.view === 'works' || NAV.test(location.hash)) {
                     const h = NAV.test(location.hash) ? location.hash : '#work';
-                    if (root.classList.contains('on-hero') || root.getAttribute('data-view') !== h.slice(1)) showWorks(h, false);
+                    if (root.classList.contains('on-hero') || root.getAttribute('data-view') !== h.slice(1)) swap({}, () => showWorks(h, false));   // 瀏覽器上一頁／下一頁也有 ASCII 轉場
                 } else if (root.classList.contains('hero-gone')) {
-                    showHero(false);
+                    swap({}, () => showHero(false));
                     pushedWorks = false;
                 }
             });
@@ -3656,6 +3656,7 @@
     #media-swap-fx { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 160; pointer-events: none; display: none; }
     #media-swap-fx.on { display: block; }
     #project-modal .modal-card.media-fx .modal-art, #project-modal .modal-card.media-fx #modal-skeleton { visibility: hidden !important; }
+    #ix-pic > canvas.ix-swap { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
     /* ---------- 控制面板 ---------- */
     #demo-panel { display: none !important; }   /* 面板先隱藏：效果維持目前的預設組合 */
     #demo-panel {
@@ -4662,11 +4663,24 @@
             overRows.forEach(r => r.classList.toggle('is-hot', r.dataset.k === row.dataset.k));
             hot = row;
             if (cur !== item) {
+                const swapping = pic.classList.contains('is-on') && cur;
                 cur = item;
                 media = mediaFor(item);
                 pic.replaceChildren();
+                if (swapping && !reduce && typeof asciiDissolve === 'function') {   // 換專案預覽：藍色 ASCII 很快溶解露出新圖
+                    const c = document.createElement('canvas'); c.className = 'ix-swap'; c.setAttribute('aria-hidden', 'true');
+                    pic.appendChild(c);
+                    requestAnimationFrame(() => {
+                        const r = pic.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+                        c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr);
+                        const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+                        const d = asciiDissolve(c, x, r.width, r.height, r.width / 2, r.height / 2, '#3B82F6', { cell: 14, spread: 110, life: 170 });
+                        d.draw(0); let t0 = null;
+                        requestAnimationFrame(function f(now) { if (!c.isConnected) return; if (t0 === null) t0 = now; const t = now - t0; d.draw(t); if (t < d.total) requestAnimationFrame(f); else c.remove(); });
+                    });
+                }
                 if (media) {
-                    pic.appendChild(media);
+                    pic.insertBefore(media, pic.firstChild);
                     const go = () => recolor();
                     media.addEventListener('load', go); media.addEventListener('loadeddata', go);
                     if (media.play) media.play().catch(() => {});
@@ -4962,7 +4976,7 @@
             }
             // 在 document 的捕捉階段先處理：這時舊作品還沒被換掉，才能把它拆成字元
             document.addEventListener('click', (ev) => {
-                    if (!(ev.target instanceof Element) || !ev.target.closest('#modal-prev-project, #modal-next-project')) return;
+                    if (!(ev.target instanceof Element) || !ev.target.closest('#modal-prev-project, #modal-next-project, #prev-img, #next-img')) return;   // 換專案、同專案換圖／換影片都用
                     const m = curMedia(); job++;
                     sizeFx(); fx.classList.add('on');
                     card.classList.add('media-fx');
@@ -4978,6 +4992,28 @@
                         });
                     };
                     if (outD) play(outD, 1, 360, goIn); else goIn();
+            }, true);
+            // 立即試玩 ⇄ 返回影片：作品區先被藍色 ASCII 蓋滿，切換後由按鈕處解碼散開
+            document.addEventListener('click', (ev) => {
+                if (!(ev.target instanceof Element) || !ev.target.closest('#embed-toggle') || typeof asciiDissolve !== 'function') return;
+                job++; sizeFx(); fx.classList.add('on');
+                const vr = vpEl.getBoundingClientRect(), myJob = job;
+                const fake = { clearRect: () => fc.clearRect(0, 0, innerWidth, innerHeight) };
+                fc.save(); fc.translate(vr.left, vr.top);
+                const d = asciiDissolve(fx, fc, vr.width, vr.height, ev.clientX - vr.left, ev.clientY - vr.top, '#3B82F6', { cell: 16, spread: 320, life: 360 });
+                fc.restore();
+                const draw = (t) => { fc.clearRect(0, 0, innerWidth, innerHeight); fc.save(); fc.translate(vr.left, vr.top); d.draw(t); fc.restore(); };
+                draw(0);
+                setTimeout(() => {
+                    let t0 = null;
+                    requestAnimationFrame(function f(now) {
+                        if (myJob !== job) return;
+                        if (t0 === null) t0 = now;
+                        const t = now - t0; draw(t);
+                        if (t < d.total) return requestAnimationFrame(f);
+                        fc.clearRect(0, 0, innerWidth, innerHeight); fx.classList.remove('on');
+                    });
+                }, 120);
             }, true);
             document.getElementById('modal-close') && document.getElementById('modal-close').addEventListener('click', () => { job++; card.classList.remove('media-fx'); fx.classList.remove('on'); fc.clearRect(0, 0, innerWidth, innerHeight); }, true);
         })();
@@ -5252,6 +5288,11 @@
             }, 120);
         });
     })();
+    // 手機選單關閉（叉叉）：和打開一樣用藍色 ASCII 擴散
+    document.addEventListener('click', (ev) => {
+        if (!(ev.target instanceof Element) || !ev.target.closest('#mobile-menu-close')) return;
+        if (typeof window.__viewWipe === 'function') window.__viewWipe(ev.clientX || innerWidth - 30, ev.clientY || 30, () => {});
+    }, true);
     // =========================================================
     // 8. ASCII 字元風格
     // =========================================================
@@ -5772,7 +5813,7 @@
             this.scale = scale; this.depth = depth; this.speed = speed; this.t = delay; this.dir = -1;
             this.fit = () => { this.L = Math.max(mq() ? 200 : 300, W * this.scale * (mq() ? 1.5 : 1)); this.y = H * this.depth; if (this.x === undefined) this.x = W * (this.scale > 0.3 ? 0.42 : 0.5); };
         }
-        const whalesList = [new Whale(0.46, 0.55, 30, 0), new Whale(0.24, 0.3, 30, 1.3)];
+        const whalesList = [new Whale(0.46, 0.55, 36, 0), new Whale(0.24, 0.3, 36, 1.3)];   // 游速 30 → 36（加快 1.2 倍）
         // 第二隻是小鯨魚，跟在大鯨魚的上方後面
         function halfH(s) {
             if (s < 0.12) return 0.118 * Math.sqrt(1 - Math.pow(1 - s / 0.12, 2));
