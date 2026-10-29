@@ -4632,9 +4632,9 @@
                     const m = curMedia(); job++;
                     sizeFx(); fx.classList.add('on');
                     card.classList.add('media-fx');
-                    // 同一專案換圖：下一張 → 舊圖往左飛走、新圖從右邊飛進來；上一張相反。換專案維持由中心散開
-                    const gal = ev.target.closest('#prev-img, #next-img');
-                    const side = gal ? (gal.id === 'next-img' ? -1 : 1) : 0;
+                    // 換圖、換專案都一樣：下一張／下一件 → 舊的往左飛走、新的從右邊飛進來；上一張／上一件相反
+                    const nav = ev.target.closest('#prev-img, #next-img, #modal-prev-project, #modal-next-project');
+                    const side = nav ? (nav.id === 'next-img' || nav.id === 'modal-next-project' ? -1 : 1) : 0;
                     const outD = m ? cellsOf(m, side) : null;
                     const goIn = () => {
                         waitNew(nm => {
