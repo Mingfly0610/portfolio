@@ -4,7 +4,7 @@
     <meta name="robots" content="noindex">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Style Demo | MingFly</title>
+    <title>Portfolio | MingFly</title>
     
     <link rel="icon" type="image/png" href="images/favicon.png">
     <link rel="apple-touch-icon" href="images/favicon.png">
@@ -2418,6 +2418,7 @@
         }
 
         function fillGalleryStrip() {
+            return;   // 縮圖列已不顯示，不再下載小圖
             if (currentMediaType !== 'image') return;
             galleryThumbs.querySelectorAll('.strip-thumb').forEach((btn, i) => {
                 if (currentGallery[i]) setStripImage(btn, stripThumbUrl(currentGallery[i].trim()));
@@ -3665,7 +3666,7 @@
     @media (max-width: 767px) {
         html.d6 #project-modal .modal-close { top: 4px !important; right: 12px !important; width: 48px !important; height: 48px !important; padding: 0 !important; }
         html.d6 #project-modal .modal-close svg { width: 24px; height: 24px; stroke-width: 1.5; }
-        html.d6 #project-modal .modal-scroll { padding-top: 12px; }   /* 內容從頂部列分隔線正下方開始 */
+        html.d6 #project-modal .modal-scroll { padding-top: 36px; }   /* 圖片／影片離頂部列分隔線約 26px（B 款） */
         /* 頂部列：和下方上一件／下一件列同樣式，內容捲到這裡就被遮住，不會疊到叉叉 */
         html.d6 #project-modal .modal-card > .modal-topbar { display: block; position: absolute; left: 0; right: 0; top: 0; height: 56px; z-index: 35; pointer-events: none;
             background: var(--modal-tint); border-bottom: 1px solid rgba(17,17,17,0.1); }
