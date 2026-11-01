@@ -2281,9 +2281,9 @@
             if (h > availH) { h = availH; w = h * ar; }
             const isPhone = modalContent.classList.contains('is-phone-media');
             const frame = isPhone ? parseFloat(getComputedStyle(modalEmbedWrap).borderLeftWidth) * 2 : 0; // 手機外框的厚度
-            const sbH = isPhone ? Math.round((w - frame) * 34 / 300) : 0;   // 手機外框：上方狀態列
+            const sbH = isPhone ? Math.round((w - frame) * 0.15) : 0;   // 手機外框：上方狀態列（高度＝螢幕圓角，上緣才是直線）
             const innerW = w - frame, innerH = h - frame - sbH;
-            modalEmbedWrap.style.setProperty('--sbh', sbH + 'px');
+            modalEmbedWrap.style.setProperty('--sbh', sbH + 'px'); modalEmbedWrap.style.setProperty('--sbi', Math.round((w - frame) * 34 / 300) + 'px'); modalEmbedWrap.style.setProperty('--sby', Math.round(((w - frame) * (0.15 - 34 / 300)) / 2) + 'px');
             // 內部排版寬度：手機作品用手機寬度（直式），其餘用桌機寬度
             const baseW = isPhone ? 390 : Math.max(1280, innerW);
             const scale = innerW / baseW;
@@ -3973,15 +3973,10 @@
 #project-modal .modal-card.is-phone-media .modal-embed {
   box-sizing: border-box; border: var(--pb, 10px) solid #050505 !important; border-radius: var(--pr, 56px) !important;
   outline: 3px solid #35363a; outline-offset: 0;
-  background: var(--sb-img-l) center top / 100% var(--sbh, 34px) no-repeat, var(--sb) !important;
+  background: var(--sb-img-l) center var(--sby, 0px) / 100% var(--sbi, var(--sbh, 34px)) no-repeat, var(--sb) !important;
 }
 #project-modal .modal-card.is-phone-media.sb-dark .modal-art.is-video,
-#project-modal .modal-card.is-phone-media.sb-dark .modal-embed { background: var(--sb-img-d) center top / 100% var(--sbh, 34px) no-repeat, var(--sb) !important; }
-/* 狀態列下方的影片畫面上緣要是直線：上方兩角的垂直半徑不超過「邊框＋狀態列高度」，影片內容的上緣就不會被裁成弧形 */
-#project-modal .modal-card.is-phone-media .modal-art.is-video {
-  border-top-left-radius: var(--pr, 56px) min(var(--pr, 56px), calc(var(--pb, 10px) + var(--sbh, 34px))) !important;
-  border-top-right-radius: var(--pr, 56px) min(var(--pr, 56px), calc(var(--pb, 10px) + var(--sbh, 34px))) !important;
-}
+#project-modal .modal-card.is-phone-media.sb-dark .modal-embed { background: var(--sb-img-d) center var(--sby, 0px) / 100% var(--sbi, var(--sbh, 34px)) no-repeat, var(--sb) !important; }
 #project-modal .modal-card.is-phone-media .modal-art.is-video { padding: var(--sbh, 34px) 0 0 !important; object-fit: cover !important; max-width: none !important; max-height: none !important; }
 #phone-keys { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 101; display: none; }
 #phone-keys i { position: absolute; width: 3px; background: #2e2f33; border-radius: 2px; }
@@ -5857,7 +5852,7 @@
 <script>
 /* 手機外框：狀態列時間（跟隨裝置時間、24 小時制）、狀態列顏色取自作品畫面最上方、彈窗影片尺寸、側邊按鍵 */
 (() => {
-    const SB = 34 / 300, R = 0.16;   // 狀態列高度、螢幕圓角（相對於螢幕寬度）
+    const SB = 0.15, R = 0.15, SBI = 34 / 300;   // 狀態列高度＝螢幕圓角（上緣才會是直線、四角圓弧一致）；SBI：時間與圖示那一條的高度
     const root = document.documentElement;
     function svg(time, ink) {
         const s = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 34'>`
@@ -5911,7 +5906,7 @@
         const sbh = Math.round(sw * SB);
         video.style.width = (sw + 2 * b) + 'px';
         video.style.height = (Math.round(sw / ar) + sbh + 2 * b) + 'px';
-        card.style.setProperty('--sbh', sbh + 'px'); card.style.setProperty('--pb', b + 'px'); card.style.setProperty('--pr', Math.round(sw * R + b) + 'px');
+        card.style.setProperty('--sbh', sbh + 'px'); card.style.setProperty('--sbi', Math.round(sw * SBI) + 'px'); card.style.setProperty('--sby', Math.round((sbh - sw * SBI) / 2) + 'px'); card.style.setProperty('--pb', b + 'px'); card.style.setProperty('--pr', Math.round(sw * R + b) + 'px');
     }
     video.addEventListener('loadedmetadata', fitPhone); addEventListener('resize', fitPhone);
     new MutationObserver(fitPhone).observe(video, { attributes: true, attributeFilter: ['class', 'src'] });
@@ -5954,7 +5949,7 @@
         x.fillStyle = '#050505'; rr(0, 0, r.width, r.height, pr); x.fill();
         x.save(); rr(b, b, r.width - 2 * b, r.height - 2 * b, Math.max(0, pr - b)); x.clip();
         x.fillStyle = getComputedStyle(card).getPropertyValue('--sb').trim() || '#111'; x.fillRect(b, b, r.width - 2 * b, sbh + 1);
-        const im = sbImg[card.classList.contains('sb-dark') ? 'd' : 'l']; if (im && im.complete && im.naturalWidth) x.drawImage(im, b, b, r.width - 2 * b, sbh);
+        const im = sbImg[card.classList.contains('sb-dark') ? 'd' : 'l']; if (im && im.complete && im.naturalWidth) { const cs2 = getComputedStyle(card), si = parseFloat(cs2.getPropertyValue('--sbi')) || sbh, sy = parseFloat(cs2.getPropertyValue('--sby')) || 0; x.drawImage(im, b, b + sy, r.width - 2 * b, si); }
         const cw = r.width - 2 * b, ch = r.height - 2 * b - sbh, vw = v.videoWidth || cw, vh = v.videoHeight || ch;
         const sc = Math.max(cw / vw, ch / vh), dw = vw * sc, dh = vh * sc;
         try { x.drawImage(v, b + (cw - dw) / 2, b + sbh + (ch - dh) / 2, dw, dh); } catch (e) {}
