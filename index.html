@@ -1689,18 +1689,18 @@
                             </div>
                         </div>
 
-                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] left-[9%] md:left-4" data-anim="none" data-snap-slot="collar" data-snap-x="0.462" data-snap-y="0.735">
-                            <img src="images/dress-3-reveal.webp" data-normal="images/dress-3.webp" data-reveal="images/dress-3-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
+                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] left-[9%] md:left-4" data-anim="none" data-snap-slot="eyes" data-row="2" data-snap-x="0.493" data-snap-y="0.332">
+                            <img src="images/dress-aviator-reveal.webp" data-normal="images/dress-aviator.webp" data-reveal="images/dress-aviator-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50">
-                                領子前面好像有點空！
+                                戴上墨鏡更有型！
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
                         </div>
                         
-                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] right-[9%] md:right-4" data-anim="none" data-snap-slot="nose" data-snap-x="0.5" data-snap-y="0.446">
-                            <img src="images/dress-4-reveal.webp" data-normal="images/dress-4.webp" data-reveal="images/dress-4-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
+                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] right-[9%] md:right-4" data-anim="none" data-snap-slot="eyes" data-row="2" data-snap-x="0.493" data-snap-y="0.332">
+                            <img src="images/dress-star-reveal.webp" data-normal="images/dress-star.webp" data-reveal="images/dress-star-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50">
-                                拖曳發揮你的創意！
+                                來點派對氣氛！
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
                             </div>
                         </div>
@@ -3608,8 +3608,8 @@
         #about .max-w-6xl > div:first-child > div.relative > #profile-spotlight { margin-top: 0; }
         /* 換裝物件：尺寸套用到所有物件（拖出照片區後也一樣大）；位置用物件自己的類型判斷，不用排列順序（點一下移出後才不會讓其他物件跳位） */
         #about .dress-item { width: calc(var(--pw) * 0.36) !important; height: calc(var(--pw) * 0.36) !important; }
-        #about .max-w-6xl > div:first-child > div.relative > .dress-item[data-snap-slot="eyes"] { bottom: calc(var(--pw) * -0.36); }
-        #about .max-w-6xl > div:first-child > div.relative > .dress-item:is([data-snap-slot="collar"], [data-snap-slot="nose"]) { bottom: calc(var(--pw) * -0.55); }
+        #about .max-w-6xl > div:first-child > div.relative > .dress-item:not([data-row="2"]) { bottom: calc(var(--pw) * -0.36); }
+        #about .max-w-6xl > div:first-child > div.relative > .dress-item[data-row="2"] { bottom: calc(var(--pw) * -0.55); }
     }
     /* 探照燈改用畫布繪製（ASCII 字元溶解邊）：原本的遮罩圖層不顯示 */
     html.spot-d #profile-reveal-img { opacity: 0 !important; visibility: hidden !important; }
@@ -6073,6 +6073,102 @@ window.__helloFx = function (el, finish, fallback) {
     const kick = () => requestAnimationFrame(() => requestAnimationFrame(() => dispatchEvent(new Event('scroll'))));
     new MutationObserver(kick).observe(document.documentElement, { attributes: true, attributeFilter: ['data-view', 'class'] });
     addEventListener('load', kick); addEventListener('hashchange', kick);
+})();
+</script>
+
+<style>
+#page-scrollbar { display: none !important; }
+#ascii-pagebar { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 90; }
+</style>
+<script>
+/* 整頁捲軸（專案索引清單等）：白色 ASCII 捲軸，長度為原本的 1/4；捲動時字元匯聚成捲軸，停止後消散 */
+(() => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const root = document.documentElement, modal = document.getElementById('project-modal');
+    const cv = document.createElement('canvas'); cv.id = 'ascii-pagebar'; cv.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(cv);
+    const ctx = cv.getContext('2d');
+    const GLY = '@#8XS%t;:.', CELL = 6, W = 6, IN = 420, OUT = 480, IDLE = 650;
+    let state = 'off', t0 = 0, idleTimer = 0, raf = 0;
+    const rnd = i => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
+    // 藍底的專案頁用白色；其他淺色頁面用深色，避免看不見
+    const ink = () => root.getAttribute('data-view') === 'work' || root.getAttribute('data-view') === 'contact' ? 'rgba(255,255,255,' : 'rgba(17,17,17,';
+    const barA = () => ink()[5] === '2' ? 0.85 : 0.3;
+    function size() {
+        const d = Math.min(devicePixelRatio || 1, 2), w = innerWidth, h = innerHeight;
+        if (cv.width !== Math.round(w * d) || cv.height !== Math.round(h * d)) { cv.width = Math.round(w * d); cv.height = Math.round(h * d); }
+        ctx.setTransform(d, 0, 0, d, 0, 0);
+    }
+    function geom() {
+        const view = innerHeight, total = root.scrollHeight, max = total - view;
+        if (max <= 2) return null;
+        const full = Math.max(36, view * view / total);                       // 原本捲軸的長度
+        const h = Math.max(12, Math.round(full / 5 / CELL) * CELL);            // 縮成約 1/5（比 1/4 再短一點）
+        const k = Math.min(1, Math.max(0, scrollY / max));
+        return { x: innerWidth - W - 2, y: 4 + k * (view - h - 8), h };
+    }
+    function bar(g, I, a) {
+        ctx.fillStyle = I + a + ')';
+        ctx.beginPath(); ctx.roundRect ? ctx.roundRect(g.x, g.y, W, g.h, W / 2) : ctx.rect(g.x, g.y, W, g.h); ctx.fill();
+    }
+    // 匯聚／消散中的實心格子也裁成圓角，和完整捲軸的形狀一致
+    function rowFill(g, col, y, h) {
+        ctx.save(); ctx.beginPath();
+        ctx.roundRect ? ctx.roundRect(g.x, g.y, W, g.h, W / 2) : ctx.rect(g.x, g.y, W, g.h);
+        ctx.clip(); ctx.fillStyle = col; ctx.fillRect(g.x, y, W, h); ctx.restore();
+    }
+    function frame(now) {
+        raf = 0; size(); ctx.clearRect(0, 0, innerWidth, innerHeight);
+        const g = geom();
+        if (!g || state === 'off') return;
+        const I = ink(), A = barA();
+        if (state === 'on') { bar(g, I, A); return; }
+        const rows = Math.ceil(g.h / CELL), t = now - t0, dur = state === 'in' ? IN : OUT;
+        ctx.font = `700 ${CELL + 2}px "Geist Mono", ui-monospace, Menlo, monospace`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        let alive = false;
+        for (let i = 0; i < rows; i++) {
+            const delay = rnd(i + 3) * dur * 0.35, life = dur * 0.65;
+            const q = Math.min(1, Math.max(0, (t - delay) / life));
+            if (q < 1) alive = true;
+            const ease = 1 - Math.pow(1 - q, 3);
+            const dx = (rnd(i + 11) - 0.5) * 36, dy = (rnd(i + 29) - 0.5) * 70;
+            const cy = g.y + i * CELL + CELL / 2, cx = g.x + W / 2;
+            const ty = Math.floor(cy - CELL / 2), ch = Math.min(CELL + 1, Math.ceil(g.y + g.h) - ty);   // 每格多 1px 重疊，避免出現細縫
+            if (state === 'in') {
+                if (q <= 0) continue;
+                if (q >= 1) { rowFill(g, I + A + ')', ty, ch); continue; }
+                const gi = GLY.length - 1 - Math.min(GLY.length - 1, Math.floor(q * GLY.length));   // 疏 → 密
+                ctx.fillStyle = I + (0.3 + 0.6 * q) + ')';
+                ctx.fillText(GLY[gi], cx + dx * (1 - ease), cy + dy * (1 - ease));
+            } else {
+                if (q >= 1) continue;
+                if (q <= 0) { rowFill(g, I + A + ')', ty, ch); continue; }
+                const gi = Math.min(GLY.length - 1, Math.floor(q * GLY.length));                      // 密 → 疏
+                ctx.fillStyle = I + (0.85 * (1 - q)) + ')';
+                ctx.fillText(GLY[gi], cx + dx * ease, cy + dy * ease);
+            }
+        }
+        if (!alive) { state = state === 'in' ? 'on' : 'off'; if (state === 'on') bar(g, I, A); return; }
+        raf = requestAnimationFrame(frame);
+    }
+    const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
+    function go(next) {
+        if (reduce) { state = next === 'in' ? 'on' : 'off'; kick(); return; }
+        if (next === 'in' && (state === 'in' || state === 'on')) return;
+        if (next === 'out' && (state === 'out' || state === 'off')) return;
+        state = next; t0 = performance.now(); kick();
+    }
+    addEventListener('scroll', () => {
+        if (modal && !modal.classList.contains('hidden')) return;           // 專案彈窗有自己的捲軸
+        if (!geom()) return;
+        go('in'); kick();
+        clearTimeout(idleTimer); idleTimer = setTimeout(() => go('out'), IDLE);
+    }, { passive: true });
+    addEventListener('resize', kick);
+    // 切換頁面時立即清掉
+    new MutationObserver(() => { state = 'off'; clearTimeout(idleTimer); kick(); })
+        .observe(root, { attributes: true, attributeFilter: ['data-view'] });
 })();
 </script>
 
