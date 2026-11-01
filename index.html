@@ -1312,7 +1312,7 @@
                             <div class="modal-title-src hidden">2026年<br>台南好生活 台南呷頭路<br class="hidden md:block">大型就業博覽會 Part2<br class="hidden lg:block">啟動儀式動畫</div>
                             <div class="project-details hidden">
                                 <h4 class="text-xl font-bold text-brand-black mb-2">專案背景</h4>
-                                <p class="mb-6">臺南市政府 115 年度現場徵才活動「台南好生活 台南呷頭路」就業博覽會 Part2 的開幕啟動儀式動畫。這一場的儀式主題是「轉動職涯新大門」：七位貴賓各持一支鑰匙造型的手舉牌，每支鑰匙上寫著一個字，並排起來正好是本儀式主題；貴賓一起將鑰匙插入儀式台的瞬間，中央螢幕接著播出這段動畫，把現場氣氛帶到最高點。（第二支影片為舞台背板與螢幕的搭配示意）</p>
+                                <p class="mb-6">臺南市政府 115 年度現場徵才活動「台南好生活 台南呷頭路」就業博覽會 Part2 的開幕啟動儀式動畫。這一場的儀式主題是「轉動職涯新大門」：七位貴賓各持一支鑰匙造型的手舉牌，每支鑰匙上寫著一個字，並排起來正好是本儀式主題；貴賓一起將鑰匙插入儀式台的瞬間，中央螢幕接著播出這段動畫，把現場氣氛帶到最高點。（第二支影片為活動現場實拍）</p>
 
                                 <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
                                 <p class="mb-6">動畫直接從貴賓手上的「鑰匙」出發。開場是一道金色的大門，中央的圓形鎖頭上寫著「安居臺南 樂業啟動」，靜靜等待貴賓啟動；啟動後，鑰匙孔轉動、金色大門往兩側打開，門後的光芒一亮，畫面進入城市意象中。台上插入鑰匙、螢幕裡的門跟著打開，讓「轉動職涯新大門」這句話不用解釋就能看懂。</p>
@@ -3977,6 +3977,11 @@
 }
 #project-modal .modal-card.is-phone-media.sb-dark .modal-art.is-video,
 #project-modal .modal-card.is-phone-media.sb-dark .modal-embed { background: var(--sb-img-d) center top / 100% var(--sbh, 34px) no-repeat, var(--sb) !important; }
+/* 狀態列下方的影片畫面上緣要是直線：上方兩角的垂直半徑不超過「邊框＋狀態列高度」，影片內容的上緣就不會被裁成弧形 */
+#project-modal .modal-card.is-phone-media .modal-art.is-video {
+  border-top-left-radius: var(--pr, 56px) min(var(--pr, 56px), calc(var(--pb, 10px) + var(--sbh, 34px))) !important;
+  border-top-right-radius: var(--pr, 56px) min(var(--pr, 56px), calc(var(--pb, 10px) + var(--sbh, 34px))) !important;
+}
 #project-modal .modal-card.is-phone-media .modal-art.is-video { padding: var(--sbh, 34px) 0 0 !important; object-fit: cover !important; max-width: none !important; max-height: none !important; }
 #phone-keys { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 101; display: none; }
 #phone-keys i { position: absolute; width: 3px; background: #2e2f33; border-radius: 2px; }
@@ -6373,9 +6378,11 @@ window.__heroDemo = function (v) {
 </script>
 
 <style>
-/* 觸控裝置（iPhone 等）：不使用系統內建播放器的控制列，改用網站自己的極簡按鈕 */
+/* 專案影片：不使用系統內建播放器的控制列，電腦與手機都改用網站自己的極簡按鈕 */
 #mv-ctrl { position: fixed; z-index: 120; transform: translateX(-50%); display: flex; gap: 6px; pointer-events: none; }
 #mv-ctrl[hidden] { display: none; }
+#mv-ctrl button:hover { color: #111; }
+@media (min-width: 1024px) { #mv-ctrl { gap: 10px; } #mv-ctrl button { font-size: 13px; } }
 #mv-ctrl button { pointer-events: auto; font: 500 12px/1 "Geist Mono", ui-monospace, Menlo, monospace; letter-spacing: .04em;
     color: #3B82F6; background: transparent;
     border: 0; border-radius: 0; padding: 6px 4px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -6386,9 +6393,8 @@ window.__heroDemo = function (v) {
 </style>
 <script>
 (() => {
-    const touch = matchMedia('(hover: none), (pointer: coarse)').matches;
     const v = document.getElementById('modal-video'), modal = document.getElementById('project-modal');
-    if (!touch || !v || !modal) return;
+    if (!v || !modal) return;   // 電腦與手機一致：都用網站自己的播放／聲音按鈕
     v.removeAttribute('controls'); v.controls = false;
     v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', ''); v.disablePictureInPicture = true;
     // 有些程式會在換影片時重新打開 controls：一律關掉
@@ -6418,7 +6424,8 @@ window.__heroDemo = function (v) {
             const k = Math.min(r.width / v.videoWidth, r.height / v.videoHeight); const w = v.videoWidth * k, h = v.videoHeight * k;
             L = r.left + (r.width - w) / 2; W = w; B = r.top + (r.height + h) / 2;
         }
-        const nav = document.querySelector('#modal-content > .modal-nav'), navTop = nav ? nav.getBoundingClientRect().top : innerHeight;
+        const nav = document.querySelector('#modal-content > .modal-nav'), nr = nav ? nav.getBoundingClientRect() : null;
+        const cx = L + W / 2, navTop = (nr && nr.width && cx > nr.left - 60 && cx < nr.right + 60) ? nr.top : innerHeight;   // 只有導覽列在按鈕正下方時才需要避開
         if (B + 40 > navTop || B < 60) { box.hidden = true; last = ''; return; }   // 捲到上方標題列或下方導覽列時先藏起來
         const key = Math.round(L + W / 2) + '|' + Math.round(B);
         box.hidden = false; if (key === last) return; last = key;
