@@ -6333,6 +6333,42 @@ window.__heroDemo = function (v) {
 }
 </style>
 
+<script>
+/* 電腦版首頁：四個物件每秒順時針換位置，到位時帶一點回彈（離開首頁、切到其他分頁時暫停） */
+(() => {
+    const mq = matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const icons = [...document.querySelectorAll('#hero-section > .hero-icon')];
+    if (icons.length !== 4) return;
+    let step = 0, timer = 0, stopped = false;
+    const center = el => [el.offsetLeft + el.offsetWidth / 2, el.offsetTop + el.offsetHeight / 2];
+    // 依畫面位置排出順時針順序（左上 → 右上 → 右下 → 左下）
+    function order() {
+        const c = icons.map(center), mx = c.reduce((a, p) => a + p[0], 0) / 4, my = c.reduce((a, p) => a + p[1], 0) / 4;
+        return icons.map((el, i) => ({ el, c: c[i], a: Math.atan2(c[i][1] - my, c[i][0] - mx) }))
+                    .sort((p, q) => p.a - q.a);   // 以 -π 起算：左上、右上、右下、左下
+    }
+    function move(animate) {
+        const s = order();
+        s.forEach((it, i) => {
+            const to = s[(i + step) % 4].c;
+            it.el.style.transition = animate ? 'translate 0.62s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none';
+            it.el.style.translate = `${to[0] - it.c[0]}px ${to[1] - it.c[1]}px`;
+        });
+    }
+    function tick() {
+        const root = document.documentElement;
+        if (stopped || !mq.matches || !root.classList.contains('on-hero') || document.hidden) return;
+        step = (step + 1) % 4; move(true);
+    }
+    function start() { if (!timer && !stopped) timer = setInterval(tick, 1000); }
+    function reset() { step = 0; icons.forEach(el => { el.style.transition = 'none'; el.style.translate = ''; }); }
+    addEventListener('resize', () => { if (!stopped) move(false); });
+    mq.addEventListener('change', () => { if (!mq.matches) reset(); });
+    start();
+})();
+</script>
+
 
 <style>
 /* demo2：專案資料列 */
