@@ -6334,38 +6334,97 @@ window.__heroDemo = function (v) {
 </style>
 
 <script>
-/* 電腦版首頁：四個物件每秒順時針換位置，到位時帶一點回彈（離開首頁、切到其他分頁時暫停） */
+/* 電腦版首頁：滑鼠移到任一個物件上時，四個物件一起順時針轉一格，到位時帶一點回彈 */
 (() => {
     const mq = matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const icons = [...document.querySelectorAll('#hero-section > .hero-icon')];
     if (icons.length !== 4) return;
-    let step = 0, timer = 0, stopped = false;
+    const DUR = 620;
+    let step = 0, busy = false, armed = true;
     const center = el => [el.offsetLeft + el.offsetWidth / 2, el.offsetTop + el.offsetHeight / 2];
     // 依畫面位置排出順時針順序（左上 → 右上 → 右下 → 左下）
     function order() {
         const c = icons.map(center), mx = c.reduce((a, p) => a + p[0], 0) / 4, my = c.reduce((a, p) => a + p[1], 0) / 4;
-        return icons.map((el, i) => ({ el, c: c[i], a: Math.atan2(c[i][1] - my, c[i][0] - mx) }))
-                    .sort((p, q) => p.a - q.a);   // 以 -π 起算：左上、右上、右下、左下
+        return icons.map((el, i) => ({ el, c: c[i], a: Math.atan2(c[i][1] - my, c[i][0] - mx) })).sort((p, q) => p.a - q.a);
     }
     function move(animate) {
         const s = order();
         s.forEach((it, i) => {
             const to = s[(i + step) % 4].c;
-            it.el.style.transition = animate ? 'translate 0.62s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none';
+            it.el.style.transition = animate ? `translate ${DUR}ms cubic-bezier(0.34, 1.56, 0.64, 1)` : 'none';
             it.el.style.translate = `${to[0] - it.c[0]}px ${to[1] - it.c[1]}px`;
         });
     }
-    function tick() {
-        const root = document.documentElement;
-        if (stopped || !mq.matches || !root.classList.contains('on-hero') || document.hidden) return;
-        step = (step + 1) % 4; move(true);
+    function turn() {
+        if (busy || !armed || !mq.matches || !document.documentElement.classList.contains('on-hero')) return;
+        busy = true; armed = false; step = (step + 1) % 4; move(true);
+        setTimeout(() => { busy = false; }, DUR);
     }
-    function start() { if (!timer && !stopped) timer = setInterval(tick, 1000); }
-    function reset() { step = 0; icons.forEach(el => { el.style.transition = 'none'; el.style.translate = ''; }); }
-    addEventListener('resize', () => { if (!stopped) move(false); });
-    mq.addEventListener('change', () => { if (!mq.matches) reset(); });
-    start();
+    icons.forEach(el => el.addEventListener('mouseenter', turn));
+    // 滑鼠離開所有物件之後，下次再移進去才會再轉（避免物件轉到滑鼠底下時連續觸發）
+    addEventListener('mousemove', e => {
+        if (armed || busy) return;
+        if (!e.target.closest || !e.target.closest('#hero-section > .hero-icon')) armed = true;
+    }, { passive: true });
+    addEventListener('resize', () => move(false));
+    mq.addEventListener('change', () => { if (!mq.matches) { step = 0; icons.forEach(el => { el.style.transition = 'none'; el.style.translate = ''; }); } });
+})();
+</script>
+
+<style>
+/* 觸控裝置（iPhone 等）：不使用系統內建播放器的控制列，改用網站自己的極簡按鈕 */
+#mv-ctrl { position: fixed; z-index: 120; transform: translateX(-50%); display: flex; gap: 6px; pointer-events: none; }
+#mv-ctrl[hidden] { display: none; }
+#mv-ctrl button { pointer-events: auto; font: 500 12px/1 "Geist Mono", ui-monospace, Menlo, monospace; letter-spacing: .04em;
+    color: #3B82F6; background: transparent;
+    border: 0; border-radius: 0; padding: 6px 4px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+#mv-ctrl button::before { content: '['; margin-right: 4px; opacity: .7; }
+#mv-ctrl button::after { content: ']'; margin-left: 4px; opacity: .7; }
+#modal-video::-webkit-media-controls { display: none !important; }
+#modal-video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
+</style>
+<script>
+(() => {
+    const touch = matchMedia('(hover: none), (pointer: coarse)').matches;
+    const v = document.getElementById('modal-video'), modal = document.getElementById('project-modal');
+    if (!touch || !v || !modal) return;
+    v.removeAttribute('controls'); v.controls = false;
+    v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', ''); v.disablePictureInPicture = true;
+    // 有些程式會在換影片時重新打開 controls：一律關掉
+    new MutationObserver(() => { if (v.hasAttribute('controls')) v.removeAttribute('controls'); }).observe(v, { attributes: true, attributeFilter: ['controls'] });
+    const box = document.createElement('div'); box.id = 'mv-ctrl'; box.hidden = true;
+    box.innerHTML = '<button type="button" data-k="play">暫停</button><button type="button" data-k="mute">開啟聲音</button>';
+    modal.appendChild(box);
+    const bp = box.querySelector('[data-k=play]'), bm = box.querySelector('[data-k=mute]');
+    const sync = () => { bp.textContent = v.paused ? '播放' : '暫停'; bm.textContent = v.muted ? '開啟聲音' : '關閉聲音'; };
+    bp.addEventListener('click', e => { e.stopPropagation(); v.paused ? v.play().catch(() => {}) : v.pause(); });
+    bm.addEventListener('click', e => { e.stopPropagation(); v.muted = !v.muted; if (!v.muted && v.paused) v.play().catch(() => {}); });
+    v.addEventListener('click', e => { e.preventDefault(); v.paused ? v.play().catch(() => {}) : v.pause(); });
+    ['play', 'pause', 'volumechange', 'loadeddata'].forEach(t => v.addEventListener(t, sync));
+    // 按鈕貼在影片畫面的右下角（手機框模式時跟著螢幕）
+    let last = '';
+    (function place() {
+        requestAnimationFrame(place);
+        const show = !modal.classList.contains('hidden') && !v.classList.contains('hidden') && v.offsetWidth > 0;
+        if (!show) { if (!box.hidden) box.hidden = true; return; }
+        // 按鈕放在影片（或手機外框）正下方置中，不壓在畫面上
+        let r = v.getBoundingClientRect(), el = v.parentElement;
+        for (let i = 0; i < 3 && el; i++, el = el.parentElement) {
+            if ((parseFloat(getComputedStyle(el).borderBottomWidth) || 0) > 4) { r = el.getBoundingClientRect(); break; }
+        }
+        let L = r.left, W = r.width, B = r.bottom;
+        if (r === v.getBoundingClientRect() && v.videoWidth) {   // object-fit: contain 的實際畫面範圍
+            const k = Math.min(r.width / v.videoWidth, r.height / v.videoHeight); const w = v.videoWidth * k, h = v.videoHeight * k;
+            L = r.left + (r.width - w) / 2; W = w; B = r.top + (r.height + h) / 2;
+        }
+        const nav = document.querySelector('#modal-content > .modal-nav'), navTop = nav ? nav.getBoundingClientRect().top : innerHeight;
+        if (B + 40 > navTop || B < 60) { box.hidden = true; last = ''; return; }   // 捲到上方標題列或下方導覽列時先藏起來
+        const key = Math.round(L + W / 2) + '|' + Math.round(B);
+        box.hidden = false; if (key === last) return; last = key;
+        box.style.left = Math.round(L + W / 2) + 'px'; box.style.top = Math.round(B + 8) + 'px';
+    })();
+    sync();
 })();
 </script>
 
