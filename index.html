@@ -1041,7 +1041,7 @@
                             </div>
                         </div>
 
-                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-01-poster.webp,images/2026-event-kaohsiung-job-fair-gangshan-02-social.webp,images/2026-event-kaohsiung-job-fair-gangshan-03-onsite.webp,images/2026-event-kaohsiung-job-fair-gangshan-04-invitation.jpg,images/2026-event-kaohsiung-job-fair-gangshan-05-handbook.webp,images/2026-event-kaohsiung-job-fair-gangshan-06-stage-backdrop.webp,images/2026-event-kaohsiung-job-fair-gangshan-07-mic-sign.webp,images/2026-event-kaohsiung-job-fair-gangshan-08-ceremony.webp" data-strip-thumbs data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)" data-modal-ar="0.7076" data-client="高雄市政府" data-role="主視覺、社群宣傳、邀請卡與職缺手冊、舞台背板、啟動儀式道具、現場指引">
+                        <div class="portfolio-item group" style="--ar:0.7078" data-category="event" data-modal-img="images/2026-event-kaohsiung-job-fair-gangshan-01-poster.webp,images/2026-event-kaohsiung-job-fair-gangshan-02-social.webp,images/2026-event-kaohsiung-job-fair-gangshan-03-onsite.webp,images/2026-event-kaohsiung-job-fair-gangshan-04-invitation.jpg,images/2026-event-kaohsiung-job-fair-gangshan-05-handbook.webp,images/2026-event-kaohsiung-job-fair-gangshan-06-stage-backdrop.webp,images/2026-event-kaohsiung-job-fair-gangshan-07-mic-sign.webp,images/2026-event-kaohsiung-job-fair-gangshan-08-ceremony.webp" data-strip-thumbs data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)" data-modal-ar="0.7076" data-client="高雄市政府" data-role="主視覺、社群宣傳、邀請卡、職缺手冊、舞台背板、啟動儀式道具、活動會場指引牌">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <img src="images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg" loading="lazy" decoding="async" alt="2026年 高雄市政府現場徵才活動 薪動高雄 職得幸福(岡山大型徵才)" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-kaohsiung-job-fair-gangshan-thumb.jpg')">
@@ -6096,6 +6096,11 @@ window.__helloFx = function (el, finish, fallback) {
 }
 /* demo2：專案頁背景的字元網格淡一點，讓作品更突出 */
 #modal-ascii { opacity: .45; }
+/* demo2：多張圖片的頁碼（圖片下方的空白處） */
+#gal-count { position: absolute; left: 0; z-index: 25; transform: translateX(-50%); pointer-events: none;
+  font: 500 12px/1 "Geist Mono", ui-monospace, Menlo, monospace; letter-spacing: .12em; color: #9ca3af; white-space: nowrap; transition: opacity .2s; }
+#gal-count b { color: #111; font-weight: 600; }
+#gal-count[hidden] { display: none; }
 </style>
 <script>
 (() => {
@@ -6110,6 +6115,34 @@ window.__helloFx = function (el, finish, fallback) {
         dl.innerHTML = (c && c !== '—' ? `<dt>委託單位</dt><dd>${c}</dd>` : '') + (r ? `<dt>負責項目</dt><dd>${r}</dd>` : '');
     }
     new MutationObserver(fill).observe(title, { childList: true, characterData: true, subtree: true });
+})();
+(() => {
+    const media = document.querySelector('#modal-content .modal-media'), img = document.getElementById('modal-img'), modal = document.getElementById('project-modal');
+    if (!media || !img) return;
+    const el = document.createElement('div'); el.id = 'gal-count'; el.hidden = true; media.appendChild(el);
+    if (getComputedStyle(media).position === 'static') media.style.position = 'relative';
+    let lastKey = '';
+    function upd() {
+        requestAnimationFrame(upd);
+        if (modal.classList.contains('hidden')) { el.hidden = true; return; }
+        const n = (typeof currentGallery !== 'undefined' && currentGallery) ? currentGallery.length : 0;
+        const i = (typeof currentImgIndex !== 'undefined') ? currentImgIndex : 0;
+        if (n < 2 || img.classList.contains('hidden')) { el.hidden = true; return; }
+        const mr = media.getBoundingClientRect(), vp = media.querySelector('.modal-viewport').getBoundingClientRect();
+        // 位置：圖片正下方的空白處（圖片高度依原圖比例計算，不受放大縮小影響）
+        const ir = img.getBoundingClientRect(), bw = img.offsetWidth, bh = img.offsetHeight;
+        const vh = (img.naturalWidth && img.naturalHeight) ? Math.min(bh, bw * img.naturalHeight / img.naturalWidth) : bh;   // object-fit: contain 時實際看得到的圖片高度
+        const cx = ir.left + ir.width / 2 - mr.left;
+        const bottom = Math.min(vp.bottom, ir.top + ir.height / 2 + vh / 2) - mr.top;
+        const gap = Math.max(0, vp.bottom - mr.top - bottom);
+        const y = bottom + Math.min(14, Math.max(4, gap / 2 - 6));
+        const key = i + '/' + n + '|' + Math.round(cx) + '|' + Math.round(y);
+        el.hidden = false;
+        if (key === lastKey) return; lastKey = key;
+        el.innerHTML = `<b>${i + 1}</b> / ${n}`;
+        el.style.left = cx + 'px'; el.style.top = y + 'px';
+    }
+    upd();
 })();
 </script>
 </body>
