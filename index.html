@@ -1697,8 +1697,8 @@
                             </div>
                         </div>
                         
-                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] right-[9%] md:right-4" data-anim="none" data-snap-slot="eyes" data-row="2" data-snap-x="0.493" data-snap-y="0.332">
-                            <img src="images/dress-star-reveal.webp" data-normal="images/dress-star.webp" data-reveal="images/dress-star-reveal.webp" loading="lazy" decoding="async" width="360" height="139" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
+                        <div class="drag-item dress-item group z-40 w-[calc(min(100vw_-_48px,360px)*0.36)] h-[calc(min(100vw_-_48px,360px)*0.36)] md:w-32 md:h-32 lg:w-36 lg:h-36 drop-shadow-[0_4px_8px_rgba(0,0,0,0.16)] absolute -bottom-[232px] md:-bottom-[220px] lg:-bottom-[220px] right-[9%] md:right-4" data-anim="none" data-snap-slot="eyes" data-row="2" data-snap-x="0.493" data-snap-y="0.308">
+                            <img src="images/dress-star-reveal.webp" data-normal="images/dress-star.webp" data-reveal="images/dress-star-reveal.webp" loading="lazy" decoding="async" width="360" height="166" draggable="false" alt="裝飾物件" class="dress-img" onerror="window.handleImageError(this, this.getAttribute('src'))">
                             <div class="dress-tooltip absolute bottom-[80%] left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#3B82F6] text-white text-[12px] font-bold rounded-lg opacity-0 transition-all duration-300 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none whitespace-nowrap z-50">
                                 來點派對氣氛！
                                 <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[6px] border-t-[#3B82F6]"></div>
@@ -6171,6 +6171,14 @@ window.__helloFx = function (el, finish, fallback) {
         .observe(root, { attributes: true, attributeFilter: ['data-view'] });
 })();
 </script>
+
+<style>
+/* 關於頁四副眼鏡：左右往中間靠一點（電腦版原本貼著照片兩側） */
+@media (min-width: 768px) {
+    #about .dress-item[class*="md:left-4"] { left: 8%; }
+    #about .dress-item[class*="md:right-4"] { right: 8%; }
+}
+</style>
 
 
 <style>
