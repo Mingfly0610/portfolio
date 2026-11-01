@@ -12,7 +12,9 @@
     <meta name="description" content="MingFly 的作品集。涵蓋活動視覺設計、動態影像與互動式網頁體驗開發。">
     <meta property="og:title" content="MingFly | 視覺設計作品集">
     <meta property="og:description" content="MingFly 的作品集。涵蓋活動視覺設計、動態影像與互動式網頁體驗開發。">
-    <meta property="og:image" content="https://mingfly0610.github.io/portfolio/images/share-thumb.jpg">
+    <meta property="og:image" content="https://mingfly0610.github.io/portfolio/images/share-thumb.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:url" content="https://mingfly0610.github.io/portfolio/">
     <meta property="og:type" content="website">
 
@@ -6129,13 +6131,10 @@ window.__helloFx = function (el, finish, fallback) {
         const i = (typeof currentImgIndex !== 'undefined') ? currentImgIndex : 0;
         if (n < 2 || img.classList.contains('hidden')) { el.hidden = true; return; }
         const mr = media.getBoundingClientRect(), vp = media.querySelector('.modal-viewport').getBoundingClientRect();
-        // 位置：圖片正下方的空白處（圖片高度依原圖比例計算，不受放大縮小影響）
-        const ir = img.getBoundingClientRect(), bw = img.offsetWidth, bh = img.offsetHeight;
-        const vh = (img.naturalWidth && img.naturalHeight) ? Math.min(bh, bw * img.naturalHeight / img.naturalWidth) : bh;   // object-fit: contain 時實際看得到的圖片高度
-        const cx = ir.left + ir.width / 2 - mr.left;
-        const bottom = Math.min(vp.bottom, ir.top + ir.height / 2 + vh / 2) - mr.top;
-        const gap = Math.max(0, vp.bottom - mr.top - bottom);
-        const y = bottom + Math.min(14, Math.max(4, gap / 2 - 6));
+        // 位置固定：作品顯示區的底緣（直式圖填滿高度時，正好在圖片正下方），每一張、每個專案都在同一個位置
+        const cs = getComputedStyle(media.querySelector('.modal-viewport')), pb = parseFloat(cs.paddingBottom) || 0;
+        const cx = vp.left + vp.width / 2 - mr.left;
+        const y = vp.bottom - pb - mr.top + Math.min(14, Math.max(4, pb / 2 - 6));
         const key = i + '/' + n + '|' + Math.round(cx) + '|' + Math.round(y);
         el.hidden = false;
         if (key === lastKey) return; lastKey = key;
