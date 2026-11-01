@@ -6322,6 +6322,17 @@ window.__heroDemo = function (v) {
 })();
 </script>
 
+<style>
+/* 手機首頁：整體往上移，讓物件和底部跑馬燈之間留出呼吸空間 */
+@media (max-width: 767px) {
+    #hero-section { padding-bottom: 96px !important; }
+    #hero-section .hero-icon:has(img[src*="hero-icon-1"]) { translate: 0 -64px; }
+    #hero-section .hero-icon:has(img[src*="hero-icon-3"]) { translate: 0 -110px; }   /* 沾水筆：再往上一點 */
+    #hero-section .hero-icon:has(img[src*="hero-icon-4"]) { translate: 0 -150px; }   /* 繪圖板再往上，避開身分列 */
+    #hero-section .hero-icon:has(img[src*="hero-icon-2"]) { translate: 0 -24px; }
+}
+</style>
+
 
 <style>
 /* demo2：專案資料列 */
