@@ -56,12 +56,6 @@
         @keyframes splashFailsafe { to { opacity: 0; visibility: hidden; pointer-events: none; } }
         /* 開場畫面還在時，首頁的進場動畫先暫停，等畫面揭開才開始播 */
         html.splash-on .fade-in { animation-play-state: paused; }
-        /* 「觀看作品」外圈的手繪藍線：用 CSS 動畫（不等整頁資源載完就能開始），開場畫面期間先暫停，揭開瞬間才起跑 */
-        @keyframes cta-draw { 0% { stroke-dashoffset: 1500; } 45%, 100% { stroke-dashoffset: 0; } }
-        @keyframes cta-fade { 0% { opacity: 0; } 5%, 65% { opacity: 0.9; } 100% { opacity: 0; } }
-        .cta-circle path { animation: cta-draw 2s linear infinite, cta-fade 2s linear infinite; }
-        .cta-circle path + path { animation-delay: -1s; }
-        html.splash-on .cta-circle path { animation-play-state: paused; }
         @media (prefers-reduced-motion: reduce) { #splash, #splash-logo { transition-duration: 0.01s; } }
     </style>
     <noscript><style>#splash { display: none; }</style></noscript>
@@ -73,18 +67,7 @@
         /* 整頁的捲軸：隱藏瀏覽器原本的捲軸，改用自己畫的細捲軸——捲動時出現、停下來就淡出（和彈窗一致） */
         html { scrollbar-width: none; }
         html::-webkit-scrollbar { display: none; }
-        #page-scrollbar {
-            position: fixed; top: 0; right: 2px; z-index: 90;
-            width: 6px; height: 40px; border-radius: 999px;
-            background: rgb(128, 128, 128);
-            opacity: 0; transition: opacity 0.6s ease;
-            pointer-events: none; touch-action: none;
-        }
-        #page-scrollbar.is-scrolling { opacity: 0.5; transition: opacity 0.18s ease; }
-        @media (hover: hover) and (pointer: fine) {
-            #page-scrollbar.is-scrolling { pointer-events: auto; cursor: default; }
-            #page-scrollbar.is-scrolling:hover, #page-scrollbar.is-dragging { opacity: 0.75; }
-        }
+
         
         /* 圖片與影片不可被選取、也不會被瀏覽器當成檔案拖走（自訂的拖曳與 3D 檢視不受影響） */
         img, video, svg, canvas {
@@ -99,16 +82,6 @@
             user-select: none;
         }
 
-        /* 專案彈窗的捲軸：靜止時隱藏，捲動時淡入、停止後淡出；上下各留一段，讓捲軸短一點、不貼到圓角 */
-        @property --sb-alpha { syntax: '<number>'; inherits: true; initial-value: 0; }
-        .modal-scroll, .modal-info { --sb-alpha: 0; transition: --sb-alpha 0.6s ease; }
-        .modal-scroll.is-scrolling, .modal-info.is-scrolling { --sb-alpha: 0.28; transition: --sb-alpha 0.18s ease; }
-        .modal-scroll::-webkit-scrollbar, .modal-info::-webkit-scrollbar { width: 6px; }
-        .modal-scroll::-webkit-scrollbar-track, .modal-info::-webkit-scrollbar-track { background: transparent; margin-block: 110px; }
-        .modal-scroll::-webkit-scrollbar-thumb, .modal-info::-webkit-scrollbar-thumb { background: rgba(17, 17, 17, var(--sb-alpha)); border-radius: 999px; }
-        @supports not selector(::-webkit-scrollbar) {
-            .modal-scroll, .modal-info { scrollbar-width: thin; scrollbar-color: rgba(17, 17, 17, var(--sb-alpha)) transparent; }
-        }
 
         /* 捲到最底的聯絡區時，導覽列換成黑底白字。
            過渡方式：黑色區塊的上緣捲到哪裡，導覽列就黑到哪裡（像布幕由下往上蓋過），
@@ -962,27 +935,6 @@
                         觀看作品
                         <i class="ph ph-arrow-down-right text-xl" aria-hidden="true"></i>
                     </a>
-                    
-                    <svg class="cta-circle absolute inset-0 w-full h-full scale-[1.3] md:scale-[1.5] -translate-x-1 md:-translate-x-1.5 pointer-events-none -z-0 overflow-visible" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M 50,80 C 10,80 10,20 80,15 C 150,10 190,20 185,60 C 180,95 80,95 40,75 C 5,50 30,10 100,10 C 170,10 193,48 176,78 C 166,95 50,92 30,65 C 10,35 60,5 120,15 C 180,25 185,70 150,85" 
-                              stroke-dasharray="1500"
-                              stroke-dashoffset="1500"
-                              fill="none" 
-                              stroke="#3B82F6" 
-                              stroke-width="2" 
-                              stroke-linecap="round" 
-                              stroke-linejoin="round">
-                        </path>
-                        <path d="M 40,30 C 60,5 150,5 170,30 C 190,55 160,95 100,90 C 40,85 10,65 20,35 C 30,5 160,0 185,45 C 204,86 120,101 60,85 C 0,65 15,20 70,15 C 125,10 170,25 168,62 C 164,94 80,98 42,78" 
-                              stroke-dasharray="1500"
-                              stroke-dashoffset="1500"
-                              fill="none" 
-                              stroke="#3B82F6" 
-                              stroke-width="2" 
-                              stroke-linecap="round" 
-                              stroke-linejoin="round">
-                        </path>
-                    </svg>
                 </div>
             </div>
         </div>
@@ -2486,21 +2438,7 @@
             img.src = url;
         }
 
-        // 有標記 data-strip-thumbs 的專案，縮圖列使用另外準備的小圖（檔名加上 -s.jpg），不必載入整張大圖
-        function stripThumbUrl(path) {
-            if (currentProject && currentProject.hasAttribute('data-strip-thumbs')) {
-                return path.replace(/\.(webp|jpe?g|png)$/i, '-s.jpg');
-            }
-            return path;
-        }
-
-        function fillGalleryStrip() {
-            return;   // 縮圖列已不顯示，不再下載小圖
-            if (currentMediaType !== 'image') return;
-            galleryThumbs.querySelectorAll('.strip-thumb').forEach((btn, i) => {
-                if (currentGallery[i]) setStripImage(btn, stripThumbUrl(currentGallery[i].trim()));
-            });
-        }
+        function fillGalleryStrip() {}   // 縮圖列已不顯示，不再下載小圖
 
         let lastFocusedItem = null;
 
@@ -2665,66 +2603,6 @@
             fitVideo(); requestAnimationFrame(fitVideo);
         }
 
-        // 整頁捲軸：捲動時顯示，停止 0.8 秒後淡出；顯示期間可以用滑鼠抓著拖
-        (function () {
-            const bar = document.createElement('div');
-            bar.id = 'page-scrollbar';
-            bar.setAttribute('aria-hidden', 'true');
-            document.body.appendChild(bar);
-            const doc = document.documentElement;
-            let hideTimer, dragging = false, dragOffset = 0, hovering = false;
-            function metrics() {
-                const view = window.innerHeight, total = doc.scrollHeight;
-                const size = Math.max(36, view * view / total);
-                return { view, total, size, range: view - size - 8, maxScroll: total - view };
-            }
-            function place() {
-                const m = metrics();
-                if (m.maxScroll <= 0) { bar.classList.remove('is-scrolling'); return false; }
-                bar.style.height = `${m.size}px`;
-                bar.style.transform = `translateY(${4 + m.range * Math.min(1, Math.max(0, window.scrollY / m.maxScroll))}px)`;
-                return true;
-            }
-            function scheduleHide() {
-                clearTimeout(hideTimer);
-                hideTimer = setTimeout(() => { if (!dragging && !hovering) bar.classList.remove('is-scrolling'); }, 800);
-            }
-            window.addEventListener('scroll', () => {
-                if (!place()) return;
-                bar.classList.add('is-scrolling');
-                scheduleHide();
-            }, { passive: true });
-            window.addEventListener('resize', place);
-            bar.addEventListener('pointerenter', () => { hovering = true; });
-            bar.addEventListener('pointerleave', () => { hovering = false; scheduleHide(); });
-            bar.addEventListener('pointerdown', (e) => {
-                dragging = true;
-                dragOffset = e.clientY - bar.getBoundingClientRect().top;
-                bar.classList.add('is-dragging');
-                bar.setPointerCapture(e.pointerId);
-                e.preventDefault();
-            });
-            bar.addEventListener('pointermove', (e) => {
-                if (!dragging) return;
-                const m = metrics();
-                const ratio = Math.min(1, Math.max(0, (e.clientY - dragOffset - 4) / m.range));
-                window.scrollTo({ top: ratio * m.maxScroll, behavior: 'instant' });
-            });
-            const endDrag = () => { if (!dragging) return; dragging = false; bar.classList.remove('is-dragging'); scheduleHide(); };
-            bar.addEventListener('pointerup', endDrag);
-            bar.addEventListener('pointercancel', endDrag);
-        })();
-
-        // 彈窗捲軸：捲動時顯示，停止 0.8 秒後淡出
-        modalContent.querySelectorAll('.modal-scroll, .modal-info').forEach(el => {
-            let hideTimer;
-            el.addEventListener('scroll', () => {
-                el.classList.add('is-scrolling');
-                clearTimeout(hideTimer);
-                hideTimer = setTimeout(() => el.classList.remove('is-scrolling'), 800);
-            }, { passive: true });
-        });
-
         portfolioTrack.addEventListener('click', (e) => {
             const item = e.target.closest('.portfolio-item');
             if (item) openProject(item);
@@ -2822,21 +2700,6 @@
                 modalMediaContainer.style.cursor = 'grab';
             }
         });
-
-        modalMediaContainer.addEventListener('wheel', (e) => {
-            return;   // 不再提供圖片放大看細節（滾輪交給頁面捲動）
-            if (window.innerWidth < 1024) return;
-            if (currentMediaType !== 'image') return;
-            e.preventDefault(); 
-            
-            const zoomSpeed = 0.002;
-            currentScale -= e.deltaY * zoomSpeed;
-            currentScale = Math.max(1, Math.min(currentScale, 5)); if (currentScale <= 1.001) { currentPanX = 0; currentPanY = 0; }
-            
-            const targetElement = currentMediaType === 'video' ? modalVideo : modalImg;
-            targetElement.style.transition = 'transform 0.1s ease-out';
-            targetElement.style.transform = `perspective(1000px) translate3d(${currentPanX}px, ${currentPanY}px, 0) rotateX(${currentRotX}deg) rotateY(${currentRotY}deg) scale(${currentScale})`;
-        }, { passive: false });
 
         modalMediaContainer.addEventListener('dblclick', () => {
             if (window.innerWidth < 1024) return;
@@ -3956,7 +3819,6 @@
     #hero-section h1.is-ascii-text span.font-serif, #contact h2.is-ascii-text span.font-serif { color: #3B82F6 !important; }
     html.d8 #halftone-bg { opacity: 1; }
     /* 「觀看作品」：終端機字樣＋像素方格畫圈 */
-    html.d8 .cta-circle { display: none; }
     html.d8 .cta-ascii { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 0; }
     /* 觀看作品：一般字體＋亂碼解碼（比照首頁 beautiful），外圈為細緻字元圈 */
     html.d8 a[href="#work"].cta-term { letter-spacing: 0.06em; padding: 14px 26px; }
@@ -6147,7 +6009,6 @@ window.__helloFx = function (el, finish, fallback) {
 </script>
 
 <style>
-#page-scrollbar { display: none !important; }
 #ascii-pagebar { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 90; }
 </style>
 <script>
@@ -6252,7 +6113,6 @@ window.__helloFx = function (el, finish, fallback) {
 
 <script>
 /* 首頁：年份標籤上移、問候語加深、身分列（A）＋底部專案名稱跑馬燈（B） */
-// window.__heroDemo(variant)  variant: 'base' | 'names' | 'thumbs' | 'partners'
 window.__heroDemo = function (v) {
   if (document.querySelector('.hd-role')) return;
   const hero = document.getElementById('hero-section');
@@ -6276,14 +6136,6 @@ window.__heroDemo = function (v) {
   .hd-names .hd-item:hover{ color:#3B82F6; }
   .hd-names .hd-item:hover i{ color:#111; }
   .hd-names .hd-item::after{ content:'✦'; color:#cbd5e1; margin-left:26px; font-size:10px; }
-  .hd-thumbs{ background:transparent; border:0; backdrop-filter:none; }
-  .hd-thumbs .hd-track{ gap:14px; padding:0 0 18px; animation-duration:70s; }
-  .hd-thumbs img{ height:120px; width:auto; display:block; box-shadow:0 6px 16px rgba(0,0,0,.12); }
-  @media (max-width:767px){ .hd-thumbs img{ height:84px; } }
-  .hd-partners .hd-row{ display:flex; align-items:center; }
-  .hd-partners .hd-lab{ flex:none; padding:0 18px 0 24px; font:600 11px "Geist Mono",monospace; letter-spacing:.14em; color:#111; border-right:1px solid #e5e7eb; align-self:stretch; display:flex; align-items:center; background:#fafafa; position:relative; z-index:2; }
-  .hd-partners .hd-item{ padding:15px 22px; white-space:nowrap; font:400 14px "Noto Sans TC",sans-serif; color:#4b5563; }
-  .hd-partners .hd-item::before{ content:'/'; color:#3B82F6; margin-right:22px; }
   `;
   document.head.appendChild(css);
   const hello = document.querySelector('.hero-hello-mask');
@@ -6294,17 +6146,11 @@ window.__heroDemo = function (v) {
   const strip = document.createElement('div'); strip.className = 'hd-strip hd-' + v;
   let items = '';
   if (v === 'names') {
-    const rows = [...document.querySelectorAll('#demo-index .ix-layer.base .ix-row')].slice(0, 26);
+    const rows = [...document.querySelectorAll('#demo-index .ix-layer.base .ix-row')];   // 全部專案（跟著專案清單自動增減）
     items = rows.map((r, k) => { const t = r.querySelector('.ti')?.textContent.trim() || ''; const c = (r.textContent.match(/活動視覺|動態設計|程式設計/) || [''])[0]; return `<span class="hd-item" data-k="${k}" role="link" tabindex="-1"><i>${c}</i>${t}</span>`; }).join('');
-  } else if (v === 'thumbs') {
-    const th = ['2026-event-kaohsiung-finance-tobacco','2026-event-kaohsiung-job-fair-gangshan','2026-event-fire-station-opening','2026-event-labor-safety','2026-event-chiayi-job-part1','2026-event-chiayi-job-part2','2026-event-tainan-job-fair-large-p3','2025-event-tainan-job-fair-medium-p1','2025-event-tsrc-year-end','prog-career'];
-    items = th.map(n => `<img src="images/${n}-thumb.jpg" alt="">`).join('');
-  } else {
-    const p = ['勞動部勞動力發展署雲嘉南分署','中華民國僑務委員會','高雄市政府勞工局','高雄市政府財政局','高雄市政府消防局','臺南市政府勞工局','嘉義縣政府勞青處','台橡股份有限公司','104人力銀行'];
-    items = p.map(n => `<span class="hd-item">${n}</span>`).join('');
   }
   const track = `<div class="hd-track">${items}${items}</div>`;
-  strip.innerHTML = v === 'partners' ? `<div class="hd-row"><span class="hd-lab">PARTNERS</span>${track}</div>` : track;
+  strip.innerHTML = track;
   hero.appendChild(strip);
   // 點跑馬燈上的專案名稱 → 直接打開該專案（等同在專案清單點那一列）
   if (v === 'names') strip.addEventListener('click', e => {
@@ -6463,7 +6309,6 @@ window.__heroDemo = function (v) {
 #about .skill-tag { color: #4b5563; }   /* 技能標籤改灰色；滑過仍變藍 */
 #about .skill-item:hover .skill-tag { color: #3B82F6; }
 #about .about-partners .ap-list span { display: inline-block; white-space: nowrap; }   /* 單位名稱不截斷，只在頓號後換行 */
-#about .about-partners .ap-note { font-size: 12px; color: #9ca3af; margin-top: 4px; }
 @media (min-width: 1024px) {
   html.hero-gone[data-view="about"] #about .lg\:flex-1 > .about-partners { margin-top: auto !important; padding-top: 36px !important; }   /* 和上方三段文字至少隔 36px */
   html.hero-gone[data-view="about"] #about .lg\:flex-1 > .about-partners + .pt-6 { margin-top: 36px !important; }   /* 和 CORE SKILLS 隔 36px */
