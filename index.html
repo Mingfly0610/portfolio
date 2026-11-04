@@ -967,7 +967,7 @@
                     <div id="portfolio-grid" class="grid-wall max-w-7xl mx-auto px-6 lg:px-12">
                         
                         <!-- 新增：2026年 瑞儀光電家庭日 -->
-                        <div class="portfolio-item group is-wide" style="--ar:1.3333" data-category="event" data-modal-img="images/2026-event-radiant-family-day-01-key-visual.webp" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 瑞儀光電家庭日" data-modal-ar="1.3333" data-client="瑞儀光電股份有限公司" data-role="主視覺設計、延伸應用設計">
+                        <div class="portfolio-item group is-wide" style="--ar:1.3333" data-category="event" data-modal-img="images/2026-event-radiant-family-day-01-key-visual.webp,images/2026-event-radiant-family-day-02-kanto-flag.webp,images/2026-event-radiant-family-day-03-e-invitation.webp,images/2026-event-radiant-family-day-04-stage-backdrop.webp,images/2026-event-radiant-family-day-05-booth-tents.webp,images/2026-event-radiant-family-day-06-notice-boards.webp,images/2026-event-radiant-family-day-07-brochure.webp" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 瑞儀光電家庭日" data-modal-ar="1.3333" data-client="瑞儀光電股份有限公司" data-role="主視覺設計、延伸應用設計">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <img src="images/2026-event-radiant-family-day-thumb.jpg" loading="lazy" decoding="async" alt="2026年 瑞儀光電家庭日" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-radiant-family-day-thumb.jpg')">
@@ -4293,7 +4293,7 @@
                 open(item, e);
             });
             row.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(item, e); });
-            row.addEventListener('focus', () => show(row));
+            row.addEventListener('focus', () => { if (!touch) show(row); });   // 手機點擊也會觸發 focus，不能在這裡顯示，否則第一次點就直接進專案
         });
         if (!touch) box.addEventListener('mouseleave', hide);
         window.addEventListener('scroll', () => { if (hot) recolor(); }, { passive: true });
