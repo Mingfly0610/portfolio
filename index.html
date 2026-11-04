@@ -926,7 +926,7 @@
                 digital experiences.
             </h1>
             <div class="hero-hello-mask">
-                <p id="hero-hello" class="text-xl md:text-2xl text-gray-500 leading-relaxed">你好，我是 MingFly.</p>
+                <p id="hero-hello" class="text-xl md:text-2xl text-gray-500 leading-relaxed">This is MingFly's portfolio.</p>
             </div>
             
             <div class="pt-6 md:pt-12 pointer-events-auto flex justify-center">
@@ -6122,13 +6122,13 @@ window.__helloFx = function (el, finish, fallback) {
 <script>
 /* 首頁：年份標籤上移、問候語加深、身分列（A）＋底部專案名稱跑馬燈（B） */
 window.__heroDemo = function (v) {
-  if (document.querySelector('.hd-role')) return;
+  if (window.__hdInit) return; window.__hdInit = true;
   const hero = document.getElementById('hero-section');
   const css = document.createElement('style');
   css.textContent = `
   /* 共通：年份標籤上移、問候語加深、加上身分列 */
   @media (min-width:768px){ #hero-section h1 > .drag-item{ top:-62px !important; left:-4px !important; } }
-  #hero-hello{ color:#4b5563 !important; }
+  #hero-hello{ color:#111111 !important; font-family:'Syne',system-ui,sans-serif !important; font-weight:600 !important; letter-spacing:0; }
   .hd-role{ margin-top:14px !important; font:500 15px/1.4 "Geist Mono",ui-monospace,Menlo,monospace; letter-spacing:.06em; color:#3B82F6; }
   .hd-role b{ color:#111; font-weight:500; margin:0 .55em; }
   @media (max-width:767px){
@@ -6147,9 +6147,6 @@ window.__heroDemo = function (v) {
   `;
   document.head.appendChild(css);
   const hello = document.querySelector('.hero-hello-mask');
-  const role = document.createElement('p'); role.className = 'hd-role';
-  role.innerHTML = '活動視覺設計<b>/</b>動態設計<b>/</b>程式設計';
-  hello.after(role);
   if (v === 'base') return;
   const strip = document.createElement('div'); strip.className = 'hd-strip hd-' + v;
   let items = '';
@@ -6202,7 +6199,7 @@ window.__heroDemo = function (v) {
     #hero-section { padding-bottom: 96px !important; }
     #hero-section .hero-icon:has(img[src*="hero-icon-1"]) { translate: 0 -64px; }
     #hero-section .hero-icon:has(img[src*="hero-icon-3"]) { translate: 0 -110px; }   /* 沾水筆：再往上一點 */
-    #hero-section .hero-icon:has(img[src*="hero-icon-4"]) { translate: 0 -150px; }   /* 繪圖板再往上，避開身分列 */
+    #hero-section .hero-icon:has(img[src*="hero-icon-4"]) { translate: 34px -92px; }   /* 繪圖板往上、往右，避開問候語 */
     #hero-section .hero-icon:has(img[src*="hero-icon-2"]) { translate: 0 -24px; }
 }
 </style>
