@@ -3876,6 +3876,14 @@
 @media (max-width: 767px) {
   #project-modal .modal-card.mob-wide-video.is-browser-media #modal-video { width: var(--bw) !important; height: var(--bh) !important; max-width: none !important; max-height: none !important; }
 }
+
+    /* 首頁、聯絡頁英文大標：Syne ExtraBold（藍色輪播字同字型）。字很寬，所以字級依寬度縮放，桌機維持兩行 */
+    @font-face { font-family: 'Syne'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(fonts/Syne.ttf) format('truetype'); }
+    #hero-section h1, #contact h2 { font-family: 'Syne', system-ui, -apple-system, sans-serif !important; font-weight: 800 !important; letter-spacing: -0.015em !important; line-height: 1.08 !important; }
+    #hero-section h1 span.font-serif, #contact h2 span.font-serif { font-family: 'Syne', system-ui, sans-serif !important; font-style: normal !important; font-weight: 800 !important; }
+    #hero-section h1 { font-size: clamp(30px, 8.4vw, 74px) !important; }
+    #contact h2 { font-size: clamp(28px, 7.6vw, 58px) !important; }
+    @media (min-width: 1024px) { #hero-section .max-w-5xl { max-width: 1200px; } #hero-section h1 { font-size: min(5.1vw, 72px) !important; } #contact h2 { font-size: min(4.2vw, 58px) !important; } }
 </style>
 
 <canvas id="demo-wipe" aria-hidden="true"></canvas>
