@@ -6197,13 +6197,15 @@ window.__heroDemo = function (v) {
 </script>
 
 <style>
-/* 手機首頁：整體往上移，讓物件和底部跑馬燈之間留出呼吸空間 */
+/* 手機首頁：整體重心往上（內容與四個物件一起上移），年份貼紙置中，問候語縮小 */
 @media (max-width: 767px) {
-    #hero-section { padding-bottom: 96px !important; }
-    #hero-section .hero-icon:has(img[src*="hero-icon-1"]) { translate: 0 -64px; }
-    #hero-section .hero-icon:has(img[src*="hero-icon-3"]) { translate: 0 -110px; }   /* 沾水筆：再往上一點 */
-    #hero-section .hero-icon:has(img[src*="hero-icon-4"]) { translate: 34px -92px; }   /* 繪圖板往上、往右，避開問候語 */
-    #hero-section .hero-icon:has(img[src*="hero-icon-2"]) { translate: 0 -24px; }
+    #hero-section { padding-top: 108px !important; padding-bottom: 118px !important; }
+    #hero-section .hero-icon:has(img[src*="hero-icon-1"]) { translate: 0 -84px; }
+    #hero-section .hero-icon:has(img[src*="hero-icon-3"]) { translate: 0 -84px; }   /* 沾水筆：往上，靠近內容 */
+    #hero-section .hero-icon:has(img[src*="hero-icon-4"]) { translate: 34px -72px; }   /* 繪圖板：往上、往右，避開問候語 */
+    #hero-section .hero-icon:has(img[src*="hero-icon-2"]) { translate: 0 -58px; }    /* 滑鼠：往上，填補上方留白 */
+    #hero-section h1 > .drag-item { left: calc(50% - 75px); }   /* 年份貼紙置中（拖曳時以行內位置為準） */
+    #hero-hello { font-size: 16px !important; }
 }
 </style>
 
