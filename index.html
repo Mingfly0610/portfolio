@@ -917,7 +917,7 @@
                 <div class="drag-item no-touch-drag float-anim-delayed z-30 -rotate-2 pointer-events-auto -top-[45px] -left-[10px] md:-top-[30px] md:-left-[10px] w-[150px] md:w-[270px]" data-anim="delayed">
                     <svg class="w-full drop-shadow-sm pointer-events-none overflow-visible" viewBox="0 0 280 80">
                         <text x="140" y="40" dy="0.32em" text-anchor="middle" 
-                              font-family="'Playfair Display', serif" font-size="48" font-weight="700" letter-spacing="-1px"
+                              font-family="'Syne', system-ui, sans-serif" font-size="30" font-weight="800" letter-spacing="-0.5px"
                               fill="#111111" stroke="#FFEC00" stroke-width="12" stroke-linejoin="round" paint-order="stroke fill">
                             2025-2026
                         </text>
@@ -3884,7 +3884,6 @@
     #brand-logo .brand-txt { font-size: 0.81em; }   /* 大寫字母高度與「← Home」的 H 對齊 */
     .bp-title, .bp-title em { font-family: 'Syne', system-ui, sans-serif !important; font-weight: 800 !important; font-style: normal !important; letter-spacing: -0.015em !important; }
     .bp-title { font-size: clamp(11px, 4.6cqw, 28px) !important; }
-    #hero-section h1 .drag-item svg text { font-family: 'Syne', system-ui, sans-serif !important; font-weight: 800 !important; font-size: 30px !important; letter-spacing: -0.5px; }
     #hero-section h1, #contact h2 { font-family: 'Syne', system-ui, -apple-system, sans-serif !important; font-weight: 800 !important; letter-spacing: -0.015em !important; line-height: 1.08 !important; }
     #hero-section h1 span.font-serif, #contact h2 span.font-serif { font-family: 'Syne', system-ui, sans-serif !important; font-style: normal !important; font-weight: 800 !important; }
     #hero-section h1 { font-size: clamp(30px, 8.4vw, 74px) !important; }
@@ -3923,16 +3922,14 @@
             S.asc = S.asc && S.asc.width === CW && S.asc.height === CH ? S.asc : mk(CW, CH);
             const a2 = S.asc.getContext('2d');
             a2.setTransform(1, 0, 0, 1, 0, 0); a2.clearRect(0, 0, CW, CH); a2.setTransform(dpr, 0, 0, dpr, 0, 0);
-            a2.font = `700 ${Math.round(cell * 0.8)}px ${MONO}`; a2.textAlign = 'center'; a2.textBaseline = 'middle';
-            const gap = Math.max(0.6, cell * 0.1);
+            a2.font = `700 ${Math.round(cell * 1.05)}px ${MONO}`; a2.textAlign = 'center'; a2.textBaseline = 'middle';
             for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
                 const i = (y * cols + x) * 4, a = data[i + 3] / 255;
                 if (a < 0.3) continue;
                 const R = data[i], G = data[i + 1], B = data[i + 2], px = x * cell, py = y * cell;
-                a2.fillStyle = `rgba(${R},${G},${B},${Math.min(1, a * 1.2)})`;
-                a2.fillRect(px + gap / 2, py + gap / 2, cell - gap, cell - gap);
-                a2.fillStyle = H3(x, y, tick) < 0.03 ? AC[Math.floor(H3(y, x, tick) * AC.length)] : (R > 200 && G > 200 ? 'rgba(17,17,17,0.6)' : 'rgba(255,255,255,0.8)');
-                a2.fillText(RP[Math.min(RP.length - 1, Math.floor(a * RP.length * 0.99))], px + cell / 2, py + cell / 2 + 0.5);
+                // 只畫字元（不畫底色方格），用文字原本的顏色、實色；偶爾跳出彩色字元
+                a2.fillStyle = H3(x, y, tick) < 0.03 ? AC[Math.floor(H3(y, x, tick) * AC.length)] : `rgb(${R},${G},${B})`;
+                a2.fillText(RP[6 + Math.floor(H3(x, y, tick) * 3)], px + cell / 2, py + cell / 2 + 0.5);
             }
             S.ascTick = tick; S.ascData = data;
         }
