@@ -6211,14 +6211,14 @@ window.__heroDemo = function (v) {
 </style>
 
 <script>
-/* 電腦版首頁：滑鼠移到任一個物件上時，四個物件一起順時針轉一格，到位時帶一點回彈 */
+/* 電腦版首頁：滑鼠停在任一個物件上時，四個物件一起順時針一格一格持續輪轉；滑鼠移開，轉完這一格就停 */
 (() => {
     const mq = matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const icons = [...document.querySelectorAll('#hero-section > .hero-icon')];
     if (icons.length !== 4) return;
     const DUR = 620;
-    let step = 0, busy = false, armed = true;
+    let step = 0, busy = false, mx = -1, my = -1;
     const center = el => [el.offsetLeft + el.offsetWidth / 2, el.offsetTop + el.offsetHeight / 2];
     // 依畫面位置排出順時針順序（左上 → 右上 → 右下 → 左下）
     function order() {
@@ -6233,17 +6233,20 @@ window.__heroDemo = function (v) {
             it.el.style.translate = `${to[0] - it.c[0]}px ${to[1] - it.c[1]}px`;
         });
     }
+    const GAP = 120;   // 每轉一格之間停一下
+    // 滑鼠目前是否停在任一個物件上（物件會轉走，所以每一格轉完都重新判斷滑鼠底下是什麼）
+    const hovering = () => mx >= 0 && icons.some(el => {
+        const r = (el.querySelector('img') || el).getBoundingClientRect();
+        return mx >= r.left && mx <= r.right && my >= r.top && my <= r.bottom;
+    });
     function turn() {
-        if (busy || !armed || !mq.matches || !document.documentElement.classList.contains('on-hero')) return;
-        busy = true; armed = false; step = (step + 1) % 4; move(true);
-        setTimeout(() => { busy = false; }, DUR);
+        if (busy || !mq.matches || !document.documentElement.classList.contains('on-hero')) return;
+        busy = true; step = (step + 1) % 4; move(true);
+        setTimeout(() => { busy = false; if (hovering()) setTimeout(() => { if (hovering()) turn(); }, GAP); }, DUR);
     }
-    icons.forEach(el => el.addEventListener('mouseenter', turn));
-    // 滑鼠離開所有物件之後，下次再移進去才會再轉（避免物件轉到滑鼠底下時連續觸發）
-    addEventListener('mousemove', e => {
-        if (armed || busy) return;
-        if (!e.target.closest || !e.target.closest('#hero-section > .hero-icon')) armed = true;
-    }, { passive: true });
+    addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+    document.addEventListener('mouseleave', () => { mx = -1; });
+    icons.forEach(el => el.addEventListener('mouseenter', e => { mx = e.clientX; my = e.clientY; turn(); }));
     addEventListener('resize', () => move(false));
     mq.addEventListener('change', () => { if (!mq.matches) { step = 0; icons.forEach(el => { el.style.transition = 'none'; el.style.translate = ''; }); } });
 })();
