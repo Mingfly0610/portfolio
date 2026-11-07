@@ -6246,7 +6246,12 @@ window.__heroDemo = function (v) {
     addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
     document.addEventListener('mouseleave', () => { mx = -1; });
     icons.forEach(el => el.addEventListener('mouseenter', e => { mx = e.clientX; my = e.clientY; turn(); }));
-    addEventListener('resize', () => move(false));
+    // 只有電腦版需要依視窗重算位置；手機切換頁面時瀏覽器網址列伸縮也會觸發 resize，
+    // 這時不能寫入行內位移，否則會蓋掉手機版 CSS 設定的物件位置
+    addEventListener('resize', () => {
+        if (mq.matches) move(false);
+        else { step = 0; icons.forEach(el => { el.style.transition = ''; el.style.translate = ''; }); }
+    });
     mq.addEventListener('change', () => { if (!mq.matches) { step = 0; icons.forEach(el => { el.style.transition = 'none'; el.style.translate = ''; }); } });
 })();
 </script>
