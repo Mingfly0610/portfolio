@@ -1070,7 +1070,7 @@
                                 <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
                                 <p class="mb-6">版面沿用 KOKUSAI ELECTRIC 既有的品牌識別：深藍、白色與 KE 標誌。主背板分成兩半，右半部是大面積的深藍色與 KE 標誌，下方四個圖示對應「尖端技術、持續成長、合作共享、全球視野」；左半部是白底，用金字塔圖整理企業的使命、願景與價值。</p>
                                 <p class="mb-6">左側板放無塵室與廠區的照片，底部接一張雪山風景；右側板放「Technology &amp; Tai-wa for Tomorrow」的標語，員工活動照片沿著圓弧排列。攤位前方會擺桌子，所以文字都排在桌面以上的高度，下半部留給照片與背景。</p>
-                                <p class="mb-6">輸出前先用 3D 模擬檢查三面展板的轉角接合，以及從走道不同角度看過去的效果，確認後再送印。</p>
+                                <p class="mb-6">輸出前先用自己開發的 <a href="#" class="proj-link" data-goto="程式設計：3D PART BUILDER &amp; ASSEMBLY">3D PART BUILDER</a> 搭出攤位，檢查三面展板的轉角接合，以及從走道不同角度看過去的效果，確認後再送印。</p>
 
                                 <h4 class="text-xl font-bold text-brand-black mb-2">攤位內容</h4>
                                 <ul class="space-y-2 list-disc list-outside ml-5">
@@ -1298,6 +1298,29 @@
                                     <li><strong>暖場遊戲：</strong> 「彩虹賽道挑戰賽」與「出發吧 台橡賽車手」的遊戲場地輸出。</li>
                                     <li><strong>文宣品：</strong> 主視覺海報、邀請卡。</li>
                                 </ul>
+                            </div>
+                        </div>
+
+                        <!-- 新增：2026年 主視覺設計練習 -->
+                        <div class="portfolio-item group" style="--ar:0.7095" data-category="event" data-modal-img="images/2026-event-key-visual-practice-01-transport-award.webp,images/2026-event-key-visual-practice-02-chief-inauguration.webp,images/2026-event-key-visual-practice-03-job-fair-template.webp,images/2026-event-key-visual-practice-04-job-fair-0919.webp" data-thumb-preview role="button" tabindex="0" aria-label="活動視覺設計：2026年 主視覺設計練習" data-modal-ar="0.7070" data-client="個人專案" data-role="主視覺設計">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <img src="images/2026-event-key-visual-practice-thumb.jpg" loading="lazy" decoding="async" alt="2026年 主視覺設計練習" class="item-media-el opacity-0" onload="window.handleMediaLoad(this)" onerror="window.handleImageError(this, 'images/2026-event-key-visual-practice-thumb.jpg')">
+                            </div>
+                            <div class="item-caption">
+                                <span class="item-cat">活動視覺設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">主視覺設計練習</span></h3>
+                            </div>
+                            <div class="modal-title-src hidden">2026年<br>主視覺設計練習</div>
+                            <div class="project-details hidden">
+                                <h4 class="text-xl font-bold text-brand-black mb-2">創作動機</h4>
+                                <p class="mb-6">工作之餘的主視覺練習，題目取自平常最常接觸的活動類型：表揚大會、就職典禮與現場徵才活動。每張刻意換一種畫風與配色，試著跳出自己習慣的做法。</p>
+
+                                <h4 class="text-xl font-bold text-brand-black mb-2">設計思維</h4>
+                                <p class="mb-6" data-img="1"><strong>交通績優人員與機構表揚大會：</strong>以扁平插畫呈現，畫面斜切成道路與港口，捷運、警車、計程車、公車與渡輪沿著車道排開，受表揚的各行業人員走在最前面。下方用兩個圓角框整理「優良」與「績優」兩類表揚對象。</p>
+                                <p class="mb-6" data-img="2"><strong>里長就職典禮：</strong>以黑色和金色為主，舞台聚光燈從上方打下，高雄地標組成的天際線下方映著倒影，讓畫面有典禮的隆重感。</p>
+                                <p class="mb-6" data-img="3"><strong>現場徵才活動(多場次海報)：</strong>同一張海報要放五個場次，用不同顏色的卡片區分各站，主場放大置頂，其他四站兩兩並排；上方的高雄地標以霓虹線條勾勒。</p>
+                                <p class="mb-6" data-img="4"><strong>現場徵才活動(單場次海報)：</strong>漫畫風的放射背景與網點，搭配不同職業的人物，交通資訊整理成地圖與路線說明。各行各業的人物以 AI 協作生成，再與版面、地標線稿整合。</p>
                             </div>
                         </div>
 
@@ -3652,6 +3675,8 @@
     /* 上一件／下一件：作品圖 ASCII 飛出、飛入 */
     #media-swap-fx { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 160; pointer-events: none; display: none; }
     #media-swap-fx.on { display: block; }
+    #project-modal .modal-card.media-xfade #modal-skeleton { visibility: hidden !important; }
+    #project-modal .modal-card.media-xfade .modal-art img, #project-modal .modal-card.media-xfade .modal-art video { transition: none !important; }
     #project-modal .modal-card.media-fx .modal-art, #project-modal .modal-card.media-fx #modal-skeleton { visibility: hidden !important; }
     #ix-pic > canvas.ix-swap { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
     /* 專案內容的條列：電腦、手機都不顯示前面的圓點 */
@@ -4636,27 +4661,40 @@
                     setTimeout(f, 40);
                 })();
             }
-            // 在 document 的捕捉階段先處理：這時舊作品還沒被換掉，才能把它拆成字元
+            // 換圖／換專案：舊畫面先拍一張快照蓋在上面，新作品載入後快照淡出，形成交叉淡化（不再用 ASCII 字元，避免卡頓）
             document.addEventListener('click', (ev) => {
-                    if (!(ev.target instanceof Element) || !ev.target.closest('#modal-prev-project, #modal-next-project, #prev-img, #next-img')) return;   // 換專案、同專案換圖／換影片都用
-                    const m = curMedia(); job++;
-                    sizeFx(); fx.classList.add('on');
-                    card.classList.add('media-fx');
-                    // 換圖、換專案都一樣：下一張／下一件 → 舊的往左飛走、新的從右邊飛進來；上一張／上一件相反
-                    const nav = ev.target.closest('#prev-img, #next-img, #modal-prev-project, #modal-next-project');
-                    const side = nav ? (nav.id === 'next-img' || nav.id === 'modal-next-project' ? -1 : 1) : 0;
-                    const outD = m ? cellsOf(m, side) : null;
-                    const goIn = () => {
-                        waitNew(nm => {
-                            requestAnimationFrame(() => {
-                                const inD = nm ? cellsOf(nm, -side, side) : null;
-                                if (!inD) { card.classList.remove('media-fx'); fx.classList.remove('on'); fc.clearRect(0, 0, innerWidth, innerHeight); return; }
-                                sizeFx();
-                                play(inD, -1, 520, () => { card.classList.remove('media-fx'); fc.clearRect(0, 0, innerWidth, innerHeight); fx.classList.remove('on'); });
-                            });
+                    if (!(ev.target instanceof Element) || !ev.target.closest('#modal-prev-project, #modal-next-project, #prev-img, #next-img')) return;
+                    const m = curMedia(); const myJob = ++job;
+                    fx.style.transition = 'none'; fx.style.opacity = '1';
+                    sizeFx(); fc.clearRect(0, 0, innerWidth, innerHeight);
+                    let drawn = false;
+                    if (m) {
+                        let r = m.getBoundingClientRect(), src = m;
+                        if (m === vidEl && card.classList.contains('is-phone-media') && window.__phoneSnap) { const sn = window.__phoneSnap(m); if (sn) { src = sn.cv; r = sn.rect; } }
+                        try {
+                            if (src === imgEl) {   // 圖片可能被縮放或 3D 旋轉：依顯示比例 contain 繪製
+                                const iw = imgEl.naturalWidth, ih = imgEl.naturalHeight, k = Math.min(r.width / iw, r.height / ih);
+                                const cs = getComputedStyle(imgEl);
+                                if (cs.objectFit === 'contain') fc.drawImage(src, r.left + (r.width - iw * k) / 2, r.top + (r.height - ih * k) / 2, iw * k, ih * k);
+                                else fc.drawImage(src, r.left, r.top, r.width, r.height);
+                            } else fc.drawImage(src, r.left, r.top, r.width, r.height);
+                            drawn = true;
+                        } catch (e) {}
+                    }
+                    if (!drawn) return;
+                    fx.classList.add('on'); card.classList.add('media-xfade');
+                    waitNew(() => {
+                        if (myJob !== job) return;
+                        requestAnimationFrame(() => {
+                            fx.style.transition = 'opacity 0.34s ease';
+                            fx.style.opacity = '0';
+                            setTimeout(() => {
+                                if (myJob !== job) return;
+                                fx.classList.remove('on'); fx.style.transition = ''; fx.style.opacity = '';
+                                fc.clearRect(0, 0, innerWidth, innerHeight); card.classList.remove('media-xfade');
+                            }, 360);
                         });
-                    };
-                    if (outD) play(outD, 1, 360, goIn); else goIn();
+                    });
             }, true);
             // 立即試玩 ⇄ 返回影片：作品區先被藍色 ASCII 蓋滿，切換後由按鈕處解碼散開
             document.addEventListener('click', (ev) => {
@@ -4683,7 +4721,7 @@
                     });
                 }, 120);
             }, true);
-            document.getElementById('modal-close') && document.getElementById('modal-close').addEventListener('click', () => { job++; card.classList.remove('media-fx'); fx.classList.remove('on'); fc.clearRect(0, 0, innerWidth, innerHeight); }, true);
+            document.getElementById('modal-close') && document.getElementById('modal-close').addEventListener('click', () => { job++; card.classList.remove('media-fx', 'media-xfade'); fx.style.transition = ''; fx.style.opacity = ''; fx.classList.remove('on'); fc.clearRect(0, 0, innerWidth, innerHeight); }, true);
         })();
 
         // ---- 多張圖片：滑鼠變成箭頭，圖片左半邊上一張、右半邊下一張；放大後才可以拖曳 ----
@@ -6364,6 +6402,62 @@ window.__heroDemo = function (v) {
         box.hidden = false; if (key === last) return; last = key;
         box.style.left = Math.round(L + W / 2) + 'px'; box.style.top = Math.round(B + 8) + 'px';
     })();
+    sync();
+})();
+</script>
+
+<style>
+/* 專案內容依目前圖片切換：有 data-img 的段落只在對應的那一張顯示 */
+#modal-content [data-img] { display: none; }
+#modal-content [data-img].is-cur { display: block; }
+@keyframes imgTextIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { #modal-content [data-img].is-cur { animation: none; } }
+</style>
+<script>
+(() => {
+    const page = document.getElementById('current-page'), box = document.getElementById('modal-content');
+    if (!page || !box) return;
+    let last = '';
+    function sync() {
+        const els = box.querySelectorAll('[data-img]');
+        if (!els.length) { last = ''; return; }
+        const n = String(parseInt(page.textContent, 10) || 1);
+        const key = n + '|' + els.length;
+        if (key === last && box.querySelector('[data-img].is-cur')) return;
+        last = key;
+        const prev = box.querySelector('[data-img].is-cur');
+        els.forEach(el => el.classList.toggle('is-cur', el.dataset.img === n));
+        const cur = box.querySelector('[data-img].is-cur');
+        if (cur && prev && cur !== prev) scramble(cur);   // 換圖時文字用亂碼解碼轉場（第一次打開不播）
+    }
+    // 亂碼轉場：每個字先亂跳，再由左到右依序變回原字；中文用全形符號、英數用半形符號，排版寬度不會跳動
+    const FULL = '＃＠％＊＋＝８＄＆？', HALF = '#@%*+=8$&?';
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function scramble(el) {
+        if (reduce) return;
+        if (el.__sc) { cancelAnimationFrame(el.__sc.raf); el.__sc.nodes.forEach(([t, o]) => { t.data = o; }); }
+        const nodes = [], walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        let t; while ((t = walker.nextNode())) if (t.data.trim()) nodes.push([t, t.data]);
+        const total = nodes.reduce((a, [, o]) => a + o.length, 0), DUR = Math.min(900, 380 + total * 4), t0 = performance.now();
+        const st = el.__sc = { nodes, raf: 0 };
+        (function frame(now) {
+            const k = Math.min(1, (now - t0) / DUR); let i = 0;
+            for (const [node, orig] of nodes) {
+                let out = '';
+                for (const ch of orig) {
+                    const done = i / total < k * 1.15 - 0.15;
+                    if (done || /\s/.test(ch) || '，。、：；「」（）()'.includes(ch)) out += ch;
+                    else { const pool = ch.charCodeAt(0) > 255 ? FULL : HALF; out += pool[(Math.random() * pool.length) | 0]; }
+                    i++;
+                }
+                node.data = out;
+            }
+            if (k < 1) st.raf = requestAnimationFrame(frame);
+            else { nodes.forEach(([n, o]) => { n.data = o; }); el.__sc = null; }
+        })(t0);
+    }
+    new MutationObserver(sync).observe(page, { childList: true, characterData: true, subtree: true });
+    new MutationObserver(() => { last = ''; sync(); }).observe(box, { childList: true });
     sync();
 })();
 </script>
