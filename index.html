@@ -3747,6 +3747,8 @@
     /* 圖片、影片、縮圖都不要陰影 */
     html.d6 #project-modal .modal-art { filter: none !important; }
     html.d6 #project-modal .modal-embed { box-shadow: none !important; }
+    /* 自製的試玩組合頁（例如互動塗鴉牆）：背景透明，直接放在彈窗的底紋上，不再有白色方框 */
+    #project-modal .modal-embed:has(> iframe[src*="embeds/"]), #project-modal .modal-embed > iframe[src*="embeds/"] { background: transparent !important; box-shadow: none !important; }
     /* 多張圖片的縮圖：直角、無陰影 */
     html.d6 #project-modal .strip-thumb { border-radius: 0 !important; box-shadow: none !important; }
     html.d6 #project-modal .strip-thumb.is-active { box-shadow: none !important; }   /* 不加藍框：目前這張以不透明顯示，其他半透明 */
