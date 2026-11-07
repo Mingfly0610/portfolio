@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>互動塗鴉牆 試玩</title>
+<style>
+/* 作品集「立即試玩」用：左邊大螢幕、右邊手機，兩邊都是線上實際運作的塗鴉牆，手機送出後大螢幕即時出現 */
+html,body{margin:0;height:100%;overflow:hidden;background:#f2f3f5;font-family:-apple-system,"Helvetica Neue",Arial,"Noto Sans TC",sans-serif}
+body{background-image:radial-gradient(circle,rgba(17,17,17,.10) 1px,transparent 1.4px);background-size:22px 22px}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:0 0}
+.browser{position:absolute;left:36px;top:96px;width:866px;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(17,17,17,.10),0 24px 48px -18px rgba(17,24,39,.25),0 10px 20px -10px rgba(17,24,39,.18)}
+.bar{height:34px;display:flex;align-items:center;gap:14px;padding:0 12px;background:#f4f4f5;border-bottom:1px solid #e4e4e7}
+.dots{display:flex;gap:6px}.dots i{width:10px;height:10px;border-radius:50%;background:#d4d4d8;display:block}
+.url{flex:1;height:22px;border-radius:11px;background:#fff;display:flex;align-items:center;padding:0 12px;font-size:11px;color:#52525b}
+.view{position:relative;width:866px;height:487px;overflow:hidden;background:#111}
+.view iframe{position:absolute;left:0;top:0;width:1600px;height:900px;border:0;transform:scale(.54125);transform-origin:0 0}
+.tag{position:absolute;font:600 12px -apple-system,"Helvetica Neue",Arial,"Noto Sans TC",sans-serif;letter-spacing:.06em;color:#6b7280}
+.phone{position:absolute;left:938px;top:20px;width:311px;height:680px;border-radius:50px;background:#0b0b0c;box-shadow:inset 0 0 0 2px #2a2a2e,0 24px 48px -18px rgba(17,24,39,.35),0 10px 20px -10px rgba(17,24,39,.2)}
+.phone .btn{position:absolute;background:#1c1c1f;border-radius:2px}
+.screen{position:absolute;left:11px;top:11px;width:289px;height:658px;border-radius:40px;overflow:hidden;background:#fff}
+.sb{position:absolute;left:0;top:0;width:289px;height:34px;background:#fff;z-index:2}
+.sb .island{position:absolute;left:50%;top:8px;width:84px;height:24px;margin-left:-42px;background:#000;border-radius:14px}
+.screen iframe{position:absolute;left:0;top:34px;width:390px;height:842px;border:0;transform:scale(.741);transform-origin:0 0}
+</style></head><body>
+<div id="stage">
+  <div class="tag" style="left:38px;top:70px">大螢幕</div>
+  <div class="browser"><div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">design-your-life-studio.github.io/interactive-wall-demo</div></div>
+    <div class="view"><iframe title="互動塗鴉牆 大螢幕" src="https://design-your-life-studio.github.io/interactive-wall-demo/" allow="autoplay"></iframe></div></div>
+  <div class="tag" style="left:902px;top:600px;display:none"></div>
+  <div class="phone"><div class="btn" style="left:-2px;top:116px;width:3px;height:25px"></div><div class="btn" style="left:-2px;top:162px;width:3px;height:48px"></div><div class="btn" style="left:-2px;top:220px;width:3px;height:48px"></div><div class="btn" style="right:-2px;top:178px;width:3px;height:74px"></div>
+    <div class="screen"><div class="sb"><div class="island"></div></div>
+      <iframe title="互動塗鴉牆 手機投稿" src="https://design-your-life-studio.github.io/interactive-wall-demo/?mode=draw" allow="autoplay"></iframe></div></div>
+</div>
+<script>
+// 依視窗大小等比例縮放整個舞台（設計尺寸 1280×720）
+(function(){const st=document.getElementById('stage');function fit(){const k=Math.min(innerWidth/1280,innerHeight/720);st.style.transform=`translate(${-640*k}px,${-360*k}px) scale(${k})`}fit();addEventListener('resize',fit)})();
+</script>
+</body></html>
