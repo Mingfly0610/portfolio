@@ -3327,7 +3327,7 @@
         const finePointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
 
         function addTrailPoint(x, y) {
-            if (reducedMotionQuery.matches || !finePointerQuery.matches) return;
+            if (reducedMotionQuery.matches || !finePointerQuery.matches || !window.__mfTrail) return;
             trailPoints.push({ x, y, age: 0 });
             // 只有在有軌跡要畫時才啟動動畫迴圈
             if (!trailRunning) {
@@ -3433,7 +3433,7 @@
         }
 
         document.addEventListener('mousedown', (e) => {
-            if (!finePointerQuery.matches) return; // 觸控裝置不啟用手繪
+            if (!finePointerQuery.matches || !window.__mfTrail) return; // 觸控裝置不啟用手繪；點繪圖板後才能畫
             if (e.button !== 0 || e.ctrlKey || e.metaKey) return;
             if (!e.target.closest || e.target.closest(DRAW_BLOCK)) return;
             if (e.clientX >= document.documentElement.clientWidth) return; // 捲軸
@@ -6320,14 +6320,16 @@ window.__heroDemo = function (v) {
         const r = (el.querySelector('img') || el).getBoundingClientRect();
         return mx >= r.left && mx <= r.right && my >= r.top && my <= r.bottom;
     });
+    // 不再滑過就輪轉：改成點一下物件，轉一格（由物件功能的程式呼叫）
     function turn() {
-        if (busy || !mq.matches || !document.documentElement.classList.contains('on-hero')) return;
+        if (busy || !mq.matches) return;
+        if (icons.some(el => el.style.left)) return;   // 有物件被拖離原位時不轉，避免位置錯亂
         busy = true; step = (step + 1) % 4; move(true);
-        setTimeout(() => { busy = false; if (hovering()) setTimeout(() => { if (hovering()) turn(); }, GAP); }, DUR);
+        setTimeout(() => { busy = false; }, DUR);
     }
+    window.__heroTurn = turn;
     addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
     document.addEventListener('mouseleave', () => { mx = -1; });
-    icons.forEach(el => el.addEventListener('mouseenter', e => { mx = e.clientX; my = e.clientY; turn(); }));
     // 只有電腦版需要依視窗重算位置；手機切換頁面時瀏覽器網址列伸縮也會觸發 resize，
     // 這時不能寫入行內位移，否則會蓋掉手機版 CSS 設定的物件位置
     addEventListener('resize', () => {
@@ -6933,6 +6935,221 @@ window.__heroDemo = function (v) {
     boot(init);
   })();
 
+
+  // ---------- 年份標籤：黃色描邊與黑字分成兩層，黃色一律在黑字下面（iOS 有時不吃 paint-order，黃邊會蓋到黑字） ----------
+  (function yearStroke(){
+    const t = document.querySelector('#hero-section h1 > .drag-item svg text');
+    if (!t) return setTimeout(yearStroke, 300);
+    if (t.dataset.split) return;
+    const back = t.cloneNode(true);
+    back.setAttribute('fill', '#FFEC00'); back.removeAttribute('paint-order'); back.setAttribute('aria-hidden', 'true');
+    t.removeAttribute('stroke'); t.removeAttribute('stroke-width'); t.removeAttribute('stroke-linejoin'); t.removeAttribute('paint-order');
+    t.dataset.split = back.dataset.split = '1';
+    t.parentNode.insertBefore(back, t);   // 先畫黃色描邊層，黑字在上面
+    let sync = false;
+    const copy = (from, to) => { if (sync) return; sync = true; if (to.textContent !== from.textContent) to.textContent = from.textContent; sync = false; };
+    const opt = { childList: true, characterData: true, subtree: true };
+    new MutationObserver(() => copy(t, back)).observe(t, opt);
+    new MutationObserver(() => copy(back, t)).observe(back, opt);
+  })();
+
+  // ---------- 手機：在畫面上由右往左滑，打開右上角的選單；選單打開時由左往右滑可關閉 ----------
+  (function menuSwipe(){
+    const menu = document.getElementById('mobile-menu'), btn = document.getElementById('mobile-menu-btn');
+    if (!menu || !btn) return;
+    const open = () => !menu.classList.contains('opacity-0');
+    let sx = 0, sy = 0, st = 0, ok = false;
+    function blocked(el){
+      for (; el && el !== document.body; el = el.parentElement) {
+        if (el.matches('input, textarea, select, canvas, iframe, .drag-item, [data-no-swipe]')) return true;
+        const cs = getComputedStyle(el);
+        if ((cs.overflowX === 'auto' || cs.overflowX === 'scroll') && el.scrollWidth > el.clientWidth + 2) return true;
+      }
+      return false;
+    }
+    document.addEventListener('touchstart', e => {
+      ok = false;
+      if (innerWidth >= 768 || e.touches.length !== 1) return;
+      const p = e.touches[0];
+      if (open()) ok = true;   // 選單開著：任何地方都可以滑回去
+      else {
+        if (document.body.style.overflow === 'hidden') return;     // 有作品視窗開著時不處理
+        if (p.clientX < innerWidth * 0.35 || p.clientX > innerWidth - 16) return;   // 太靠右邊緣留給瀏覽器的手勢
+        if (blocked(e.target)) return;
+        ok = true;
+      }
+      sx = p.clientX; sy = p.clientY; st = performance.now();
+    }, { passive: true });
+    document.addEventListener('touchend', e => {
+      if (!ok) return; ok = false;
+      const p = e.changedTouches[0], dx = p.clientX - sx, dy = p.clientY - sy;
+      if (performance.now() - st > 700 || Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+      if (dx < 0 && !open()) btn.click();
+      else if (dx > 0 && open()) btn.click();
+    }, { passive: true });
+  })();
+
+})();
+</script>
+<style>
+/* 首頁四物件的工具模式（只限電腦版） */
+#mf-shapes { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 89; overflow: visible; }
+#mf-shapes .mf-shape { pointer-events: none; }
+html[data-mf-tool="mouse"] #mf-shapes .mf-shape { pointer-events: visiblePainted; cursor: move; }
+html.mf-shape-drag, html.mf-shape-drag * { cursor: grabbing !important; user-select: none !important; }
+html[data-mf-tool="pen"], html[data-mf-tool="pen"] * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M2 2 L8 19 L13 15 L15 13 L19 8 Z' fill='%23111' stroke='%23fff' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M2 2 L9 9' stroke='%23fff' stroke-width='1.3'/%3E%3Ccircle cx='9.5' cy='9.5' r='1.6' fill='%23fff'/%3E%3Cpath d='M13 15 L19 8 L25 14 L19 21 Z' fill='%23111' stroke='%23fff' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 2 2, crosshair !important; user-select: none !important; }
+html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #hero-section > .hero-icon * { cursor: pointer !important; }
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) { #hero-section > .hero-icon, #hero-section > .hero-icon * { cursor: pointer !important; } }
+#mf-tool-tip { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 8px); z-index: 120; pointer-events: none; opacity: 0;
+  font: 500 12px/1.4 "Geist Mono", ui-monospace, Menlo, monospace; letter-spacing: .03em; color: #fff; background: #111; padding: 9px 14px; border-radius: 999px;
+  transition: opacity .3s ease, transform .3s ease; white-space: nowrap; }
+#mf-tool-tip.on { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 1023px) { #mf-shapes, #mf-tool-tip { display: none; } }
+</style>
+<script>
+/* 首頁四物件：點一下切換工具並輪轉一格（只限電腦版，手機不啟用）
+   螢幕＝全螢幕；滑鼠＝一般游標（可拖曳鋼筆畫出的色塊）；鋼筆工具＝像 Illustrator 的鋼筆畫圖形；繪圖板＝滑鼠拖尾＋按住畫線 */
+(() => {
+  const mq = matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
+  const R = document.documentElement, NS = 'http://www.w3.org/2000/svg';
+  const BLUE = '#3B82F6', YELLOW = '#FFEC00';
+  window.__mfTrail = false;   // 網頁預設不再有滑鼠拖尾與手繪，點繪圖板後才開啟
+
+  // ---------- 圖形圖層（固定在視窗上，依捲動位置平移，圖形跟著頁面內容走） ----------
+  const svg = document.createElementNS(NS, 'svg'); svg.id = 'mf-shapes'; svg.setAttribute('aria-hidden', 'true');
+  const world = document.createElementNS(NS, 'g'), shapesG = document.createElementNS(NS, 'g'), ui = document.createElementNS(NS, 'g');
+  world.append(shapesG, ui); svg.append(world); document.body.appendChild(svg);
+  const syncScroll = () => world.setAttribute('transform', `translate(${-scrollX} ${-scrollY})`);
+  addEventListener('scroll', syncScroll, { passive: true }); syncScroll();
+  const el = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+  // ---------- 提示 ----------
+  const tip = document.createElement('div'); tip.id = 'mf-tool-tip'; document.body.appendChild(tip);
+  let tipT = 0;
+  function say(t) { tip.textContent = t; tip.classList.add('on'); clearTimeout(tipT); tipT = setTimeout(() => tip.classList.remove('on'), 3200); }
+
+  // ---------- 模式 ----------
+  let tool = 'mouse';
+  function setTool(t) {
+    if (tool === 'pen' && t !== 'pen') finishPath();
+    tool = t; R.setAttribute('data-mf-tool', t);
+    window.__mfTrail = t === 'tablet';
+  }
+  function sync() { if (mq.matches) R.setAttribute('data-mf-tool', tool); else { setTool('mouse'); R.removeAttribute('data-mf-tool'); } }
+  mq.addEventListener('change', sync); sync();
+
+  function fullscreen() {
+    const d = document;
+    if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+    else { const f = R.requestFullscreen || R.webkitRequestFullscreen; if (f) { const p = f.call(R); if (p && p.catch) p.catch(() => {}); } }
+  }
+
+  const ACTIONS = {
+    'hero-icon-1': () => { fullscreen(); },
+    'hero-icon-2': () => { setTool('mouse'); say('滑鼠：一般游標，可以拖曳畫好的色塊'); },
+    'hero-icon-3': () => { setTool('pen'); say('鋼筆工具：點一下新增錨點，按住拖曳拉出曲線，點回起點或按 Enter 完成'); },
+    'hero-icon-4': () => { setTool('tablet'); say('繪圖板：滑鼠拖尾，按住滑鼠就能畫線塗鴉'); },
+  };
+  (function bind() {
+    const icons = [...document.querySelectorAll('#hero-section > .hero-icon')];
+    if (icons.length !== 4) return setTimeout(bind, 300);
+    icons.forEach(ic => {
+      const img = ic.querySelector('img'), key = img && (img.getAttribute('src').match(/hero-icon-\d/) || [])[0];
+      if (!ACTIONS[key]) return;
+      // 四個物件不能拖曳：按下時就攔下來，不讓拖曳程式接手（點擊照常）
+      ic.addEventListener('mousedown', e => { e.stopImmediatePropagation(); if (e.button === 0) e.preventDefault(); }, true);
+      ic.addEventListener('touchstart', e => { e.stopImmediatePropagation(); }, { capture: true, passive: true });
+      ic.addEventListener('dragstart', e => e.preventDefault());
+      ic.addEventListener('click', e => {
+        if (!mq.matches) return;
+        ACTIONS[key]();
+        window.__heroTurn && window.__heroTurn();
+      });
+    });
+  })();
+
+  // 有作品視窗或選單打開時，工具不作用
+  const overlayOpen = () => { const m = document.getElementById('project-modal'); return (m && !m.classList.contains('hidden')) || document.body.style.overflow === 'hidden'; };
+  const onIcon = t => t && t.closest && t.closest('#hero-section > .hero-icon');
+
+  // ---------- 鋼筆工具 ----------
+  let pts = [], dragging = false, cur = null, count = 0;
+  const P = (e) => ({ x: e.clientX + scrollX, y: e.clientY + scrollY });
+  function seg(a, b) { return ` C ${a.ho.x} ${a.ho.y} ${b.hi.x} ${b.hi.y} ${b.x} ${b.y}`; }
+  function pathD(list, close) {
+    let d = `M ${list[0].x} ${list[0].y}`;
+    for (let i = 1; i < list.length; i++) d += seg(list[i - 1], list[i]);
+    if (close) d += seg(list[list.length - 1], list[0]) + ' Z';
+    return d;
+  }
+  function render() {
+    ui.textContent = '';
+    if (!pts.length) return;
+    const g = el('g', { fill: 'none', stroke: BLUE, 'stroke-width': 1 });
+    const draft = pts.slice();
+    if (cur && !dragging) draft.push({ x: cur.x, y: cur.y, hi: cur, ho: cur });
+    if (draft.length > 1) g.append(el('path', { d: pathD(draft, false) }));
+    const last = pts[pts.length - 1];
+    [last.hi, last.ho].forEach(h => { if (Math.hypot(h.x - last.x, h.y - last.y) > 1) { g.append(el('line', { x1: last.x, y1: last.y, x2: h.x, y2: h.y })); g.append(el('circle', { cx: h.x, cy: h.y, r: 3, fill: BLUE })); } });
+    pts.forEach((p, i) => g.append(el('rect', { x: p.x - 3.5, y: p.y - 3.5, width: 7, height: 7, fill: i === pts.length - 1 ? BLUE : '#fff' })));
+    if (cur && pts.length > 1 && Math.hypot(cur.x - pts[0].x, cur.y - pts[0].y) < 9) g.append(el('circle', { cx: pts[0].x, cy: pts[0].y, r: 7 }));   // 靠近起點：提示可以封閉
+    ui.append(g);
+  }
+  function finishPath(close) {
+    if (pts.length >= 2) {
+      const color = count++ % 2 ? YELLOW : BLUE;
+      const shape = pts.length >= 3
+        ? el('path', { d: pathD(pts, true), fill: color, class: 'mf-shape' })
+        : el('path', { d: pathD(pts, false), fill: 'none', stroke: color, 'stroke-width': 6, 'stroke-linecap': 'round', class: 'mf-shape' });
+      shape.dataset.tx = shape.dataset.ty = 0;
+      shapesG.append(shape);
+    }
+    pts = []; dragging = false; render();
+  }
+  const penOn = e => tool === 'pen' && mq.matches && !overlayOpen() && !onIcon(e.target);
+  document.addEventListener('mousedown', e => {
+    if (!penOn(e) || e.button !== 0) return;
+    e.preventDefault(); e.stopPropagation();
+    const p = P(e);
+    if (pts.length > 1 && Math.hypot(p.x - pts[0].x, p.y - pts[0].y) < 9) return finishPath(true);   // 點回起點：封閉
+    pts.push({ x: p.x, y: p.y, hi: { ...p }, ho: { ...p } }); dragging = true; cur = p; render();
+  }, true);
+  addEventListener('mousemove', e => {
+    if (tool !== 'pen' || !pts.length) return;
+    cur = P(e);
+    if (dragging && (e.buttons & 1)) {   // 按住拖曳：拉出對稱的兩支把手
+      const a = pts[pts.length - 1];
+      a.ho = { x: cur.x, y: cur.y }; a.hi = { x: 2 * a.x - cur.x, y: 2 * a.y - cur.y };
+    }
+    render();
+  }, true);
+  addEventListener('mouseup', () => { if (dragging) { dragging = false; render(); } }, true);
+  ['click', 'dblclick', 'contextmenu', 'dragstart', 'selectstart'].forEach(n => document.addEventListener(n, e => {
+    if (!penOn(e)) return;
+    e.preventDefault(); e.stopPropagation();
+    if (n === 'dblclick' && pts.length) { pts.pop(); finishPath(); }   // 雙擊也可以完成（第二下多出來的錨點拿掉）
+  }, true));
+  addEventListener('keydown', e => {
+    if (tool !== 'pen' || !pts.length) return;
+    if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); finishPath(); }
+    else if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); pts.pop(); render(); }
+  });
+
+  // ---------- 滑鼠模式：拖曳色塊 ----------
+  let drag = null;
+  svg.addEventListener('mousedown', e => {
+    const s = e.target.closest && e.target.closest('.mf-shape');
+    if (!s || tool !== 'mouse' || e.button !== 0) return;
+    e.preventDefault(); e.stopPropagation();
+    drag = { s, x: e.clientX, y: e.clientY, tx: +s.dataset.tx, ty: +s.dataset.ty };
+    shapesG.append(s); R.classList.add('mf-shape-drag');
+  });
+  addEventListener('mousemove', e => {
+    if (!drag) return;
+    const tx = drag.tx + e.clientX - drag.x, ty = drag.ty + e.clientY - drag.y;
+    drag.s.dataset.tx = tx; drag.s.dataset.ty = ty; drag.s.setAttribute('transform', `translate(${tx} ${ty})`);
+  });
+  addEventListener('mouseup', () => { if (drag) { drag = null; R.classList.remove('mf-shape-drag'); } });
 })();
 </script>
 
