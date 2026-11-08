@@ -7013,6 +7013,16 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
 @media (max-width: 1023px) { #mf-shapes, #mf-tool-tip { display: none; } }
 /* 離開首頁後（索引、關於、聯絡等），鋼筆色塊與塗鴉一律退到內容後面，文字、圖片永遠在上面 */
 #mf-shapes, #draw-canvas { z-index: -1 !important; }   /* 所有頁面：色塊與塗鴉都在內容後面 */
+/* 索引清單、聯絡頁：底色改由整個頁面（html/body）提供，區塊本身透明，色塊才會出現在底色上、內容下 */
+@media (min-width: 1024px) {
+  html.d4.hero-gone[data-view="work"] #work, html.d4.hero-gone[data-view="work"] body, html[data-view="work"] #work { background: transparent !important; }   /* 藍底只留在 html */
+  html[data-view="contact"] #halftone-bg { opacity: 0 !important; }   /* 聯絡頁維持原本沒有方格的深色底 */
+  html[data-view="contact"] { background-color: #111111 !important; }
+  html[data-view="contact"] body { background-color: transparent !important; }
+  html[data-view="contact"] #contact { background-color: transparent !important; }
+}
+/* 首頁四個物件：移除白色光暈 */
+#hero-section > .hero-icon { filter: none !important; }
 #mf-pen-ui { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 89; overflow: visible; }   /* 畫圖中的錨點、把手留在最上層 */
 @media (max-width: 1023px) { #mf-pen-ui { display: none; } }
 </style>
