@@ -7089,8 +7089,19 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
     const m = [...document.querySelectorAll('#hero-section > .hero-icon')].find(el => /hero-icon-2/.test((el.querySelector('img') || {}).src || ''));
     if (!m) return; m.classList.remove('mf-nudge'); void m.offsetWidth; m.classList.add('mf-nudge'); setTimeout(() => m.classList.remove('mf-nudge'), 1500);
   }
+  let ate = false, ateWarn = '';   // 這次按下是否被鋼筆拿去放錨點（放在按鈕或物件上時，接下來的 click 要吞掉）
   ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(n => window.addEventListener(n, e => {   // 掛在 window 最前面，比網站換頁的程式更早攔下
-    if (!mq.matches || tool === 'mouse' || overlayOpen() || !leaveTarget(e.target)) return;
+    if (!mq.matches || tool === 'mouse' || overlayOpen()) return;
+    if (tool === 'pen') {
+      // 鋼筆：按鈕、物件上也照樣放錨點（由鋼筆自己處理按下），這裡只把之後的點擊吞掉，並顯示提示
+      if (n === 'click' && ate) {
+        e.preventDefault(); e.stopImmediatePropagation(); ate = false;
+        if (ateWarn === 'leave') { say('warn', '請先點「滑鼠」切換回一般游標，才能前往其他頁面'); nudgeMouse(); }
+        else if (ateWarn === 'shape') say('warn', '請先完成圖形：點回起點或按 Enter');
+      } else if ((n === 'pointerdown' || n === 'pointerup') && (leaveTarget(e.target) || (onIcon(e.target) && pts.length))) e.stopImmediatePropagation();
+      return;
+    }
+    if (!leaveTarget(e.target)) return;
     e.preventDefault(); e.stopImmediatePropagation();
     if (n === 'click') { say('warn', '請先點「滑鼠」切換回一般游標，才能前往其他頁面'); nudgeMouse(); }
   }, true));
@@ -7129,13 +7140,14 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
     }
     pts = []; dragging = false; render();
   }
-  const penOn = e => tool === 'pen' && mq.matches && !overlayOpen() && !onIcon(e.target);
+  const penOn = e => tool === 'pen' && mq.matches && !overlayOpen() && (!onIcon(e.target) || pts.length > 0);   // 畫到一半時，物件上也能放錨點
   document.addEventListener('mousedown', e => {
     if (!penOn(e) || e.button !== 0) return;
     e.preventDefault(); e.stopPropagation();
     const p = P(e);
-    if (pts.length > 1 && Math.hypot(p.x - pts[0].x, p.y - pts[0].y) < 9) return finishPath(true);   // 點回起點：封閉
-    pts.push({ x: p.x, y: p.y, hi: { ...p }, ho: { ...p } }); dragging = true; cur = p; render();
+    if (pts.length > 1 && Math.hypot(p.x - pts[0].x, p.y - pts[0].y) < 9) finishPath(true);   // 點回起點：封閉
+    else { pts.push({ x: p.x, y: p.y, hi: { ...p }, ho: { ...p } }); dragging = true; cur = p; render(); }
+    ate = true; ateWarn = leaveTarget(e.target) ? 'leave' : (onIcon(e.target) && pts.length ? 'shape' : '');
   }, true);
   addEventListener('mousemove', e => {
     if (tool !== 'pen' || !pts.length) return;
