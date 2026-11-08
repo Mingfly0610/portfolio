@@ -6997,11 +6997,12 @@ window.__heroDemo = function (v) {
 #mf-shapes .mf-shape { pointer-events: none; }
 html[data-mf-tool="mouse"] #mf-shapes .mf-shape { pointer-events: visiblePainted; cursor: move; }
 html.mf-shape-drag, html.mf-shape-drag * { cursor: grabbing !important; user-select: none !important; }
+html.mf-shape-hover, html.mf-shape-hover * { cursor: move !important; }
 html[data-mf-tool="pen"], html[data-mf-tool="pen"] * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg transform='translate%283 3%29 rotate%28-45%29'%3E%3Cpath d='M0 0 L7.5 12 L7.5 18 L-7.5 18 L-7.5 12 Z' fill='%23111' stroke='%23fff' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M0 1.5 L0 8.5' stroke='%23fff' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='0' cy='10' r='2.2' fill='%23fff'/%3E%3Crect x='-7.5' y='20' width='15' height='3.2' fill='%23111' stroke='%23fff' stroke-width='1.4'/%3E%3C/g%3E%3C/svg%3E") 3 3, crosshair !important; user-select: none !important; }
 html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #hero-section > .hero-icon * { cursor: pointer !important; }
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) { #hero-section > .hero-icon, #hero-section > .hero-icon * { cursor: pointer !important; } }
 #mf-tool-tip { position: fixed; left: 50%; top: 95px; transform: translate(-50%, -6px); z-index: 120; pointer-events: none; opacity: 0;
-  display: flex; align-items: center; gap: 8px; background: #3B82F6; color: #fff; padding: 8px 12px; border-radius: 0;
+  display: flex; align-items: center; gap: 8px; background: #111; color: #fff; padding: 8px 12px; border-radius: 0;
   font: 500 14px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .02em; white-space: nowrap;
   transition: opacity .25s ease, transform .25s ease; }
 #mf-tool-tip.on { opacity: 1; transform: translate(-50%, 0); }
@@ -7011,7 +7012,9 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
 #hero-section > .hero-icon.mf-nudge > img, #hero-section > .hero-icon.mf-nudge > canvas { animation: mfNudge .7s ease 2; }
 @media (max-width: 1023px) { #mf-shapes, #mf-tool-tip { display: none; } }
 /* 離開首頁後（索引、關於、聯絡等），鋼筆色塊與塗鴉一律退到內容後面，文字、圖片永遠在上面 */
-html:not(.on-hero) #mf-shapes, html:not(.on-hero) #draw-canvas { z-index: -1 !important; }
+#mf-shapes, #draw-canvas { z-index: -1 !important; }   /* 所有頁面：色塊與塗鴉都在內容後面 */
+#mf-pen-ui { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 89; overflow: visible; }   /* 畫圖中的錨點、把手留在最上層 */
+@media (max-width: 1023px) { #mf-pen-ui { display: none; } }
 </style>
 <script>
 /* 首頁四物件：點一下切換工具並輪轉一格（只限電腦版，手機不啟用）
@@ -7025,15 +7028,17 @@ html:not(.on-hero) #mf-shapes, html:not(.on-hero) #draw-canvas { z-index: -1 !im
   // ---------- 圖形圖層（固定在視窗上，依捲動位置平移，圖形跟著頁面內容走） ----------
   const svg = document.createElementNS(NS, 'svg'); svg.id = 'mf-shapes'; svg.setAttribute('aria-hidden', 'true');
   const world = document.createElementNS(NS, 'g'), shapesG = document.createElementNS(NS, 'g'), ui = document.createElementNS(NS, 'g');
-  world.append(shapesG, ui); svg.append(world); document.body.appendChild(svg);
-  const syncScroll = () => world.setAttribute('transform', `translate(${-scrollX} ${-scrollY})`);
+  world.append(shapesG); svg.append(world); document.body.appendChild(svg);
+  const svgUi = document.createElementNS(NS, 'svg'), worldUi = document.createElementNS(NS, 'g'); svgUi.id = 'mf-pen-ui'; svgUi.setAttribute('aria-hidden', 'true');
+  worldUi.append(ui); svgUi.append(worldUi); document.body.appendChild(svgUi);
+  const syncScroll = () => { const t = `translate(${-scrollX} ${-scrollY})`; world.setAttribute('transform', t); worldUi.setAttribute('transform', t); };
   addEventListener('scroll', syncScroll, { passive: true }); syncScroll();
   const el = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
 
   // ---------- 提示 ----------
   const tip = document.createElement('div'); tip.id = 'mf-tool-tip'; document.body.appendChild(tip);
   let tipT = 0;
-  const ICON = {"monitor": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'><rect x='2.5' y='4' width='19' height='12.5' rx='1.5'/><path d='M9 21h6M12 16.5V21' stroke-linecap='round'/></svg>", "mouse": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2'><rect x='6' y='3' width='12' height='18' rx='6'/><path d='M12 7v4' stroke-linecap='round'/></svg>", "pen": "<svg viewBox='0 0 24 24'><g transform='translate(1.5 1.5) rotate(-45) scale(.93)'><path d='M0 0 L7.5 12 L7.5 18 L-7.5 18 L-7.5 12 Z' fill='currentColor'/><path d='M0 1.5 L0 8.5' stroke='#3B82F6' stroke-width='1.8' stroke-linecap='round'/><circle cx='0' cy='10' r='2.3' fill='#3B82F6'/><rect x='-7.5' y='20' width='15' height='3.6' fill='currentColor'/></g></svg>", "tablet": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'><rect x='2.5' y='5' width='19' height='14' rx='1.5'/><path d='M8 14.5c2-3 4 1 6-2s2.5-1 3.5-1'/></svg>", "warn": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><circle cx='12' cy='12' r='9.5'/><path d='M12 7v6.5M12 16.8v.2'/></svg>"};
+  const ICON = {"monitor": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'><rect x='2.5' y='4' width='19' height='12.5' rx='1.5'/><path d='M9 21h6M12 16.5V21' stroke-linecap='round'/></svg>", "mouse": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2'><rect x='6' y='3' width='12' height='18' rx='6'/><path d='M12 7v4' stroke-linecap='round'/></svg>", "pen": "<svg viewBox='0 0 24 24'><g transform='translate(1.5 1.5) rotate(-45) scale(.93)'><path d='M0 0 L7.5 12 L7.5 18 L-7.5 18 L-7.5 12 Z' fill='currentColor'/><path d='M0 1.5 L0 8.5' stroke='#111' stroke-width='1.8' stroke-linecap='round'/><circle cx='0' cy='10' r='2.3' fill='#111'/><rect x='-7.5' y='20' width='15' height='3.6' fill='currentColor'/></g></svg>", "tablet": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'><rect x='2.5' y='5' width='19' height='14' rx='1.5'/><path d='M8 14.5c2-3 4 1 6-2s2.5-1 3.5-1'/></svg>", "warn": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><circle cx='12' cy='12' r='9.5'/><path d='M12 7v6.5M12 16.8v.2'/></svg>"};
   function say(icon, t) {
     const nav = document.getElementById('navbar'); tip.style.top = ((nav ? nav.getBoundingClientRect().bottom : 81) + 14) + 'px';   // 導覽列正下方
     tip.innerHTML = (ICON[icon] || '') + '<span></span>'; tip.lastChild.textContent = t;
@@ -7174,13 +7179,29 @@ html:not(.on-hero) #mf-shapes, html:not(.on-hero) #draw-canvas { z-index: -1 !im
 
   // ---------- 滑鼠模式：拖曳色塊 ----------
   let drag = null;
-  svg.addEventListener('mousedown', e => {
-    const s = e.target.closest && e.target.closest('.mf-shape');
-    if (!s || tool !== 'mouse' || e.button !== 0) return;
-    e.preventDefault(); e.stopPropagation();
+  // 色塊在內容後面，滑鼠事件到不了它：改用位置判斷有沒有按在色塊上（按鈕、連結、物件上照常優先）
+  const SKIP = 'a, button, input, textarea, select, label, video, iframe, [role="button"], .drag-item, .hero-icon, .portfolio-item, #navbar, #project-modal, #mobile-menu, #mf-tool-tip';
+  function hitShape(e) {
+    if (e.target && e.target.closest && e.target.closest(SKIP)) return null;
+    const list = [...shapesG.children].reverse();
+    for (const sh of list) {
+      const pt = { x: e.clientX + scrollX - (+sh.dataset.tx || 0), y: e.clientY + scrollY - (+sh.dataset.ty || 0) };
+      try { if (sh.getAttribute('fill') !== 'none' ? sh.isPointInFill(new DOMPoint(pt.x, pt.y)) : sh.isPointInStroke(new DOMPoint(pt.x, pt.y))) return sh; } catch (_) {}
+    }
+    return null;
+  }
+  window.addEventListener('mousedown', e => {
+    if (tool !== 'mouse' || !mq.matches || e.button !== 0 || overlayOpen() || !shapesG.children.length) return;
+    const s = hitShape(e); if (!s) return;
+    e.preventDefault(); e.stopImmediatePropagation();
     drag = { s, x: e.clientX, y: e.clientY, tx: +s.dataset.tx, ty: +s.dataset.ty };
     shapesG.append(s); R.classList.add('mf-shape-drag');
-  });
+  }, true);
+  let hovT = 0;
+  addEventListener('mousemove', e => {   // 滑過色塊時顯示移動游標
+    if (drag || tool !== 'mouse' || !mq.matches || !shapesG.children.length) { R.classList.remove('mf-shape-hover'); return; }
+    if (hovT) return; hovT = requestAnimationFrame(() => { hovT = 0; R.classList.toggle('mf-shape-hover', !!hitShape(e)); });
+  }, { passive: true });
   addEventListener('mousemove', e => {
     if (!drag) return;
     const tx = drag.tx + e.clientX - drag.x, ty = drag.ty + e.clientY - drag.y;
