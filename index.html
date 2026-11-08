@@ -5432,34 +5432,21 @@
             tagFx.set = () => {};   // 年份標籤改成和 beautiful 一樣只解碼，不轉成 ASCII
             const HOLD = 2000, FX = 800;   // 每 2 秒切換
             let timer = 0, busy = false;
-            function run(toAscii) {
-                clearTimeout(timer); busy = true;
-                heroSet(!toAscii);                               // 首頁圖示同一刻一起切換
-                const t0 = performance.now();
-                h1.classList.add('is-ascii-text');
-                if (swapWord(h1.querySelector('.font-serif'), HERO_WORDS)) rasterize();   // 換字後重新取樣其他字的位置
+            // 不再切換成 ASCII：每 3 秒只換藍色字並解碼（年份標籤一起解碼）
+            function run() {
+                clearTimeout(timer);
+                swapWord(h1.querySelector('.font-serif'), HERO_WORDS);
                 decodeWord(h1.querySelector('.font-serif'));
-                decodeWord(document.querySelector('#hero-section .drag-item:not(.hero-icon) svg text'));   // 年份標籤：不轉 ASCII，只解碼              // 轉場中與 ASCII 狀態：真正的文字隱藏，由畫布代畫
-                (function step(now) {
-                    const k = Math.min(1, (now - t0) / FX);
-                    hide = toAscii ? 1 - k : k;
-                    draw(now); tagFx.set(hide, now);
-                    if (k < 1) return requestAnimationFrame(step);
-                    mode = toAscii ? 'ascii' : 'text';
-                    if (mode === 'text') { h1.classList.remove('is-ascii-text'); ctx.clearRect(0, 0, W, H); tagFx.set(1, now); }
-                    else (function idle(n) { if (mode !== 'ascii') return; draw(n); tagFx.set(0, n); setTimeout(() => requestAnimationFrame(idle), 400); })(performance.now());
-                    busy = false;
-                    timer = setTimeout(() => run(mode === 'text'), HOLD);
-                })(t0);
+                decodeWord(document.querySelector('#hero-section .drag-item:not(.hero-icon) svg text'));
+                timer = setTimeout(run, HOLD + FX);
             }
             const begin = () => {
                 if (document.documentElement.classList.contains('splash-on')) return setTimeout(begin, 100);
                 if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-                rasterize(); tagFx.rasterize();
-                timer = setTimeout(() => run(true), HOLD);
+                timer = setTimeout(run, HOLD + FX);
             };
             // 點首頁圖示：馬上一起切換，並從這裡重新計時
-            window.__heroFlip = () => { if (!busy && data) run(mode === 'text'); };
+            window.__heroFlip = () => {};
             (document.fonts ? document.fonts.ready : Promise.resolve()).then(begin);
             let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { rasterize(); tagFx.rasterize(); if (mode === 'ascii') { draw(performance.now()); tagFx.set(0, performance.now()); } }, 200); });
         })();
@@ -5749,28 +5736,18 @@
         }
         const HOLD = 2000, FX = 800;   // 每 2 秒切換
         window.__contactAscii = () => mode === 'ascii';
-        function run(toAscii) {
+        // 不再切換成 ASCII：每 3 秒只換藍色字並解碼
+        function run() {
             clearTimeout(timer);
-            { const R = document.documentElement; if (R.classList.contains('hero-gone') && R.getAttribute('data-view') === 'contact') { window.__logoFlip && window.__logoFlip(toAscii); } }
-            const t0 = performance.now();
-            h2.classList.add('is-ascii-text');
-            if (swapWord(h2.querySelector('.font-serif'), CONTACT_WORDS)) rasterize();
+            swapWord(h2.querySelector('.font-serif'), CONTACT_WORDS);
             decodeWord(h2.querySelector('.font-serif'));
-            (function step(now) {
-                const k = Math.min(1, (now - t0) / FX);
-                hide = toAscii ? 1 - k : k; draw(now);
-                if (k < 1) return requestAnimationFrame(step);
-                mode = toAscii ? 'ascii' : 'text';
-                if (mode === 'text') { h2.classList.remove('is-ascii-text'); ctx.clearRect(0, 0, W, H); }
-                else (function idle(n) { if (mode !== 'ascii') return; draw(n); setTimeout(() => requestAnimationFrame(idle), 400); })(performance.now());
-                timer = setTimeout(() => run(mode === 'text'), HOLD);
-            })(t0);
+            timer = setTimeout(run, HOLD + FX);
         }
         // 捲到聯絡區時才開始：先顯示 3 秒正常文字，再切換
         new IntersectionObserver(([en]) => {
             if (!en.isIntersecting || started || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
             started = true;
-            (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { rasterize(); timer = setTimeout(() => run(true), HOLD); });
+            (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { timer = setTimeout(run, HOLD + FX); });
         }, { threshold: 0.3 }).observe(h2);
         let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (!started) return; rasterize(); if (mode === 'ascii') draw(performance.now()); }, 200); });
     })();
