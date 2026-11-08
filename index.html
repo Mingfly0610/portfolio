@@ -5136,8 +5136,8 @@
         let heroRaw = true;
         const HERO_FX = 800;
         function heroSet(toRaw) {
-            // 手機版：首頁四個物件不切換成 ASCII，一直維持原本的樣子（大標題照常切換）
-            if (SMALL() && !toRaw) return;
+            // 首頁四個物件不再切換成 ASCII（電腦、手機都一樣），一直維持原本的樣子；大標題照常切換
+            if (!toRaw) return;
             if (toRaw && heroRaw) return;   // 已經是原本的樣子，不用再轉場
             heroRaw = toRaw;
             const ls = layers.filter(L => L.opt.hero);
@@ -5157,6 +5157,7 @@
             layers.filter(L => L.opt.hero).forEach(L => { L.hide = 1; L.ok = false; });
         }
         function heroToggle() {
+            return;   // 物件不切換 ASCII 了：保留原本的拖曳功能，不再把點擊改成切換
             document.querySelectorAll('#hero-section .hero-icon').forEach(icon => {
                 if (icon.__toggle) return;
                 icon.__toggle = true;
