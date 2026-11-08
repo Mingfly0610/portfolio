@@ -6484,6 +6484,7 @@ window.__heroDemo = function (v) {
   const css = document.createElement('style');
   css.textContent = [
     '#hero-section .mf-anim{transition:opacity .25s ease}',
+    '#hero-section .hero-icon.mf-live > img[src*="hero-icon-4"],#hero-section .hero-icon.mf-live > img[src*="hero-icon-2"]{opacity:0 !important}',   // 繪圖板、滑鼠動態接手後藏起原圖（繪圖板原圖有舊筆；滑鼠原圖的電線不會擺）
     'html.mf-ascii #hero-section .mf-anim{opacity:0}',
     'html.mf-ascii #hero-section .mf-mon{opacity:1;z-index:4}',                  // 螢幕裡的影片在 ASCII 模式也繼續播（改用 ASCII 樣式畫）
     '#hero-section .hero-icon.mf-live > .ascii-layer{visibility:hidden}',          // 動態接手時，藏起畫原圖的那一層
@@ -6510,17 +6511,42 @@ window.__heroDemo = function (v) {
   boot(function year(){
     const h = document.querySelector('#hero-section h1'), s = h && h.querySelector(':scope > .drag-item');
     if (!s) return setTimeout(year, 300);
-    let dx = 0;
     function fit(){
-      if (innerWidth < 768) { dx = 0; s.style.translate = ''; return; }
+      if (s.parentElement !== h || s.classList.contains('is-dragging')) return;   // 被拖走了就不管
+      if (innerWidth < 768) { s.style.translate = ''; return; }
+      s.style.translate = '';
       const hr = h.getBoundingClientRect(), r = s.getBoundingClientRect();
       if (!hr.width) return;
-      dx += (hr.left + hr.width / 2) - (r.left + r.width / 2);
-      s.style.translate = dx + 'px 0';
+      s.style.translate = Math.round((hr.left + hr.width / 2) - (r.left + r.width / 2)) + 'px 0';
     }
     fit(); setTimeout(fit, 600); setTimeout(fit, 2500);
-    let t = 0; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(fit, 150); });
+    let t = 0; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => {
+      // 視窗大小改變後，拖曳程式會把物件放回原位並清掉位置，這裡把 translate 還給它們再重新置中
+      document.querySelectorAll('#hero-section .drag-item').forEach(el => { if (el.style.translate === 'none') el.style.translate = ''; });
+      fit();
+    }, 450); });
   });
+
+  // ---------- 拖曳時不偏移：這幾個物件用 translate 微調過位置，拖曳程式量位置時已經包含它，
+  // 若 translate 繼續疊加就會往旁邊跳一段。開始拖曳後把 translate 拿掉，並把位置補回去，畫面不會動 ----------
+  (function(){
+    const pre = new WeakMap();
+    function item(e){ return e.target && e.target.closest && e.target.closest('#hero-section .drag-item'); }
+    function before(e){ const el = item(e); if (el) pre.set(el, el.getBoundingClientRect()); }
+    function after(e){
+      const el = item(e), r0 = el && pre.get(el);
+      if (!r0 || el.style.translate === 'none' || !el.classList.contains('is-dragging')) return;
+      const cs = getComputedStyle(el); if (!cs.translate || cs.translate === 'none') { return; }
+      el.style.translate = 'none';
+      const r1 = el.getBoundingClientRect();
+      el.style.left = (parseFloat(el.style.left) + (r0.left - r1.left)) + 'px';
+      el.style.top = (parseFloat(el.style.top) + (r0.top - r1.top)) + 'px';
+    }
+    ['mousedown', 'touchstart'].forEach(n => {
+      document.addEventListener(n, before, { capture: true, passive: true });
+      document.addEventListener(n, after, { passive: true });
+    });
+  })();
 
   // ---------- 螢幕 ----------
   (function(){
