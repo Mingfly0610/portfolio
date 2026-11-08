@@ -5136,6 +5136,9 @@
         let heroRaw = true;
         const HERO_FX = 800;
         function heroSet(toRaw) {
+            // 手機版：首頁四個物件不切換成 ASCII，一直維持原本的樣子（大標題照常切換）
+            if (SMALL() && !toRaw) return;
+            if (toRaw && heroRaw) return;   // 已經是原本的樣子，不用再轉場
             heroRaw = toRaw;
             const ls = layers.filter(L => L.opt.hero);
             ls.forEach(L => { L.anim = true; L.src.style.opacity = '0'; });   // 轉場時由畫布接手
@@ -5161,7 +5164,7 @@
                     icon.removeEventListener('mousedown', dragStart);
                     icon.removeEventListener('touchstart', dragStart);
                 }
-                icon.addEventListener('click', () => { if (window.__heroFlip) window.__heroFlip(); });
+                icon.addEventListener('click', () => { if (SMALL()) return; if (window.__heroFlip) window.__heroFlip(); });   // 手機版點物件不切換
             });
         }
         function attachHero() {
@@ -6481,6 +6484,7 @@ window.__heroDemo = function (v) {
   css.textContent = [
     '#hero-section .mf-anim{transition:opacity .25s ease}',
     'html.mf-ascii #hero-section .mf-anim{opacity:0}',
+    'html.mf-ascii #hero-section .mf-mon{opacity:1;z-index:4}',                  // 螢幕裡的影片在 ASCII 模式也繼續播（改用 ASCII 樣式畫）
     '#hero-section .hero-icon.mf-live > .ascii-layer{visibility:hidden}',          // 動態接手時，藏起畫原圖的那一層
     'html.mf-ascii #hero-section .hero-icon.mf-live > .ascii-layer,html.mf-hand #hero-section .hero-icon.mf-live > .ascii-layer{visibility:visible}',
     // 鋼筆正在畫線時不被 ASCII 打斷：畫完才跟著切換
@@ -6522,7 +6526,7 @@ window.__heroDemo = function (v) {
   // 首頁螢幕播作品 demo：動態設計作品（台橡 ELT 除外）轉成彩色點陣，在左上角螢幕裡輪播
 
     // 螢幕內框四個角（1120×1120 原圖座標）：左上、右上、右下、左下；往外多畫一圈藏到螢幕框底下，避免露白邊
-    const Q0 = [[262,214],[898,254],[903,696],[262,712]], GROW = 16;
+    const Q0 = [[262,214],[898,254],[903,696],[262,712]], GROW = 34;
     const cx = Q0.reduce((a,p)=>a+p[0],0)/4, cy = Q0.reduce((a,p)=>a+p[1],0)/4;
     const Q = Q0.map(([x,y])=>{ const dx=x-cx, dy=y-cy, l=Math.hypot(dx,dy); return [x+dx/l*GROW*1.4, y+dy/l*GROW]; });
     const HOLD = 7000, FADE = 600;            // 每支播 7 秒，切換時點陣縮小再長回來
@@ -6537,8 +6541,40 @@ window.__heroDemo = function (v) {
       const box = img.parentElement;
       if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
       const cv = document.createElement('canvas');
-      cv.className = 'mf-anim'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0';
+      cv.className = 'mf-anim mf-mon'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0';
       box.insertBefore(cv, img);
+      const html = document.documentElement, RAMP = ':;t%SX8#@';
+      const FONT = '"Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+      // ASCII 模式：照網站 ASCII 的畫法（色塊＋字元）畫影片，只畫在螢幕框內，不蓋到框
+      const QA = Q0.map(([x,y])=>{ const dx=x-cx, dy=y-cy, l=Math.hypot(dx,dy); return [x-dx/l*3, y-dy/l*2]; });
+      function drawAscii(v, k, W, H, s, ox, oy, dpr){
+        const P = QA.map(([x, y]) => [ox + x * s, oy + y * s]);
+        const cell = (innerWidth < 768 ? 5 : 9) * dpr;
+        const qw = Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]), qh = Math.hypot(P[3][0] - P[0][0], P[3][1] - P[0][1]);
+        const cols = Math.max(8, Math.round(qw / cell)), rows = Math.max(6, Math.round(qh / cell));
+        off.width = cols; off.height = rows;
+        const vr = v.videoWidth / v.videoHeight, tr = qw / qh;
+        let sw = v.videoWidth, sh = v.videoHeight, sx = 0, sy = 0;
+        if (vr > tr) { sw = sh * tr; sx = (v.videoWidth - sw) / 2; } else { sh = sw / tr; sy = (v.videoHeight - sh) / 2; }
+        oc.drawImage(v, sx, sy, sw, sh, 0, 0, cols, rows);
+        const d = oc.getImageData(0, 0, cols, rows).data;
+        const at = (u, w) => { const t = [P[0][0] + (P[1][0] - P[0][0]) * u, P[0][1] + (P[1][1] - P[0][1]) * u], b = [P[3][0] + (P[2][0] - P[3][0]) * u, P[3][1] + (P[2][1] - P[3][1]) * u]; return [t[0] + (b[0] - t[0]) * w, t[1] + (b[1] - t[1]) * w]; };
+        // 先把螢幕內鋪白，蓋掉底下原圖螢幕裡的字元
+        ctx.fillStyle = '#FCFCFC'; ctx.beginPath(); P.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.fill();
+        const cw = qw / cols, ch = qh / rows, gap = Math.max(0.6 * dpr, cw * 0.08);
+        ctx.font = `700 ${Math.round(ch * 0.82)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+          const q = (j * cols + i) * 4, R = d[q], G = d[q + 1], B = d[q + 2];
+          const lum = (0.299 * R + 0.587 * G + 0.114 * B) / 255;
+          const [x, y] = at((i + 0.5) / cols, (j + 0.5) / rows);
+          const bw = (cw - gap) * k, bh = (ch - gap) * k;
+          if (bw < 0.5) continue;
+          ctx.fillStyle = `rgb(${R},${G},${B})`; ctx.fillRect(x - bw / 2, y - bh / 2, bw, bh);
+          if (k < 0.6) continue;
+          ctx.fillStyle = lum > 0.6 ? 'rgba(17,17,17,0.55)' : 'rgba(255,255,255,0.78)';
+          ctx.fillText(RAMP[Math.min(RAMP.length - 1, Math.floor((1 - lum) * RAMP.length))], x, y + ch * 0.04);
+        }
+      }
       const mk = () => { const v = document.createElement('video'); v.muted = true; v.setAttribute('muted',''); v.playsInline = true; v.preload = 'auto';
         v.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none'; document.body.appendChild(v); return v; };
       const vids = [mk(), mk()]; let cur = 0, idx = 0, t0 = performance.now(), clicked = false;
@@ -6547,6 +6583,24 @@ window.__heroDemo = function (v) {
       window.__monList = list;
       const off = document.createElement('canvas'), oc = off.getContext('2d', { willReadFrequently: true });
       const ctx = cv.getContext('2d');
+      // 螢幕形狀的遮罩（從原圖算出螢幕內框，邊緣柔化）：影片剛好填滿螢幕、貼齊圓角，不露白邊也不吃到框
+      const mask = new Image(); mask.src = 'images/hero-icon-1-screen.png';
+      let maskA = null;   // 轉成 alpha 遮罩的版本
+      mask.onload = () => {
+        const c = document.createElement('canvas'); c.width = mask.naturalWidth; c.height = mask.naturalHeight;
+        const g = c.getContext('2d'); g.drawImage(mask, 0, 0);
+        const im = g.getImageData(0, 0, c.width, c.height), dd = im.data;
+        for (let i = 0; i < dd.length; i += 4) { dd[i + 3] = dd[i]; dd[i] = dd[i + 1] = dd[i + 2] = 0; }
+        g.putImageData(im, 0, 0); maskA = c;
+        // 內陰影：遮罩邊緣往內一圈淡淡的暗影，讓畫面像嵌在螢幕裡
+        const sh = document.createElement('canvas'); sh.width = c.width; sh.height = c.height;
+        const h = sh.getContext('2d');
+        h.fillStyle = 'rgba(30,20,20,1)'; h.fillRect(0, 0, sh.width, sh.height);
+        h.globalCompositeOperation = 'destination-out'; h.filter = 'blur(22px)'; h.drawImage(c, 0, 0);
+        h.filter = 'none'; h.globalCompositeOperation = 'destination-in'; h.drawImage(c, 0, 0);
+        maskA.shade = sh;
+      };
+      const vc = document.createElement('canvas'), vx = vc.getContext('2d');
       function next(){
         vids[cur].pause(); cur ^= 1; idx = (idx + 1) % list.length;
         vids[cur].currentTime = 0; vids[cur].play().catch(()=>{});
@@ -6568,8 +6622,11 @@ window.__heroDemo = function (v) {
         ctx.clearRect(0, 0, W, H);
         if (v.readyState < 2) return;
         const s = Math.min(W, H) / 1120, ox = (W - 1120 * s) / 2, oy = (H - 1120 * s) / 2;
+        if (html.classList.contains('mf-ascii')) { drawAscii(v, k, W, H, s, ox, oy, dpr); return; }
+        if (vc.width !== W || vc.height !== H) { vc.width = W; vc.height = H; }
+        const out = ctx; { const ctx = vx; ctx.clearRect(0, 0, W, H);
         const P = Q.map(([x, y]) => [ox + x * s, oy + y * s]);
-        const cols = 62, rows = 44;
+        const cols = 66, rows = 48;
         off.width = cols; off.height = rows;
         const vr = v.videoWidth / v.videoHeight, tr = (Math.hypot(P[1][0]-P[0][0],P[1][1]-P[0][1]) / Math.hypot(P[3][0]-P[0][0],P[3][1]-P[0][1]));
         let sw = v.videoWidth, sh = v.videoHeight, sx = 0, sy = 0;
@@ -6594,6 +6651,13 @@ window.__heroDemo = function (v) {
           if (rad < 0.3) continue;
           ctx.fillStyle = `rgb(${R},${G},${B})`; ctx.beginPath(); ctx.arc(x, y, rad, 0, 6.283); ctx.fill();
         }
+        if (maskA) {
+          ctx.globalCompositeOperation = 'destination-in'; ctx.drawImage(maskA, ox, oy, 1120 * s, 1120 * s);
+          ctx.globalCompositeOperation = 'source-over';
+          if (window.__monShade !== false) { ctx.globalAlpha = 0.32 * k; ctx.drawImage(maskA.shade, ox, oy, 1120 * s, 1120 * s); ctx.globalAlpha = 1; }
+        }
+        }
+        out.drawImage(vc, 0, 0);
       }
       requestAnimationFrame(frame);
     }
