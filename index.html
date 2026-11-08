@@ -6862,6 +6862,7 @@ window.__heroDemo = function (v) {
         const tmc = mk().getContext('2d'); tmc.drawImage(tm, 0, 0, N, N); const T = tmc.getImageData(0, 0, N, N).data;
         for (let i = 0; i < N * N; i++) if (T[i * 4] !== 0) base.data[i * 4 + 3] = 0;
         nc.putImageData(base, 0, 0);
+        nc.clearRect(770, 806, 22, 64); nc.clearRect(498, 430, 16, 16);   // 清掉筆尖右邊、上方殘留的零星網點（原圖錨點邊緣的碎點）
         // 點陣：4px 方格棋盤，跟原圖一樣的網點
         // 兩種網點密度：外圈 50%（棋盤）、中心 75%，跟原圖的網點一樣，過程中就是網點，不會有實心
         const tile = document.createElement('canvas'); tile.width = tile.height = 8;
