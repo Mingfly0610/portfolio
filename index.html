@@ -6820,7 +6820,7 @@ window.__heroDemo = function (v) {
     const COLOR = 'rgb(32,171,186)', END = 3900, TIP = [660, 356];   // TIP：筆尖在原圖的位置
     const st = document.createElement('style');
     st.textContent = '#hero-section img[src*="hero-icon-3"]{visibility:hidden!important}#hero-section .hero-icon:has(img[src*="hero-icon-3"]) .ascii-layer{visibility:hidden}';
-    document.head.appendChild(st);
+    // 原圖先不藏：等動態畫布畫好第一格才藏，避免載入時鋼筆工具空白一下
     const lerp = (a, b, t) => a + (b - a) * t, L2 = (p, q, t) => [lerp(p[0], q[0], t), lerp(p[1], q[1], t)];
     const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     const clamp = t => Math.max(0, Math.min(1, t));
@@ -6925,6 +6925,10 @@ window.__heroDemo = function (v) {
         }
         let t0 = null;
         paint(-1);
+        document.head.appendChild(st);   // 畫布已經有畫面了，這時才藏起原圖
+        // 首頁被藏起來時（切到其他頁），物件大小是 0、畫布會被清空；回到首頁大小恢復時馬上重畫，不會空白一下
+        const cur = () => paint(t0 === null ? -1 : Math.min(performance.now() - t0, END));
+        if (window.ResizeObserver) new ResizeObserver(() => { if (box.clientWidth) cur(); }).observe(box);
         function step(now){ const t = now - t0; paint(Math.min(t, END)); if (t < END) requestAnimationFrame(step); else box.classList.remove('mf-busy'); }
         function play(first){ if (!first && document.documentElement.classList.contains('mf-ascii')) return; if (t0 !== null && performance.now() - t0 < END + 200) return; t0 = performance.now(); box.classList.add('mf-busy'); requestAnimationFrame(step); }
         (function wait(){ if (document.getElementById('splash')) return setTimeout(wait, 150); setTimeout(() => play(true), 500); })();
