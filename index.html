@@ -7053,11 +7053,26 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
   const tip = document.createElement('div'); tip.id = 'mf-tool-tip'; document.body.appendChild(tip);
   let tipT = 0;
   const ICON = {"monitor": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'><rect x='2.5' y='4' width='19' height='12.5' rx='1.5'/><path d='M9 21h6M12 16.5V21' stroke-linecap='round'/></svg>", "mouse": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2'><rect x='6' y='3' width='12' height='18' rx='6'/><path d='M12 7v4' stroke-linecap='round'/></svg>", "pen": "<svg viewBox='0 0 24 24'><g transform='translate(1.5 1.5) rotate(-45) scale(.93)'><path d='M0 0 L7.5 12 L7.5 18 L-7.5 18 L-7.5 12 Z' fill='currentColor'/><path d='M0 1.5 L0 8.5' stroke='#111' stroke-width='1.8' stroke-linecap='round'/><circle cx='0' cy='10' r='2.3' fill='#111'/><rect x='-7.5' y='20' width='15' height='3.6' fill='currentColor'/></g></svg>", "tablet": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'><rect x='2.5' y='5' width='19' height='14' rx='1.5'/><path d='M8 14.5c2-3 4 1 6-2s2.5-1 3.5-1'/></svg>", "warn": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><circle cx='12' cy='12' r='9.5'/><path d='M12 7v6.5M12 16.8v.2'/></svg>"};
-  function say(icon, t) {
+  function show(icon, t) {
     const nav = document.getElementById('navbar'); tip.style.top = ((nav ? nav.getBoundingClientRect().bottom : 81) + 14) + 'px';   // 導覽列正下方
     tip.innerHTML = (ICON[icon] || '') + '<span></span>'; tip.lastChild.textContent = t;
-    tip.classList.add('on'); clearTimeout(tipT); tipT = setTimeout(() => tip.classList.remove('on'), 3200);
+    tip.classList.add('on');
   }
+  // 點擊（或警告）的說明：顯示 3 秒後消失；這 3 秒內滑鼠懸浮不會蓋掉它
+  let sayUntil = 0, hoverKey = null;
+  function say(icon, t) {
+    show(icon, t); sayUntil = Date.now() + 3000; clearTimeout(tipT);
+    tipT = setTimeout(() => { sayUntil = 0; if (hoverKey) hoverTip(hoverKey); else tip.classList.remove('on'); }, 3000);
+  }
+  // 懸浮在四個物件上：顯示說明，滑鼠移走就消失
+  const HOVER = {
+    'hero-icon-1': ['monitor', '螢幕：點擊進入全螢幕，按 Esc 退出'],
+    'hero-icon-2': ['mouse', '滑鼠：點擊切換回一般游標，可拖曳畫好的色塊'],
+    'hero-icon-3': ['pen', '鋼筆工具：點擊後可在網頁上畫幾何圖形'],
+    'hero-icon-4': ['tablet', '繪圖板：點擊開啟滑鼠拖尾，按住滑鼠畫線塗鴉'],
+  };
+  function hoverTip(key) { if (Date.now() < sayUntil || !HOVER[key]) return; show(HOVER[key][0], HOVER[key][1]); }
+  function hoverOut() { hoverKey = null; if (Date.now() >= sayUntil) tip.classList.remove('on'); }
 
   // ---------- 模式 ----------
   let tool = 'mouse';
@@ -7091,6 +7106,11 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
       ic.addEventListener('mousedown', e => { e.stopImmediatePropagation(); if (e.button === 0) e.preventDefault(); }, true);
       ic.addEventListener('touchstart', e => { e.stopImmediatePropagation(); }, { capture: true, passive: true });
       ic.addEventListener('dragstart', e => e.preventDefault());
+      ic.addEventListener('mouseenter', () => {
+        if (!mq.matches || (tool === 'pen' && pts.length)) return;   // 鋼筆畫到一半時不跳懸浮說明
+        hoverKey = key; hoverTip(key);
+      });
+      ic.addEventListener('mouseleave', () => { if (hoverKey === key) hoverOut(); });
       ic.addEventListener('click', e => {
         if (!mq.matches) return;
         if (tool === 'pen' && pts.length) { say('warn', '請先完成圖形：點回起點或按 Enter'); return; }   // 畫到一半：不切換、不輪轉
