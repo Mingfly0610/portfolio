@@ -7010,6 +7010,8 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
 @keyframes mfNudge { 0%,100% { translate: 0 0; } 25% { translate: 0 -14px; } 50% { translate: 0 0; } 70% { translate: 0 -6px; } }
 #hero-section > .hero-icon.mf-nudge > img, #hero-section > .hero-icon.mf-nudge > canvas { animation: mfNudge .7s ease 2; }
 @media (max-width: 1023px) { #mf-shapes, #mf-tool-tip { display: none; } }
+/* 離開首頁後（索引、關於、聯絡等），鋼筆色塊與塗鴉一律退到內容後面，文字、圖片永遠在上面 */
+html:not(.on-hero) #mf-shapes, html:not(.on-hero) #draw-canvas { z-index: -1 !important; }
 </style>
 <script>
 /* 首頁四物件：點一下切換工具並輪轉一格（只限電腦版，手機不啟用）
