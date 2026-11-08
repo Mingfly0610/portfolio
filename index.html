@@ -5068,6 +5068,7 @@
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             const gap = Math.max(0.6, cw * 0.08);
             const tick = Math.floor(t / 420);
+            const HERO = !!L.opt.hero, TH = HERO ? 0.04 : 0.35;   // 首頁圖示：很淡的網點也要畫，高光才不會消失
             // 已切換回原圖的格子先記在遮罩上，最後一次合成（比每格各畫一次快很多，轉場尾段不會卡）
             let mask = null;
             if (L.hide > 0) {
@@ -5089,16 +5090,17 @@
                         mask.data[i + 3] = 255;
                         continue;
                     }
-                    if (a < 0.35) continue;   // 網點很稀的格子不畫字元（原圖部分上面已經完整畫出）
+                    if (a < TH) continue;   // 網點很稀的格子不畫字元（原圖部分上面已經完整畫出）
                     if (o < P + edge) {
                         ctx.fillStyle = `rgb(${R},${G},${B})`;
                         ctx.fillText(RAMP[Math.floor(hash(x, y, Math.floor(t / 50)) * RAMP.length)], x * cw + cw / 2, y * ch + ch / 2);
                         continue;
                     }
                 }
-                if (a < 0.35) continue;
+                if (a < TH) continue;
                 const lum = (0.299 * R + 0.587 * G + 0.114 * B) / 255;
-                const ink = 1 - lum;
+                // 首頁圖示：用網點覆蓋率決定深淺，高光（網點稀疏處）也保留下來，只是比較淡
+                const ink = HERO ? a : 1 - lum;
                 const px = x * cw, py = y * ch;
                 if (ink < 0.07 && L.opt.paper) {
                     // 留白處：只放稀疏的小點，像背景的水
@@ -5106,12 +5108,12 @@
                     continue;
                 }
                 // 色塊：原圖顏色，留一點縫隙露出格線
-                ctx.fillStyle = `rgba(${R},${G},${B},${a})`;
+                ctx.fillStyle = `rgba(${R},${G},${B},${HERO ? Math.min(1, a * 1.15) : a})`;
                 ctx.fillRect(px + gap / 2, py + gap / 2, cw - gap, ch - gap);
                 // 字元：越暗的格子用越密的字；偶爾閃一下彩色
                 const j = Math.min(RAMP.length - 1, Math.max(0, Math.floor(ink * RAMP.length + (hash(x, y, 3) - 0.5) * 2)));
                 const flick = hash(x, y, tick) < 0.035;
-                ctx.fillStyle = flick ? ACCENTS[Math.floor(hash(y, x, tick) * ACCENTS.length)] : (lum > 0.6 ? 'rgba(17,17,17,0.55)' : 'rgba(255,255,255,0.78)');
+                ctx.fillStyle = flick ? ACCENTS[Math.floor(hash(y, x, tick) * ACCENTS.length)] : HERO ? (a > 0.5 ? 'rgba(255,255,255,0.78)' : `rgba(${R * 0.78 | 0},${G * 0.78 | 0},${B * 0.78 | 0},0.9)`) : (lum > 0.6 ? 'rgba(17,17,17,0.55)' : 'rgba(255,255,255,0.78)');
                 ctx.fillText(RAMP[j], px + cw / 2, py + ch / 2 + ch * 0.04);
             }
             if (mask) {
@@ -5137,12 +5139,14 @@
             heroRaw = toRaw;
             const ls = layers.filter(L => L.opt.hero);
             ls.forEach(L => { L.anim = true; L.src.style.opacity = '0'; });   // 轉場時由畫布接手
+            window.dispatchEvent(new CustomEvent('mf:hero', { detail: { toRaw, phase: 'start' } }));   // 通知首頁物件動態：開始切換
             const t0 = performance.now();
             (function step(now) {
                 const k = Math.min(1, (now - t0) / HERO_FX);
                 ls.forEach(L => { L.hide = toRaw ? k : 1 - k; });
                 if (k < 1) return requestAnimationFrame(step);
                 ls.forEach(L => { L.anim = false; L.hide = toRaw ? 1 : 0; L.ok = false; });
+                window.dispatchEvent(new CustomEvent('mf:hero', { detail: { toRaw, phase: 'end' } }));
             })(t0);
         }
         function heroAuto() {
@@ -6464,6 +6468,402 @@ window.__heroDemo = function (v) {
     new MutationObserver(sync).observe(page, { childList: true, characterData: true, subtree: true });
     new MutationObserver(() => { last = ''; sync(); }).observe(box, { childList: true });
     sync();
+})();
+</script>
+<script>
+// =========================================================
+// 首頁四個物件的動態（螢幕輪播作品、滑鼠同步點擊、鋼筆畫線、繪圖板寫字）＋ 年份置中
+// 原本的圖片保留給 ASCII 模式使用；切到 ASCII 時動態畫布淡出，回到原圖時再接手
+// =========================================================
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // 系統設定減少動態：維持原本靜態的樣子
+  const css = document.createElement('style');
+  css.textContent = [
+    '#hero-section .mf-anim{transition:opacity .25s ease}',
+    'html.mf-ascii #hero-section .mf-anim{opacity:0}',
+    '#hero-section .hero-icon.mf-live > .ascii-layer{visibility:hidden}',          // 動態接手時，藏起畫原圖的那一層
+    'html.mf-ascii #hero-section .hero-icon.mf-live > .ascii-layer,html.mf-hand #hero-section .hero-icon.mf-live > .ascii-layer{visibility:visible}',
+    // 鋼筆正在畫線時不被 ASCII 打斷：畫完才跟著切換
+    'html.mf-ascii #hero-section .hero-icon.mf-busy > .ascii-layer{visibility:hidden}',
+    'html.mf-ascii #hero-section .hero-icon.mf-busy .mf-anim{opacity:1}'
+  ].join('');
+  document.head.appendChild(css);
+  // 首頁圖示要切到 ASCII：一開始就交給 ASCII；切回原圖：轉場結束後再由動態接手
+  window.addEventListener('mf:hero', e => {
+    const { toRaw, phase } = e.detail || {};
+    if (!toRaw && phase === 'start') document.documentElement.classList.add('mf-ascii');
+    if (toRaw && phase === 'end') {
+      // 動態畫布淡入的這 0.3 秒，ASCII 那層（此時已是原圖）先留著墊底，避免物件閃一下變淡
+      const html = document.documentElement;
+      html.classList.add('mf-hand'); html.classList.remove('mf-ascii');
+      clearTimeout(window.__mfHand); window.__mfHand = setTimeout(() => html.classList.remove('mf-hand'), 320);
+    }
+  });
+  const boot = fn => { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); };
+
+  // ---------- 年份貼紙：電腦版移到大標題正中間（手機版本來就置中） ----------
+  boot(function year(){
+    const h = document.querySelector('#hero-section h1'), s = h && h.querySelector(':scope > .drag-item');
+    if (!s) return setTimeout(year, 300);
+    let dx = 0;
+    function fit(){
+      if (innerWidth < 768) { dx = 0; s.style.translate = ''; return; }
+      const hr = h.getBoundingClientRect(), r = s.getBoundingClientRect();
+      if (!hr.width) return;
+      dx += (hr.left + hr.width / 2) - (r.left + r.width / 2);
+      s.style.translate = dx + 'px 0';
+    }
+    fit(); setTimeout(fit, 600); setTimeout(fit, 2500);
+    let t = 0; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(fit, 150); });
+  });
+
+  // ---------- 螢幕 ----------
+  (function(){
+  // 首頁螢幕播作品 demo：動態設計作品（台橡 ELT 除外）轉成彩色點陣，在左上角螢幕裡輪播
+
+    // 螢幕內框四個角（1120×1120 原圖座標）：左上、右上、右下、左下；往外多畫一圈藏到螢幕框底下，避免露白邊
+    const Q0 = [[262,214],[898,254],[903,696],[262,712]], GROW = 16;
+    const cx = Q0.reduce((a,p)=>a+p[0],0)/4, cy = Q0.reduce((a,p)=>a+p[1],0)/4;
+    const Q = Q0.map(([x,y])=>{ const dx=x-cx, dy=y-cy, l=Math.hypot(dx,dy); return [x+dx/l*GROW*1.4, y+dy/l*GROW]; });
+    const HOLD = 7000, FADE = 600;            // 每支播 7 秒，切換時點陣縮小再長回來
+    function init(){
+      const img = document.querySelector('#hero-section img[src*="hero-icon-1"]');
+      if (!img) return setTimeout(init, 300);
+      const list = [...document.querySelectorAll('.portfolio-item[data-category="animation"]')]
+        .filter(it => !/tsrc-elt/.test(it.dataset.video || ''))
+        .map(it => { const v = it.querySelector('video'); return v && (v.getAttribute('src') || v.dataset.src); })
+        .filter(Boolean);
+      if (!list.length) return;
+      const box = img.parentElement;
+      if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+      const cv = document.createElement('canvas');
+      cv.className = 'mf-anim'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0';
+      box.insertBefore(cv, img);
+      const mk = () => { const v = document.createElement('video'); v.muted = true; v.setAttribute('muted',''); v.playsInline = true; v.preload = 'auto';
+        v.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none'; document.body.appendChild(v); return v; };
+      const vids = [mk(), mk()]; let cur = 0, idx = 0, t0 = performance.now(), clicked = false;
+      vids[0].src = list[0]; vids[0].play().catch(()=>{});
+      vids[1].src = list[1 % list.length];
+      window.__monList = list;
+      const off = document.createElement('canvas'), oc = off.getContext('2d', { willReadFrequently: true });
+      const ctx = cv.getContext('2d');
+      function next(){
+        vids[cur].pause(); cur ^= 1; idx = (idx + 1) % list.length;
+        vids[cur].currentTime = 0; vids[cur].play().catch(()=>{});
+        vids[cur ^ 1].src = list[(idx + 1) % list.length];        // 預先載入下一支
+        t0 = performance.now();
+      }
+      function frame(now){
+        requestAnimationFrame(frame);
+        const el = now - t0;
+        if (el > HOLD) { next(); clicked = false; return; }
+        if (!clicked && el > HOLD - FADE - 150) { clicked = true; window.dispatchEvent(new Event('mf:click')); }   // 滑鼠同步按一下
+        // 切換前後的縮放：開頭長出來、結尾縮回去
+        const k = Math.min(1, el / FADE, (HOLD - el) / FADE);
+        const v = vids[cur];
+        const dpr = Math.min(2, devicePixelRatio || 1);
+        const W = Math.round(box.clientWidth * dpr), H = Math.round(box.clientHeight * dpr);
+        if (!W) return;
+        if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+        ctx.clearRect(0, 0, W, H);
+        if (v.readyState < 2) return;
+        const s = Math.min(W, H) / 1120, ox = (W - 1120 * s) / 2, oy = (H - 1120 * s) / 2;
+        const P = Q.map(([x, y]) => [ox + x * s, oy + y * s]);
+        const cols = 62, rows = 44;
+        off.width = cols; off.height = rows;
+        const vr = v.videoWidth / v.videoHeight, tr = (Math.hypot(P[1][0]-P[0][0],P[1][1]-P[0][1]) / Math.hypot(P[3][0]-P[0][0],P[3][1]-P[0][1]));
+        let sw = v.videoWidth, sh = v.videoHeight, sx = 0, sy = 0;
+        if (vr > tr) { sw = sh * tr; sx = (v.videoWidth - sw) / 2; } else { sh = sw / tr; sy = (v.videoHeight - sh) / 2; }
+        oc.drawImage(v, sx, sy, sw, sh, 0, 0, cols, rows);
+        const d = oc.getImageData(0, 0, cols, rows).data;
+        const at = (u, w) => { const t = [P[0][0] + (P[1][0] - P[0][0]) * u, P[0][1] + (P[1][1] - P[0][1]) * u], b = [P[3][0] + (P[2][0] - P[3][0]) * u, P[3][1] + (P[2][1] - P[3][1]) * u]; return [t[0] + (b[0] - t[0]) * w, t[1] + (b[1] - t[1]) * w]; };
+        const pitch = Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]) / cols;
+        // 底色：整塊螢幕先鋪一層很淡的影片顏色，點與點之間不會露出白線
+        ctx.globalAlpha = 0.28 * k;
+        for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+          const q = (j * cols + i) * 4; ctx.fillStyle = `rgb(${d[q]},${d[q+1]},${d[q+2]})`;
+          const a = at(i / cols, j / rows), b = at((i + 1) / cols, j / rows), c = at((i + 1) / cols, (j + 1) / rows), e = at(i / cols, (j + 1) / rows);
+          ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0] + .5, b[1]); ctx.lineTo(c[0] + .5, c[1] + .5); ctx.lineTo(e[0], e[1] + .5); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+          const q = (j * cols + i) * 4, R = d[q], G = d[q + 1], B = d[q + 2];
+          const lum = (0.299 * R + 0.587 * G + 0.114 * B) / 255;
+          const [x, y] = at((i + 0.5) / cols, (j + 0.5) / rows);
+          const rad = pitch * (0.24 + 0.24 * Math.max(0, 1 - lum * 0.85)) * k;
+          if (rad < 0.3) continue;
+          ctx.fillStyle = `rgb(${R},${G},${B})`; ctx.beginPath(); ctx.arc(x, y, rad, 0, 6.283); ctx.fill();
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+    boot(init);
+  })();
+
+  // ---------- 繪圖板 ----------
+  (function(){
+  // 首頁繪圖板 demo：筆跟板子拆開，筆尖在板面上用點陣寫出「MingFly.」，寫完停一下、點陣散掉、筆回原位，循環
+
+    const PEN_BOX = [512, 448], TIP = [512, 624];             // 筆圖在 1120 原圖中的位置、筆尖座標
+    const PLANE = [[392,428],[902,404],[884,748],[338,728]];   // 可書寫的板面（左上、右上、右下、左下）
+    const INKS = { A: [20, 44, 120], B: [255, 214, 10], C: [255, 255, 255] };
+    const ink = 'A';   // 深藍墨水
+    const COLS = 80, ROWS = 52;
+    const T_WRITE = 3400, T_HOLD = 2200, T_FADE = 700, T_BACK = 700, T_IDLE = 1600;
+    const CYCLE = 700 + T_WRITE + T_HOLD + T_FADE + T_BACK + T_IDLE;
+    function init(){
+      const img = document.querySelector('#hero-section img[src*="hero-icon-4"]');
+      if (!img || !document.fonts) return setTimeout(init, 300);
+      const box = img.parentElement;
+      if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+      const cv = document.createElement('canvas');
+      cv.className = 'mf-anim'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2';
+      box.appendChild(cv);
+      const pen = new Image(); pen.src = 'images/hero-icon-4-pen.webp';
+      const board = new Image(); board.src = 'images/hero-icon-4-tablet.webp';   // 把筆拿掉、補回網點的板子
+      // 用 Syne 把字排在板面格子裡，取得要點亮的格子
+      const off = document.createElement('canvas'); off.width = COLS; off.height = ROWS;
+      let cells = [], maxX = 1;
+      document.fonts.load('800 30px Syne').then(() => {
+        const o = off.getContext('2d'); o.fillStyle = '#000'; o.textBaseline = 'middle'; o.textAlign = 'center';
+        let fs = 34; o.font = `800 ${fs}px Syne`;
+        while (o.measureText('MingFly.').width > COLS * 0.9) { fs--; o.font = `800 ${fs}px Syne`; }
+        o.setTransform(1, 0, -0.12, 1, 2, 0);                      // 稍微斜一點，像手寫
+        o.fillText('MingFly.', COLS / 2, ROWS / 2 + 1);
+        const d = o.getImageData(0, 0, COLS, ROWS).data;
+        for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (d[(y * COLS + x) * 4 + 3] > 110) cells.push({ x, y, r: Math.random() });
+        // 依 x 排序，同一欄上下交替，模擬筆畫
+        cells.sort((a, b) => a.x - b.x || (a.x % 2 ? b.y - a.y : a.y - b.y));
+        maxX = cells.length ? cells[cells.length - 1].x : 1;
+      });
+      const ctx = cv.getContext('2d');
+      const t0 = performance.now();
+      const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      function plane(u, v){ const t = [PLANE[0][0] + (PLANE[1][0] - PLANE[0][0]) * u, PLANE[0][1] + (PLANE[1][1] - PLANE[0][1]) * u], b = [PLANE[3][0] + (PLANE[2][0] - PLANE[3][0]) * u, PLANE[3][1] + (PLANE[2][1] - PLANE[3][1]) * u]; return [t[0] + (b[0] - t[0]) * v, t[1] + (b[1] - t[1]) * v]; }
+      function frame(now){
+        requestAnimationFrame(frame);
+        const dpr = Math.min(2, devicePixelRatio || 1);
+        const W = Math.round(box.clientWidth * dpr), H = Math.round(box.clientHeight * dpr);
+        if (!W || !cells.length || !pen.complete || !board.complete) return;
+        box.classList.add('mf-live');
+        if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+        ctx.clearRect(0, 0, W, H);
+        const s = Math.min(W, H) / 1120, ox = (W - 1120 * s) / 2, oy = (H - 1120 * s) / 2;
+        const X = p => [ox + p[0] * s, oy + p[1] * s];
+        ctx.drawImage(board, ox, oy, 1120 * s, 1120 * s);
+        let t = (now - t0) % CYCLE, shown = 0, alpha = 1, tip = TIP.slice(), lift = 0;
+        const a0 = 700, a1 = a0 + T_WRITE, a2 = a1 + T_HOLD, a3 = a2 + T_FADE, a4 = a3 + T_BACK;
+        const first = plane((cells[0].x + .5) / COLS, (cells[0].y + .5) / ROWS);
+        if (t < a0) {                                   // 筆從原位移到第一筆
+          const k = ease(t / a0); tip = [TIP[0] + (first[0] - TIP[0]) * k, TIP[1] + (first[1] - TIP[1]) * k]; lift = Math.sin(k * Math.PI) * 18;
+        } else if (t < a1) {                            // 書寫
+          const p = (t - a0) / T_WRITE; shown = Math.floor(cells.length * p);
+          const c = cells[Math.max(0, shown - 1)];
+          tip = plane((c.x + .5) / COLS, (c.y + .5) / ROWS);
+        } else if (t < a2) { shown = cells.length; const c = cells[cells.length - 1]; tip = plane((c.x + .5) / COLS, (c.y + .5) / ROWS); lift = Math.min(1, (t - a1) / 300) * 14; }
+        else if (t < a3) { shown = cells.length; alpha = 1 - (t - a2) / T_FADE; const c = cells[cells.length - 1]; tip = plane((c.x + .5) / COLS, (c.y + .5) / ROWS); lift = 14; }
+        else if (t < a4) { const k = ease((t - a3) / T_BACK); const c = cells[cells.length - 1], e = plane((c.x + .5) / COLS, (c.y + .5) / ROWS); tip = [e[0] + (TIP[0] - e[0]) * k, e[1] + (TIP[1] - e[1]) * k]; lift = 14 * (1 - k); }
+        // 字的點陣：跟板子一樣的小方塊
+        const [r, g, b] = INKS[ink];
+        const cell = Math.hypot(PLANE[1][0] - PLANE[0][0], PLANE[1][1] - PLANE[0][1]) / COLS * s;
+        for (let i = 0; i < shown; i++) {
+          const c = cells[i];
+          // 散掉的時候每顆點消失的時間不同
+          const a = alpha >= 1 ? 1 : Math.max(0, Math.min(1, (alpha - c.r * 0.6) / 0.4));
+          if (a <= 0) continue;
+          const pop = Math.min(1, (shown - i) / 6);
+          const [x, y] = X(plane((c.x + .5) / COLS, (c.y + .5) / ROWS));
+          const sz = cell * 0.82 * (0.6 + 0.4 * pop);
+          ctx.fillStyle = `rgba(${r},${g},${b},${a})`; ctx.fillRect(x - sz / 2, y - sz / 2, sz, sz);
+        }
+        // 筆：讓筆尖對準 tip，書寫時輕微晃動
+        const wob = (t > a0 && t < a1) ? Math.sin(now / 55) * 1.5 : 0;
+        const [px, py] = X([PEN_BOX[0] + tip[0] - TIP[0], PEN_BOX[1] + tip[1] - TIP[1] - lift + wob]);
+        ctx.drawImage(pen, px, py, pen.naturalWidth * s, pen.naturalHeight * s);
+      }
+      requestAnimationFrame(frame);
+    }
+    boot(init);
+  })();
+
+  // ---------- 滑鼠 ----------
+  (function(){
+  // 首頁滑鼠 demo（回到第一版）：保留完整滑鼠（線圈、電線、點擊線都在）；螢幕每 7 秒換片時同步「按一下」——本體輕壓、點擊線縮回再彈出、電線甩一下；平常電線輕輕擺動；不接受訪客互動
+
+    const L = { main: [132,124], cable: [656,508], click: [824,388] };   // 各圖層在 1120 原圖中的左上角
+    const PIVOT = [662, 858];                                          // 電線擺動的支點（接身體的地方）
+    function init(){
+      const img = document.querySelector('#hero-section img[src*="hero-icon-2"]');
+      if (!img) return setTimeout(init, 300);
+      const box = img.parentElement;
+      if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+      const ims = {}; let n = 0;
+      for (const k of Object.keys(L)) { ims[k] = new Image(); ims[k].onload = () => { if (++n === 3) start(); }; ims[k].src = `images/hero-icon-2-${k}.webp`; }
+      const cv = document.createElement('canvas');
+      cv.className = 'mf-anim'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1';
+      let tc = -1e9;
+      window.addEventListener('mf:click', () => { tc = performance.now(); });
+      function start(){
+        box.appendChild(cv); box.classList.add('mf-live');
+        const ctx = cv.getContext('2d');
+        (function frame(now){
+          requestAnimationFrame(frame);
+          const dpr = Math.min(2, devicePixelRatio || 1);
+          const W = Math.round(box.clientWidth * dpr), H = Math.round(box.clientHeight * dpr);
+          if (!W) return;
+          if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+          ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0, 0, W, H);
+          const s = Math.min(W, H) / 1120, ox = (W - 1120 * s) / 2, oy = (H - 1120 * s) / 2;
+          const base = () => ctx.setTransform(s, 0, 0, s, ox, oy);
+          const dt = now - tc;
+          const press = dt < 0 ? 0 : dt < 90 ? dt / 90 : dt < 350 ? 1 - (dt - 90) / 260 : 0;   // 90ms 壓下、260ms 彈回
+          // 電線：平常慢慢擺，按下時多甩一下
+          const kick = dt > 0 && dt < 900 ? Math.sin(dt / 900 * Math.PI * 3) * (1 - dt / 900) * 3.5 : 0;
+          const ang = (Math.sin(now / 520) * 1.8 + kick) * Math.PI / 180;
+          base(); ctx.translate(PIVOT[0], PIVOT[1]); ctx.rotate(ang); ctx.translate(-PIVOT[0], -PIVOT[1]);
+          ctx.drawImage(ims.cable, L.cable[0], L.cable[1]);
+          // 本體（含上方線圈）：以底部為基準輕壓
+          base(); const bx = 440, by = 1016; ctx.translate(bx, by); ctx.scale(1 + press * 0.012, 1 - press * 0.035); ctx.translate(-bx, -by);
+          ctx.drawImage(ims.main, L.main[0], L.main[1]);
+          // 點擊線：按下時先縮回、再往外彈出
+          base();
+          let a = 1, k = 1, off = 0;
+          if (dt > 0 && dt < 650) {
+            if (dt < 90) { a = 1 - dt / 90; k = 0.8; }
+            else { const u = (dt - 90) / 560, e = 1 - Math.pow(1 - u, 3); a = Math.min(1, u * 3); k = 0.8 + 0.45 * Math.sin(e * Math.PI) + 0.2 * e; off = 18 * Math.sin(e * Math.PI); }
+          }
+          const cx = 930, cy = 455;
+          ctx.globalAlpha = a; ctx.translate(cx + off, cy - off); ctx.scale(k, k); ctx.translate(-cx, -cy);
+          ctx.drawImage(ims.click, L.click[0], L.click[1]); ctx.globalAlpha = 1;
+        })(performance.now());
+      }
+    }
+    boot(init);
+  })();
+
+  // ---------- 鋼筆工具 ----------
+  (function(){
+  // 首頁鋼筆工具 demo v3：筆尖真的去點——筆尖點左錨點 → 移到右邊點右錨點 → 立刻連成直線 → 筆尖到線段中間按住往上拉，拉出弧度和兩隻控制把手 → 筆回原位；線條全程都是網點
+
+    const K3 = [188,445], K4 = [858,850], A = [725,300], K1 = [423,105], K2 = [1049,497];
+    const S1 = [K3, [283,255], [526,167], A], S2 = [A, [928,427], [933,520], K4];  // 完成時的兩段曲線
+    const COLOR = 'rgb(32,171,186)', END = 3900, TIP = [660, 356];   // TIP：筆尖在原圖的位置
+    const st = document.createElement('style');
+    st.textContent = '#hero-section img[src*="hero-icon-3"]{visibility:hidden!important}#hero-section .hero-icon:has(img[src*="hero-icon-3"]) .ascii-layer{visibility:hidden}';
+    document.head.appendChild(st);
+    const lerp = (a, b, t) => a + (b - a) * t, L2 = (p, q, t) => [lerp(p[0], q[0], t), lerp(p[1], q[1], t)];
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const clamp = t => Math.max(0, Math.min(1, t));
+    const pop = t => t <= 0 ? 0 : t >= 1 ? 1 : 1 + 0.18 * Math.sin(t * Math.PI) - (1 - t) * (1 - t) * (1 - t);   // 長出來時稍微彈一下
+    function init(){
+      const img = document.querySelector('#hero-section img[src*="hero-icon-3"]');
+      if (!img) return setTimeout(init, 300);
+      const box = img.parentElement;
+      if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+      const src = new Image(), tm = new Image(); let n = 0;
+      src.onload = tm.onload = () => { if (++n === 2) ready(); };
+      src.src = img.currentSrc || img.src; tm.src = 'images/hero-icon-3-timemap.png';
+      function ready(){
+        const N = 1120, mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; return c; };
+        // 筆尖（一開始就在）＝原圖中 timemap 為 0 的像素
+        const nib = mk(), nc = nib.getContext('2d');
+        nc.drawImage(src, 0, 0, N, N); const base = nc.getImageData(0, 0, N, N);
+        const tmc = mk().getContext('2d'); tmc.drawImage(tm, 0, 0, N, N); const T = tmc.getImageData(0, 0, N, N).data;
+        for (let i = 0; i < N * N; i++) if (T[i * 4] !== 0) base.data[i * 4 + 3] = 0;
+        nc.putImageData(base, 0, 0);
+        // 點陣：4px 方格棋盤，跟原圖一樣的網點
+        // 兩種網點密度：外圈 50%（棋盤）、中心 75%，跟原圖的網點一樣，過程中就是網點，不會有實心
+        const tile = document.createElement('canvas'); tile.width = tile.height = 8;
+        const tc = tile.getContext('2d'); tc.fillStyle = '#000'; tc.fillRect(0, 0, 4, 4); tc.fillRect(4, 4, 4, 4);
+        const tile2 = document.createElement('canvas'); tile2.width = tile2.height = 8;
+        const t2 = tile2.getContext('2d'); t2.fillStyle = '#000'; t2.fillRect(0, 0, 8, 8); t2.clearRect(4, 0, 4, 4);
+        const wide = mk(), wc = wide.getContext('2d'), core = mk(), cc = core.getContext('2d');
+        // 輸出畫布比原圖大一倍：筆移到左右錨點時，筆身會超出原本的框，不能被切掉
+        const out = document.createElement('canvas'); out.width = out.height = N * 2; const oc = out.getContext('2d');
+        const pat = wc.createPattern(tile, 'repeat'), pat2 = cc.createPattern(tile2, 'repeat');
+        function shape(g, k){                       // k：線寬比例（外圈 1、內芯較細）
+          return {
+            line(p, q, w){ g.lineWidth = w * k; g.lineCap = 'round'; g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); g.stroke(); },
+            bez(P, w){ g.lineWidth = w * k; g.lineCap = 'round'; g.beginPath(); g.moveTo(P[0][0], P[0][1]); g.bezierCurveTo(P[1][0], P[1][1], P[2][0], P[2][1], P[3][0], P[3][1]); g.stroke(); },
+            dot(p, r){ if (r <= 0) return; g.beginPath(); g.arc(p[0], p[1], r * (k < 1 ? 0.55 : 1), 0, 6.283); g.fill(); }
+          };
+        }
+        const M = L2(K3, K4, 0.5);
+        // 時間軸（ms）
+        const TL = { go1: [0, 520], c1: 560, go2: [660, 1160], c2: 1200, line: [1230, 1380], go3: [1460, 1900], c3: 1940, drag: [2040, 3060], back: [3120, 3560] };
+        const seg = (t, a) => clamp((t - a[0]) / (a[1] - a[0]));
+        // 筆尖在 t 時的位置
+        function tipAt(t){
+          if (t < TL.go1[1]) return L2(TIP, K3, ease(seg(t, TL.go1)));
+          if (t < TL.go2[0]) return K3;
+          if (t < TL.go2[1]) return L2(K3, K4, ease(seg(t, TL.go2)));
+          if (t < TL.go3[0]) return K4;
+          if (t < TL.go3[1]) return L2(K4, M, ease(seg(t, TL.go3)));
+          if (t < TL.drag[0]) return M;
+          if (t < TL.drag[1]) return L2(M, A, ease(seg(t, TL.drag)));
+          if (t < TL.back[0]) return A;
+          return L2(A, TIP, ease(seg(t, TL.back)));
+        }
+        // 點下去的那一下：筆往筆尖方向壓一點再彈回
+        function press(t){ for (const c of [TL.c1, TL.c2, TL.c3]) { const d = t - c + 60; if (d > 0 && d < 160) return Math.sin(d / 160 * Math.PI); } return 0; }
+        function scene(t, g){
+          g.dot(K3, 52 * pop(clamp((t - TL.c1) / 200)));
+          g.dot(K4, 52 * pop(clamp((t - TL.c2) / 200)));
+          if (t < TL.drag[0]) {
+            const k = ease(seg(t, TL.line));
+            if (k > 0) g.line(K3, L2(K3, K4, k), 26);
+            g.dot(M, 50 * pop(clamp((t - TL.c3) / 180)));
+            return;
+          }
+          const p = ease(seg(t, TL.drag));
+          const P = L2(M, A, p);
+          const s1 = [K3, L2(L2(K3, M, 1/3), S1[1], p), L2(L2(K3, M, 2/3), S1[2], p), P];
+          const s2 = [P, L2(L2(M, K4, 1/3), S2[1], p), L2(L2(M, K4, 2/3), S2[2], p), K4];
+          g.bez(s1, 26); g.bez(s2, 26);
+          const h1 = L2(P, [P[0] + (K1[0] - A[0]), P[1] + (K1[1] - A[1])], p), h2 = L2(P, [P[0] + (K2[0] - A[0]), P[1] + (K2[1] - A[1])], p);
+          g.line(P, h1, 22); g.line(P, h2, 22);
+          g.dot(h1, 46 * p); g.dot(h2, 46 * p);
+          g.dot(P, 55);
+        }
+        function render(t){
+          wc.clearRect(0, 0, N, N); cc.clearRect(0, 0, N, N);
+          wc.fillStyle = wc.strokeStyle = COLOR; cc.fillStyle = cc.strokeStyle = COLOR;
+          scene(t, shape(wc, 1)); scene(t, shape(cc, 0.36));
+          wc.globalCompositeOperation = 'destination-in'; wc.fillStyle = pat; wc.fillRect(0, 0, N, N); wc.globalCompositeOperation = 'source-over';
+          cc.globalCompositeOperation = 'destination-in'; cc.fillStyle = pat2; cc.fillRect(0, 0, N, N); cc.globalCompositeOperation = 'source-over';
+          oc.setTransform(1, 0, 0, 1, 0, 0); oc.clearRect(0, 0, N * 2, N * 2); oc.setTransform(1, 0, 0, 1, N / 2, N / 2);
+          const f = clamp((t - (END - 300)) / 300);       // 筆回原位後，網點線條平順接回原圖（兩邊都是網點）
+          oc.globalAlpha = 1 - f; oc.drawImage(wide, 0, 0); oc.drawImage(core, 0, 0);
+          oc.globalAlpha = f; oc.drawImage(src, 0, 0, N, N); oc.globalAlpha = 1;
+          if (f < 1) {                                    // 筆：筆尖移到 tipAt(t)，點下去時往筆尖方向壓一下
+            const tp = t < 0 ? TIP : tipAt(t), pr = press(t) * 10;
+            oc.drawImage(nib, tp[0] - TIP[0] - pr * 0.45, tp[1] - TIP[1] + pr * 0.9);
+          }
+        }
+        const cv = document.createElement('canvas');
+        cv.className = 'mf-anim'; cv.style.cssText = 'position:absolute;left:-50%;top:-50%;width:200%;height:200%;pointer-events:none;z-index:1';
+        box.appendChild(cv); box.classList.add('mf-live');
+        const ctx = cv.getContext('2d');
+        function paint(t){
+          render(t);
+          const dpr = Math.min(2, devicePixelRatio || 1);
+          const W = Math.round(box.clientWidth * 2 * dpr), H = Math.round(box.clientHeight * 2 * dpr);
+          if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+          ctx.clearRect(0, 0, W, H);
+          const s = Math.min(W, H) / (N * 2); ctx.drawImage(out, (W - N * 2 * s) / 2, (H - N * 2 * s) / 2, N * 2 * s, N * 2 * s);
+        }
+        let t0 = null;
+        paint(-1);
+        function step(now){ const t = now - t0; paint(Math.min(t, END)); if (t < END) requestAnimationFrame(step); else box.classList.remove('mf-busy'); }
+        function play(first){ if (!first && document.documentElement.classList.contains('mf-ascii')) return; if (t0 !== null && performance.now() - t0 < END + 200) return; t0 = performance.now(); box.classList.add('mf-busy'); requestAnimationFrame(step); }
+        (function wait(){ if (document.getElementById('splash')) return setTimeout(wait, 150); setTimeout(() => play(true), 500); })();
+        box.addEventListener('mouseenter', () => play(false));
+        addEventListener('resize', () => paint(t0 === null ? -1 : Math.min(performance.now() - t0, END)));
+      }
+    }
+    boot(init);
+  })();
+
 })();
 </script>
 
