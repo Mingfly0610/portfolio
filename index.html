@@ -727,7 +727,8 @@
 
             const placeholder = document.createElement('div');
             placeholder.className = 'w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 text-xs p-4 text-center rounded-2xl relative z-10';
-            placeholder.innerHTML = `<i class="ph ph-video-camera-slash text-3xl mb-2" aria-hidden="true"></i><p>影片載入失敗</p><p class="opacity-50 mt-1 break-all">${path}</p>`;
+            const pending = video.closest('[data-pending-media]');   // 影片還沒上傳的作品：顯示「準備中」
+            placeholder.innerHTML = pending ? `<p class="text-sm">${pending.getAttribute('data-pending-media')}</p>` : `<i class="ph ph-video-camera-slash text-3xl mb-2" aria-hidden="true"></i><p>影片載入失敗</p><p class="opacity-50 mt-1 break-all">${path}</p>`;
             if (video.parentNode) {
                 video.parentNode.insertBefore(placeholder, video);
             }
@@ -1714,6 +1715,40 @@
                             </div>
                         </div>
 
+                        <!-- 求職島（比照抽獎程式：data-embed 填入試玩網址）：影片檔放好後即可顯示（prog-job-island-thumb.mp4 卡片縮圖、prog-job-island-full.mp4 彈窗影片）；第二頁「立即試玩」載入 data-embed -->
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="programming" data-video="videos/prog-job-island-full.mp4" data-embed="" data-pending-media="示範影片準備中" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：求職島" data-modal-ar="1.7778" data-client="—" data-role="視覺與介面設計、AI 協作開發">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/prog-job-island-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="求職島" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-job-island-thumb.mp4')"></video>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
+                            </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">求職島</span></h3>
+                            </div>
+                            <div class="modal-title-src hidden">求職島</div>
+                            <div class="project-details hidden">
+                                <p>專案內容準備中...</p>
+                            </div>
+                        </div>
+
+                        <!-- TSRC RACING 派對遊戲（比照塗鴉牆：左邊大螢幕、右邊手機，網址在 embeds/tsrc-racing.html）：影片檔放好後即可顯示（prog-tsrc-racing-thumb.mp4 卡片縮圖、prog-tsrc-racing-full.mp4 彈窗影片）；第二頁「立即試玩」載入 data-embed -->
+                        <div class="portfolio-item group is-wide" style="--ar:1.7778" data-category="programming" data-video="videos/prog-tsrc-racing-full.mp4" data-embed="embeds/tsrc-racing.html" data-pending-media="示範影片準備中" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：TSRC RACING 派對遊戲" data-modal-ar="1.7778" data-client="—" data-role="視覺與介面設計、AI 協作開發">
+                            <div class="item-media">
+                                <div class="skeleton-shimmer absolute inset-0 z-0"></div>
+                                <video src="videos/prog-tsrc-racing-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="TSRC RACING 派對遊戲" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-tsrc-racing-thumb.mp4')"></video>
+                                <span class="item-badge is-link"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 1h6v6H7.6V3.4L2 9 1 8l5.6-5.6H3z"/></svg>互動程式</span>
+                            </div>
+                            <div class="item-caption">
+                                <span class="item-cat">程式設計</span>
+                                <h3 class="item-title"><span class="item-year">2026</span><span class="tw">TSRC RACING</span><wbr> <span class="tw">派對遊戲</span></h3>
+                            </div>
+                            <div class="modal-title-src hidden">TSRC RACING 派對遊戲</div>
+                            <div class="project-details hidden">
+                                <p>專案內容準備中...</p>
+                            </div>
+                        </div>
+
                         <div class="portfolio-item group is-wide is-browser" style="--ar:1.6" data-category="programming" data-video="videos/prog-portfolio-full.mp4" data-pending-media="示範影片準備中" role="button" tabindex="0" aria-label="程式設計：個人作品集網站" data-modal-ar="1.7778" data-client="個人專案" data-role="網站規劃、視覺設計、AI 協作開發">
                             <div class="item-media">
                                 <div class="browser-bar" aria-hidden="true">
@@ -2604,7 +2639,7 @@
             currentThumbPreview = null;
             releaseEmbed();
             // 可試玩的程式：電腦版在影片下方顯示「立即試玩」；手機與平板只播示範影片
-            embedBar.classList.toggle('hidden', !(item.hasAttribute('data-embed') && canEmbed()));
+            embedBar.classList.toggle('hidden', !(item.getAttribute('data-embed') && canEmbed()));   // 試玩網址還沒填（空白）就先不顯示「立即試玩」
             if (videoSrc) {
                 currentMediaType = 'video';
                 currentGallery = videoSrc.split(',');
