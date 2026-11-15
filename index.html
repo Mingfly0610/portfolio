@@ -1715,8 +1715,8 @@
                             </div>
                         </div>
 
-                        <!-- 求職島（比照抽獎程式）：影片檔放好後即可顯示（prog-job-island-thumb.mp4 卡片縮圖、prog-job-island-full.mp4 彈窗影片）；第二頁「立即試玩」載入 data-embed -->
-                        <div class="portfolio-item group is-wide" style="--ar:1.8045" data-category="programming" data-video="videos/prog-job-island-full.mp4" data-embed="https://design-your-life-studio.github.io/Job-Island/" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：求職島" data-modal-ar="1.8045" data-client="—" data-role="視覺與介面設計、AI 協作開發">
+                        <!-- 求職島（比照塗鴉牆：左邊電腦、右邊手機，網址在 embeds/job-island.html）：影片檔放好後即可顯示（prog-job-island-thumb.mp4 卡片縮圖、prog-job-island-full.mp4 彈窗影片）；第二頁「立即試玩」載入 data-embed -->
+                        <div class="portfolio-item group is-wide" style="--ar:1.8045" data-category="programming" data-video="videos/prog-job-island-full.mp4" data-embed="embeds/job-island.html" data-no-qr="true" role="button" tabindex="0" aria-label="程式設計：求職島" data-modal-ar="1.8045" data-client="—" data-role="視覺與介面設計、AI 協作開發">
                             <div class="item-media">
                                 <div class="skeleton-shimmer absolute inset-0 z-0"></div>
                                 <video src="videos/prog-job-island-thumb.mp4" class="item-media-el opacity-0" muted loop playsinline preload="none" aria-label="求職島" onloadeddata="window.handleMediaLoad(this)" onerror="window.handleVideoError(this, 'videos/prog-job-island-thumb.mp4')"></video>
@@ -2321,6 +2321,9 @@
             const src = currentProject && currentProject.getAttribute('data-embed');
             if (!src || !canEmbed()) return;
             const modalSkeleton = document.getElementById('modal-skeleton');
+            // 記下影片目前顯示的比例：試玩畫面用同一個比例，手機外框寬度才會跟影片一樣
+            const vr = modalVideo.getBoundingClientRect();
+            embedAr = (!modalVideo.classList.contains('hidden') && vr.width > 0 && vr.height > 0) ? vr.width / vr.height : 0;
             modalVideo.pause();
             modalVideo.classList.add('hidden');
             mediaError.classList.add('hidden');
@@ -2357,6 +2360,7 @@
             e.stopPropagation();
             if (currentMediaType === 'embed') exitEmbed(); else enterEmbed();
         });
+        let embedAr = 0;   // 進入試玩前影片的顯示比例（手機作品用）
         function fitEmbed() {
             if (currentMediaType !== 'embed') return;
             const viewport = modalEmbedWrap.parentElement;
@@ -2364,10 +2368,10 @@
             const availW = viewport.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
             const availH = viewport.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
             if (availW <= 0 || availH <= 0) return;
-            const ar = parseFloat(currentProject && currentProject.getAttribute('data-modal-ar')) || 1.6;
+            const isPhone = modalContent.classList.contains('is-phone-media');
+            const ar = (isPhone && embedAr) || parseFloat(currentProject && currentProject.getAttribute('data-modal-ar')) || 1.6;
             let w = availW, h = w / ar;
             if (h > availH) { h = availH; w = h * ar; }
-            const isPhone = modalContent.classList.contains('is-phone-media');
             const frame = isPhone ? parseFloat(getComputedStyle(modalEmbedWrap).borderLeftWidth) * 2 : 0; // 手機外框的厚度
             const sbH = isPhone ? Math.round((w - frame) * 0.15) : 0;   // 手機外框：上方狀態列（高度＝螢幕圓角，上緣才是直線）
             const innerW = w - frame, innerH = h - frame - sbH;
