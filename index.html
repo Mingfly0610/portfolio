@@ -6574,14 +6574,15 @@ window.__heroDemo = function (v) {
     const Q0 = [[262,214],[898,254],[903,696],[262,712]], GROW = 34;
     const cx = Q0.reduce((a,p)=>a+p[0],0)/4, cy = Q0.reduce((a,p)=>a+p[1],0)/4;
     const Q = Q0.map(([x,y])=>{ const dx=x-cx, dy=y-cy, l=Math.hypot(dx,dy); return [x+dx/l*GROW*1.4, y+dy/l*GROW]; });
-    const HOLD = 7000, FADE = 600;            // 每支播 7 秒，切換時點陣縮小再長回來
+    const HOLD = 15000, FADE = 600;           // 每支播 15 秒，切換時點陣縮小再長回來
     function init(){
       const img = document.querySelector('#hero-section img[src*="hero-icon-1"]');
       if (!img) return setTimeout(init, 300);
-      const list = [...document.querySelectorAll('.portfolio-item[data-category="animation"]')]
+      const items = [...document.querySelectorAll('.portfolio-item[data-category="animation"]')]
         .filter(it => !/tsrc-elt/.test(it.dataset.video || ''))
-        .map(it => { const v = it.querySelector('video'); return v && (v.getAttribute('src') || v.dataset.src); })
-        .filter(Boolean);
+        .map(it => { const v = it.querySelector('video'), t = it.querySelector('.modal-title-src'); return [v && (v.getAttribute('src') || v.dataset.src), t ? t.textContent.trim() : '']; })
+        .filter(x => x[0]);
+      const list = items.map(x => x[0]), titles = items.map(x => x[1]);
       if (!list.length) return;
       const box = img.parentElement;
       if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
@@ -6652,6 +6653,13 @@ window.__heroDemo = function (v) {
         vids[cur ^ 1].src = list[(idx + 1) % list.length];        // 預先載入下一支
         t0 = performance.now();
       }
+      // 換台：點螢幕時，馬上縮小換到下一支（已經在換台中就不重複）
+      window.__monNext = () => {
+        const el = performance.now() - t0;
+        if (el < FADE || el > HOLD - FADE) return null;
+        t0 = performance.now() - (HOLD - FADE); clicked = true;
+        return titles[(idx + 1) % list.length];
+      };
       function frame(now){
         requestAnimationFrame(frame);
         const el = now - t0;
@@ -7053,6 +7061,18 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
 #mf-tool-tip svg { width: 15px; height: 15px; flex: none; display: block; }
 @keyframes mfNudge { 0%,100% { translate: 0 0; } 25% { translate: 0 -14px; } 50% { translate: 0 0; } 70% { translate: 0 -6px; } }
 #hero-section > .hero-icon.mf-nudge > img, #hero-section > .hero-icon.mf-nudge > canvas { animation: mfNudge .7s ease 2; }
+/* 點擊回饋：物件縮一下再彈回 */
+@keyframes mfPress { 0% { scale: 1; } 35% { scale: .9; } 70% { scale: 1.04; } 100% { scale: 1; } }
+#hero-section > .hero-icon.mf-press > img, #hero-section > .hero-icon.mf-press > canvas { animation: mfPress .42s ease; }
+/* 使用中標記：目前的工具上方顯示 [ 使用中 ]（螢幕不是工具，不顯示） */
+#hero-section > .hero-icon { overflow: visible; }
+html[data-mf-tool="mouse"] #hero-section > .hero-icon:has(img[src*="hero-icon-2"])::after,
+html[data-mf-tool="pen"] #hero-section > .hero-icon:has(img[src*="hero-icon-3"])::after,
+html[data-mf-tool="tablet"] #hero-section > .hero-icon:has(img[src*="hero-icon-4"])::after {
+  content: '[ 使用中 ]'; position: absolute; left: 50%; top: 10%; transform: translateX(-50%); z-index: 5; pointer-events: none;
+  background: #111; color: #fff; font: 500 14px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .02em; padding: 8px 11px; white-space: nowrap;
+  animation: mfTagIn .25s ease; }
+@keyframes mfTagIn { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
 @media (max-width: 1023px) { #mf-shapes, #mf-tool-tip { display: none; } }
 /* 離開首頁後（索引、關於、聯絡等），鋼筆色塊與塗鴉一律退到內容後面，文字、圖片永遠在上面 */
 #mf-shapes, #draw-canvas { z-index: -1 !important; }   /* 所有頁面：色塊與塗鴉都在內容後面 */
@@ -7105,7 +7125,7 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
   }
   // 懸浮在四個物件上：顯示說明，滑鼠移走就消失
   const HOVER = {
-    'hero-icon-1': ['monitor', '螢幕：點擊進入全螢幕，按 Esc 退出'],
+    'hero-icon-1': ['monitor', '螢幕：點擊換台，看下一支動態作品'],
     'hero-icon-2': ['mouse', '滑鼠：點擊切換回一般游標，可拖曳畫好的色塊'],
     'hero-icon-3': ['pen', '鋼筆工具：點擊後可在網頁上畫幾何圖形'],
     'hero-icon-4': ['tablet', '繪圖板：點擊開啟滑鼠拖尾，按住滑鼠畫線塗鴉'],
@@ -7129,8 +7149,17 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
     else { const f = R.requestFullscreen || R.webkitRequestFullscreen; if (f) { const p = f.call(R); if (p && p.catch) p.catch(() => {}); } }
   }
 
+  // 快捷鍵：F 進入全螢幕（再按一次 F 或 Esc 退出）；正在輸入文字時不作用
+  addEventListener('keydown', e => {
+    if (e.key !== 'f' && e.key !== 'F') return;
+    if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+    const t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    e.preventDefault();
+    const on = document.fullscreenElement || document.webkitFullscreenElement;
+    fullscreen(); if (!on) say('monitor', '已進入全螢幕，按 Esc 退出');
+  });
   const ACTIONS = {
-    'hero-icon-1': () => { const on = document.fullscreenElement || document.webkitFullscreenElement; fullscreen(); if (!on) say('monitor', '螢幕：已進入全螢幕，按 Esc 退出'); },
+    'hero-icon-1': () => { const t = window.__monNext && window.__monNext(); if (t !== null && t !== undefined) say('monitor', '換台：' + (t || '下一支作品')); },
     'hero-icon-2': () => { setTool('mouse'); say('mouse', '滑鼠：一般游標，可拖曳畫好的色塊'); },
     'hero-icon-3': () => { setTool('pen'); say('pen', '鋼筆工具：點擊新增錨點・拖曳拉出曲線・Enter 完成'); },
     'hero-icon-4': () => { setTool('tablet'); say('tablet', '繪圖板：滑鼠拖尾・按住滑鼠畫線塗鴉'); },
@@ -7154,7 +7183,8 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #h
         if (!mq.matches) return;
         if (tool === 'pen' && pts.length) { say('warn', '請先完成圖形：點回起點或按 Enter'); return; }   // 畫到一半：不切換、不輪轉
         ACTIONS[key]();
-        window.__heroTurn && window.__heroTurn();
+        ic.classList.remove('mf-press'); void ic.offsetWidth; ic.classList.add('mf-press');   // 點擊回饋：輕輕彈一下（不再輪轉）
+        setTimeout(() => ic.classList.remove('mf-press'), 450);
       });
     });
   })();
