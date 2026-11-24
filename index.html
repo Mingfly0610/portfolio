@@ -3015,7 +3015,7 @@
                 helloProgress = 1;      // 減少動態：直接顯示
             } else {
                 renderHello();
-                // 開場畫面揭開後等 3 秒，再用 0.8 秒滑出
+                // 開場畫面揭開後等 0.8 秒，再出場（字元飛回約 1 秒）
                 const HELLO_DELAY = 3000, HELLO_DURATION = 800;
                 const playHello = () => {
                     const t0 = performance.now();
@@ -3027,7 +3027,7 @@
                 };
                 const waitSplash = () => {
                     if (document.documentElement.classList.contains('splash-on')) return setTimeout(waitSplash, 100);
-                    setTimeout(() => (window.__helloFx ? window.__helloFx(heroHello, finishHello, playHello) : playHello()), 2000);
+                    setTimeout(() => (window.__helloFx ? window.__helloFx(heroHello, finishHello, playHello) : playHello()), 800);   // 開場揭開後 0.8 秒出現
                 };
                 waitSplash();
             }
@@ -5249,6 +5249,10 @@
         (function ctaAscii() {
             const a = document.querySelector('#hero-section a[href="#work"]');
             if (!a) return;
+            // 改成黑底方括號按鈕（跟「立即試玩」、提示框同一套），不再畫 ASCII 圈
+            a.classList.add('cta-block');
+            a.innerHTML = '<span class="cb">[</span><span class="ct">觀看作品</span><svg class="ca" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg><span class="cb">]</span>';
+            return;
             a.classList.add('cta-term');
             a.innerHTML = '<span class="tx">觀看作品</span>';
             const tx = a.querySelector('.tx'), TXT = '觀看作品', WG = '@#8XS%t;:.';
@@ -7217,7 +7221,7 @@ html[data-mf-tool="tablet"] #hero-section > .hero-icon:has(img[src*="hero-icon-4
   }, true));
 
   // ---------- 鋼筆工具 ----------
-  let pts = [], dragging = false, cur = null, count = 0;
+  let pts = [], dragging = false, closing = false, cur = null, count = 0;   // closing：按在起點上、還沒放開（可拖曳調整起點弧度）
   const P = (e) => ({ x: e.clientX + scrollX, y: e.clientY + scrollY });
   function seg(a, b) { return ` C ${a.ho.x} ${a.ho.y} ${b.hi.x} ${b.hi.y} ${b.x} ${b.y}`; }
   function pathD(list, close) {
@@ -7232,30 +7236,31 @@ html[data-mf-tool="tablet"] #hero-section > .hero-icon:has(img[src*="hero-icon-4
     const g = el('g', { fill: 'none', stroke: BLUE, 'stroke-width': 1 });
     const draft = pts.slice();
     if (cur && !dragging) draft.push({ x: cur.x, y: cur.y, hi: cur, ho: cur });
-    if (draft.length > 1) g.append(el('path', { d: pathD(draft, false) }));
-    const last = pts[pts.length - 1];
+    if (closing) g.append(el('path', { d: pathD(pts, true) }));   // 封閉中：預覽整個圖形
+    else if (draft.length > 1) g.append(el('path', { d: pathD(draft, false) }));
+    const last = closing ? pts[0] : pts[pts.length - 1];
     [last.hi, last.ho].forEach(h => { if (Math.hypot(h.x - last.x, h.y - last.y) > 1) { g.append(el('line', { x1: last.x, y1: last.y, x2: h.x, y2: h.y })); g.append(el('circle', { cx: h.x, cy: h.y, r: 3, fill: BLUE })); } });
-    pts.forEach((p, i) => g.append(el('rect', { x: p.x - 3.5, y: p.y - 3.5, width: 7, height: 7, fill: i === pts.length - 1 ? BLUE : '#fff' })));
+    pts.forEach((p, i) => g.append(el('rect', { x: p.x - 3.5, y: p.y - 3.5, width: 7, height: 7, fill: p === last ? BLUE : '#fff' })));
     if (cur && pts.length > 1 && Math.hypot(cur.x - pts[0].x, cur.y - pts[0].y) < 9) g.append(el('circle', { cx: pts[0].x, cy: pts[0].y, r: 7 }));   // 靠近起點：提示可以封閉
     ui.append(g);
   }
   function finishPath(close) {
     if (pts.length >= 2) {
       const color = count++ % 2 ? YELLOW : BLUE;
-      const shape = pts.length >= 3
+      const shape = (pts.length >= 3 || close)
         ? el('path', { d: pathD(pts, true), fill: color, class: 'mf-shape' })
         : el('path', { d: pathD(pts, false), fill: 'none', stroke: color, 'stroke-width': 6, 'stroke-linecap': 'round', class: 'mf-shape' });
       shape.dataset.tx = shape.dataset.ty = 0;
       shapesG.append(shape);
     }
-    pts = []; dragging = false; render();
+    pts = []; dragging = false; closing = false; render();
   }
   const penOn = e => tool === 'pen' && mq.matches && !overlayOpen() && (!onIcon(e.target) || pts.length > 0);   // 畫到一半時，物件上也能放錨點
   document.addEventListener('mousedown', e => {
     if (!penOn(e) || e.button !== 0) return;
     e.preventDefault(); e.stopPropagation();
     const p = P(e);
-    if (pts.length > 1 && Math.hypot(p.x - pts[0].x, p.y - pts[0].y) < 9) finishPath(true);   // 點回起點：封閉
+    if (pts.length > 1 && Math.hypot(p.x - pts[0].x, p.y - pts[0].y) < 9) { closing = true; dragging = true; cur = p; render(); }   // 點回起點：放開時封閉；按住拖曳可以拉出起點的弧度（例如畫橢圓）
     else { pts.push({ x: p.x, y: p.y, hi: { ...p }, ho: { ...p } }); dragging = true; cur = p; render(); }
     ate = true; ateWarn = leaveTarget(e.target) ? 'leave' : (onIcon(e.target) && pts.length ? 'shape' : '');
   }, true);
@@ -7263,12 +7268,13 @@ html[data-mf-tool="tablet"] #hero-section > .hero-icon:has(img[src*="hero-icon-4
     if (tool !== 'pen' || !pts.length) return;
     cur = P(e);
     if (dragging && (e.buttons & 1)) {   // 按住拖曳：拉出對稱的兩支把手
-      const a = pts[pts.length - 1];
+      const a = closing ? pts[0] : pts[pts.length - 1];
+      if (closing && Math.hypot(cur.x - a.x, cur.y - a.y) < 3) { render(); return; }   // 只是點一下（沒拖）：起點維持原樣
       a.ho = { x: cur.x, y: cur.y }; a.hi = { x: 2 * a.x - cur.x, y: 2 * a.y - cur.y };
     }
     render();
   }, true);
-  addEventListener('mouseup', () => { if (dragging) { dragging = false; render(); } }, true);
+  addEventListener('mouseup', () => { if (closing) { finishPath(true); return; } if (dragging) { dragging = false; render(); } }, true);
   ['click', 'dblclick', 'contextmenu', 'dragstart', 'selectstart'].forEach(n => document.addEventListener(n, e => {
     if (!penOn(e)) return;
     e.preventDefault(); e.stopPropagation();
@@ -7397,5 +7403,24 @@ document.addEventListener('click', e => {
     if (item) item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 });
 </script>
+<style id="hero-big-type">
+/* 首頁大標題放大（電腦版，字級同時看寬與高，矮螢幕不會擠到按鈕）：海報式四行 Crafting／藍字／digital／experiences.，寬度限制 12em 讓換行固定，不隨藍字長短跳動 */
+@media (min-width: 1024px) {
+  #hero-section .max-w-5xl { max-width: none !important; }
+  #hero-section h1 { font-size: min(8.2vw, 11vh, 128px) !important; line-height: .9 !important; letter-spacing: -.03em !important; max-width: 12em; margin-left: auto; margin-right: auto; }
+}
+</style>
+<style id="cta-block">
+/* 首頁「觀看作品」：比照「立即試玩」— 透明底、品牌藍等寬字、方括號；滑過變藍底白字 */
+#hero-section a[href="#work"].cta-block { gap: 10px; padding: 6px 10px !important; background: transparent; color: #3B82F6 !important;
+  font: 500 17px/1.2 ui-monospace, 'SF Mono', Menlo, Consolas, 'Noto Sans TC', monospace !important; letter-spacing: .02em;
+  transition: background-color .15s, color .15s; }
+#hero-section a[href="#work"].cta-block .ct { letter-spacing: .04em; }
+#hero-section a[href="#work"].cta-block .ca { width: 15px; height: 15px; transition: transform .2s ease; }
+#hero-section a[href="#work"].cta-block:hover { background: #3B82F6; color: #fff !important; }
+#hero-section a[href="#work"].cta-block:hover .ca { transform: translateX(3px); }
+#hero-section a[href="#work"].cta-block:focus-visible { outline: 2px solid #3B82F6; outline-offset: 2px; }
+@media (min-width: 1024px) { #hero-section a[href="#work"].cta-block { font-size: 18px !important; } }
+</style>
 </body>
 </html>
