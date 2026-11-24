@@ -3160,7 +3160,7 @@
 
         function homeOf(item) {
             const g = item && item.__ghost;
-            if (!g || !g.isConnected) return homeOf(item);
+            if (!g || !g.isConnected) return initialPositions.get(item);
             const c = item.closest('section') || document.body;
             const cr = c.getBoundingClientRect(), gr = g.getBoundingClientRect();
             return { x: gr.left - cr.left, y: gr.top - cr.top };
@@ -3173,7 +3173,10 @@
                 ['left', 'top', 'right', 'bottom', 'transition', 'zIndex'].forEach(p => { item.style[p] = ''; });
             }, delay);
         }
+        // 手機與平板（沒有滑鼠）：換裝物件改成「點一下試戴」，不拖曳，手指滑過時可以正常捲動頁面
+        const dressTapMode = () => !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
         function dragStart(e) {
+            if (this.classList.contains('dress-item') && dressTapMode()) return;
             if (this.classList.contains('no-touch-drag') && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
             activeDragItem = this;
             const event = e.type === 'touchstart' ? e.touches[0] : e;
@@ -3276,6 +3279,13 @@
                     });
                     snapItem.classList.add('is-snapped', 'is-away');
                     glideTo(snapItem, snap.x, snap.y, 'cubic-bezier(0.22, 1, 0.36, 1)', 260);
+                    // 戴上的瞬間：滑到定位後輕輕放大再回彈，當作「落定」回饋
+                    const settleImg = snapItem.querySelector('.dress-img');
+                    if (settleImg) setTimeout(() => {
+                        settleImg.classList.remove('dress-settle'); void settleImg.offsetWidth;
+                        settleImg.classList.add('dress-settle');
+                        settleImg.addEventListener('animationend', () => settleImg.classList.remove('dress-settle'), { once: true });
+                    }, 220);
                     activeDragItem = null;
                     document.removeEventListener('mousemove', dragMove);
                     document.removeEventListener('touchmove', dragMove);
@@ -3325,6 +3335,70 @@
         dragItems.forEach(item => {
             item.addEventListener('mousedown', dragStart);
             item.addEventListener('touchstart', dragStart, {passive: false});
+        });
+
+        // 手機與平板：點眼鏡 → 飛到臉上（同位置的另一副先回原位）；點臉上的眼鏡 → 飛回原位
+        // 戴上時在照片下方的提示位置顯示這副眼鏡的說明，2 秒後淡出（取代電腦版的滑鼠懸停提示）
+        let dressCaptionTimer = 0;
+        function dressCaption(item) {
+            const hint = document.getElementById('about-hint');
+            const tip = item.querySelector('.dress-tooltip');
+            if (!hint || !tip) return;
+            hint.textContent = '[ ' + tip.textContent.trim() + ' ]';
+            hint.classList.remove('is-gone');
+            clearTimeout(dressCaptionTimer);
+            dressCaptionTimer = setTimeout(() => hint.classList.add('is-gone'), 2000);
+        }
+        function dressSendHome(item) {
+            const home = homeOf(item);
+            item.classList.remove('is-snapped', 'is-away');
+            if (home) glideTo(item, home.x, home.y, 'cubic-bezier(0.34, 1.56, 0.64, 1)', 400);
+            restoreHome(item, 440);
+        }
+        function dressWear(item) {
+            const container = item.closest('section') || document.body;
+            const cr = container.getBoundingClientRect(), r = item.getBoundingClientRect();
+            if (item.parentElement !== container) {
+                if (!item.__ghost) {
+                    const g = item.cloneNode(true);
+                    g.classList.add('dress-ghost'); g.classList.remove('is-dragging', 'is-away', 'is-snapped');
+                    g.setAttribute('aria-hidden', 'true'); g.removeAttribute('tabindex');
+                    ['left', 'top', 'right', 'bottom', 'transition', 'zIndex'].forEach(p => { g.style[p] = ''; });
+                    g.style.visibility = 'hidden'; g.style.pointerEvents = 'none';
+                    item.parentElement.insertBefore(g, item);
+                    item.__ghost = g;
+                }
+                container.appendChild(item);
+                item.style.transition = 'none';
+                item.style.left = `${r.left - cr.left}px`;
+                item.style.top = `${r.top - cr.top}px`;
+                item.style.right = 'auto'; item.style.bottom = 'auto';
+                void item.offsetWidth;
+            }
+            document.querySelectorAll('.dress-item.is-snapped').forEach(other => {
+                if (other !== item && !other.classList.contains('dress-ghost') && other.dataset.snapSlot === item.dataset.snapSlot) dressSendHome(other);
+            });
+            currentDragZIndex = Math.min(currentDragZIndex + 1, 48);
+            item.style.zIndex = currentDragZIndex;
+            item.classList.add('is-snapped', 'is-away');
+            const snap = getSnapTarget(item);
+            if (snap) glideTo(item, snap.x, snap.y, 'cubic-bezier(0.22, 1, 0.36, 1)', 420);
+            const img = item.querySelector('.dress-img');
+            setTimeout(() => {
+                if (img) {
+                    img.classList.remove('dress-settle'); void img.offsetWidth;
+                    img.classList.add('dress-settle');
+                    img.addEventListener('animationend', () => img.classList.remove('dress-settle'), { once: true });
+                }
+                dressCaption(item);
+            }, 380);
+        }
+        document.querySelectorAll('.dress-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (!dressTapMode() || item.classList.contains('dress-ghost')) return;
+                if (item.classList.contains('is-snapped')) dressSendHome(item);
+                else dressWear(item);
+            });
         });
 
         window.addEventListener('scroll', () => {
@@ -7446,12 +7520,16 @@ document.addEventListener('click', e => {
     @media (min-width: 768px) { #about-hint { bottom: -256px; font-size: 13px; } }
     @media (min-width: 1024px) { #about-hint { bottom: calc(var(--pw) * -0.62); } }
     #about-hint.is-gone { opacity: 0; }
+    /* 手機與平板：眼鏡改成點擊試戴，手指滑過時讓頁面正常捲動 */
+    @media not all and (hover: hover) and (pointer: fine) {
+        .dress-item > .dress-img { touch-action: manipulation; cursor: pointer; }
+    }
 </style>
 <script id="about-hint-script">
 (function () {
     const hint = document.getElementById('about-hint');
     if (!hint) return;
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) hint.textContent = '[ 點照片切換 · 拖曳眼鏡換造型 ]';
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) hint.textContent = '[ 點眼鏡試戴 · 點照片切換 ]';
     const items = document.querySelectorAll('#about .dress-item');
     const mo = new MutationObserver(() => {
         if (document.querySelector('#about .dress-item.is-snapped')) { hint.classList.add('is-gone'); mo.disconnect(); }
@@ -7459,5 +7537,16 @@ document.addEventListener('click', e => {
     items.forEach(it => mo.observe(it, { attributes: true, attributeFilter: ['class'] }));
 })();
 </script>
+<style id="dress-settle-style">
+    /* 眼鏡戴上時的落定回饋：放大一點再回彈到原本大小（1.15 倍） */
+    @keyframes dressSettle {
+        0%   { transform: translateY(-50%) scale(1.15); }
+        40%  { transform: translateY(-50%) scale(1.22); }
+        70%  { transform: translateY(-50%) scale(1.12); }
+        100% { transform: translateY(-50%) scale(1.15); }
+    }
+    .dress-item > .dress-img.dress-settle { animation: dressSettle .38s cubic-bezier(.3,.7,.4,1); }
+    @media (prefers-reduced-motion: reduce) { .dress-item > .dress-img.dress-settle { animation: none; } }
+</style>
 </body>
 </html>
