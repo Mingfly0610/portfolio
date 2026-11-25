@@ -856,7 +856,7 @@
     <script>
         (function () {
             var on = true;
-            try { on = !sessionStorage.getItem('mfIntroSeen'); } catch (e) {}
+            // 每次載入（含重新整理）都播放開場
             if (/^#(work|about|contact)$/.test(location.hash)) on = false;                       // 分享連結直接進分頁：不播
             if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) on = false;
             var mode = (window.innerWidth >= 900 && window.innerWidth >= window.innerHeight) ? 'laptop' : 'phone';   // 電腦：筆電；手機、平板直式：iPhone
