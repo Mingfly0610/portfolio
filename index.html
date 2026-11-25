@@ -850,6 +850,7 @@
         #mf-intro .mfi-skip { top: 20px; right: 22px; background: none; border: 0; color: #9aa0ad; cursor: pointer; padding: 10px 6px; }
         #mf-intro .mfi-skip:hover, #mf-intro .mfi-skip:focus-visible { color: #fff; outline: none; }
         #mf-intro .mfi-bar { left: 0; top: 0; height: 2px; background: #3B82F6; width: 0; }
+        html.on-hero { overscroll-behavior-y: none; }   /* 首頁往下拉時不觸發瀏覽器的下拉重新整理（往下拉要回到手機開場） */
         #mf-intro .mfi-loading { inset: 0; display: flex; align-items: center; justify-content: center; color: #9aa0ad; background: #020203; }
     </style>
     <script>
@@ -858,11 +859,11 @@
             try { on = !sessionStorage.getItem('mfIntroSeen'); } catch (e) {}
             if (/^#(work|about|contact)$/.test(location.hash)) on = false;                       // 分享連結直接進分頁：不播
             if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) on = false;
-            if (window.innerWidth < 900 || window.innerWidth < window.innerHeight) on = false;     // 只在電腦（橫向寬螢幕）播放
+            var mode = (window.innerWidth >= 900 && window.innerWidth >= window.innerHeight) ? 'laptop' : 'phone';   // 電腦：筆電；手機、平板直式：iPhone
             try { var c = document.createElement('canvas'); if (!(c.getContext('webgl2') || c.getContext('webgl'))) on = false; } catch (e) { on = false; }
             if (/[?&]intro=1\b/.test(location.search)) on = true;                                // 測試用：網址加 ?intro=1 一定播放
             if (!on) return;
-            window.__mfIntro = { ready: false };
+            window.__mfIntro = { ready: false, mode: mode };
             document.documentElement.classList.add('intro-on');
             var el = document.createElement('div');
             el.id = 'mf-intro';
@@ -7618,7 +7619,7 @@ document.addEventListener('click', e => {
     <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
     <script type="module">
     const I = window.__mfIntro;
-    if (I) (async () => { try {
+    if (I && I.mode !== 'phone') (async () => { try {
 const THREE = await import('three');
 const [{RoundedBoxGeometry},{RectAreaLightUniformsLib},{RoomEnvironment},{EffectComposer},{RenderPass},{UnrealBloomPass},{OutputPass}] = await Promise.all([
   import('three/addons/geometries/RoundedBoxGeometry.js'), import('three/addons/lights/RectAreaLightUniformsLib.js'), import('three/addons/environments/RoomEnvironment.js'),
@@ -7833,7 +7834,8 @@ const onHome=()=>{ const h=document.documentElement; return h.classList.contains
 function reenter(){
   clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
   finished=false; fast=false; cur=target=1; draw(1);
-  box.classList.remove('is-out'); document.documentElement.classList.add('intro-on');
+  box.style.transition='none'; box.classList.remove('is-out'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
+  document.documentElement.classList.add('intro-on');
   skip.style.opacity=1;
   addEventListener('keydown',onKey,true); addEventListener('resize',onResize);
 }
@@ -7850,6 +7852,181 @@ new THREE.TextureLoader().load('images/intro-screen.jpg',tex=>{
 }, undefined, ()=>I.abort());
 draw(0);
     } catch (err) { console.warn('筆電開場載入失敗，改用原本的開場', err); I.abort(); } })();
+    </script>
+    <!-- ===== 手機開場（手機、平板直式）：iPhone 開機 → 首頁 ===== -->
+    <script type="module">
+    const I = window.__mfIntro;
+    if (I && I.mode === 'phone') (async () => { try {
+const THREE = await import('three');
+const [{RoundedBoxGeometry},{RectAreaLightUniformsLib},{RoomEnvironment}] = await Promise.all([
+  import('three/addons/geometries/RoundedBoxGeometry.js'), import('three/addons/lights/RectAreaLightUniformsLib.js'), import('three/addons/environments/RoomEnvironment.js')]);
+if (I.done) return;
+try { await document.fonts.load('800 100px Syne'); } catch(e) {}
+const box=document.getElementById('mf-intro');
+RectAreaLightUniformsLib.init();
+const r=new THREE.WebGLRenderer({antialias:true});
+r.setPixelRatio(Math.min(devicePixelRatio||1,2)); r.setSize(innerWidth,innerHeight);
+r.toneMapping=THREE.ACESFilmicToneMapping;
+box.prepend(r.domElement);
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x020203); scene.fog=new THREE.FogExp2(0x020203,0.16);
+const pm=new THREE.PMREMGenerator(r); scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; scene.environmentIntensity=0.28;
+const cam=new THREE.PerspectiveCamera(30,innerWidth/innerHeight,0.02,100);
+// ---- iPhone（比例參考 iPhone 15 Pro：71.6 × 146.6 × 8.25 mm）----
+const PW=0.716, PH=1.466, PD=0.0825, PR=0.155;   // PR：四角圓弧半徑（iPhone 的大圓角）
+const phone=new THREE.Group(); scene.add(phone);
+const ti=new THREE.MeshPhysicalMaterial({color:0x3a3b40,metalness:0.9,roughness:0.32,clearcoat:0.4,clearcoatRoughness:0.3});
+function rrShape(w,h,rad){const s=new THREE.Shape(),x=-w/2,y=-h/2;s.moveTo(x+rad,y);s.lineTo(x+w-rad,y);s.quadraticCurveTo(x+w,y,x+w,y+rad);s.lineTo(x+w,y+h-rad);s.quadraticCurveTo(x+w,y+h,x+w-rad,y+h);s.lineTo(x+rad,y+h);s.quadraticCurveTo(x,y+h,x,y+h-rad);s.lineTo(x,y+rad);s.quadraticCurveTo(x,y,x+rad,y);return s;}
+const BV=0.02;   // 側邊圓滑倒角
+const bodyGeo=new THREE.ExtrudeGeometry(rrShape(PW-2*BV,PH-2*BV,PR-BV),{depth:PD-2*BV,bevelEnabled:true,bevelThickness:BV,bevelSize:BV,bevelSegments:8,curveSegments:48});
+bodyGeo.translate(0,0,-(PD-2*BV)/2);
+const body=new THREE.Mesh(bodyGeo,ti); phone.add(body);
+// 正面玻璃（黑框）
+const glass=new THREE.Mesh(new THREE.ShapeGeometry(rrShape(PW-0.012,PH-0.012,PR-0.006),48),new THREE.MeshPhysicalMaterial({color:0x020203,metalness:0,roughness:0.05,clearcoat:1,clearcoatRoughness:0.02}));
+glass.position.z=PD/2+0.0005; phone.add(glass);
+// 螢幕（四角圓弧；內容畫在 canvas 上）
+const SW=PW-0.05, SH=PH-0.05, SR=PR-0.025;
+const sc=document.createElement('canvas'); sc.width=1170; sc.height=Math.round(1170*SH/SW); const sx=sc.getContext('2d');
+const scrTex=new THREE.CanvasTexture(sc); scrTex.colorSpace=THREE.SRGBColorSpace; scrTex.anisotropy=8;
+const sg=new THREE.ShapeGeometry(rrShape(SW,SH,SR),48);
+{const uv=sg.attributes.uv,p=sg.attributes.position; for(let i=0;i<uv.count;i++){uv.setXY(i,p.getX(i)/SW+0.5,p.getY(i)/SH+0.5);} }
+const scrM=new THREE.MeshBasicMaterial({map:scrTex,toneMapped:false,fog:false}); 
+const scr=new THREE.Mesh(sg,scrM); scr.position.z=PD/2+0.001; phone.add(scr);
+// 側邊按鍵
+const btnM=ti;
+const side=(x,y,h)=>{const b=new THREE.Mesh(new RoundedBoxGeometry(0.012,h,0.03,3,0.005),btnM); b.position.set(x,y,0); phone.add(b);};
+side(-PW/2-0.003,0.42,0.06); side(-PW/2-0.003,0.27,0.11); side(-PW/2-0.003,0.13,0.11); side(PW/2+0.003,0.22,0.17);
+// 背面鏡頭模組（轉身時看得到）
+const camM=new THREE.MeshPhysicalMaterial({color:0x2a2b30,metalness:0.6,roughness:0.25,clearcoat:1});
+const bump=new THREE.Mesh(new RoundedBoxGeometry(0.29,0.29,0.02,4,0.06),camM); bump.position.set(-PW/2+0.19,PH/2-0.19,-PD/2-0.008); phone.add(bump);
+const lensM=new THREE.MeshPhysicalMaterial({color:0x050507,metalness:0.2,roughness:0.05,clearcoat:1});
+[[-0.065,0.065],[-0.065,-0.065],[0.07,0]].forEach(([x,y])=>{const l=new THREE.Mesh(new THREE.CylinderGeometry(0.052,0.055,0.03,32),lensM); l.rotation.x=Math.PI/2; l.position.set(bump.position.x+x,bump.position.y+y,-PD/2-0.022); phone.add(l);});
+
+// 地面＋螢幕光
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshStandardMaterial({color:0x060607,roughness:0.6}));
+floor.rotation.x=-Math.PI/2; floor.position.y=-PH/2-0.25; scene.add(floor);
+const glow=new THREE.RectAreaLight(0xffffff,0,SW,SH); glow.position.z=PD/2+0.01; glow.rotation.y=Math.PI; phone.add(glow);   // 螢幕光朝外照（不要照回自己的玻璃，否則四角會泛白）
+const tint=[[0x4a78ff,-1],[0xffa040,1]].map(([c,s])=>{const l=new THREE.PointLight(c,0,3,2); l.position.set(s*0.9,-0.6,0.6); scene.add(l); return l;});
+const rim=new THREE.DirectionalLight(0x9aa6ff,1.1); rim.position.set(-3,3,-4); scene.add(rim);
+const key=new THREE.DirectionalLight(0xffffff,0.6); key.position.set(3,2,4); scene.add(key);
+
+// 直接繪製（不經後製），螢幕不套色調映射，白色才會是真正的白
+const comp={render:()=>r.render(scene,cam),setSize:()=>{}}; const bloom={strength:0};
+
+// ---- 螢幕畫面：關閉 → 開機（白底黑字 MingFly.）→ 首頁 ----
+let heroBmp=null;
+// iPhone 狀態列：左邊時間（跟著使用者的時間），右邊訊號、Wi-Fi、電池
+function statusBar(W,SB){
+  const cy=W*0.028+W*0.047, ink='#000';
+  const d=new Date(), t=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  sx.fillStyle=ink; sx.font='600 54px -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif'; sx.textAlign='center'; sx.textBaseline='middle';
+  sx.fillText(t,W*0.2,cy+2); sx.textAlign='start';
+  // 訊號：四格
+  let x=W*0.695; const bw=12, gap=6, base=cy+17;
+  [14,21,28,35].forEach((h,i)=>{ sx.beginPath(); sx.roundRect(x+i*(bw+gap),base-h,bw,h,3); sx.fill(); });
+  // Wi-Fi：三道弧
+  const wx=W*0.806, wy=cy+16; sx.lineCap='round';
+  [[33,9],[21,8.5]].forEach(([r,lw])=>{ sx.lineWidth=lw; sx.beginPath(); sx.arc(wx,wy,r,-Math.PI*0.75,-Math.PI*0.25); sx.strokeStyle=ink; sx.stroke(); });
+  sx.beginPath(); sx.moveTo(wx,wy); sx.arc(wx,wy,11,-Math.PI*0.75,-Math.PI*0.25); sx.closePath(); sx.fill();
+  // 電池
+  const bx=W*0.856, by=cy-17, bW=74, bH=35;
+  sx.lineWidth=3.5; sx.strokeStyle='rgba(0,0,0,.4)'; sx.beginPath(); sx.roundRect(bx,by,bW,bH,11); sx.stroke();
+  sx.fillStyle=ink; sx.beginPath(); sx.roundRect(bx+5,by+5,bW-10,bH-10,7); sx.fill();
+  sx.fillStyle='rgba(0,0,0,.4)'; sx.beginPath(); sx.roundRect(bx+bW+4,by+11,5,13,2.5); sx.fill();
+}
+
+function paint(boot,home,logo=1){
+  const W=sc.width,H=sc.height;
+  sx.fillStyle='#000'; sx.fillRect(0,0,W,H);
+  { const g=sx.createLinearGradient(0,0,W,H); g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(0.42,'rgba(255,255,255,0.07)'); g.addColorStop(0.5,'rgba(255,255,255,0.02)'); g.addColorStop(1,'rgba(255,255,255,0)'); sx.fillStyle=g; sx.fillRect(0,0,W,H); }   // 關機時螢幕玻璃的淡淡反光
+  if(boot>0){ sx.globalAlpha=boot; sx.fillStyle='#fff'; sx.fillRect(0,0,W,H);
+    sx.globalAlpha=boot*logo; sx.fillStyle='#111'; sx.font='800 150px Syne, sans-serif'; sx.textAlign='center'; sx.textBaseline='middle'; sx.fillText('MingFly.',W/2,H/2); sx.globalAlpha=1; }
+  const SB=Math.round(W*0.14);   // 狀態列高度：網頁內容從狀態列下方開始（跟真的 iPhone 一樣）
+  if(home>0 && heroBmp){ sx.globalAlpha=home; sx.fillStyle='#fff'; sx.fillRect(0,0,W,SB); const s=W/heroBmp.width; sx.drawImage(heroBmp,0,SB,W,heroBmp.height*s); statusBar(W,SB); sx.globalAlpha=1; }
+  // 動態島（右側有前鏡頭）
+  sx.fillStyle='#000'; const iw=W*0.3, ih=W*0.09, ix=W/2-iw/2, iy=W*0.028; sx.beginPath(); sx.roundRect(ix,iy,iw,ih,ih/2); sx.fill();
+  sx.fillStyle='#1c1f2e'; sx.beginPath(); sx.arc(ix+iw-ih*0.52,iy+ih/2,ih*0.2,0,Math.PI*2); sx.fill();
+  sx.fillStyle='#2b3150'; sx.beginPath(); sx.arc(ix+iw-ih*0.52-ih*0.05,iy+ih/2-ih*0.05,ih*0.07,0,Math.PI*2); sx.fill();
+  scrTex.needsUpdate=true;
+}
+
+const lerp=THREE.MathUtils.lerp, ease=x=>x*x*(3-2*x), cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const camStart=new THREE.Vector3(), tgt=new THREE.Vector3(), camEnd=new THREE.Vector3(), sp=new THREE.Vector3(), nrm=new THREE.Vector3();
+function pose(p){
+  // 0–0.22 轉正（螢幕關著）｜0.22–0.42 開機白畫面｜0.42–0.62 首頁亮起｜0.62–1 推進到螢幕填滿
+  const turn=ease(cl(p/0.3)), boot=ease(cl((p-0.22)/0.12)), logo=1-ease(cl((p-0.40)/0.06)), home=ease(cl((p-0.46)/0.12)), zoom=ease(cl((p-0.62)/0.38));
+  phone.rotation.set(lerp(-0.18,0,turn), lerp(-0.85,0,turn), lerp(0.06,0,turn));
+  phone.position.y=lerp(-0.05,0,turn);
+  paint(boot,home,logo);
+  const on=Math.max(boot,home);
+  glow.intensity=on*1.4*(1-zoom*0.7); tint.forEach(l=>l.intensity=home*1.6*(1-zoom));
+  bloom.strength=(0.05+0.12*on)*(1-zoom);
+  // 鏡頭：整支手機放得進畫面
+  const fit=(PH*1.12)/(2*Math.tan(THREE.MathUtils.degToRad(cam.fov/2)))*Math.max(1,0.62/cam.aspect);
+  camStart.set(0,0.22,fit+0.2); tgt.set(0,-0.02,0);
+  if(zoom>0){
+    phone.updateMatrixWorld(true); scr.getWorldPosition(sp); nrm.set(0,0,1).transformDirection(scr.matrixWorld);
+    const t=Math.tan(THREE.MathUtils.degToRad(cam.fov/2));
+    const d=Math.min(SH/(2*t), SW/(2*t*cam.aspect));       // 螢幕剛好蓋滿畫面
+    camEnd.copy(sp).addScaledVector(nrm,d);
+    cam.position.lerpVectors(camStart,camEnd,zoom); cam.lookAt(tgt.lerp(sp,zoom));
+  } else { cam.position.copy(camStart); cam.lookAt(tgt); }
+  comp.render();
+  return {boot,home,zoom};
+}
+
+const hint=box.querySelector('.mfi-hint'), hintText=hint.querySelector('span'), bar=box.querySelector('.mfi-bar'), skip=box.querySelector('.mfi-skip');
+hintText.textContent='[ 向下滑動 ]';
+const img=document.createElement('img'); img.id='mf-intro-vid'; img.alt=''; img.src='images/intro-screen-m.jpg'; img.style.objectPosition='top'; box.insertBefore(img, r.domElement.nextSibling);
+let cur=0, target=0, raf=0, lastT=0, finished=false, fast=false, doneAt=0;
+function draw(p){
+  pose(p);
+  hint.style.opacity=p<0.03?1:0;
+  img.style.opacity=cl((p-0.95)/0.05);
+  bar.style.width=(p*100)+'%';
+  if(p>=0.999 && !finished && !draw.pend){ draw.pend=true; setTimeout(()=>{ draw.pend=false; if(cur>=0.999) end(); },250); }
+}
+function tick(now){ const dt=Math.min(0.1,lastT?(now-lastT)/1000:1/60); lastT=now;
+  cur+=(target-cur)*(1-Math.pow(1-(fast?0.08:0.12),dt*60)); if(Math.abs(target-cur)<0.0005) cur=target; draw(cur); raf=cur!==target?requestAnimationFrame(tick):(lastT=0,0); }
+function go(delta){ if(finished) return; target=cl(target+delta); if(!raf) raf=requestAnimationFrame(tick); }
+const SPAN=()=>innerHeight*3;   // 整段開場相當於滑 3 個畫面
+function onWheel(e){ e.preventDefault(); const k=e.deltaMode===1?16:e.deltaMode===2?innerHeight:1; go(e.deltaY*k/SPAN()); }
+let ty=null;
+function onTouchStart(e){ ty=e.touches[0].clientY; }
+function onTouchMove(e){ if(ty==null) return; e.preventDefault(); const y=e.touches[0].clientY; go((ty-y)*1.4/SPAN()); ty=y; }
+box.addEventListener('wheel',onWheel,{passive:false});
+box.addEventListener('touchstart',onTouchStart,{passive:true});
+box.addEventListener('touchmove',onTouchMove,{passive:false});
+function onResize(){ r.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); draw(cur); }
+addEventListener('resize',onResize);
+const clock=setInterval(()=>{ if(!finished && box.style.display!=='none') draw(cur); },20000);   // 狀態列時間每 20 秒更新
+function cleanup(){ cancelAnimationFrame(raf); raf=0; lastT=0; removeEventListener('resize',onResize); }
+function end(){ if(finished) return; finished=true; doneAt=performance.now(); skip.style.opacity=0; cleanup();
+  if(I.done){ document.documentElement.classList.remove('intro-on'); box.classList.add('is-out'); clearTimeout(I.hideT); I.hideT=setTimeout(()=>{ if(box.classList.contains('is-out')) box.style.display='none'; },750); } else I.finish(); }
+skip.addEventListener('click',()=>{ fast=true; go(1); setTimeout(end,1600); });
+// 首頁最上方往下拉：回到手機畫面（從螢幕填滿的位置往回倒）
+const onHome=()=>{ const h=document.documentElement; return h.classList.contains('on-hero') && !h.classList.contains('hero-gone') && !h.getAttribute('data-view') && scrollY<=2
+  && !h.classList.contains('splash-on') && !(document.getElementById('project-modal')&&!document.getElementById('project-modal').classList.contains('hidden')); };
+function reenter(){
+  clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
+  finished=false; fast=false; cur=target=1; draw(1);
+  box.style.transition='none'; box.classList.remove('is-out'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
+  document.documentElement.classList.add('intro-on');
+  skip.style.opacity=1; addEventListener('resize',onResize);
+}
+const canBack=()=>finished && performance.now()-doneAt>700 && box.style.display==='none' && onHome();
+let hy=null;
+addEventListener('touchstart',e=>{ hy=canBack()?e.touches[0].clientY:null; },{passive:true});
+addEventListener('touchmove',e=>{ if(hy==null) return; const y=e.touches[0].clientY; if(y-hy>40 && canBack()){ hy=null; reenter(); go(-40*1.4/SPAN()); ty=y; } },{passive:true});
+addEventListener('wheel',e=>{ if(e.deltaY>=0 || !canBack()) return; reenter(); const k=e.deltaMode===1?16:e.deltaMode===2?innerHeight:1; go(e.deltaY*k/SPAN()); },{passive:true});
+I.dispose=()=>{ try{ clearInterval(clock); r.dispose(); }catch(e){} };
+new THREE.TextureLoader().load('images/intro-screen-m.jpg',tex=>{
+  if(I.done) return;
+  heroBmp=tex.image; I.ready=true;
+  const ld=box.querySelector('.mfi-loading'); ld.style.opacity=0; setTimeout(()=>ld.remove(),450);
+  draw(0);
+}, undefined, ()=>I.abort());
+draw(0);
+    } catch (err) { console.warn('手機開場載入失敗，改用原本的開場', err); I.abort(); } })();
     </script>
 </body>
 </html>
