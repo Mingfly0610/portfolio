@@ -868,7 +868,7 @@
             var el = document.createElement('div');
             el.id = 'mf-intro';
             el.innerHTML = '<div class="mfi-ui mfi-bar"></div><div class="mfi-ui mfi-hint"><span>[ 向下滾動 ]</span></div>' +
-                '<button type="button" class="mfi-ui mfi-skip">[ 略過 ]</button><div class="mfi-ui mfi-loading">[ 載入中 ]</div>';
+                '<div class="mfi-ui mfi-loading">[ 載入中 ]</div>';
             document.body.appendChild(el);
         })();
     </script>
@@ -7185,7 +7185,7 @@ html[data-mf-tool="pen"] #hero-section > .hero-icon:has(img[src*="hero-icon-3"])
 html[data-mf-tool="tablet"] #hero-section > .hero-icon:has(img[src*="hero-icon-4"])::after {
   content: '[ 使用中 ]'; position: absolute; left: 50%; top: 10%; transform: translateX(-50%); z-index: 5; pointer-events: none;
   background: #111; color: #fff; font: 500 14px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .02em; padding: 8px 11px; white-space: nowrap;
-  animation: mfTagIn .25s ease; }
+  animation: mfTagIn .25s ease; display: none !important; }   /* 改用下方的 #mf-tool-tag（各物件外側、保持水平） */
 @keyframes mfTagIn { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
 @media (max-width: 1023px) { #mf-shapes, #mf-tool-tip { display: none; } }
 /* 離開首頁後（索引、關於、聯絡等），鋼筆色塊與塗鴉一律退到內容後面，文字、圖片永遠在上面 */
@@ -7583,6 +7583,44 @@ document.addEventListener('click', e => {
     .dress-item > .dress-img.dress-settle { animation: dressSettle .38s cubic-bezier(.3,.7,.4,1); }
     @media (prefers-reduced-motion: reduce) { .dress-item > .dress-img.dress-settle { animation: none; } }
 </style>
+<style id="mf-tool-tag-style">
+#mf-tool-tag { position: fixed; left: 0; top: 0; z-index: 45; pointer-events: none; display: none;
+  background: #111; color: #fff; font: 500 14px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .02em; padding: 8px 11px; white-space: nowrap; }
+#mf-tool-tag.on { display: block; animation: mfTagIn .25s ease; }
+</style>
+<script id="mf-tool-tag-script">
+// 使用中標籤：放在物件外側、遠離大標題，並保持水平（不跟著物件漂浮旋轉）
+// 滑鼠：機身下方｜鋼筆：左上外側｜繪圖板：右下外側
+(function () {
+  const root = document.documentElement;
+  const SRC = { mouse: 'hero-icon-2', pen: 'hero-icon-3', tablet: 'hero-icon-4' };
+  const BB = { mouse: [0.118, 0.111, 0.939, 0.907], pen: [0.107, 0.061, 0.957, 0.918], tablet: [0.082, 0.254, 0.904, 0.825] };   // 圖案在圖片裡的範圍
+  const tag = document.createElement('div'); tag.id = 'mf-tool-tag'; tag.setAttribute('aria-hidden', 'true'); tag.textContent = '[ 使用中 ]';
+  document.body.appendChild(tag);
+  let raf = 0, shown = '';
+  function place() {
+    raf = 0;
+    const tool = root.getAttribute('data-mf-tool');
+    const ok = SRC[tool] && root.classList.contains('on-hero') && !root.classList.contains('hero-gone') && !root.classList.contains('splash-on') && !root.classList.contains('intro-on');
+    const img = ok && document.querySelector('#hero-section img[src*="' + SRC[tool] + '"]');
+    const r = img && img.getBoundingClientRect();
+    if (!r || !r.width) { tag.classList.remove('on'); shown = ''; return; }
+    if (shown !== tool) { tag.classList.remove('on'); void tag.offsetWidth; tag.classList.add('on'); shown = tool; }
+    const b = BB[tool], x0 = r.left + b[0] * r.width, y0 = r.top + b[1] * r.height, x1 = r.left + b[2] * r.width, y1 = r.top + b[3] * r.height;
+    const w = tag.offsetWidth, h = tag.offsetHeight, g = 14;
+    let L, T;
+    if (tool === 'mouse') { L = x0 + (x1 - x0) * 0.32 - w / 2; T = y1 + g; }
+    else if (tool === 'pen') { L = x0 - w * 0.4; T = y0 + (y1 - y0) * 0.18 - h - g; }
+    else { L = x1 - w * 0.55; T = y1 + g; }
+    L = Math.max(8, Math.min(innerWidth - w - 8, L)); T = Math.max(72, Math.min(innerHeight - h - 8, T));
+    tag.style.transform = 'translate(' + Math.round(L) + 'px,' + Math.round(T) + 'px)';
+    raf = requestAnimationFrame(place);   // 物件會漂浮、拖曳，持續跟著
+  }
+  function kick() { if (!raf) raf = requestAnimationFrame(place); }
+  new MutationObserver(kick).observe(root, { attributes: true, attributeFilter: ['data-mf-tool', 'class'] });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', kick); else kick();
+})();
+</script>
     <!-- ===== 筆電開場：接手開場畫面的離場、載入 3D、處理滾動與鍵盤 ===== -->
     <script>
         (function () {
@@ -7742,7 +7780,7 @@ function pose(v,zoom,focus=0){
   comp.render();
 }
 
-const hintText=box.querySelector('.mfi-hint span'), hint=box.querySelector('.mfi-hint'), bar=box.querySelector('.mfi-bar'), skip=box.querySelector('.mfi-skip');
+const hintText=box.querySelector('.mfi-hint span'), hint=box.querySelector('.mfi-hint'), bar=box.querySelector('.mfi-bar'), skip=document.createElement('button')   /* 略過按鈕已移除 */;
 let cur=0, target=0, raf=0, finished=false, fast=false;
 function draw(p){
   const P1=0.5, P2=0.68;   // 0–0.5 開蓋；0.5–0.68 停在全開（可以玩鍵盤）；0.68–1 推進螢幕
@@ -7974,7 +8012,7 @@ function pose(p){
   return {boot,home,zoom};
 }
 
-const hint=box.querySelector('.mfi-hint'), hintText=hint.querySelector('span'), bar=box.querySelector('.mfi-bar'), skip=box.querySelector('.mfi-skip');
+const hint=box.querySelector('.mfi-hint'), hintText=hint.querySelector('span'), bar=box.querySelector('.mfi-bar'), skip=document.createElement('button')   /* 略過按鈕已移除 */;
 hintText.textContent='[ 向下滑動 ]';
 const img=document.createElement('img'); img.id='mf-intro-vid'; img.alt=''; img.src='images/intro-screen-m.jpg'; img.style.objectPosition='top'; box.insertBefore(img, r.domElement.nextSibling);
 let cur=0, target=0, raf=0, lastT=0, finished=false, fast=false, doneAt=0;
