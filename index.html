@@ -837,6 +837,40 @@
                 .then(leave, leave);
         })();
     </script>
+    <!-- ===== 筆電開場（第一次進站播放一次）：判斷是否播放，並先蓋上黑色畫面 ===== -->
+    <style id="mf-intro-style">
+        #mf-intro { position: fixed; inset: 0; z-index: 2147483000; background: #020203; transition: opacity .7s ease; touch-action: none; overscroll-behavior: contain; }
+        #mf-intro.is-out { opacity: 0; pointer-events: none; }
+        #mf-intro canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+        #mf-intro-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; }
+        #mf-intro .mfi-ui { position: absolute; font: 500 13px ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .06em; transition: opacity .4s; }
+        #mf-intro .mfi-hint { left: 0; right: 0; bottom: 36px; text-align: center; color: #9aa0ad; pointer-events: none; }
+        #mf-intro .mfi-hint span { display: inline-block; animation: mfiBob 1.8s ease-in-out infinite; }
+        @keyframes mfiBob { 50% { transform: translateY(5px); } }
+        #mf-intro .mfi-skip { top: 20px; right: 22px; background: none; border: 0; color: #9aa0ad; cursor: pointer; padding: 10px 6px; }
+        #mf-intro .mfi-skip:hover, #mf-intro .mfi-skip:focus-visible { color: #fff; outline: none; }
+        #mf-intro .mfi-bar { left: 0; top: 0; height: 2px; background: #3B82F6; width: 0; }
+        #mf-intro .mfi-loading { inset: 0; display: flex; align-items: center; justify-content: center; color: #9aa0ad; background: #020203; }
+    </style>
+    <script>
+        (function () {
+            var on = true;
+            try { on = !sessionStorage.getItem('mfIntroSeen'); } catch (e) {}
+            if (/^#(work|about|contact)$/.test(location.hash)) on = false;                       // 分享連結直接進分頁：不播
+            if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) on = false;
+            if (window.innerWidth < 900 || window.innerWidth < window.innerHeight) on = false;     // 只在電腦（橫向寬螢幕）播放
+            try { var c = document.createElement('canvas'); if (!(c.getContext('webgl2') || c.getContext('webgl'))) on = false; } catch (e) { on = false; }
+            if (/[?&]intro=1\b/.test(location.search)) on = true;                                // 測試用：網址加 ?intro=1 一定播放
+            if (!on) return;
+            window.__mfIntro = { ready: false };
+            document.documentElement.classList.add('intro-on');
+            var el = document.createElement('div');
+            el.id = 'mf-intro';
+            el.innerHTML = '<div class="mfi-ui mfi-bar"></div><div class="mfi-ui mfi-hint"><span>[ 向下滾動 ]</span></div>' +
+                '<button type="button" class="mfi-ui mfi-skip">[ 略過 ]</button><div class="mfi-ui mfi-loading">[ 載入中 ]</div>';
+            document.body.appendChild(el);
+        })();
+    </script>
 
     <!-- 以下外部資源改放在開場畫面之後載入，下載期間畫面上已經有東西可看 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -7548,5 +7582,262 @@ document.addEventListener('click', e => {
     .dress-item > .dress-img.dress-settle { animation: dressSettle .38s cubic-bezier(.3,.7,.4,1); }
     @media (prefers-reduced-motion: reduce) { .dress-item > .dress-img.dress-settle { animation: none; } }
 </style>
+    <!-- ===== 筆電開場：接手開場畫面的離場、載入 3D、處理滾動與鍵盤 ===== -->
+    <script>
+        (function () {
+            var I = window.__mfIntro; if (!I) return;
+            var root = document.documentElement;
+            I.origLeave = window.__splashLeave;
+            // 開場藍色畫面載入完要離場時：先藏起來，保留 splash-on（問候語等動畫會等筆電開場結束才開始）
+            window.__splashLeave = function (splash) { I.splash = splash; splash.style.display = 'none'; };
+            function splashOut() {
+                var s = I.splash || document.getElementById('splash');
+                root.classList.remove('splash-on');
+                if (s && s.parentNode) s.parentNode.removeChild(s);
+            }
+            I.finish = function () {
+                I.done = true;
+                try { sessionStorage.setItem('mfIntroSeen', '1'); } catch (e) {}
+                var el = document.getElementById('mf-intro');
+                if (I.splash || !document.getElementById('splash')) splashOut();
+                else window.__splashLeave = function (s) { I.splash = s; splashOut(); };   // 萬一首頁還沒載完：載完直接揭開
+                root.classList.remove('intro-on');
+                if (el) { el.classList.add('is-out'); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); if (I.dispose) I.dispose(); }, 750); }
+            };
+            // 3D 載入失敗（網路、瀏覽器不支援）：取消筆電開場，照原本的開場畫面離場
+            I.abort = function () {
+                if (I.done) return; I.done = true;
+                var el = document.getElementById('mf-intro'); if (el && el.parentNode) el.parentNode.removeChild(el);
+                root.classList.remove('intro-on');
+                window.__splashLeave = I.origLeave;
+                if (I.splash) { I.splash.style.display = ''; if (I.origLeave) I.origLeave(I.splash, root); else splashOut(); }
+            };
+            setTimeout(function () { if (!I.ready) I.abort(); }, 15000);
+        })();
+    </script>
+    <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+    <script type="module">
+    const I = window.__mfIntro;
+    if (I) (async () => { try {
+const THREE = await import('three');
+const [{RoundedBoxGeometry},{RectAreaLightUniformsLib},{RoomEnvironment},{EffectComposer},{RenderPass},{UnrealBloomPass},{OutputPass}] = await Promise.all([
+  import('three/addons/geometries/RoundedBoxGeometry.js'), import('three/addons/lights/RectAreaLightUniformsLib.js'), import('three/addons/environments/RoomEnvironment.js'),
+  import('three/addons/postprocessing/EffectComposer.js'), import('three/addons/postprocessing/RenderPass.js'), import('three/addons/postprocessing/UnrealBloomPass.js'), import('three/addons/postprocessing/OutputPass.js')]);
+if (I.done) return;
+try { await document.fonts.load('800 100px Syne'); } catch(e) {}
+const box=document.getElementById('mf-intro');
+RectAreaLightUniformsLib.init();
+const r=new THREE.WebGLRenderer({antialias:true});
+r.setPixelRatio(Math.min(devicePixelRatio||1,1.5)); r.setSize(innerWidth,innerHeight);
+r.toneMapping=THREE.ACESFilmicToneMapping;
+box.prepend(r.domElement);
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x020203); scene.fog=new THREE.FogExp2(0x020203,0.075);
+const pm=new THREE.PMREMGenerator(r); scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; scene.environmentIntensity=0.18;
+const cam=new THREE.PerspectiveCamera(32,innerWidth/innerHeight,0.05,100);
+const alu=new THREE.MeshPhysicalMaterial({color:0x3a3c42,metalness:0.55,roughness:0.42,clearcoat:0.3,clearcoatRoughness:0.4});
+const keyM=new THREE.MeshStandardMaterial({color:0x0c0c0e,roughness:0.75,metalness:0.1});
+const padM=new THREE.MeshPhysicalMaterial({color:0x2c2e33,metalness:0.5,roughness:0.5,clearcoat:0.15,clearcoatRoughness:0.6});
+const BW=3.2,BD=2.2,BH=0.09,LH=0.05;
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.MeshStandardMaterial({color:0x0e0e11,roughness:0.5}));
+floor.rotation.x=-Math.PI/2; scene.add(floor);
+const base=new THREE.Mesh(new RoundedBoxGeometry(BW,BH,BD,6,0.06),alu); base.position.y=BH/2; scene.add(base);
+const well=new THREE.Mesh(new RoundedBoxGeometry(2.62,0.01,1.02,3,0.004),new THREE.MeshStandardMaterial({color:0x060607,roughness:.9,emissive:0x9aa4ff,emissiveIntensity:0}));
+well.position.set(0,BH+0.001,-0.42); scene.add(well);
+// 鍵盤：比照 MacBook 配置（功能列半高、esc／delete／tab／caps lock／return／shift 加寬、倒 T 半高方向鍵）
+// 每顆鍵：[e.code, 標示, 寬度(u), 輸入字元]
+const U=0.178, GAP=0.022;
+const P=(t,b)=>({pair:[t,b]}), C=c=>({c}), W=(word,al,sym)=>({word,al,sym}), F=t=>({small:t});
+const ROWS=[
+ {h:0.5, keys:[['Escape',F('esc'),1.5],...Array.from({length:12},(_,i)=>['F'+(i+1),F('F'+(i+1)),1]),['TouchID',{touch:1},1]]},
+ {h:1, keys:[['Backquote',P('~','`'),1,'`'],...'1234567890'.split('').map((d,i)=>['Digit'+d,P('!@#$%^&*()'[i],d),1,d]),['Minus',P('_','-'),1,'-'],['Equal',P('+','='),1,'='],['Backspace',W('delete','r'),1.5]]},
+ {h:1, keys:[['Tab',W('tab','l'),1.5],...'QWERTYUIOP'.split('').map(c=>['Key'+c,C(c),1,c]),['BracketLeft',P('{','['),1,'['],['BracketRight',P('}',']'),1,']'],['Backslash',P('|','\\'),1,'\\']]},
+ {h:1, keys:[['CapsLock',W('caps lock','l'),1.8],...'ASDFGHJKL'.split('').map(c=>['Key'+c,C(c),1,c]),['Semicolon',P(':',';'),1,';'],['Quote',P('"',"'"),1,"'"],['Enter',W('return','r'),1.7]]},
+ {h:1, keys:[['ShiftLeft',W('shift','l','⇧'),2.3],...'ZXCVBNM'.split('').map(c=>['Key'+c,C(c),1,c]),['Comma',P('<',','),1,','],['Period',P('>','.'),1,'.'],['Slash',P('?','/'),1,'/'],['ShiftRight',W('shift','r','⇧'),2.2]]},
+ {h:1, keys:[['Fn',W('fn','l'),1],['ControlLeft',W('control','l','⌃'),1],['AltLeft',W('option','l','⌥'),1],['MetaLeft',W('command','l','⌘'),1.25],['Space',{},5,' '],['MetaRight',W('command','r','⌘'),1.25],['AltRight',W('option','r','⌥'),1],
+   ['ArrowLeft',C('◀'),1,null,'half'],['ArrowUp',C('▲'),1,null,'up'],['ArrowDown',C('▼'),1,null,'down'],['ArrowRight',C('▶'),1,null,'half']]}];
+const TOTAL=14.5, Z0=-0.42-(5.5*U)/2;
+const keys=[], keyByCode={}, labelMats=[], geoCache={};
+function keyGeo(w,d){const id=w.toFixed(3)+'x'+d.toFixed(3); return geoCache[id]||(geoCache[id]=new RoundedBoxGeometry(w,0.03,d,3,Math.min(0.02,d/2-0.001)));}
+function labelTex(spec,w,d){
+  const cw=Math.round(w/U*128), ch=Math.max(56,Math.round(d/U*128)); const cv=document.createElement('canvas'); cv.width=cw; cv.height=ch; const x=cv.getContext('2d');
+  x.fillStyle='#fff'; x.textBaseline='middle'; const font=(px,wt=500)=>`${wt} ${px}px -apple-system,"Helvetica Neue",Arial,sans-serif`;
+  if(spec.c){ x.textAlign='center'; x.font=font(/[◀▶▲▼]/.test(spec.c)?26:46); x.fillText(spec.c,cw/2,ch/2+2); }
+  else if(spec.pair){ x.textAlign='center'; x.font=font(34); x.fillText(spec.pair[0],cw/2,ch*0.32); x.fillText(spec.pair[1],cw/2,ch*0.7); }
+  else if(spec.small){ x.textAlign='center'; x.font=font(26); x.fillText(spec.small,cw/2,ch/2+1); }
+  else if(spec.touch){ x.strokeStyle='rgba(255,255,255,.35)'; x.lineWidth=3; x.beginPath(); x.arc(cw/2,ch/2,ch*0.32,0,Math.PI*2); x.stroke(); }
+  else if(spec.word){ const pad=16, L=spec.al==='l';
+    x.font=font(24); x.textAlign=L?'left':'right'; x.fillText(spec.word,L?pad:cw-pad,ch*0.76);
+    if(spec.sym){ x.font=font(28); x.textAlign=L?'right':'left'; x.fillText(spec.sym,L?cw-pad:pad,ch*0.28); } }
+  const tx=new THREE.CanvasTexture(cv); tx.anisotropy=4; return tx; }
+ROWS.forEach((row,ri)=>{
+  const rowZ=ri===0? Z0+0.25*U : Z0+0.5*U+(ri-0.5)*U;
+  let xu=-TOTAL/2;
+  row.keys.forEach(([code,spec,wu,ch,mode])=>{
+    let w=wu*U-GAP, d=row.h*U-GAP, cx=(xu+wu/2)*U, cz=rowZ;
+    if(mode==='half'){ d=0.5*U-GAP*0.6; cz=rowZ+0.25*U; }
+    if(mode==='up'||mode==='down'){ d=0.5*U-GAP*0.6; cz=rowZ+(mode==='up'?-0.25:0.25)*U; }
+    if(mode!=='up') xu+=wu;          // ▲▼ 共用同一欄
+    const m=new THREE.Mesh(keyGeo(w,d),keyM.clone()); m.material.emissive=new THREE.Color(0x3B82F6); m.material.emissiveIntensity=0;
+    m.position.set(cx,BH+0.012,cz); scene.add(m);
+    if(Object.keys(spec).length){ const lm=new THREE.MeshBasicMaterial({map:labelTex(spec,w,d),transparent:true,color:0xc9cdd6,opacity:0,depthWrite:false,fog:false}); labelMats.push(lm);
+      const l=new THREE.Mesh(new THREE.PlaneGeometry(w-0.008,d-0.008),lm); l.rotation.x=-Math.PI/2; l.position.y=0.0155; m.add(l); }
+    const k={mesh:m,code,ch:ch??null,y0:m.position.y,t:0}; m.userData.key=k; keys.push(k); keyByCode[code]=k;
+  });
+});
+const pad=new THREE.Mesh(new RoundedBoxGeometry(1.5,0.006,0.8,3,0.003),padM); pad.position.set(0,BH+0.002,0.57); scene.add(pad);
+
+const hinge=new THREE.Group(); hinge.position.set(0,BH,-BD/2+0.02); scene.add(hinge);
+const lid=new THREE.Group(); hinge.add(lid);
+const LZ=(BD-0.04)/2;
+const lidBody=new THREE.Mesh(new RoundedBoxGeometry(BW,LH,BD-0.04,6,0.04),alu); lidBody.position.set(0,LH/2+0.004,LZ); lid.add(lidBody);
+const lc=document.createElement('canvas'); lc.width=1024; lc.height=256; const lx=lc.getContext('2d');
+lx.fillStyle='#000'; lx.fillRect(0,0,1024,256); lx.fillStyle='#fff'; lx.font='800 150px Syne, sans-serif'; lx.textAlign='center'; lx.textBaseline='middle'; lx.fillText('MingFly.',512,138);
+const lt=new THREE.CanvasTexture(lc);
+const logo=new THREE.Mesh(new THREE.PlaneGeometry(1.4,0.35),new THREE.MeshPhysicalMaterial({color:0xd8dbe2,metalness:1,roughness:0.15,alphaMap:lt,transparent:true}));
+logo.rotation.x=-Math.PI/2; logo.position.set(0,LH+0.006,LZ); lid.add(logo);
+const bez=new THREE.Mesh(new THREE.PlaneGeometry(BW-0.08,BD-0.12),new THREE.MeshStandardMaterial({color:0x050506,roughness:.4}));
+bez.rotation.x=Math.PI/2; bez.position.set(0,0.002,LZ); lid.add(bez);
+const SW=BW-0.22,SH=SW*900/1440;
+const scrM=new THREE.MeshBasicMaterial({toneMapped:false,fog:false});
+const sc=document.createElement('canvas'); sc.width=1440; sc.height=900; const sx=sc.getContext('2d'); let heroBitmap=null, typed='';
+// 首頁錄影：筆電螢幕和最後揭開前的畫面都用它，所以螢幕內容一直在動
+const vid=document.createElement('video'); vid.id='mf-intro-vid'; vid.muted=true; vid.loop=true; vid.playsInline=true; vid.setAttribute('playsinline',''); vid.preload='auto';
+vid.poster='images/intro-screen.jpg'; vid.src='videos/intro-screen.mp4'; box.insertBefore(vid, r.domElement.nextSibling);
+const scrTex=new THREE.CanvasTexture(sc); scrTex.colorSpace=THREE.SRGBColorSpace;
+let vidShown=false;
+function paintScreen(){ if(vid.readyState>=2){ sx.drawImage(vid,0,0,1440,900); vidShown=true; } else if(!vidShown){ if(!heroBitmap) return; sx.drawImage(heroBitmap,0,0,1440,900); }
+  if(typed){ const t='[ '+typed+'_ ]'; sx.font='500 38px ui-monospace,Menlo,monospace'; const w=sx.measureText(t).width;
+    sx.fillStyle='#FAFAFA'; sx.fillRect(720-w/2-18,100,w+36,58); sx.fillStyle='#3B82F6'; sx.textAlign='center'; sx.textBaseline='middle'; sx.fillText(t,720,131); sx.textAlign='start'; }
+  scrTex.needsUpdate=true; }
+const scr=new THREE.Mesh(new THREE.PlaneGeometry(SW,SH),scrM); scr.rotation.x=Math.PI/2; scr.position.set(0,0,LZ+0.04); lid.add(scr);
+const lights=[[0x4a78ff,-SW/3],[0xff5aa8,0],[0xffa040,SW/3]].map(([c,x])=>{const l=new THREE.RectAreaLight(c,0,SW/3,SH);l.position.set(x,-0.01,LZ+0.04);l.rotation.x=-Math.PI/2;lid.add(l);return l;});
+const white=new THREE.RectAreaLight(0xffffff,0,SW,SH); white.position.set(0,-0.01,LZ+0.04); white.rotation.x=-Math.PI/2; lid.add(white);
+const rim=new THREE.DirectionalLight(0x8899ff,0.25); rim.position.set(-4,5,-6); scene.add(rim);
+
+const comp=new EffectComposer(r); comp.addPass(new RenderPass(scene,cam));
+const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.2,0.35,0.9); comp.addPass(bloom); comp.addPass(new OutputPass());
+
+const KB_CAM=new THREE.Vector3(0,2.15,4.45), KB_TGT=new THREE.Vector3(0,0.55,-0.4);
+const camA=new THREE.Vector3(), tgtA=new THREE.Vector3(), c=new THREE.Vector3(), n=new THREE.Vector3(), camB=new THREE.Vector3(), tg=new THREE.Vector3();
+const lerp=THREE.MathUtils.lerp, ease=x=>x*x*(3-2*x);
+function pose(v,zoom,focus=0){
+  state.v=v; state.zoom=zoom;
+  hinge.rotation.x=-v*112*Math.PI/180;
+  const g=Math.max(0,Math.min(1,(v-0.18)/0.55));
+  lights.forEach(l=>l.intensity=g*16*(1-zoom*0.6)); white.intensity=g*2.5; well.material.emissiveIntensity=g*0.16; for(const lm of labelMats) lm.opacity=0.15+0.55*g;
+  scrM.color.setScalar(0.1+0.72*g+0.18*zoom);
+  bloom.strength=(0.1+0.22*g)*(1-zoom);
+  camA.set(0,lerp(4.6,1.55,v),lerp(3.0,5.4,v)); tgtA.set(0,lerp(0,0.62,v),lerp(0.1,-0.5,v));
+  if(focus>0){ const f=ease(focus); camA.lerp(KB_CAM,f); tgtA.lerp(KB_TGT,f); }   // 停在全開時，鏡頭往鍵盤靠近一點
+  const k=Math.max(1,1.55/cam.aspect); if(k>1) camA.sub(tgtA).multiplyScalar(k).add(tgtA); scene.fog.density=0.075/k;   // 直式螢幕：鏡頭拉遠，讓整台筆電放得進畫面
+  if(zoom>0){
+    scene.updateMatrixWorld(true);
+    scr.getWorldPosition(c); n.set(0,0,1).transformDirection(scr.matrixWorld);
+    const t=Math.tan(THREE.MathUtils.degToRad(cam.fov/2));
+    const d=Math.min(SH/(2*t), SW/(2*t*cam.aspect));      // 螢幕剛好蓋滿視窗（類似 object-fit: cover）
+    camB.copy(c).addScaledVector(n,d);
+    const z=ease(zoom);
+    cam.position.lerpVectors(camA,camB,z); tg.lerpVectors(tgtA,c,z); cam.lookAt(tg);
+  } else { cam.position.copy(camA); cam.lookAt(tgtA); }
+  comp.render();
+}
+
+const hintText=box.querySelector('.mfi-hint span'), hint=box.querySelector('.mfi-hint'), bar=box.querySelector('.mfi-bar'), skip=box.querySelector('.mfi-skip');
+let cur=0, target=0, raf=0, finished=false, fast=false;
+function draw(p){
+  const P1=0.5, P2=0.68;   // 0–0.5 開蓋；0.5–0.68 停在全開（可以玩鍵盤）；0.68–1 推進螢幕
+  if(p<P1) pose(ease(p/P1),0,0); else if(p<P2) pose(1,0,Math.min(1,(p-P1)/0.07)); else pose(1,(p-P2)/(1-P2),1);
+  const kbOn=keyboardVisible(); const typing=kbOn&&p>=0.3;
+  hintText.textContent=typing?'[ 點擊鍵盤試試看，也可以直接打字 ]':'[ 向下滾動 ]';
+  hint.style.opacity=(p<0.03||typing)?1:0;
+  if(!kbOn&&p>0.5&&typed){ typed=''; paintScreen(); }
+  vid.style.opacity=Math.max(0,Math.min(1,(p-0.95)/0.05));
+  bar.style.width=(p*100)+'%';
+  if(p>=0.999 && !finished) setTimeout(end,250);
+}
+let lastT=0;
+function tick(now){ const dt=Math.min(0.1,lastT?(now-lastT)/1000:1/60); lastT=now;   // 依實際時間計算，不受畫面更新率影響
+  cur+=(target-cur)*(1-Math.pow(1-(fast?0.08:0.12),dt*60)); if(Math.abs(target-cur)<0.0005) cur=target; draw(cur); raf=cur!==target?requestAnimationFrame(tick):(lastT=0,0); }
+function go(delta){ if(finished) return; target=Math.min(1,Math.max(0,target+delta)); if(!raf) raf=requestAnimationFrame(tick); }
+const SPAN=()=>innerHeight*3.2;   // 整段開場相當於滾 3.2 個畫面
+function onWheel(e){ e.preventDefault(); const k=e.deltaMode===1?16:e.deltaMode===2?innerHeight:1; go(e.deltaY*k/SPAN()); }
+let ty=null;
+function onTouchStart(e){ ty=e.touches[0].clientY; }
+function onTouchMove(e){ if(ty==null) return; e.preventDefault(); const y=e.touches[0].clientY; go((ty-y)*1.6/SPAN()); ty=y; }
+box.addEventListener('wheel',onWheel,{passive:false});
+box.addEventListener('touchstart',onTouchStart,{passive:true});
+box.addEventListener('touchmove',onTouchMove,{passive:false});
+function onResize(){ r.setSize(innerWidth,innerHeight); comp.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); draw(cur); }
+addEventListener('resize',onResize);
+function end(){ if(finished) return; finished=true; skip.style.opacity=0; cleanup(); I.finish(); }
+skip.addEventListener('click',()=>{ fast=true; go(1); setTimeout(end,1600); });   // 略過：快速推進，最多 1.6 秒後直接揭開首頁
+
+// ---- 鍵盤互動：點擊／觸控／實體鍵盤 ----
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(); let state={v:0,zoom:0}, animRaf=0, actx=null;
+const keyMeshes=keys.map(k=>k.mesh), hitTargets=[...keyMeshes,lidBody,bez,scr];
+// 只要有任何一顆鍵出現在畫面中（且上蓋已經打開到看得到鍵盤），就可以按
+const frustum=new THREE.Frustum(), pv=new THREE.Matrix4(), kbBox=new THREE.Box3();
+function keyboardVisible(){
+  if(state.v<0.12) return false;
+  cam.updateMatrixWorld(); pv.multiplyMatrices(cam.projectionMatrix,cam.matrixWorldInverse); frustum.setFromProjectionMatrix(pv);
+  return keys.some(k=>{ kbBox.setFromObject(k.mesh); return frustum.intersectsBox(kbBox); });
+}
+function canType(){ return keyboardVisible(); }
+function hitKey(e){ ptr.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr,cam); const h=ray.intersectObjects(hitTargets,false)[0]; return h&&h.object.userData.key; }
+// ---- 鍵盤音效 ----
+let soundId='scissor';
+function ac(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); return actx; }
+let noiseBuf=null;
+function noise(a){ if(!noiseBuf){ noiseBuf=a.createBuffer(1,a.sampleRate*0.3,a.sampleRate); const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; } const n=a.createBufferSource(); n.buffer=noiseBuf; return n; }
+function env(a,t,peak,dur,attack=0.001){ const g=a.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+attack); g.gain.exponentialRampToValueAtTime(0.0001,t+dur); return g; }
+function burst(a,t,{type='bandpass',freq=2000,q=1,peak=0.3,dur=0.04,delay=0}){ const n=noise(a), f=a.createBiquadFilter(); f.type=type; f.frequency.value=freq; f.Q.value=q; const g=env(a,t+delay,peak,dur); n.connect(f).connect(g).connect(a.destination); n.start(t+delay); n.stop(t+delay+dur+0.02); }
+function tone(a,t,{type='sine',f0=200,f1=null,peak=0.2,dur=0.05,delay=0}){ const o=a.createOscillator(); o.type=type; o.frequency.setValueAtTime(f0,t+delay); if(f1) o.frequency.exponentialRampToValueAtTime(f1,t+delay+dur); const g=env(a,t+delay,peak,dur); o.connect(g).connect(a.destination); o.start(t+delay); o.stop(t+delay+dur+0.02); }
+// 鍵盤聲：MacBook 剪刀腳
+function clickSound(code){ try{ const a=ac(), t=a.currentTime, big=/Space|Enter|Backspace|Shift|Tab|Caps/.test(code||'');
+  burst(a,t,{freq:3200,q:0.9,peak:big?0.22:0.16,dur:0.025}); tone(a,t,{f0:big?140:190,f1:90,peak:0.08,dur:0.04}); }catch(e){} }
+function press(k){
+  k.t=performance.now(); clickSound(k.code);
+  if(k.code==='Backspace') typed=typed.slice(0,-1);
+  else if(k.code==='Enter'||k.code==='Escape') typed='';
+  else if(k.ch) typed=(typed+k.ch).slice(-22);
+  paintScreen();
+  if(!animRaf) animRaf=requestAnimationFrame(animKeys);
+}
+function animKeys(){
+  const now=performance.now(); let busy=false;
+  for(const k of keys){ if(!k.t) continue; const e=(now-k.t)/260;
+    if(e>=1){ k.t=0; k.mesh.position.y=k.y0; k.mesh.material.emissiveIntensity=0; continue; }
+    busy=true; const d=e<0.25?e/0.25:1-(e-0.25)/0.75;
+    k.mesh.position.y=k.y0-0.014*d; k.mesh.material.emissiveIntensity=1.6*d; }
+  comp.render(); animRaf=busy?requestAnimationFrame(animKeys):0;
+}
+function onPointerDown(e){ if(!canType()) return; const k=hitKey(e); if(k){ e.preventDefault(); press(k); } }
+function onPointerMove(e){ if(e.pointerType!=='mouse') return; r.domElement.style.cursor=(canType()&&hitKey(e))?'pointer':''; }
+r.domElement.addEventListener('pointerdown',onPointerDown);
+r.domElement.addEventListener('pointermove',onPointerMove);
+// 開場期間攔下鍵盤：網站本身的快捷鍵（例如 F 全螢幕）不會被觸發
+function onKey(e){ if(finished) return; e.stopImmediatePropagation();
+  if(!canType()||((e.metaKey||e.ctrlKey||e.altKey)&&!/^(Meta|Control|Alt)/.test(e.code))) return;
+  const k=keyByCode[e.code]; if(k){ e.preventDefault(); press(k); } }
+addEventListener('keydown',onKey,true);
+
+let liveRaf=0;
+function live(){ liveRaf=requestAnimationFrame(live); if(vid.paused) vid.play().catch(()=>{}); if(state.v>0.08 && cur<0.999){ paintScreen(); comp.render(); } }
+function cleanup(){
+  cancelAnimationFrame(liveRaf); cancelAnimationFrame(raf); cancelAnimationFrame(animRaf);
+  removeEventListener('keydown',onKey,true); removeEventListener('resize',onResize);
+}
+I.dispose=()=>{ try{ vid.pause(); vid.removeAttribute('src'); vid.load(); r.dispose(); comp.dispose&&comp.dispose(); if(actx) actx.close(); }catch(e){} };
+new THREE.TextureLoader().load('images/intro-screen.jpg',tex=>{
+  if(I.done) return;
+  heroBitmap=tex.image; scrTex.anisotropy=r.capabilities.getMaxAnisotropy(); paintScreen();
+  scrM.map=scrTex; scrM.needsUpdate=true;
+  I.ready=true;
+  const ld=box.querySelector('.mfi-loading'); ld.style.opacity=0; setTimeout(()=>ld.remove(),450);
+  draw(0); live(); vid.play().catch(()=>{});
+}, undefined, ()=>I.abort());
+draw(0);
+    } catch (err) { console.warn('筆電開場載入失敗，改用原本的開場', err); I.abort(); } })();
+    </script>
 </body>
 </html>
