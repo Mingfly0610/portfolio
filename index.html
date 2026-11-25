@@ -7806,6 +7806,7 @@ box.addEventListener('wheel',onWheel,{passive:false});
 box.addEventListener('touchstart',onTouchStart,{passive:true});
 box.addEventListener('touchmove',onTouchMove,{passive:false});
 function onResize(){ r.setSize(innerWidth,innerHeight); comp.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); draw(cur); }
+r.domElement.addEventListener('pointerenter',()=>{ if(r.domElement.width!==Math.round(innerWidth*r.getPixelRatio())) onResize(); });
 addEventListener('resize',onResize);
 function end(){ if(finished) return; finished=true; doneAt=performance.now(); skip.style.opacity=0; cleanup(); if(I.done){ document.documentElement.classList.remove('intro-on'); box.classList.add('is-out'); clearTimeout(I.hideT); I.hideT=setTimeout(()=>{ if(box.classList.contains('is-out')) box.style.display='none'; },750); } else I.finish(); }
 skip.addEventListener('click',()=>{ fast=true; go(1); setTimeout(end,1600); });   // 略過：快速推進，最多 1.6 秒後直接揭開首頁
@@ -7821,7 +7822,8 @@ function keyboardVisible(){
   return keys.some(k=>{ kbBox.setFromObject(k.mesh); return frustum.intersectsBox(kbBox); });
 }
 function canType(){ return keyboardVisible(); }
-function hitKey(e){ ptr.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr,cam); const h=ray.intersectObjects(hitTargets,false)[0]; return h&&h.object.userData.key; }
+function hitKey(e){ const cr=r.domElement.getBoundingClientRect(); ptr.set((e.clientX-cr.left)/cr.width*2-1,-((e.clientY-cr.top)/cr.height)*2+1);   // 用畫布實際的位置大小換算，全螢幕切換後也不會錯位
+ ray.setFromCamera(ptr,cam); const h=ray.intersectObjects(hitTargets,false)[0]; return h&&h.object.userData.key; }
 // ---- 鍵盤音效 ----
 let soundId='scissor';
 function ac(){ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); return actx; }
@@ -7871,7 +7873,8 @@ const onHome=()=>{ const h=document.documentElement; return h.classList.contains
   && !h.classList.contains('splash-on') && !(document.getElementById('project-modal')&&!document.getElementById('project-modal').classList.contains('hidden')); };
 function reenter(){
   clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
-  finished=false; fast=false; cur=target=1; draw(1);
+  finished=false; fast=false; cur=target=1; onResize();   // 隱藏期間視窗大小可能變了（例如進入全螢幕）：先照現在的大小重設畫面與鏡頭
+  draw(1);
   box.style.transition='none'; box.classList.remove('is-out'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
   document.documentElement.classList.add('intro-on');
   skip.style.opacity=1;
@@ -8046,7 +8049,8 @@ const onHome=()=>{ const h=document.documentElement; return h.classList.contains
   && !h.classList.contains('splash-on') && !(document.getElementById('project-modal')&&!document.getElementById('project-modal').classList.contains('hidden')); };
 function reenter(){
   clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
-  finished=false; fast=false; cur=target=1; draw(1);
+  finished=false; fast=false; cur=target=1; onResize();   // 隱藏期間視窗大小可能變了（例如進入全螢幕）：先照現在的大小重設畫面與鏡頭
+  draw(1);
   box.style.transition='none'; box.classList.remove('is-out'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
   document.documentElement.classList.add('intro-on');
   skip.style.opacity=1; addEventListener('resize',onResize);
