@@ -6403,7 +6403,7 @@ window.__heroDemo = function (v) {
 };
 
 (function () {
-  const run = () => { window.__heroDemo('names'); stripHover(); };
+  const run = () => { window.__heroDemo('base'); stripHover(); };   // 首頁跑馬燈已移除（'names' 可以恢復）
   // 滑鼠移到跑馬燈上時，平順減速停下；離開後再慢慢恢復
   function stripHover() {
     const strip = document.querySelector('.hd-strip'), track = strip && strip.querySelector('.hd-track');
@@ -7602,7 +7602,7 @@ document.addEventListener('click', e => {
                 if (I.splash || !document.getElementById('splash')) splashOut();
                 else window.__splashLeave = function (s) { I.splash = s; splashOut(); };   // 萬一首頁還沒載完：載完直接揭開
                 root.classList.remove('intro-on');
-                if (el) { el.classList.add('is-out'); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); if (I.dispose) I.dispose(); }, 750); }
+                if (el) { el.classList.add('is-out'); clearTimeout(I.hideT); I.hideT = setTimeout(function () { if (el.classList.contains('is-out')) el.style.display = 'none'; }, 750); }   // 保留筆電畫面：在首頁往上滾可以回到筆電
             };
             // 3D 載入失敗（網路、瀏覽器不支援）：取消筆電開場，照原本的開場畫面離場
             I.abort = function () {
@@ -7700,12 +7700,11 @@ bez.rotation.x=Math.PI/2; bez.position.set(0,0.002,LZ); lid.add(bez);
 const SW=BW-0.22,SH=SW*900/1440;
 const scrM=new THREE.MeshBasicMaterial({toneMapped:false,fog:false});
 const sc=document.createElement('canvas'); sc.width=1440; sc.height=900; const sx=sc.getContext('2d'); let heroBitmap=null, typed='';
-// 首頁錄影：筆電螢幕和最後揭開前的畫面都用它，所以螢幕內容一直在動
-const vid=document.createElement('video'); vid.id='mf-intro-vid'; vid.muted=true; vid.loop=true; vid.playsInline=true; vid.setAttribute('playsinline',''); vid.preload='auto';
-vid.poster='images/intro-screen.jpg'; vid.src='videos/intro-screen.mp4'; box.insertBefore(vid, r.domElement.nextSibling);
+// 首頁畫面（靜態圖）：筆電螢幕和最後揭開前的畫面都用它
+const vid=document.createElement('img'); vid.id='mf-intro-vid'; vid.alt=''; vid.src='images/intro-screen.jpg'; box.insertBefore(vid, r.domElement.nextSibling);
 const scrTex=new THREE.CanvasTexture(sc); scrTex.colorSpace=THREE.SRGBColorSpace;
 let vidShown=false;
-function paintScreen(){ if(vid.readyState>=2){ sx.drawImage(vid,0,0,1440,900); vidShown=true; } else if(!vidShown){ if(!heroBitmap) return; sx.drawImage(heroBitmap,0,0,1440,900); }
+function paintScreen(){ if(!heroBitmap) return; sx.drawImage(heroBitmap,0,0,1440,900);
   if(typed){ const t='[ '+typed+'_ ]'; sx.font='500 38px ui-monospace,Menlo,monospace'; const w=sx.measureText(t).width;
     sx.fillStyle='#FAFAFA'; sx.fillRect(720-w/2-18,100,w+36,58); sx.fillStyle='#3B82F6'; sx.textAlign='center'; sx.textBaseline='middle'; sx.fillText(t,720,131); sx.textAlign='start'; }
   scrTex.needsUpdate=true; }
@@ -7753,7 +7752,7 @@ function draw(p){
   if(!kbOn&&p>0.5&&typed){ typed=''; paintScreen(); }
   vid.style.opacity=Math.max(0,Math.min(1,(p-0.95)/0.05));
   bar.style.width=(p*100)+'%';
-  if(p>=0.999 && !finished) setTimeout(end,250);
+  if(p>=0.999 && !finished && !draw.pend){ draw.pend=true; setTimeout(()=>{ draw.pend=false; if(cur>=0.999) end(); },250); }
 }
 let lastT=0;
 function tick(now){ const dt=Math.min(0.1,lastT?(now-lastT)/1000:1/60); lastT=now;   // 依實際時間計算，不受畫面更新率影響
@@ -7769,7 +7768,7 @@ box.addEventListener('touchstart',onTouchStart,{passive:true});
 box.addEventListener('touchmove',onTouchMove,{passive:false});
 function onResize(){ r.setSize(innerWidth,innerHeight); comp.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); draw(cur); }
 addEventListener('resize',onResize);
-function end(){ if(finished) return; finished=true; skip.style.opacity=0; cleanup(); I.finish(); }
+function end(){ if(finished) return; finished=true; doneAt=performance.now(); skip.style.opacity=0; cleanup(); if(I.done){ document.documentElement.classList.remove('intro-on'); box.classList.add('is-out'); clearTimeout(I.hideT); I.hideT=setTimeout(()=>{ if(box.classList.contains('is-out')) box.style.display='none'; },750); } else I.finish(); }
 skip.addEventListener('click',()=>{ fast=true; go(1); setTimeout(end,1600); });   // 略過：快速推進，最多 1.6 秒後直接揭開首頁
 
 // ---- 鍵盤互動：點擊／觸控／實體鍵盤 ----
@@ -7822,19 +7821,32 @@ function onKey(e){ if(finished) return; e.stopImmediatePropagation();
 addEventListener('keydown',onKey,true);
 
 let liveRaf=0;
-function live(){ liveRaf=requestAnimationFrame(live); if(vid.paused) vid.play().catch(()=>{}); if(state.v>0.08 && cur<0.999){ paintScreen(); comp.render(); } }
+function live(){}   // 螢幕改用靜態圖：不需要每一格重畫
 function cleanup(){
-  cancelAnimationFrame(liveRaf); cancelAnimationFrame(raf); cancelAnimationFrame(animRaf);
+  cancelAnimationFrame(liveRaf); cancelAnimationFrame(raf); cancelAnimationFrame(animRaf); raf=0; animRaf=0; lastT=0;
   removeEventListener('keydown',onKey,true); removeEventListener('resize',onResize);
 }
-I.dispose=()=>{ try{ vid.pause(); vid.removeAttribute('src'); vid.load(); r.dispose(); comp.dispose&&comp.dispose(); if(actx) actx.close(); }catch(e){} };
+// 首頁往上滾：回到筆電畫面（從螢幕填滿的位置往回倒）
+let doneAt=0;
+const onHome=()=>{ const h=document.documentElement; return h.classList.contains('on-hero') && !h.classList.contains('hero-gone') && !h.getAttribute('data-view') && scrollY<=2
+  && !h.classList.contains('splash-on') && !(document.getElementById('project-modal')&&!document.getElementById('project-modal').classList.contains('hidden')); };
+function reenter(){
+  clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
+  finished=false; fast=false; cur=target=1; draw(1);
+  box.classList.remove('is-out'); document.documentElement.classList.add('intro-on');
+  skip.style.opacity=1;
+  addEventListener('keydown',onKey,true); addEventListener('resize',onResize);
+}
+addEventListener('wheel',e=>{ if(!finished || e.deltaY>=0 || performance.now()-doneAt<700 || box.style.display!=='none' && !box.classList.contains('is-out') || !onHome()) return;
+  reenter(); const k=e.deltaMode===1?16:e.deltaMode===2?innerHeight:1; go(e.deltaY*k/SPAN()); },{passive:true});
+I.dispose=()=>{ try{ r.dispose(); comp.dispose&&comp.dispose(); if(actx) actx.close(); }catch(e){} };
 new THREE.TextureLoader().load('images/intro-screen.jpg',tex=>{
   if(I.done) return;
   heroBitmap=tex.image; scrTex.anisotropy=r.capabilities.getMaxAnisotropy(); paintScreen();
   scrM.map=scrTex; scrM.needsUpdate=true;
   I.ready=true;
   const ld=box.querySelector('.mfi-loading'); ld.style.opacity=0; setTimeout(()=>ld.remove(),450);
-  draw(0); live(); vid.play().catch(()=>{});
+  draw(0);
 }, undefined, ()=>I.abort());
 draw(0);
     } catch (err) { console.warn('筆電開場載入失敗，改用原本的開場', err); I.abort(); } })();
