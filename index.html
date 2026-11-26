@@ -927,9 +927,11 @@
         <button id="mobile-menu-close" type="button" aria-label="關閉選單" ontouchstart="" style="-webkit-tap-highlight-color:transparent" class="absolute top-4 right-3 w-12 h-12 flex items-center justify-center text-brand-black active:text-[#3B82F6] transition-colors">
             <i class="ph ph-x text-2xl" aria-hidden="true"></i>
         </button>
-        <a href="#work" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">專案 Project</a>
-        <a href="#about" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">關於 About</a>
-        <a href="#contact" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors">聯絡 Contact</a>
+        <a href="#work" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors"><span class="mfm-en">Project</span><span class="mfm-zh">專案</span></a>
+        <a href="#about" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors"><span class="mfm-en">About</span><span class="mfm-zh">關於</span></a>
+        <a href="#contact" class="cursor-pointer mobile-link text-3xl font-bold hover:text-[#3B82F6] transition-colors"><span class="mfm-en">Contact</span><span class="mfm-zh">聯絡</span></a>
+        <div class="mfm-top" aria-hidden="true">MingFly.</div>
+        <div class="mfm-foot"><span>[ Portfolio 2025–2026 ]</span><span>Kaohsiung, TW</span></div>
     </div>
 
     <section id="hero-section" class="min-h-[100dvh] flex items-center justify-center pt-[122px] pb-0 md:pt-20 relative overflow-hidden px-6 lg:px-12">
@@ -3813,7 +3815,7 @@
     }
     /* 手機選單：白底 60%＋ASCII 字元背景 */
     #mobile-menu { background: #ffffff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }   /* 純白，不透出後面頁面 */
-    #menu-ascii { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+    #menu-ascii { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: .35; }   /* 和首頁背景一樣淡 */
     #mobile-menu > a { position: relative; z-index: 1; }
     #mobile-menu > #mobile-menu-close { z-index: 2; }
     /* 手機橫式影片：左右只留 16px，影片寬度拉滿 */
@@ -7586,6 +7588,29 @@ document.addEventListener('click', e => {
     .dress-item > .dress-img.dress-settle { animation: dressSettle .38s cubic-bezier(.3,.7,.4,1); }
     @media (prefers-reduced-motion: reduce) { .dress-item > .dress-img.dress-settle { animation: none; } }
 </style>
+<style id="mf-mobile-menu-style">
+/* 手機選單：大字清單（雜誌目錄感），靠左、集中在畫面下半部 */
+html body #mobile-menu { align-items: stretch !important; justify-content: flex-end !important; gap: 0 !important; padding: 0 24px calc(48px + env(safe-area-inset-bottom)) !important; }
+html body #mobile-menu .mobile-link { position: relative; z-index: 1; display: flex !important; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 0 16px; border-top: 1px solid #111; color: #111;
+  font-family: 'Syne', sans-serif !important; font-weight: 800 !important; font-size: clamp(40px, 12.8vw, 56px) !important; line-height: 1 !important; letter-spacing: -.05em !important; text-align: left; }
+html body #mobile-menu .mobile-link:last-of-type { border-bottom: 1px solid #111; }
+html body #mobile-menu .mobile-link::after { display: none !important; }
+html body #mobile-menu .mfm-zh { order: -1; font: 500 13px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .04em; color: #3B82F6; }
+html body #mobile-menu .mfm-zh::before { content: '[ '; } html body #mobile-menu .mfm-zh::after { content: ' ]'; }
+html body #mobile-menu .mobile-link:active .mfm-en { color: #3B82F6; }
+html.hero-gone[data-view="work"] #mobile-menu a[href="#work"] .mfm-en,
+html.hero-gone[data-view="about"] #mobile-menu a[href="#about"] .mfm-en,
+html.hero-gone[data-view="contact"] #mobile-menu a[href="#contact"] .mfm-en { color: #3B82F6; }   /* 目前所在的頁面 */
+html body #mobile-menu .mfm-top { position: absolute; left: 24px; top: 26px; z-index: 1; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -.03em; color: #111; }
+html body #mobile-menu .mfm-foot { position: relative; z-index: 1; display: flex; justify-content: space-between; margin-top: 18px; font: 500 12px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .04em; color: #6b7280; }
+/* 打開時三個大字由下往上依序滑入 */
+html body #mobile-menu:not(.opacity-0) .mobile-link, html body #mobile-menu:not(.opacity-0) .mfm-foot { animation: mfmIn .55s cubic-bezier(.2,.8,.2,1) both; }
+html body #mobile-menu:not(.opacity-0) a[href="#about"] { animation-delay: .06s; }
+html body #mobile-menu:not(.opacity-0) a[href="#contact"] { animation-delay: .12s; }
+html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
+@keyframes mfmIn { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { html body #mobile-menu .mobile-link, html body #mobile-menu .mfm-foot { animation: none !important; } }
+</style>
 <style id="mf-mobile-hero">
 /* 手機首頁（D 版）：一台巨大的電視當主視覺，文字靠左撐滿，左邊與導覽列的 MingFly. 對齊 */
 @media (max-width: 767px) {
@@ -7603,7 +7628,7 @@ document.addEventListener('click', e => {
   html body #hero-section h1 > span { display: block; }   /* 換字的那個字自己一行 */
   html body #hero-section h1 > br { display: none; }
   html body #hero-section h1 span, html body #hero-section h1 span * { font-size: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; }
-  html body #hero-section h1 > .drag-item { position: relative !important; left: -3px !important; top: 0 !important; display: block; width: 112px !important; margin: 0 0 -2px !important; }
+  html body #hero-section h1 > .drag-item { position: relative !important; left: -3px !important; top: 0 !important; display: block; width: calc(4.33em + 3px) !important; margin: 0 0 .04em !important; }   /* 右緣對齊標題「Crafti」的 i（跟著標題字級等比縮放） */
   html body #hero-section .max-w-5xl > .hero-hello-mask { margin-top: 14px !important; }
   html body #hero-hello { margin-top: 0 !important; text-align: left !important; font-size: 15px !important; color: #6b7280 !important; }
   html body #hero-section .max-w-5xl > .pt-6 { margin-top: 6px !important; padding-top: 10px !important; justify-content: flex-start !important; }
