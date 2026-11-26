@@ -746,7 +746,7 @@
             var EXTRA_WAIT = 5000;   // 等首頁內容全部就緒的上限；超過就先揭開，避免網路很慢時一直卡在藍色畫面
             root.classList.add('splash-on');
             // 網址帶有 #work／#about／#contact（例如分享連結或重新整理）就直接進作品頁，否則先停在首頁
-            var startView = (location.hash.match(/^#(work|about|contact)$/) || [])[1];
+            var startView = (location.hash.match(/^#(work|about|contact)(?:\/[\w-]+)?$/) || [])[1];   // #work/專案代號 也直接進專案頁
             root.classList.add(startView ? 'hero-gone' : 'on-hero');
             if (startView) root.setAttribute('data-view', startView);
             window.scrollTo(0, 0);
@@ -855,20 +855,22 @@
     </style>
     <script>
         (function () {
-            var on = true;
+            var on = true, dormant = false;
             // 每次載入（含重新整理）都播放開場
-            if (/^#(work|about|contact)$/.test(location.hash)) on = false;                       // 分享連結直接進分頁：不播
-            if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) on = false;
+            if (/^#(work|about|contact)(\/[\w-]+)?$/.test(location.hash)) { on = false; dormant = true; }   // 分享連結直接進分頁：不播，但先在背景準備好，回到首頁後一樣可以滾回開場
+            if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) on = dormant = false;
             var mode = (window.innerWidth >= 900 && window.innerWidth >= window.innerHeight) ? 'laptop' : 'phone';   // 電腦：筆電；手機、平板直式：iPhone
-            try { var c = document.createElement('canvas'); if (!(c.getContext('webgl2') || c.getContext('webgl'))) on = false; } catch (e) { on = false; }
+            try { var c = document.createElement('canvas'); if (!(c.getContext('webgl2') || c.getContext('webgl'))) on = dormant = false; } catch (e) { on = dormant = false; }
             if (/[?&]intro=1\b/.test(location.search)) on = true;                                // 測試用：網址加 ?intro=1 一定播放
-            if (!on) return;
-            window.__mfIntro = { ready: false, mode: mode };
-            document.documentElement.classList.add('intro-on');
+            if (on) dormant = false;
+            if (!on && !dormant) return;
+            window.__mfIntro = { ready: false, mode: mode, dormant: dormant };
+            if (!dormant) document.documentElement.classList.add('intro-on');
             var el = document.createElement('div');
             el.id = 'mf-intro';
             el.innerHTML = '<div class="mfi-ui mfi-bar"></div><div class="mfi-ui mfi-hint"><span>[ 向下滾動 ]</span></div>' +
                 '<div class="mfi-ui mfi-loading">[ 載入中 ]</div>';
+            if (dormant) { el.className = 'is-out'; el.style.display = 'none'; }
             document.body.appendChild(el);
         })();
     </script>
@@ -2659,6 +2661,7 @@
             item = resolveOriginal(item);
             currentProject = item;
             lastFocusedItem = item;
+            if (window.__mfProjectUrl) window.__mfProjectUrl.opened(item);   // 網址加上 #work/專案代號
 
             const videoSrc = item.getAttribute('data-video');
             const modalImgSrc = item.getAttribute('data-modal-img');
@@ -6432,13 +6435,13 @@ window.__heroDemo = function (v) {
 </script>
 
 <style>
-/* 手機首頁：整體重心往上（內容與四個物件一起上移），年份貼紙置中，問候語縮小 */
+/* 手機首頁：內容置中於導覽列下方的可視區（視覺平衡），四個物件分布在上下左右，年份貼紙置中，問候語縮小 */
 @media (max-width: 767px) {
-    #hero-section { padding-top: 108px !important; padding-bottom: 118px !important; }
-    #hero-section .hero-icon:has(img[src*="hero-icon-1"]) { translate: 0 -84px; }
-    #hero-section .hero-icon:has(img[src*="hero-icon-3"]) { translate: 0 -84px; }   /* 沾水筆：往上，靠近內容 */
-    #hero-section .hero-icon:has(img[src*="hero-icon-4"]) { translate: 34px -72px; }   /* 繪圖板：往上、往右，避開問候語 */
-    #hero-section .hero-icon:has(img[src*="hero-icon-2"]) { translate: 0 -58px; }    /* 滑鼠：往上，填補上方留白 */
+    #hero-section { padding-top: 150px !important; padding-bottom: 70px !important; }
+    #hero-section .hero-icon:has(img[src*="hero-icon-1"]) { translate: 0 -50px; }
+    #hero-section .hero-icon:has(img[src*="hero-icon-3"]) { translate: 0 -10px; }   /* 沾水筆：放在左下，填補下方留白 */
+    #hero-section .hero-icon:has(img[src*="hero-icon-4"]) { translate: 34px -8px; }   /* 繪圖板：右下，往右避開按鈕 */
+    #hero-section .hero-icon:has(img[src*="hero-icon-2"]) { translate: 0 -20px; }    /* 滑鼠：右上 */
     #hero-section h1 > .drag-item { left: calc(50% - 75px); }   /* 年份貼紙置中（拖曳時以行內位置為準） */
     #hero-hello { font-size: 16px !important; }
 }
@@ -7583,6 +7586,173 @@ document.addEventListener('click', e => {
     .dress-item > .dress-img.dress-settle { animation: dressSettle .38s cubic-bezier(.3,.7,.4,1); }
     @media (prefers-reduced-motion: reduce) { .dress-item > .dress-img.dress-settle { animation: none; } }
 </style>
+<style id="mf-mobile-hero">
+/* 手機首頁（D 版）：一台巨大的電視當主視覺，文字靠左撐滿，左邊與導覽列的 MingFly. 對齊 */
+@media (max-width: 767px) {
+  #halftone-bg { opacity: .35 !important; }
+  html body #hero-section { padding: 70px 0 34px !important; align-items: flex-end !important; }
+  html body #hero-section > .hero-icon:has(img[src*="hero-icon-2"]),
+  html body #hero-section > .hero-icon:has(img[src*="hero-icon-3"]),
+  html body #hero-section > .hero-icon:has(img[src*="hero-icon-4"]) { display: none !important; }
+  html body #hero-section > .hero-icon:has(img[src*="hero-icon-1"]) {
+    --tv: min(138.5vw, calc((100dvh - 280px) * 1.07));   /* 矮的手機自動縮小，不會壓到文字 */
+    position: absolute; left: auto; bottom: auto; right: calc(var(--tv) * -0.315); top: -10px; width: var(--tv); height: var(--tv); max-width: none; max-height: none;
+    translate: none; rotate: -8deg; z-index: 0 !important; }
+  html body #hero-section > .max-w-5xl { position: relative; z-index: 5 !important; width: 100%; max-width: none; margin: 0 !important; padding: 0 24px !important; text-align: left !important; }
+  html body #hero-section h1 { display: block; width: 100%; line-height: .92 !important; letter-spacing: -.05em !important; }
+  html body #hero-section h1 > span { display: block; }   /* 換字的那個字自己一行 */
+  html body #hero-section h1 > br { display: none; }
+  html body #hero-section h1 span, html body #hero-section h1 span * { font-size: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; }
+  html body #hero-section h1 > .drag-item { position: relative !important; left: -3px !important; top: 0 !important; display: block; width: 112px !important; margin: 0 0 -2px !important; }
+  html body #hero-section .max-w-5xl > .hero-hello-mask { margin-top: 14px !important; }
+  html body #hero-hello { margin-top: 0 !important; text-align: left !important; font-size: 15px !important; color: #6b7280 !important; }
+  html body #hero-section .max-w-5xl > .pt-6 { margin-top: 6px !important; padding-top: 10px !important; justify-content: flex-start !important; }
+  html body #hero-section .max-w-5xl > .pt-6 a { margin-left: -10px !important; }   /* 方括號對齊左邊線 */
+  /* 電視進場：從右側滑入，微微晃一下定位 */
+  html body #hero-section > .hero-icon.mf-tv-in { animation: mfTvIn 1s cubic-bezier(.2,.9,.25,1.15) both; }
+  @keyframes mfTvIn { from { translate: 75vw 6vw; rotate: 6deg; opacity: 0; } 60% { opacity: 1; } to { translate: 0 0; rotate: -8deg; opacity: 1; } }
+  html body #hero-section > .hero-icon > .mf-tilt, html body #hero-section > .max-w-5xl.mf-tilt { will-change: transform; }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) { html body #hero-section > .hero-icon.mf-tv-in { animation: none; } }
+</style>
+<script id="mf-mobile-hero-script">
+// 手機首頁：標題撐滿寬度、電視點一下換台、電視進場動畫、手持晃動視差
+(function () {
+  const mq = matchMedia('(max-width: 767px)'), root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hero = document.getElementById('hero-section'); if (!hero) return;
+  const h1 = hero.querySelector('h1'), text = hero.querySelector('.max-w-5xl');
+  const tv = Array.from(hero.querySelectorAll(':scope > .hero-icon')).find(e => e.querySelector('img[src*="hero-icon-1"]'));
+  // 1) 標題字級：讓最長的一行「experiences.」剛好撐滿左右邊界
+  const probe = document.createElement('span');
+  probe.setAttribute('aria-hidden', 'true'); probe.textContent = 'experiences.';
+  probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:0;top:0;pointer-events:none';
+  function fit() {
+    if (!mq.matches) { h1.style.removeProperty('font-size'); return; }
+    if (!probe.isConnected) h1.appendChild(probe);
+    h1.style.setProperty('font-size', '100px', 'important');
+    const w = probe.getBoundingClientRect().width, W = text.clientWidth - 48;
+    if (w > 0 && W > 0) h1.style.setProperty('font-size', Math.floor(100 * W / w * 0.995) + 'px', 'important');
+    else h1.style.removeProperty('font-size');
+  }
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(fit);
+  addEventListener('resize', fit); mq.addEventListener && mq.addEventListener('change', fit); fit();
+  // 2) 點電視換台（和電腦版一樣）
+  if (tv) tv.addEventListener('click', () => {
+    if (!mq.matches || !window.__monNext) return;
+    window.__monNext();
+    tv.classList.remove('mf-press'); void tv.offsetWidth; tv.classList.add('mf-press');
+    setTimeout(() => tv.classList.remove('mf-press'), 450);
+  });
+  // 3) 電視進場動畫：首頁揭開（開場結束、從別頁回來）時播一次
+  let shown = false;
+  function homeVisible() { return root.classList.contains('on-hero') && !root.classList.contains('hero-gone') && !root.classList.contains('splash-on') && !root.classList.contains('intro-on'); }
+  function checkEnter() {
+    const v = homeVisible();
+    if (v && !shown) fit();   // 首頁剛顯示：重新量字級（隱藏時量不到寬度）
+    if (v && !shown && tv && mq.matches && !reduce) { tv.classList.remove('mf-tv-in'); void tv.offsetWidth; tv.classList.add('mf-tv-in'); setTimeout(() => tv.classList.remove('mf-tv-in'), 1100); }
+    shown = v;
+  }
+  new MutationObserver(checkEnter).observe(root, { attributes: true, attributeFilter: ['class'] }); checkEnter();
+  // 4) 手持晃動：手機傾斜時，電視和文字往相反方向微微移動，產生景深
+  if (reduce || !tv || !('DeviceOrientationEvent' in window)) return;
+  const layers = () => Array.from(tv.children);
+  let b0 = null, g0 = null, tx = 0, ty = 0, x = 0, y = 0, raf = 0, on = false;
+  const cl = v => Math.max(-1, Math.min(1, v));
+  function onOri(e) {
+    if (e.beta == null || e.gamma == null) return;
+    if (b0 == null) { b0 = e.beta; g0 = e.gamma; }
+    b0 += (e.beta - b0) * 0.015; g0 += (e.gamma - g0) * 0.015;   // 慢慢以目前的握持角度為中心
+    tx = cl((e.gamma - g0) / 18); ty = cl((e.beta - b0) / 18);
+    if (!raf) raf = requestAnimationFrame(step);
+  }
+  function step() {
+    raf = 0;
+    const active = mq.matches && homeVisible();
+    const gx = active ? tx : 0, gy = active ? ty : 0;
+    x += (gx - x) * 0.12; y += (gy - y) * 0.12;
+    layers().forEach(el => { el.style.transform = 'translate3d(' + (x * 16).toFixed(2) + 'px,' + (y * 12).toFixed(2) + 'px,0)'; });
+    text.style.transform = 'translate3d(' + (-x * 6).toFixed(2) + 'px,' + (-y * 4).toFixed(2) + 'px,0)';
+    if (Math.abs(gx - x) > 0.002 || Math.abs(gy - y) > 0.002) raf = requestAnimationFrame(step);
+  }
+  function start() { if (on) return; on = true; addEventListener('deviceorientation', onOri); }
+  if (!mq.matches) return;
+  const D = window.DeviceOrientationEvent;
+  if (typeof D.requestPermission === 'function') {
+    // iPhone：要使用者點一下才能詢問「動作與方向」權限
+    const ask = () => { D.requestPermission().then(r => { if (r === 'granted') start(); }).catch(() => {}); removeEventListener('touchend', ask); };
+    addEventListener('touchend', ask, { passive: true });
+  } else start();
+})();
+</script>
+<script id="mf-project-url">
+// 專案網址：打開專案時網址變成 #work/專案代號，可以直接分享；瀏覽器上一頁會關掉專案
+(function () {
+  const modal = document.getElementById('project-modal');
+  const closeBtn = document.getElementById('modal-close');
+  if (!modal || !closeBtn) return;
+  const items = Array.from(document.querySelectorAll('#portfolio-grid .portfolio-item'));   // 原本的卡片（不含跑馬燈複製的）
+  const bySlug = new Map();
+  const slugOf = new Map();
+  items.forEach(it => {
+    const src = (it.getAttribute('data-video') || it.getAttribute('data-modal-img') || (it.querySelector('img') || {}).getAttribute?.('src') || '').split(',')[0];
+    let b = src.split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/[?#].*$/, '');
+    b = b.replace(/-(full|thumb|live)$/, '').replace(/-\d\d(-.*)?$/, '');
+    b = b.replace(/^(\d{4}-)?(event|animation|prog)-/, '$1');
+    if (!/^\d{4}-/.test(b)) { const y = ((it.querySelector('.item-year') || {}).textContent || '').match(/\d{4}/); if (y) b = y[0] + '-' + b; }
+    b = b.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'project';
+    if (bySlug.has(b)) b += '-' + (it.getAttribute('data-category') || 'more');   // 同名時加上分類（例如動畫版）
+    let k = b, n = 2; while (bySlug.has(k)) k = b + '-' + n++;
+    bySlug.set(k, it); slugOf.set(it, k);
+  });
+  const isProjHash = h => /^#work\/[\w-]+$/.test(h);
+  let pushed = false, fromPop = false;
+  window.__mfProjectUrl = {
+    slugs: () => Array.from(bySlug.keys()),
+    opened(item) {
+      const slug = slugOf.get(item); if (!slug) return;
+      const url = location.pathname + location.search + '#work/' + slug;
+      if (location.hash === '#work/' + slug) return;
+      const st = { view: 'works', page: '#work', proj: slug };
+      try {
+        if (fromPop) history.replaceState(st, '', url);
+        else if (modal.classList.contains('hidden') && !isProjHash(location.hash)) { history.pushState(st, '', url); pushed = true; }
+        else history.replaceState(st, '', url);   // 在專案裡換上一件／下一件：只換網址，不多一筆上一頁
+      } catch (e) {}
+    }
+  };
+  // 專案關閉：網址回到 #work
+  new MutationObserver(() => {
+    if (!modal.classList.contains('hidden') || !isProjHash(location.hash)) return;
+    if (fromPop) return;
+    if (pushed) { pushed = false; fromPop = true; history.back(); setTimeout(() => { fromPop = false; }, 400); }
+    else { try { history.replaceState({ view: 'works', page: '#work' }, '', location.pathname + location.search + '#work'); } catch (e) {} }
+  }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+  function openFromHash() {
+    const m = location.hash.match(/^#work\/([\w-]+)$/);
+    const it = m && bySlug.get(m[1]);
+    if (!it) { if (m) try { history.replaceState({ view: 'works', page: '#work' }, '', location.pathname + location.search + '#work'); } catch (e) {} return; }
+    fromPop = true; it.click(); setTimeout(() => { fromPop = false; }, 400);
+  }
+  // 瀏覽器上一頁／下一頁
+  addEventListener('popstate', () => {
+    if (isProjHash(location.hash)) { setTimeout(openFromHash, 60); return; }
+    if (!modal.classList.contains('hidden')) { pushed = false; fromPop = true; closeBtn.click(); setTimeout(() => { fromPop = false; }, 400); }
+  });
+  // 直接用專案網址進站：等開場畫面結束、專案頁就緒後打開
+  if (isProjHash(location.hash)) {
+    (function wait(t) {
+      const root = document.documentElement;
+      if (t < 80 && (root.classList.contains('splash-on') || document.getElementById('splash') || !root.classList.contains('hero-gone'))) return setTimeout(() => wait(t + 1), 150);
+      setTimeout(() => {   // 先把網址退回 #work 再打開，這樣按上一頁會先關掉專案，而不是直接離開網站
+        const m = location.hash.match(/^#work\/([\w-]+)$/), it = m && bySlug.get(m[1]);
+        try { history.replaceState({ view: 'works', page: '#work' }, '', location.pathname + location.search + '#work'); } catch (e) {}
+        if (it) it.click();
+      }, 300);
+    })(0);
+  }
+})();
+</script>
 <style id="mf-tool-tag-style">
 #mf-tool-tag { position: fixed; left: 0; top: 0; z-index: 45; pointer-events: none; display: none;
   background: #111; color: #fff; font: 500 14px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .02em; padding: 8px 11px; white-space: nowrap; }
@@ -7628,7 +7798,8 @@ document.addEventListener('click', e => {
             var root = document.documentElement;
             I.origLeave = window.__splashLeave;
             // 開場藍色畫面載入完要離場時：先藏起來，保留 splash-on（問候語等動畫會等筆電開場結束才開始）
-            window.__splashLeave = function (splash) { I.splash = splash; splash.style.display = 'none'; };
+            // 背景準備模式（從分頁連結進站）：不攔開場畫面，照原本方式揭開
+            if (!I.dormant) window.__splashLeave = function (splash) { I.splash = splash; splash.style.display = 'none'; };
             function splashOut() {
                 var s = I.splash || document.getElementById('splash');
                 root.classList.remove('splash-on');
@@ -7647,6 +7818,7 @@ document.addEventListener('click', e => {
             I.abort = function () {
                 if (I.done) return; I.done = true;
                 var el = document.getElementById('mf-intro'); if (el && el.parentNode) el.parentNode.removeChild(el);
+                if (I.dormant) return;
                 root.classList.remove('intro-on');
                 window.__splashLeave = I.origLeave;
                 if (I.splash) { I.splash.style.display = ''; if (I.origLeave) I.origLeave(I.splash, root); else splashOut(); }
@@ -7869,7 +8041,7 @@ function cleanup(){
 }
 // 首頁往上滾：回到筆電畫面（從螢幕填滿的位置往回倒）
 let doneAt=0;
-const onHome=()=>{ const h=document.documentElement; return h.classList.contains('on-hero') && !h.classList.contains('hero-gone') && !h.getAttribute('data-view') && scrollY<=2
+const onHome=()=>{ const h=document.documentElement; return h.classList.contains('on-hero') && !h.classList.contains('hero-gone') && scrollY<=2
   && !h.classList.contains('splash-on') && !(document.getElementById('project-modal')&&!document.getElementById('project-modal').classList.contains('hidden')); };
 function reenter(){
   clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
@@ -7890,6 +8062,7 @@ new THREE.TextureLoader().load('images/intro-screen.jpg',tex=>{
   I.ready=true;
   const ld=box.querySelector('.mfi-loading'); ld.style.opacity=0; setTimeout(()=>ld.remove(),450);
   draw(0);
+  if(I.dormant){ I.done=true; finished=true; doneAt=0; cleanup(); }   // 背景準備好：等回到首頁往上滾／往下拉時才出現
 }, undefined, ()=>I.abort());
 draw(0);
     } catch (err) { console.warn('筆電開場載入失敗，改用原本的開場', err); I.abort(); } })();
@@ -7998,6 +8171,9 @@ function pose(p){
   phone.rotation.set(lerp(-0.18,0,turn), lerp(-0.85,0,turn), lerp(0.06,0,turn));
   phone.position.y=lerp(-0.05,0,turn);
   paint(boot,home,logo);
+  // 推進到最後：螢幕裡的首頁截圖淡成首頁底色，再揭開真正的首頁
+  // （每支手機的瀏覽器高度不同，首頁版面會上下位移，截圖不可能完全對齊；先淡成底色就不會出現兩個畫面疊在一起的落差）
+  { const wash=ease(cl((p-0.78)/0.17)); if(wash>0){ sx.globalAlpha=wash; sx.fillStyle='#FCFCFC'; sx.fillRect(0,0,sc.width,sc.height); sx.globalAlpha=1; scrTex.needsUpdate=true; } }
   const on=Math.max(boot,home);
   glow.intensity=on*1.4*(1-zoom*0.7); tint.forEach(l=>l.intensity=home*1.6*(1-zoom));
   bloom.strength=(0.05+0.12*on)*(1-zoom);
@@ -8022,7 +8198,7 @@ let cur=0, target=0, raf=0, lastT=0, finished=false, fast=false, doneAt=0;
 function draw(p){
   pose(p);
   hint.style.opacity=p<0.03?1:0;
-  img.style.opacity=cl((p-0.95)/0.05);
+  img.style.opacity=0;   // 不再用截圖蓋在最上層（避免和真正的首頁錯位）
   bar.style.width=(p*100)+'%';
   if(p>=0.999 && !finished && !draw.pend){ draw.pend=true; setTimeout(()=>{ draw.pend=false; if(cur>=0.999) end(); },250); }
 }
@@ -8045,7 +8221,7 @@ function end(){ if(finished) return; finished=true; doneAt=performance.now(); sk
   if(I.done){ document.documentElement.classList.remove('intro-on'); box.classList.add('is-out'); clearTimeout(I.hideT); I.hideT=setTimeout(()=>{ if(box.classList.contains('is-out')) box.style.display='none'; },750); } else I.finish(); }
 skip.addEventListener('click',()=>{ fast=true; go(1); setTimeout(end,1600); });
 // 首頁最上方往下拉：回到手機畫面（從螢幕填滿的位置往回倒）
-const onHome=()=>{ const h=document.documentElement; return h.classList.contains('on-hero') && !h.classList.contains('hero-gone') && !h.getAttribute('data-view') && scrollY<=2
+const onHome=()=>{ const h=document.documentElement; return h.classList.contains('on-hero') && !h.classList.contains('hero-gone') && scrollY<=2
   && !h.classList.contains('splash-on') && !(document.getElementById('project-modal')&&!document.getElementById('project-modal').classList.contains('hidden')); };
 function reenter(){
   clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
@@ -8066,6 +8242,7 @@ new THREE.TextureLoader().load('images/intro-screen-m.jpg',tex=>{
   heroBmp=tex.image; I.ready=true;
   const ld=box.querySelector('.mfi-loading'); ld.style.opacity=0; setTimeout(()=>ld.remove(),450);
   draw(0);
+  if(I.dormant){ I.done=true; finished=true; doneAt=0; cleanup(); }   // 背景準備好：等回到首頁往上滾／往下拉時才出現
 }, undefined, ()=>I.abort());
 draw(0);
     } catch (err) { console.warn('手機開場載入失敗，改用原本的開場', err); I.abort(); } })();
