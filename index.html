@@ -7611,8 +7611,8 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
   html body #hero-section > .hero-icon:has(img[src*="hero-icon-3"]),
   html body #hero-section > .hero-icon:has(img[src*="hero-icon-4"]) { display: none !important; }
   html body #hero-section > .hero-icon:has(img[src*="hero-icon-1"]) {
-    --tv: min(138.5vw, calc((100dvh - 280px) * 1.07));   /* 矮的手機自動縮小，不會壓到文字 */
-    position: absolute; left: auto; bottom: auto; right: calc(var(--tv) * -0.315); top: -10px; width: var(--tv); height: var(--tv); max-width: none; max-height: none;
+    --tv: min(124vw, calc((100dvh - 330px) * 1.07));   /* 矮的手機自動縮小，不會壓到文字 */
+    position: absolute; left: auto; bottom: auto; right: calc(var(--tv) * -0.30); top: 64px;   /* 整台在導覽列下方，上緣不被切到 */ width: var(--tv); height: var(--tv); max-width: none; max-height: none;
     translate: none; rotate: -8deg; z-index: 0 !important; }
   html body #hero-section > .max-w-5xl { position: relative; z-index: 5 !important; width: 100%; max-width: none; margin: 0 !important; padding: 0 24px !important; text-align: left !important; }
   html body #hero-section h1 { display: block; width: 100%; line-height: .92 !important; letter-spacing: -.05em !important; }
@@ -8168,7 +8168,7 @@ function pose(p){
   paint(boot,home,logo);
   // 推進到最後：螢幕裡的首頁截圖淡成首頁底色，再揭開真正的首頁
   // （每支手機的瀏覽器高度不同，首頁版面會上下位移，截圖不可能完全對齊；先淡成底色就不會出現兩個畫面疊在一起的落差）
-  { const w=ease(cl((p-0.78)/0.17)); washM.opacity=w; wash.visible=w>0; }
+  washM.opacity=0; wash.visible=false;   // 不再淡成白色：推進到滿版後直接揭開首頁
   const on=Math.max(boot,home);
   glow.intensity=on*1.4*(1-zoom*0.7); tint.forEach(l=>l.intensity=home*1.6*(1-zoom));
   bloom.strength=(0.05+0.12*on)*(1-zoom);
