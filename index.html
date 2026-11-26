@@ -987,7 +987,7 @@
             <div class="max-w-7xl mx-auto px-6 lg:px-12">
                 <div class="flex flex-col items-center md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-6">
                     <div class="text-center md:text-left">
-                        <h2 class="text-4xl md:text-5xl font-bold">Project</h2>
+                        <h2 class="text-4xl md:text-5xl font-bold mf-proj-title">Project</h2>
                     </div>
                     
                     <div class="flex flex-wrap justify-center md:justify-start w-full max-w-[250px] mx-auto md:mx-0 md:w-auto md:max-w-none gap-2 md:gap-4" id="filter-btns">
@@ -7544,6 +7544,8 @@ document.addEventListener('click', e => {
 <style id="about-title-font">
 /* About 標題：改用首頁、聯絡頁大標的 Syne 超寬粗體，黑色，無其他效果 */
 #about h2 { font-family: 'Syne', system-ui, -apple-system, sans-serif !important; font-weight: 800 !important; letter-spacing: -0.015em; color: #111 !important; }
+/* 專案頁 Project 標題：同樣改用 Syne 超寬粗體（顏色維持原本） */
+h2.mf-proj-title { font-family: 'Syne', system-ui, -apple-system, sans-serif !important; font-weight: 800 !important; letter-spacing: -0.03em !important; }
 </style>
 <style id="contact-big-type">
 /* 聯絡頁大標題：比照首頁的字級（電腦版），維持兩行；最長一行約 14 個字寬，所以再用畫面寬度限制，不會斷成三行 */
@@ -7961,7 +7963,7 @@ function pose(v,zoom,focus=0){
   const g=Math.max(0,Math.min(1,(v-0.18)/0.55));
   lights.forEach(l=>l.intensity=g*16*(1-zoom*0.6)); white.intensity=g*2.5; well.material.emissiveIntensity=g*0.16; for(const lm of labelMats) lm.opacity=0.15+0.55*g;
   scrM.color.setScalar(0.1+0.72*g+0.18*zoom);
-  bloom.strength=(0.1+0.22*g)*(1-zoom);
+  bloom.strength=(0.1+0.22*g)*(1-zoom); bloom.enabled=bloom.strength>0.01;   // 沒有光暈時跳過這道後製
   camA.set(0,lerp(4.6,1.55,v),lerp(3.0,5.4,v)); tgtA.set(0,lerp(0,0.62,v),lerp(0.1,-0.5,v));
   if(focus>0){ const f=ease(focus); camA.lerp(KB_CAM,f); tgtA.lerp(KB_TGT,f); }   // 停在全開時，鏡頭往鍵盤靠近一點
   const k=Math.max(1,1.55/cam.aspect); if(k>1) camA.sub(tgtA).multiplyScalar(k).add(tgtA); scene.fog.density=0.075/k;   // 直式螢幕：鏡頭拉遠，讓整台筆電放得進畫面
@@ -8016,7 +8018,9 @@ const frustum=new THREE.Frustum(), pv=new THREE.Matrix4(), kbBox=new THREE.Box3(
 function keyboardVisible(){
   if(state.v<0.12) return false;
   cam.updateMatrixWorld(); pv.multiplyMatrices(cam.projectionMatrix,cam.matrixWorldInverse); frustum.setFromProjectionMatrix(pv);
-  return keys.some(k=>{ kbBox.setFromObject(k.mesh); return frustum.intersectsBox(kbBox); });
+  if(kbBox.isEmpty()) keys.forEach(k=>kbBox.expandByObject(k.mesh));   // 鍵盤不會移動：整塊範圍只算一次
+  if(!frustum.intersectsBox(kbBox)) return false;
+  return keys.some(k=>{ if(!k.box){ k.box=new THREE.Box3().setFromObject(k.mesh); } return frustum.intersectsBox(k.box); });
 }
 function canType(){ return keyboardVisible(); }
 function hitKey(e){ const cr=r.domElement.getBoundingClientRect(); ptr.set((e.clientX-cr.left)/cr.width*2-1,-((e.clientY-cr.top)/cr.height)*2+1);   // 用畫布實際的位置大小換算，全螢幕切換後也不會錯位
@@ -8104,7 +8108,7 @@ try { await document.fonts.load('800 100px Syne'); } catch(e) {}
 const box=document.getElementById('mf-intro');
 RectAreaLightUniformsLib.init();
 const r=new THREE.WebGLRenderer({antialias:true});
-r.setPixelRatio(Math.min(devicePixelRatio||1,2)); r.setSize(innerWidth,innerHeight);
+r.setPixelRatio(Math.min(devicePixelRatio||1,1.75)); r.setSize(innerWidth,innerHeight);
 r.toneMapping=THREE.ACESFilmicToneMapping;
 box.prepend(r.domElement);
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x020203); scene.fog=new THREE.FogExp2(0x020203,0.16);
@@ -8130,6 +8134,9 @@ const sg=new THREE.ShapeGeometry(rrShape(SW,SH,SR),48);
 {const uv=sg.attributes.uv,p=sg.attributes.position; for(let i=0;i<uv.count;i++){uv.setXY(i,p.getX(i)/SW+0.5,p.getY(i)/SH+0.5);} }
 const scrM=new THREE.MeshBasicMaterial({map:scrTex,toneMapped:false,fog:false}); 
 const scr=new THREE.Mesh(sg,scrM); scr.position.z=PD/2+0.001; phone.add(scr);
+// 推進最後淡成首頁底色：用一層疊在螢幕上的底色面片調透明度，不用每一格重畫貼圖
+const washM=new THREE.MeshBasicMaterial({color:0xFCFCFC,transparent:true,opacity:0,toneMapped:false,fog:false,depthWrite:false});
+const wash=new THREE.Mesh(sg,washM); wash.position.z=PD/2+0.0015; wash.visible=false; phone.add(wash);
 // 側邊按鍵
 const btnM=ti;
 const side=(x,y,h)=>{const b=new THREE.Mesh(new RoundedBoxGeometry(0.012,h,0.03,3,0.005),btnM); b.position.set(x,y,0); phone.add(b);};
@@ -8173,7 +8180,11 @@ function statusBar(W,SB){
   sx.fillStyle='rgba(0,0,0,.4)'; sx.beginPath(); sx.roundRect(bx+bW+4,by+11,5,13,2.5); sx.fill();
 }
 
+let paintKey='';
 function paint(boot,home,logo=1){
+  // 畫面內容沒變就不重畫：重畫並上傳一張 1170px 的貼圖很耗時，是推進時卡頓的主因
+  const key=boot.toFixed(3)+'|'+home.toFixed(3)+'|'+logo.toFixed(3)+'|'+(heroBmp?1:0)+'|'+new Date().getMinutes();
+  if(key===paintKey) return; paintKey=key;
   const W=sc.width,H=sc.height;
   sx.fillStyle='#000'; sx.fillRect(0,0,W,H);
   { const g=sx.createLinearGradient(0,0,W,H); g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(0.42,'rgba(255,255,255,0.07)'); g.addColorStop(0.5,'rgba(255,255,255,0.02)'); g.addColorStop(1,'rgba(255,255,255,0)'); sx.fillStyle=g; sx.fillRect(0,0,W,H); }   // 關機時螢幕玻璃的淡淡反光
@@ -8198,7 +8209,7 @@ function pose(p){
   paint(boot,home,logo);
   // 推進到最後：螢幕裡的首頁截圖淡成首頁底色，再揭開真正的首頁
   // （每支手機的瀏覽器高度不同，首頁版面會上下位移，截圖不可能完全對齊；先淡成底色就不會出現兩個畫面疊在一起的落差）
-  { const wash=ease(cl((p-0.78)/0.17)); if(wash>0){ sx.globalAlpha=wash; sx.fillStyle='#FCFCFC'; sx.fillRect(0,0,sc.width,sc.height); sx.globalAlpha=1; scrTex.needsUpdate=true; } }
+  { const w=ease(cl((p-0.78)/0.17)); washM.opacity=w; wash.visible=w>0; }
   const on=Math.max(boot,home);
   glow.intensity=on*1.4*(1-zoom*0.7); tint.forEach(l=>l.intensity=home*1.6*(1-zoom));
   bloom.strength=(0.05+0.12*on)*(1-zoom);
