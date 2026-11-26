@@ -876,31 +876,20 @@
     </script>
 
     <!-- 以下外部資源改放在開場畫面之後載入，下載期間畫面上已經有東西可看 -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 版面樣式：預先產生的 Tailwind CSS（原本在瀏覽器裡即時編譯，改成直接載入現成的檔案，首頁出現更快） -->
+    <link rel="stylesheet" href="css/tailwind.css">
+    <!-- 開場 3D 程式：一進站就先下載，縮短「載入中」的時間 -->
+    <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js">
+    <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/geometries/RoundedBoxGeometry.js">
+    <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/lights/RectAreaLightUniformsLib.js">
+    <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/environments/RoomEnvironment.js">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Noto Sans TC"', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif'],
-                    },
-                    colors: {
-                        brand: {
-                            black: '#111111',
-                            gray: '#f4f4f5',
-                            accent: '#3B82F6'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
 
 
     <canvas id="halftone-bg" class="fixed inset-0 w-full h-full -z-10 pointer-events-none"></canvas>
@@ -7638,12 +7627,11 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
   /* 電視進場：從右側滑入，微微晃一下定位 */
   html body #hero-section > .hero-icon.mf-tv-in { animation: mfTvIn 1s cubic-bezier(.2,.9,.25,1.15) both; }
   @keyframes mfTvIn { from { translate: 75vw 6vw; rotate: 6deg; opacity: 0; } 60% { opacity: 1; } to { translate: 0 0; rotate: -8deg; opacity: 1; } }
-  html body #hero-section > .hero-icon > .mf-tilt, html body #hero-section > .max-w-5xl.mf-tilt { will-change: transform; }
 }
 @media (max-width: 767px) and (prefers-reduced-motion: reduce) { html body #hero-section > .hero-icon.mf-tv-in { animation: none; } }
 </style>
 <script id="mf-mobile-hero-script">
-// 手機首頁：標題撐滿寬度、電視點一下換台、電視進場動畫、手持晃動視差
+// 手機首頁：標題撐滿寬度、電視點一下換台、電視進場動畫
 (function () {
   const mq = matchMedia('(max-width: 767px)'), root = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -7681,35 +7669,7 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
     shown = v;
   }
   new MutationObserver(checkEnter).observe(root, { attributes: true, attributeFilter: ['class'] }); checkEnter();
-  // 4) 手持晃動：手機傾斜時，電視和文字往相反方向微微移動，產生景深
-  if (reduce || !tv || !('DeviceOrientationEvent' in window)) return;
-  const layers = () => Array.from(tv.children);
-  let b0 = null, g0 = null, tx = 0, ty = 0, x = 0, y = 0, raf = 0, on = false;
-  const cl = v => Math.max(-1, Math.min(1, v));
-  function onOri(e) {
-    if (e.beta == null || e.gamma == null) return;
-    if (b0 == null) { b0 = e.beta; g0 = e.gamma; }
-    b0 += (e.beta - b0) * 0.015; g0 += (e.gamma - g0) * 0.015;   // 慢慢以目前的握持角度為中心
-    tx = cl((e.gamma - g0) / 18); ty = cl((e.beta - b0) / 18);
-    if (!raf) raf = requestAnimationFrame(step);
-  }
-  function step() {
-    raf = 0;
-    const active = mq.matches && homeVisible();
-    const gx = active ? tx : 0, gy = active ? ty : 0;
-    x += (gx - x) * 0.12; y += (gy - y) * 0.12;
-    layers().forEach(el => { el.style.transform = 'translate3d(' + (x * 16).toFixed(2) + 'px,' + (y * 12).toFixed(2) + 'px,0)'; });
-    text.style.transform = 'translate3d(' + (-x * 6).toFixed(2) + 'px,' + (-y * 4).toFixed(2) + 'px,0)';
-    if (Math.abs(gx - x) > 0.002 || Math.abs(gy - y) > 0.002) raf = requestAnimationFrame(step);
-  }
-  function start() { if (on) return; on = true; addEventListener('deviceorientation', onOri); }
-  if (!mq.matches) return;
-  const D = window.DeviceOrientationEvent;
-  if (typeof D.requestPermission === 'function') {
-    // iPhone：要使用者點一下才能詢問「動作與方向」權限
-    const ask = () => { D.requestPermission().then(r => { if (r === 'granted') start(); }).catch(() => {}); removeEventListener('touchend', ask); };
-    addEventListener('touchend', ask, { passive: true });
-  } else start();
+  // （手持晃動已移除）
 })();
 </script>
 <script id="mf-project-url">
@@ -7853,7 +7813,6 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
             setTimeout(function () { if (!I.ready) I.abort(); }, 15000);
         })();
     </script>
-    <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
     <script type="module">
     const I = window.__mfIntro;
     if (I && I.mode !== 'phone') (async () => { try {
