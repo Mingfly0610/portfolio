@@ -7672,6 +7672,90 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
   // （手持晃動已移除）
 })();
 </script>
+<style id="mf-mobile-fullbleed-style">
+/* 手機首頁：作品動畫滿版當背景（網點化），黑底白字 */
+@media (max-width: 767px) {
+  html.on-hero:not(.hero-gone) body, html body #hero-section { background: #0b0b0d !important; }
+  html.on-hero:not(.hero-gone) #halftone-bg { display: none !important; }
+  html.on-hero:not(.hero-gone) body header#navbar { background: rgba(11,11,13,.72) !important; border-color: rgba(255,255,255,.1) !important; }
+  html.on-hero:not(.hero-gone) body header#navbar #brand-logo,
+  html.on-hero:not(.hero-gone) body header#navbar #mobile-menu-btn { color: #fff !important; }
+  html body #hero-section > .hero-icon { display: none !important; }
+  html body #hero-section > .max-w-5xl { z-index: 5 !important; }
+  html body #hero-section h1 { color: #fff !important; }
+  html body #hero-hello, html body #hero-hello * { color: rgba(255,255,255,.72) !important; -webkit-text-fill-color: rgba(255,255,255,.72) !important; }
+  html body #hero-section .max-w-5xl > .pt-6 a, html body #hero-section .max-w-5xl > .pt-6 a * { color: #fff !important; }
+  #mf-fullbleed { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  #mf-fullbleed canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #mf-fullbleed::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,11,13,.35) 0%, rgba(11,11,13,0) 18%, rgba(11,11,13,0) 42%, rgba(11,11,13,.82) 72%, #0b0b0d 100%); }
+}
+@media (min-width: 768px) { #mf-fullbleed { display: none !important; } }
+</style>
+<script id="mf-mobile-fullbleed-script">
+// 手機首頁：作品動畫滿版播放，畫成網點；每 15 秒換台，點畫面空白處也會換台
+(function () {
+  const mq = matchMedia('(max-width: 767px)'), root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hero = document.getElementById('hero-section'); if (!hero) return;
+  const list = [...document.querySelectorAll('.portfolio-item[data-category="animation"]')]
+    .filter(it => !/tsrc-elt/.test(it.dataset.video || ''))
+    .map(it => { const v = it.querySelector('video'); return v && (v.getAttribute('src') || v.dataset.src); })
+    .filter(Boolean);
+  if (!list.length) return;
+  const wrap = document.createElement('div'); wrap.id = 'mf-fullbleed'; wrap.setAttribute('aria-hidden', 'true');
+  const cv = document.createElement('canvas'); wrap.appendChild(cv); hero.insertBefore(wrap, hero.firstChild);
+  const ctx = cv.getContext('2d');
+  const sm = document.createElement('canvas'), sx = sm.getContext('2d', { willReadFrequently: true });
+  const vid = document.createElement('video');
+  vid.muted = true; vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.preload = 'auto'; vid.loop = true;
+  vid.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none';
+  document.body.appendChild(vid);
+  const HOLD = 15000, FADE = 500, CELL = 7;
+  let idx = Math.floor(Math.random() * list.length), t0 = 0, raf = 0, last = 0, W = 0, H = 0, dpr = 1, cols = 0, rows = 0;
+  function load(i) { idx = (i + list.length) % list.length; vid.src = list[idx]; vid.play().catch(() => {}); t0 = performance.now(); }
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2); W = hero.clientWidth; H = hero.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cols = Math.ceil(W / CELL); rows = Math.ceil(H / CELL); sm.width = cols; sm.height = rows;
+  }
+  function active() { return mq.matches && root.classList.contains('on-hero') && !root.classList.contains('hero-gone') && !document.hidden; }
+  function frame(now) {
+    raf = requestAnimationFrame(frame);
+    if (!active()) { if (!vid.paused) vid.pause(); return; }
+    if (vid.paused && vid.src) vid.play().catch(() => {});
+    if (now - last < 40) return; last = now;   // 約每秒 25 格
+    if (hero.clientWidth !== W || hero.clientHeight !== H || !cols) size();   // 首頁剛顯示或尺寸改變：重新量
+    if (!cols || !rows) return;
+    const el = now - t0;
+    if (!reduce && el > HOLD) load(idx + 1);
+    if (vid.readyState < 2 || !vid.videoWidth) return;
+    // 影片等比填滿畫面（cover）
+    const vr = vid.videoWidth / vid.videoHeight, cr = cols / rows;
+    let sw = vid.videoWidth, sh = vid.videoHeight, ox = 0, oy = 0;
+    if (vr > cr) { sw = sh * cr; ox = (vid.videoWidth - sw) / 2; } else { sh = sw / cr; oy = (vid.videoHeight - sh) / 2; }
+    sx.drawImage(vid, ox, oy, sw, sh, 0, 0, cols, rows);
+    const d = sx.getImageData(0, 0, cols, rows).data;
+    const k = Math.min(1, el / FADE);   // 換台：點陣由小長大
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      const i = (y * cols + x) * 4, r = d[i], g = d[i + 1], b = d[i + 2];
+      const L = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      const s = Math.min(1, Math.pow(L, 0.6) * 1.25) * (CELL - 2.2) * k;   // 亮度越高方塊越大（提亮暗部），方塊之間保留縫隙看得出網點
+      if (s < 0.6) continue;
+      const m = Math.max(r, g, b) || 1, boost = Math.min(1.6, 255 / m);
+      ctx.fillStyle = 'rgb(' + Math.min(255, r * boost) + ',' + Math.min(255, g * boost) + ',' + Math.min(255, b * boost) + ')';
+      ctx.fillRect(x * CELL + (CELL - s) / 2, y * CELL + (CELL - s) / 2, s, s);
+    }
+  }
+  // 點畫面空白處：換下一支作品
+  hero.addEventListener('click', e => {
+    if (!mq.matches || e.target.closest('a, button, .drag-item, h1, #hero-hello')) return;
+    load(idx + 1);
+  });
+  addEventListener('resize', size); size();
+  load(idx); raf = requestAnimationFrame(frame);
+})();
+</script>
 <script id="mf-project-url">
 // 專案網址：打開專案時網址變成 #work/專案代號，可以直接分享；瀏覽器上一頁會關掉專案
 (function () {
