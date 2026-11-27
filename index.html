@@ -7243,7 +7243,7 @@ html.mf-shape-hover, html.mf-shape-hover * { cursor: move !important; }
 html[data-mf-tool="pen"], html[data-mf-tool="pen"] * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg transform='translate%283 3%29 rotate%28-45%29'%3E%3Cpath d='M0 0 L7.5 12 L7.5 18 L-7.5 18 L-7.5 12 Z' fill='%23111' stroke='%23fff' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M0 1.5 L0 8.5' stroke='%23fff' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='0' cy='10' r='2.2' fill='%23fff'/%3E%3Crect x='-7.5' y='20' width='15' height='3.2' fill='%23111' stroke='%23fff' stroke-width='1.4'/%3E%3C/g%3E%3C/svg%3E") 3 3, crosshair !important; user-select: none !important; }
 html[data-mf-tool="pen"] #hero-section > .hero-icon, html[data-mf-tool="pen"] #hero-section > .hero-icon * { cursor: pointer !important; }
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) { #hero-section > .hero-icon, #hero-section > .hero-icon * { cursor: pointer !important; } }
-#mf-tool-tip { position: fixed; left: 50%; top: 95px; transform: translate(-50%, -6px); z-index: 120; pointer-events: none; opacity: 0;
+#mf-tool-tip { position: fixed; left: 50%; top: 87px; transform: translate(-50%, -6px); z-index: 120; pointer-events: none; opacity: 0;
   display: flex; align-items: center; gap: 8px; background: #111; color: #fff; padding: 8px 12px; border-radius: 0;
   font: 500 14px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .02em; white-space: nowrap;
   transition: opacity .25s ease, transform .25s ease; }
@@ -7304,27 +7304,10 @@ html:not(.on-hero) #mf-shapes { display: none !important; }   /* 鋼筆畫的色
   const tip = document.createElement('div'); tip.id = 'mf-tool-tip'; document.body.appendChild(tip);
   let tipT = 0;
   const ICON = {"monitor": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round'><rect x='2.5' y='4' width='19' height='12.5' rx='1.5'/><path d='M9 21h6M12 16.5V21' stroke-linecap='round'/></svg>", "mouse": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2'><rect x='6' y='3' width='12' height='18' rx='6'/><path d='M12 7v4' stroke-linecap='round'/></svg>", "pen": "<svg viewBox='0 0 24 24'><g transform='translate(1.5 1.5) rotate(-45) scale(.93)'><path d='M0 0 L7.5 12 L7.5 18 L-7.5 18 L-7.5 12 Z' fill='currentColor'/><path d='M0 1.5 L0 8.5' stroke='#111' stroke-width='1.8' stroke-linecap='round'/><circle cx='0' cy='10' r='2.3' fill='#111'/><rect x='-7.5' y='20' width='15' height='3.6' fill='currentColor'/></g></svg>", "tablet": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'><rect x='2.5' y='5' width='19' height='14' rx='1.5'/><path d='M8 14.5c2-3 4 1 6-2s2.5-1 3.5-1'/></svg>", "warn": "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><circle cx='12' cy='12' r='9.5'/><path d='M12 7v6.5M12 16.8v.2'/></svg>"};
-  // 提示放在物件正下方、和物件置中對齊（點擊後的說明跟著左邊的大主角；懸浮在小物件上時跟著那個小物件）
-  const KEY_OF = { monitor: 'hero-icon-1', mouse: 'hero-icon-2', pen: 'hero-icon-3', tablet: 'hero-icon-4' };
-  let tipFor = null, tipRaf = 0;
-  const iconEl = k => [...document.querySelectorAll('#hero-section > .hero-icon')].find(ic => { const im = ic.querySelector('img'); return im && im.getAttribute('src').includes(k); });
-  function placeTip() {
-    tipRaf = 0;
-    if (!tip.classList.contains('on')) return;
-    const nav = document.getElementById('navbar'), ic = tipFor && document.documentElement.hasAttribute('data-mf-hero') && iconEl(tipFor);
-    if (!ic) { tip.style.left = ''; tip.style.top = ((nav ? nav.getBoundingClientRect().bottom : 81) + 14) + 'px'; return; }   // 沒有對應的物件：導覽列正下方
-    const sec = ic.offsetParent || document.body, W = document.documentElement.clientWidth, H = innerHeight, tw = tip.offsetWidth, th = tip.offsetHeight;
-    // 用版面座標計算（筆電開場時整頁有 3D 變形，提示也在同一頁裡，一起變形）
-    let x = sec.offsetLeft + ic.offsetLeft + ic.offsetWidth / 2, y = sec.offsetTop - scrollY + ic.offsetTop + ic.offsetHeight + 10;
-    x = Math.max(tw / 2 + 12, Math.min(W - tw / 2 - 12, x)); y = Math.min(H - th - 14, y);
-    tip.style.left = x + 'px'; tip.style.top = y + 'px';
-    tipRaf = requestAnimationFrame(placeTip);   // 物件交換位置的動畫期間持續跟著
-  }
-  function show(icon, t, key) {
-    tipFor = key || (icon === 'warn' ? (window.__mfHero && window.__mfHero()) : (window.__mfHero && window.__mfHero()) || KEY_OF[icon]);
+  function show(icon, t) {
+    const nav = document.getElementById('navbar'); tip.style.top = ((nav ? nav.getBoundingClientRect().bottom : 81) + 6) + 'px';   // 導覽列正下方（間距 6px）
     tip.innerHTML = (ICON[icon] || '') + '<span></span>'; tip.lastChild.textContent = t;
     tip.classList.add('on');
-    if (!tipRaf) placeTip();
   }
   // 點擊（或警告）的說明：顯示 3 秒後消失；這 3 秒內滑鼠懸浮不會蓋掉它
   let sayUntil = 0, hoverKey = null;
@@ -7339,7 +7322,7 @@ html:not(.on-hero) #mf-shapes { display: none !important; }   /* 鋼筆畫的色
     'hero-icon-3': ['pen', '鋼筆工具：點擊後可在網頁上畫幾何圖形'],
     'hero-icon-4': ['tablet', '繪圖板：點擊開啟滑鼠拖尾，按住滑鼠畫線塗鴉'],
   };
-  function hoverTip(key) { if (Date.now() < sayUntil || !HOVER[key]) return; show(HOVER[key][0], HOVER[key][1], key); }
+  function hoverTip(key) { if (Date.now() < sayUntil || !HOVER[key]) return; show(HOVER[key][0], HOVER[key][1]); }
   function hoverOut() { hoverKey = null; if (Date.now() >= sayUntil) tip.classList.remove('on'); }
 
   // ---------- 模式 ----------
