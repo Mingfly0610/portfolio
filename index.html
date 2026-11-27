@@ -3054,8 +3054,8 @@
                 heroHello.style.opacity = '';
                 heroHello.style.willChange = 'auto';
             };
-            if (reduceMotion) {
-                helloProgress = 1;      // 減少動態：直接顯示
+            if (true) {   // 問候語不再播進場動效（電腦、手機都直接顯示）
+                helloProgress = 1; finishHello();
             } else {
                 renderHello();
                 // 開場畫面揭開後等 0.8 秒，再出場（字元飛回約 1 秒）
