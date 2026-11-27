@@ -886,6 +886,28 @@
             if (dormant) { el.className = 'is-out'; el.style.display = 'none'; }
             document.documentElement.appendChild(el);   // 放在 <html> 底下：筆電開場時 body 整個要做 3D 變形
         })();
+        // 筆電開場：螢幕裡的首頁是真的網頁（經過 3D 變形）。滑鼠事件先在這裡攔下（比網站其他程式都早）：
+        // 落在螢幕上的，換算成首頁上的座標再轉交給首頁（鋼筆、繪圖板等工具才會對準滑鼠）；落在筆電其他地方的，交給筆電程式，首頁收不到
+        (function () {
+            var busy = false;
+            ['pointerdown', 'pointermove', 'pointerup', 'mousedown', 'mousemove', 'mouseup', 'click', 'dblclick', 'contextmenu'].forEach(function (n) {
+                window.addEventListener(n, function (e) {
+                    var L = window.__mfLive; if (busy || !L || !L.active()) return;
+                    var box = document.getElementById('mf-intro'); if (!box || !box.contains(e.target)) return;
+                    e.stopImmediatePropagation();
+                    if (!L.hit(e.clientX, e.clientY)) { if (n === 'pointerdown') L.down(e); else if (n === 'pointermove') L.move(e); return; }
+                    if (n === 'mousedown' || n === 'contextmenu') e.preventDefault();
+                    box.style.pointerEvents = 'none'; var el = document.elementFromPoint(e.clientX, e.clientY); box.style.pointerEvents = '';
+                    if (!el) return;
+                    if (n === 'pointermove') L.cursor(el);
+                    if (n === 'click') { var a = el.closest('a[href],button'); if (a && !el.closest('#hero-section > .hero-icon')) { e.preventDefault(); L.zoomTo(a); return; } }   // 連結、按鈕：先推進到全螢幕再執行
+                    var q = L.map(e.clientX, e.clientY), o = { bubbles: true, cancelable: true, composed: true, view: window, clientX: q[0], clientY: q[1], screenX: e.screenX, screenY: e.screenY,
+                        button: e.button, buttons: e.buttons, detail: e.detail, shiftKey: e.shiftKey, altKey: e.altKey, ctrlKey: e.ctrlKey, metaKey: e.metaKey }, ev;
+                    if (n.indexOf('pointer') === 0) { o.pointerId = e.pointerId; o.pointerType = e.pointerType; o.isPrimary = e.isPrimary; o.pressure = e.pressure; ev = new PointerEvent(n, o); } else ev = new MouseEvent(n, o);
+                    busy = true; try { el.dispatchEvent(ev); } finally { busy = false; }
+                }, true);
+            });
+        })();
     </script>
 
     <!-- 以下外部資源改放在開場畫面之後載入，下載期間畫面上已經有東西可看 -->
@@ -8113,8 +8135,14 @@ function homo(W,H,P){   // 視窗四角 → 螢幕上的四個點（投影變形
   const dx1=x1-x2,dx2=x3-x2,dx3=x0-x1+x2-x3,dy1=y1-y2,dy2=y3-y2,dy3=y0-y1+y2-y3, den=dx1*dy2-dx2*dy1;
   const g=(dx3*dy2-dx2*dy3)/den, h=(dx1*dy3-dx3*dy1)/den;
   const a=x1-x0+g*x1, b=x3-x0+h*x3, d=y1-y0+g*y1, e=y3-y0+h*y3;
+  HM=[a/W,b/H,x0, d/W,e/H,y0, g/W,h/H,1];
   return `matrix3d(${a/W},${d/W},0,${g/W},${b/H},${e/H},0,${h/H},0,0,1,0,${x0},${y0},0,1)`;
 }
+let HM=null;   // 首頁座標 → 畫面座標的投影矩陣（3×3），反過來換算滑鼠位置用
+function toPage(x,y){   // 畫面上的一點 → 首頁上的座標（投影矩陣的反矩陣）
+  if(!HM) return [x,y]; const [a,b,c,d,e,f,g,h,i]=HM;
+  const A=e*i-f*h, Bq=c*h-b*i, C=b*f-c*e, D=f*g-d*i, E=a*i-c*g, F=c*d-a*f, G=d*h-e*g, Hh=b*g-a*h, Iq=a*e-b*d;
+  const w=G*x+Hh*y+Iq; return [(A*x+Bq*y+C)/w,(D*x+E*y+F)/w]; }
 function syncPage(){
   if(state.v<0.2){ B.style.visibility='hidden'; return; }
   B.style.visibility='';
@@ -8235,6 +8263,11 @@ function pageEl(e){ if(state.v<0.6) return null; const cr=r.domElement.getBoundi
   ray.setFromCamera(ptr,cam); const h=ray.intersectObjects(hitTargets,false)[0]; if(!h||h.object!==hole) return null;
   box.style.pointerEvents='none'; const el=document.elementFromPoint(e.clientX,e.clientY); box.style.pointerEvents=''; return el; }
 const ACT=el=>el&&(el.closest('#hero-section > .hero-icon')||el.closest('a[href],button'));
+function overHole(x,y){ if(state.v<0.6) return false; const cr=r.domElement.getBoundingClientRect(); ptr.set((x-cr.left)/cr.width*2-1,-((y-cr.top)/cr.height)*2+1);
+  ray.setFromCamera(ptr,cam); const h=ray.intersectObjects(hitTargets,false)[0]; return !!h&&h.object===hole; }
+window.__mfLive={ active:()=>!finished&&box.style.display!=='none', hit:overHole, map:toPage,
+  down:e=>onPointerDown(e), move:e=>onPointerMove(e), zoomTo:a=>{ pendingClick=a; fast=true; go(1); },
+  cursor:el=>{ const c=getComputedStyle(el).cursor; r.domElement.style.cursor=c==='auto'?'':c; } };
 function onPointerDown(e){
   const pe=ACT(pageEl(e));
   if(pe){ e.preventDefault();
