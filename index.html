@@ -3538,6 +3538,11 @@
         // 拖尾與手繪是滑鼠專屬的效果：觸控裝置（手機、平板）不啟用
         const finePointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
 
+        // 繪圖板的筆色：品牌藍、年份標籤黃，每畫完一筆就換下一個顏色；拖尾線顯示「下一筆」的顏色
+        const PEN_COLORS = ['#3B82F6', '#FFEC00'];
+        let penIndex = 0;
+        const penWidth = c => c === '#FFEC00' ? 2 : 1;   // 黃色在淺底上比較淡，線條加粗一點
+
         function addTrailPoint(x, y) {
             if (reducedMotionQuery.matches || !finePointerQuery.matches || !window.__mfTrail) return;
             trailPoints.push({ x, y, age: 0 });
@@ -3570,8 +3575,8 @@
                 const lastP = trailPoints[trailPoints.length - 1];
                 trailCtx.lineTo(lastP.x, lastP.y);
                 
-                trailCtx.strokeStyle = '#3B82F6'; 
-                trailCtx.lineWidth = 1;           
+                trailCtx.strokeStyle = PEN_COLORS[penIndex];
+                trailCtx.lineWidth = penWidth(PEN_COLORS[penIndex]);
                 trailCtx.lineCap = 'round';       
                 trailCtx.lineJoin = 'round';      
                 trailCtx.stroke();
@@ -3608,13 +3613,13 @@
             drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
             if (!drawStrokes.length) return;
             drawCtx.setTransform(1, 0, 0, 1, -sx, -sy);
-            drawCtx.strokeStyle = '#3B82F6';
-            drawCtx.lineWidth = 1;
             drawCtx.lineCap = 'round';
             drawCtx.lineJoin = 'round';
             drawStrokes.forEach(stroke => {
                 if (stroke.maxY < sy - 10 || stroke.minY > sy + vh + 10) return; // 不在畫面內的筆畫不用畫
                 const pts = stroke.points;
+                drawCtx.strokeStyle = stroke.color || PEN_COLORS[0];   // 每一筆保留自己的顏色
+                drawCtx.lineWidth = penWidth(stroke.color);
                 drawCtx.beginPath();
                 drawCtx.moveTo(pts[0].x, pts[0].y);
                 for (let i = 1; i < pts.length - 1; i++) {
@@ -3657,7 +3662,7 @@
             if (!(e.buttons & 1)) { endStroke(); return; } // 在視窗外放開了
             if (!activeStroke) {
                 if (Math.hypot(e.clientX - drawStart.x, e.clientY - drawStart.y) < 4) return;
-                activeStroke = { points: [], minY: Infinity, maxY: -Infinity };
+                activeStroke = { points: [], minY: Infinity, maxY: -Infinity, color: PEN_COLORS[penIndex] };
                 drawStrokes.push(activeStroke);
                 document.documentElement.classList.add('is-drawing');
                 const selection = window.getSelection && window.getSelection();
@@ -3671,6 +3676,7 @@
             drawStart = null;
             if (!activeStroke) return;
             activeStroke = null;
+            penIndex = (penIndex + 1) % PEN_COLORS.length;   // 畫完一筆：下一筆換顏色（藍 → 黃 → 藍…）
             document.documentElement.classList.remove('is-drawing');
         }
         window.addEventListener('mouseup', endStroke);
@@ -6979,7 +6985,10 @@ window.__heroDemo = function (v) {
       const ctx = cv.getContext('2d');
       const t0 = performance.now();
       const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-      function plane(u, v){ const t = [PLANE[0][0] + (PLANE[1][0] - PLANE[0][0]) * u, PLANE[0][1] + (PLANE[1][1] - PLANE[0][1]) * u], b = [PLANE[3][0] + (PLANE[2][0] - PLANE[3][0]) * u, PLANE[3][1] + (PLANE[2][1] - PLANE[3][1]) * u]; return [t[0] + (b[0] - t[0]) * v, t[1] + (b[1] - t[1]) * v]; }
+      // 繪圖板當左邊的大主角時，標題的「experiences.」會蓋在板面中間：寫字位置往板面下半部移，避開標題
+      // 字縮小一點、寫在板面左上角，標題就不會蓋住
+      const big = () => document.documentElement.getAttribute('data-mf-hero') === 'hero-icon-4';
+      function plane(u, v){ if (big()) { u = 0.3 + (u - 0.5) * 0.56; v = 0.2 + (v - 0.5) * 0.36; } const t = [PLANE[0][0] + (PLANE[1][0] - PLANE[0][0]) * u, PLANE[0][1] + (PLANE[1][1] - PLANE[0][1]) * u], b = [PLANE[3][0] + (PLANE[2][0] - PLANE[3][0]) * u, PLANE[3][1] + (PLANE[2][1] - PLANE[3][1]) * u]; return [t[0] + (b[0] - t[0]) * v, t[1] + (b[1] - t[1]) * v]; }
       function frame(now){
         requestAnimationFrame(frame);
         const dpr = Math.min(2, devicePixelRatio || 1);
@@ -7299,7 +7308,7 @@ html[data-mf-tool="tablet"] #hero-section > .hero-icon:has(img[src*="hero-icon-4
 @media (max-width: 1023px) { #mf-shapes, #mf-tool-tip { display: none; } }
 /* 離開首頁後（索引、關於、聯絡等），鋼筆色塊與塗鴉一律退到內容後面，文字、圖片永遠在上面 */
 #mf-shapes, #draw-canvas { z-index: -1 !important; }
-html:not(.on-hero) #mf-shapes { display: none !important; }   /* 鋼筆畫的色塊只在首頁顯示 */   /* 所有頁面：色塊與塗鴉都在內容後面 */
+html:not(.on-hero) #mf-shapes, html:not(.on-hero) #draw-canvas { display: none !important; }   /* 繪圖板的線條也只在首頁顯示 */   /* 鋼筆畫的色塊只在首頁顯示 */   /* 所有頁面：色塊與塗鴉都在內容後面 */
 /* 索引清單、聯絡頁：底色改由整個頁面（html/body）提供，區塊本身透明，色塊才會出現在底色上、內容下 */
 @media (min-width: 1024px) {
   html.d4.hero-gone[data-view="work"] #work, html.d4.hero-gone[data-view="work"] body, html.hero-gone[data-view="work"] #work { background: transparent !important; }   /* 藍底只留在 html */
