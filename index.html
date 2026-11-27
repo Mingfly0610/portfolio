@@ -7291,7 +7291,10 @@ html:not(.on-hero) #mf-shapes { display: none !important; }   /* 鋼筆畫的色
       ic.addEventListener('click', e => {
         if (!mq.matches) return;
         if (tool === 'pen' && pts.length) { say('warn', '請先完成圖形：點回起點或按 Enter'); return; }   // 畫到一半：不切換、不輪轉
-        ACTIONS[key]();
+        if (window.__mfHero && window.__mfHero() !== key) {   // 點的是小物件：先換成主角（放大到左邊），再切成它的模式；螢幕當主角時是一般游標，不換台
+          window.__mfSetHero(key);
+          if (key === 'hero-icon-1') { setTool('mouse'); say('monitor', '螢幕：再點一下換台'); } else ACTIONS[key]();
+        } else ACTIONS[key]();
         ic.classList.remove('mf-press'); void ic.offsetWidth; ic.classList.add('mf-press');   // 點擊回饋：輕輕彈一下（不再輪轉）
         setTimeout(() => ic.classList.remove('mf-press'), 450);
       });
@@ -7673,7 +7676,7 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
 })();
 </script>
 <style id="mf-mobile-fullbleed-style">
-/* 手機首頁：作品動畫滿版當背景（網點化），黑底白字 */
+/* 手機首頁：彩色測試條滿版當背景（網點化），黑底白字 */
 @media (max-width: 767px) {
   html.on-hero:not(.hero-gone) body, html body #hero-section { background: #0b0b0d !important; }
   html.on-hero:not(.hero-gone) #halftone-bg { display: none !important; }
@@ -7692,68 +7695,49 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
 @media (min-width: 768px) { #mf-fullbleed { display: none !important; } }
 </style>
 <script id="mf-mobile-fullbleed-script">
-// 手機首頁：作品動畫滿版播放，畫成網點；每 15 秒換台，點畫面空白處也會換台
+// 手機首頁：滿版背景是電視的彩色測試條（畫成網點），不播作品影片
 (function () {
-  const mq = matchMedia('(max-width: 767px)'), root = document.documentElement;
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mq = matchMedia('(max-width: 767px)');
   const hero = document.getElementById('hero-section'); if (!hero) return;
-  const list = [...document.querySelectorAll('.portfolio-item[data-category="animation"]')]
-    .filter(it => !/tsrc-elt/.test(it.dataset.video || ''))
-    .map(it => { const v = it.querySelector('video'); return v && (v.getAttribute('src') || v.dataset.src); })
-    .filter(Boolean);
-  if (!list.length) return;
   const wrap = document.createElement('div'); wrap.id = 'mf-fullbleed'; wrap.setAttribute('aria-hidden', 'true');
   const cv = document.createElement('canvas'); wrap.appendChild(cv); hero.insertBefore(wrap, hero.firstChild);
   const ctx = cv.getContext('2d');
-  const sm = document.createElement('canvas'), sx = sm.getContext('2d', { willReadFrequently: true });
-  const vid = document.createElement('video');
-  vid.muted = true; vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.preload = 'auto'; vid.loop = true;
-  vid.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none';
-  document.body.appendChild(vid);
-  const HOLD = 15000, FADE = 500, CELL = 7;
-  let idx = Math.floor(Math.random() * list.length), t0 = 0, raf = 0, last = 0, W = 0, H = 0, dpr = 1, cols = 0, rows = 0;
-  function load(i) { idx = (i + list.length) % list.length; vid.src = list[idx]; vid.play().catch(() => {}); t0 = performance.now(); }
-  function size() {
-    dpr = Math.min(devicePixelRatio || 1, 2); W = hero.clientWidth; H = hero.clientHeight;
-    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-    cols = Math.ceil(W / CELL); rows = Math.ceil(H / CELL); sm.width = cols; sm.height = rows;
+  const CELL = 7;
+  const TOP = ['#5ff0f0', '#f040f0', '#1020e0', '#f8f070', '#70f060', '#f04030'];   // 上方色條（跟電視待機畫面一樣）
+  const LOW = ['#f04030', '#5ff0f0', '#f040f0', '#1020e0', '#f8f070', '#70f060'];
+  const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  function colorAt(u, v) {   // u, v：0–1，回傳這一點的顏色
+    if (v < 0.68) {
+      // 右側的黑白小方塊
+      if (u > 0.80 && u < 0.92 && v > 0.42 && v < 0.58) return (v < 0.5) ? [30, 30, 30] : [220, 220, 220];
+      return hex(TOP[Math.min(TOP.length - 1, Math.floor(u * TOP.length))]);
+    }
+    if (v < 0.80) {   // 中間的彩虹漸層帶
+      const s = [[240, 64, 48], [248, 160, 60], [248, 240, 112], [112, 240, 96], [95, 240, 240], [80, 140, 255]];
+      const x = u * (s.length - 1), i = Math.floor(x), f = x - i, a = s[i], b = s[Math.min(s.length - 1, i + 1)];
+      return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f];
+    }
+    return hex(LOW[Math.min(LOW.length - 1, Math.floor(u * LOW.length))]);
   }
-  function active() { return mq.matches && root.classList.contains('on-hero') && !root.classList.contains('hero-gone') && !document.hidden; }
-  function frame(now) {
-    raf = requestAnimationFrame(frame);
-    if (!active()) { if (!vid.paused) vid.pause(); return; }
-    if (vid.paused && vid.src) vid.play().catch(() => {});
-    if (now - last < 40) return; last = now;   // 約每秒 25 格
-    if (hero.clientWidth !== W || hero.clientHeight !== H || !cols) size();   // 首頁剛顯示或尺寸改變：重新量
-    if (!cols || !rows) return;
-    const el = now - t0;
-    if (!reduce && el > HOLD) load(idx + 1);
-    if (vid.readyState < 2 || !vid.videoWidth) return;
-    // 影片等比填滿畫面（cover）
-    const vr = vid.videoWidth / vid.videoHeight, cr = cols / rows;
-    let sw = vid.videoWidth, sh = vid.videoHeight, ox = 0, oy = 0;
-    if (vr > cr) { sw = sh * cr; ox = (vid.videoWidth - sw) / 2; } else { sh = sw / cr; oy = (vid.videoHeight - sh) / 2; }
-    sx.drawImage(vid, ox, oy, sw, sh, 0, 0, cols, rows);
-    const d = sx.getImageData(0, 0, cols, rows).data;
-    const k = Math.min(1, el / FADE);   // 換台：點陣由小長大
+  let W = 0, H = 0;
+  function draw() {
+    if (!mq.matches) return;
+    const w = hero.clientWidth, h = hero.clientHeight;
+    if (!w || !h || (w === W && h === H)) return;
+    W = w; H = h;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    const cols = Math.ceil(W / CELL), rows = Math.ceil(H / CELL), s = CELL - 2.2;
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-      const i = (y * cols + x) * 4, r = d[i], g = d[i + 1], b = d[i + 2];
-      const L = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      const s = Math.min(1, Math.pow(L, 0.6) * 1.25) * (CELL - 2.2) * k;   // 亮度越高方塊越大（提亮暗部），方塊之間保留縫隙看得出網點
-      if (s < 0.6) continue;
-      const m = Math.max(r, g, b) || 1, boost = Math.min(1.6, 255 / m);
-      ctx.fillStyle = 'rgb(' + Math.min(255, r * boost) + ',' + Math.min(255, g * boost) + ',' + Math.min(255, b * boost) + ')';
+      const c = colorAt((x + 0.5) / cols, (y + 0.5) / rows);
+      ctx.fillStyle = 'rgb(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ')';
       ctx.fillRect(x * CELL + (CELL - s) / 2, y * CELL + (CELL - s) / 2, s, s);
     }
   }
-  // 點畫面空白處：換下一支作品
-  hero.addEventListener('click', e => {
-    if (!mq.matches || e.target.closest('a, button, .drag-item, h1, #hero-hello')) return;
-    load(idx + 1);
-  });
-  addEventListener('resize', size); size();
-  load(idx); raf = requestAnimationFrame(frame);
+  addEventListener('resize', draw);
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  draw();
 })();
 </script>
 <script id="mf-project-url">
@@ -8326,5 +8310,57 @@ new THREE.TextureLoader().load('images/intro-screen-m.jpg',tex=>{
 draw(0);
     } catch (err) { console.warn('手機開場載入失敗，改用原本的開場', err); I.abort(); } })();
     </script>
+<style id="mf-desk-hero-style">
+/* 電腦版首頁：巨型主角。被選中的物件放大在左邊，其他三個縮小排在右下（觀看作品上方）；四個物件地位相同，點誰誰就變主角 */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  html[data-mf-hero] #hero-section { --b: min(48.6vw, 78vh); --s: min(6.4vw, 10.2vh); --pr: 5vw; --pt: 13.1vh;
+    justify-content: flex-end !important; align-items: flex-start !important; padding: var(--pt) var(--pr) 0 0 !important; }
+  html[data-mf-hero] #hero-section > .max-w-5xl { position: static !important; max-width: none !important; width: auto !important; margin: 0 !important; text-align: right !important; }
+  html[data-mf-hero] #hero-section > .max-w-5xl > * { position: relative; z-index: 5; }
+  html[data-mf-hero] #hero-section h1 { font-size: min(7.2vw, 11.5vh) !important; line-height: .9 !important; letter-spacing: -.05em !important; text-align: right !important; max-width: none !important; margin: 0 !important; }
+  html[data-mf-hero] #hero-section h1 { max-width: 10em !important; margin-left: auto !important; }
+  html[data-mf-hero] #hero-section h1 > span { display: flex !important; justify-content: flex-end; margin-left: auto !important; width: auto !important; text-align: right !important; }   /* 換字亂碼比較寬時往左長，不會超出右邊 */
+  html[data-mf-hero] #hero-section h1 > br { display: none; }
+  /* 年份標籤：放在 Crafting 的 C 左上方，微微傾斜（用 em 跟著標題字級一起縮放） */
+  html[data-mf-hero] #hero-section h1 { margin-top: .55em !important; }
+  html[data-mf-hero] #hero-section h1 > .drag-item { position: absolute !important; left: auto !important; right: 5.5em !important; top: -.24em !important; display: block; width: 2.45em !important; margin: 0 !important; rotate: -9deg !important; }
+  html[data-mf-hero] #hero-section .max-w-5xl > .hero-hello-mask { text-align: right !important; margin-top: 2.4vh !important; }
+  html[data-mf-hero] #hero-hello { text-align: right !important; color: #6b7280 !important; }
+  html[data-mf-hero] #hero-section .max-w-5xl > .pt-6 { position: absolute !important; right: calc(var(--pr) - 10px); bottom: 3.8vh; margin: 0 !important; padding: 0 !important; justify-content: flex-end !important; }
+  html[data-mf-hero] #hero-section > .hero-icon { animation: none !important; position: absolute !important; translate: none !important; transform: none !important; right: auto !important; bottom: auto !important;
+    transition: left .6s cubic-bezier(.2,.8,.2,1), top .6s cubic-bezier(.2,.8,.2,1), width .6s cubic-bezier(.2,.8,.2,1), height .6s cubic-bezier(.2,.8,.2,1), rotate .6s cubic-bezier(.2,.8,.2,1) !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot="big"] { left: -6.25vw !important; top: var(--pt) !important; width: var(--b) !important; height: var(--b) !important; rotate: 6deg !important; z-index: 1 !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot^="s"] { top: calc(100% - var(--pt) - var(--s)) !important; width: var(--s) !important; height: var(--s) !important; rotate: 0deg !important; z-index: 6 !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot="s0"] { left: calc(100% - var(--pr) - var(--s) * 3.44) !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot="s1"] { left: calc(100% - var(--pr) - var(--s) * 2.22) !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot="s2"] { left: calc(100% - var(--pr) - var(--s)) !important; }
+  /* 鋼筆、繪圖板當主角時，大物件不擋住畫畫 */
+  html[data-mf-tool="pen"] #hero-section > .hero-icon[data-slot="big"], html[data-mf-tool="tablet"] #hero-section > .hero-icon[data-slot="big"] { pointer-events: none !important; }
+  html[data-mf-hero] #mf-tool-tag { display: none !important; }
+}
+</style>
+<script id="mf-desk-hero-script">
+(() => {
+  const mq = matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
+  const R = document.documentElement, ORDER = ['hero-icon-1', 'hero-icon-2', 'hero-icon-3', 'hero-icon-4'];
+  let hero = 'hero-icon-1', icons = null;
+  const keyOf = ic => { const im = ic.querySelector('img'); return im && (im.getAttribute('src').match(/hero-icon-\d/) || [])[0]; };
+  function layout() {
+    if (!icons) return;
+    if (!mq.matches) { R.removeAttribute('data-mf-hero'); icons.forEach(ic => ic.removeAttribute('data-slot')); return; }
+    R.setAttribute('data-mf-hero', hero);
+    let i = 0;
+    ORDER.forEach(k => { const ic = icons.find(el => keyOf(el) === k); if (ic) ic.setAttribute('data-slot', k === hero ? 'big' : 's' + i++); });
+  }
+  window.__mfHero = () => hero;
+  window.__mfSetHero = k => { if (ORDER.includes(k)) { hero = k; layout(); } };
+  (function init() {
+    const list = [...document.querySelectorAll('#hero-section > .hero-icon')];
+    if (list.length !== 4) return setTimeout(init, 300);
+    icons = list; layout();
+  })();
+  mq.addEventListener('change', layout);
+})();
+</script>
 </body>
 </html>
