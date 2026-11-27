@@ -6764,8 +6764,9 @@ window.__heroDemo = function (v) {
     function init(){
       const img = document.querySelector('#hero-section img[src*="hero-icon-1"]');
       if (!img) return setTimeout(init, 300);
-      const items = [...document.querySelectorAll('.portfolio-item[data-category="animation"]')]
-        .filter(it => !/tsrc-elt/.test(it.dataset.video || ''))
+      // 播放順序：求職島第一、TSRC RACING 第二，其他動態設計作品依序在後（台橡 ELT 除外）
+      const items = [document.querySelector('.portfolio-item[data-video*="prog-job-island"]'), document.querySelector('.portfolio-item[data-video*="prog-tsrc-racing"]'), ...document.querySelectorAll('.portfolio-item[data-category="animation"]')]
+        .filter(it => it && !/tsrc-elt/.test(it.dataset.video || ''))
         .map(it => { const v = it.querySelector('video'), t = it.querySelector('.modal-title-src'); return [v && (v.getAttribute('src') || v.dataset.src), t ? t.textContent.trim() : '']; })
         .filter(x => x[0]);
       const list = items.map(x => x[0]), titles = items.map(x => x[1]);
@@ -7815,8 +7816,8 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
   const mq = matchMedia('(max-width: 767px)'), root = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hero = document.getElementById('hero-section'); if (!hero) return;
-  const list = [...document.querySelectorAll('.portfolio-item[data-category="animation"]')]
-    .filter(it => !/tsrc-elt/.test(it.dataset.video || ''))
+  const list = [document.querySelector('.portfolio-item[data-video*="prog-job-island"]'), document.querySelector('.portfolio-item[data-video*="prog-tsrc-racing"]'), ...document.querySelectorAll('.portfolio-item[data-category="animation"]')]   // 求職島第一、TSRC RACING 第二
+    .filter(it => it && !/tsrc-elt/.test(it.dataset.video || ''))
     .map(it => { const v = it.querySelector('video'); return v && (v.getAttribute('src') || v.dataset.src); })
     .filter(Boolean);
   if (!list.length) return;
@@ -7829,7 +7830,7 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
   vid.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none';
   document.body.appendChild(vid);
   const HOLD = 15000, FADE = 500, CELL = 7;
-  let idx = Math.floor(Math.random() * list.length), t0 = 0, raf = 0, last = 0, W = 0, H = 0, dpr = 1, cols = 0, rows = 0;
+  let idx = 0, t0 = 0, raf = 0, last = 0, W = 0, H = 0, dpr = 1, cols = 0, rows = 0;
   const TOP = ['#5ff0f0', '#f040f0', '#1020e0', '#f8f070', '#70f060', '#f04030'];   // 上方色條（跟電視待機畫面一樣）
   const LOW = ['#f04030', '#5ff0f0', '#f040f0', '#1020e0', '#f8f070', '#70f060'];
   const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
