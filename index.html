@@ -838,6 +838,15 @@
         })();
     </script>
     <!-- ===== 筆電開場（第一次進站播放一次）：判斷是否播放，並先蓋上黑色畫面 ===== -->
+    <style id="mf-live-style">
+        /* 筆電開場：螢幕裡顯示真正的首頁（網頁本身用 3D 變形貼到螢幕上） */
+        html.intro-on, html.intro-on body { overflow: hidden !important; }
+        html.intro-on.mf-phone #navbar { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+        html.intro-on.mf-laptop #hero-hello { transform: none !important; opacity: 1 !important; }
+        body.mf-live { transform-origin: 0 0; will-change: transform; }
+        #mf-type-chip { position: fixed; left: 50%; top: 96px; transform: translateX(-50%); z-index: 60; padding: 8px 14px; background: #FAFAFA;
+          font: 500 22px ui-monospace, Menlo, monospace; color: #3B82F6; pointer-events: none; display: none; }
+    </style>
     <style id="mf-intro-style">
         #mf-intro { position: fixed; inset: 0; z-index: 2147483000; background: #020203; transition: opacity .7s ease; touch-action: none; overscroll-behavior: contain; }
         #mf-intro.is-out { opacity: 0; pointer-events: none; }
@@ -867,13 +876,15 @@
             if (on) dormant = false;
             if (!on && !dormant) return;
             window.__mfIntro = { ready: false, mode: mode, dormant: dormant };
+            if (mode === 'laptop') { window.__liveIntro = true; document.documentElement.classList.add('mf-laptop'); }
+            if (mode === 'phone') { window.__liveIntro = true; document.documentElement.classList.add('mf-phone'); }   // 手機：iPhone 螢幕裡是真正的首頁   // 筆電：螢幕裡是真正的首頁
             if (!dormant) document.documentElement.classList.add('intro-on');
             var el = document.createElement('div');
             el.id = 'mf-intro';
             el.innerHTML = '<div class="mfi-ui mfi-bar"></div><div class="mfi-ui mfi-hint"><span>[ 向下滾動 ]</span></div>' +
                 '<div class="mfi-ui mfi-loading">[ 載入中 ]</div>';
             if (dormant) { el.className = 'is-out'; el.style.display = 'none'; }
-            document.body.appendChild(el);
+            document.documentElement.appendChild(el);   // 放在 <html> 底下：筆電開場時 body 整個要做 3D 變形
         })();
     </script>
 
@@ -4044,7 +4055,7 @@
     /* MingFly. 與 ← Home：改成 ASCII 解碼切換，不用上下滑動 */
     html.d8 #brand-logo > span { transition: opacity 0.12s linear !important; transform: none !important; }
     .word-slot { display: inline-block !important; width: var(--slot) !important; text-align: left !important; white-space: nowrap !important; }
-    @media (max-width: 767px) { .word-slot { text-align: center !important; } }   /* 手機：單字自己一行，置中 */
+    @media (max-width: 767px) { .word-slot { text-align: left !important; } }   /* 手機：單字自己一行，置左對齊（和其他行同一條左邊線） */
     #hero-section h1.is-ascii-text { color: transparent; }
     #hero-section h1.is-ascii-text span { color: transparent !important; }
     #contact h2.is-ascii-text, #contact h2.is-ascii-text span { color: transparent !important; }
@@ -5590,7 +5601,7 @@
                 clearTimeout(timer);
                 // 筆電開場期間：藍字固定是 beautiful（和開場截圖一致）；開場結束後先停一下再開始換字
                 const R = document.documentElement, wEl = h1.querySelector('.font-serif');
-                if (R.classList.contains('intro-on')) {
+                if (R.classList.contains('intro-on') && !window.__liveIntro) {
                     introAt = performance.now();
                     if (wEl && (wEl.__word || wEl.textContent).trim() !== 'beautiful') { wEl.__job = (wEl.__job || 0) + 1; wEl.__word = 'beautiful'; wEl.style.width = ''; wEl.style.display = ''; wEl.style.whiteSpace = ''; wEl.style.textAlign = ''; wEl.textContent = 'beautiful'; }
                     timer = setTimeout(run, 300); return;
@@ -6749,6 +6760,7 @@ window.__heroDemo = function (v) {
       // 筆電開場期間與結束後 1.2 秒：螢幕先顯示網點彩色測試條（和開場截圖一致，銜接時不跳畫面），之後作品畫面再從點陣長出來
       let barsLatch = html.classList.contains('intro-on'), barsUntil = 0, barsCv = null;
       function barsHold(now) {
+        if (window.__liveIntro) return false;
         if (html.classList.contains('intro-on') || window.__monBarsForce) { barsLatch = true; barsUntil = 0; }
         else if (barsLatch && !barsUntil) barsUntil = now + 1200;
         if (barsLatch && barsUntil && now >= barsUntil) { barsLatch = false; barsUntil = 0; return false; }
@@ -7744,14 +7756,27 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
 @media (min-width: 768px) { #mf-fullbleed { display: none !important; } }
 </style>
 <script id="mf-mobile-fullbleed-script">
-// 手機首頁：滿版背景是電視的彩色測試條（畫成網點），不播作品影片
+// 手機首頁：作品動畫滿版播放，畫成網點；每 15 秒換台，點畫面空白處也會換台
+// iPhone 開場期間與揭開後 1.2 秒先顯示網點彩色測試條（和開場截圖一致），之後作品畫面再從點陣長出來
 (function () {
-  const mq = matchMedia('(max-width: 767px)');
+  const mq = matchMedia('(max-width: 767px)'), root = document.documentElement;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hero = document.getElementById('hero-section'); if (!hero) return;
+  const list = [...document.querySelectorAll('.portfolio-item[data-category="animation"]')]
+    .filter(it => !/tsrc-elt/.test(it.dataset.video || ''))
+    .map(it => { const v = it.querySelector('video'); return v && (v.getAttribute('src') || v.dataset.src); })
+    .filter(Boolean);
+  if (!list.length) return;
   const wrap = document.createElement('div'); wrap.id = 'mf-fullbleed'; wrap.setAttribute('aria-hidden', 'true');
   const cv = document.createElement('canvas'); wrap.appendChild(cv); hero.insertBefore(wrap, hero.firstChild);
   const ctx = cv.getContext('2d');
-  const CELL = 7;
+  const sm = document.createElement('canvas'), sx = sm.getContext('2d', { willReadFrequently: true });
+  const vid = document.createElement('video');
+  vid.muted = true; vid.playsInline = true; vid.setAttribute('playsinline', ''); vid.preload = 'auto'; vid.loop = true;
+  vid.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none';
+  document.body.appendChild(vid);
+  const HOLD = 15000, FADE = 500, CELL = 7;
+  let idx = Math.floor(Math.random() * list.length), t0 = 0, raf = 0, last = 0, W = 0, H = 0, dpr = 1, cols = 0, rows = 0;
   const TOP = ['#5ff0f0', '#f040f0', '#1020e0', '#f8f070', '#70f060', '#f04030'];   // 上方色條（跟電視待機畫面一樣）
   const LOW = ['#f04030', '#5ff0f0', '#f040f0', '#1020e0', '#f8f070', '#70f060'];
   const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -7768,25 +7793,72 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
     }
     return hex(LOW[Math.min(LOW.length - 1, Math.floor(u * LOW.length))]);
   }
-  let W = 0, H = 0;
-  function draw() {
-    if (!mq.matches) return;
-    const w = hero.clientWidth, h = hero.clientHeight;
-    if (!w || !h || (w === W && h === H)) return;
-    W = w; H = h;
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  let barsLatch = root.classList.contains('intro-on'), barsUntil = 0, barsKey = '';
+  function barsHold(now) {
+    if (window.__liveIntro) return false;
+    if (root.classList.contains('intro-on')) { barsLatch = true; barsUntil = 0; }
+    else if (barsLatch && !barsUntil) barsUntil = now + 1200;
+    if (barsLatch && barsUntil && now >= barsUntil) { barsLatch = false; barsUntil = 0; t0 = now; return false; }   // 結束：作品畫面從點陣長出來
+    return barsLatch;
+  }
+  function drawBars() {
+    const key = W + 'x' + H; if (key === barsKey) return; barsKey = key;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-    const cols = Math.ceil(W / CELL), rows = Math.ceil(H / CELL), s = CELL - 2.2;
+    const s = CELL - 2.2;
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
       const c = colorAt((x + 0.5) / cols, (y + 0.5) / rows);
       ctx.fillStyle = 'rgb(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ')';
       ctx.fillRect(x * CELL + (CELL - s) / 2, y * CELL + (CELL - s) / 2, s, s);
     }
   }
-  addEventListener('resize', draw);
-  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-  draw();
+  // 省電：系統開啟「減少動態效果」、Android 的「省流量」，或 iPhone 低耗電模式擋下影片自動播放時，改成靜態測試條，不載入影片
+  let still = reduce || !!(navigator.connection && navigator.connection.saveData);
+  function goStill() { if (still) return; still = true; barsKey = ''; vid.pause(); vid.removeAttribute('src'); vid.load(); }
+  const tryPlay = () => { const p = vid.play(); if (p) p.catch(e => { if (e && e.name === 'NotAllowedError') goStill(); }); };
+  function load(i) { if (still) return; idx = (i + list.length) % list.length; vid.src = list[idx]; tryPlay(); t0 = performance.now(); }
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2); W = hero.clientWidth; H = hero.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cols = Math.ceil(W / CELL); rows = Math.ceil(H / CELL); sm.width = cols; sm.height = rows;
+  }
+  function active() { return mq.matches && (root.classList.contains('intro-on') || (root.classList.contains('on-hero') && !root.classList.contains('hero-gone'))) && !document.hidden; }
+  function frame(now) {
+    raf = requestAnimationFrame(frame);
+    if (!active()) { if (!vid.paused) vid.pause(); return; }
+    if (!still && vid.paused && vid.src) tryPlay();
+    if (now - last < 40) return; last = now;   // 約每秒 25 格
+    if (hero.clientWidth !== W || hero.clientHeight !== H || !cols) size();   // 首頁剛顯示或尺寸改變：重新量
+    if (!cols || !rows) return;
+    if (still || barsHold(now)) { drawBars(); t0 = now; return; }
+    barsKey = '';
+    const el = now - t0;
+    if (!reduce && el > HOLD) load(idx + 1);
+    if (vid.readyState < 2 || !vid.videoWidth) return;
+    // 影片等比填滿畫面（cover）
+    const vr = vid.videoWidth / vid.videoHeight, cr = cols / rows;
+    let sw = vid.videoWidth, sh = vid.videoHeight, ox = 0, oy = 0;
+    if (vr > cr) { sw = sh * cr; ox = (vid.videoWidth - sw) / 2; } else { sh = sw / cr; oy = (vid.videoHeight - sh) / 2; }
+    sx.drawImage(vid, ox, oy, sw, sh, 0, 0, cols, rows);
+    const d = sx.getImageData(0, 0, cols, rows).data;
+    const k = Math.min(1, el / FADE);   // 換台：點陣由小長大
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      const i = (y * cols + x) * 4, r = d[i], g = d[i + 1], b = d[i + 2];
+      const L = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      const s = Math.min(1, Math.pow(L, 0.6) * 1.25) * (CELL - 2.2) * k;   // 亮度越高方塊越大（提亮暗部），方塊之間保留縫隙看得出網點
+      if (s < 0.6) continue;
+      const m = Math.max(r, g, b) || 1, boost = Math.min(1.6, 255 / m);
+      ctx.fillStyle = 'rgb(' + Math.min(255, r * boost) + ',' + Math.min(255, g * boost) + ',' + Math.min(255, b * boost) + ')';
+      ctx.fillRect(x * CELL + (CELL - s) / 2, y * CELL + (CELL - s) / 2, s, s);
+    }
+  }
+  // 點畫面空白處：換下一支作品
+  hero.addEventListener('click', e => {
+    if (still || !mq.matches || e.target.closest('a, button, .drag-item, h1, #hero-hello')) return;
+    load(idx + 1);
+  });
+  addEventListener('resize', size); size();
+  load(idx); raf = requestAnimationFrame(frame);
 })();
 </script>
 <script id="mf-project-url">
@@ -7903,7 +7975,7 @@ html body #mobile-menu:not(.opacity-0) .mfm-foot { animation-delay: .18s; }
             I.origLeave = window.__splashLeave;
             // 開場藍色畫面載入完要離場時：先藏起來，保留 splash-on（問候語等動畫會等筆電開場結束才開始）
             // 背景準備模式（從分頁連結進站）：不攔開場畫面，照原本方式揭開
-            if (!I.dormant) window.__splashLeave = function (splash) { I.splash = splash; splash.style.display = 'none'; };
+            if (!I.dormant) window.__splashLeave = function (splash) { I.splash = splash; if (window.__liveIntro) splashOut(); else splash.style.display = 'none'; };   // 筆電：直接拿掉載入畫面，螢幕裡的首頁照常開始動
             function splashOut() {
                 var s = I.splash || document.getElementById('splash');
                 root.classList.remove('splash-on');
@@ -7941,11 +8013,11 @@ if (I.done) return;
 try { await document.fonts.load('800 100px Syne'); } catch(e) {}
 const box=document.getElementById('mf-intro');
 RectAreaLightUniformsLib.init();
-const r=new THREE.WebGLRenderer({antialias:true});
+const r=new THREE.WebGLRenderer({antialias:true,alpha:true}); r.setClearColor(0x020203,1);
 r.setPixelRatio(Math.min(devicePixelRatio||1,1.5)); r.setSize(innerWidth,innerHeight);
 r.toneMapping=THREE.ACESFilmicToneMapping;
 box.prepend(r.domElement);
-const scene=new THREE.Scene(); scene.background=new THREE.Color(0x020203); scene.fog=new THREE.FogExp2(0x020203,0.075);
+const scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x020203,0.075);
 const pm=new THREE.PMREMGenerator(r); scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; scene.environmentIntensity=0.18;
 const cam=new THREE.PerspectiveCamera(32,innerWidth/innerHeight,0.05,100);
 const alu=new THREE.MeshPhysicalMaterial({color:0x3a3c42,metalness:0.55,roughness:0.42,clearcoat:0.3,clearcoatRoughness:0.4});
@@ -8015,12 +8087,12 @@ const SW=BW-0.22,SH=SW*900/1440;
 const scrM=new THREE.MeshBasicMaterial({toneMapped:false,fog:false});
 const sc=document.createElement('canvas'); sc.width=1440; sc.height=900; const sx=sc.getContext('2d'); let heroBitmap=null, typed='';
 // 首頁畫面（靜態圖）：筆電螢幕和最後揭開前的畫面都用它
-// 依視窗比例挑最接近的首頁截圖（1.6／1.7／1.8／1.9／2.0），推進到全螢幕時和實際首頁的排版一致
-const SHOT=(()=>{ const a=innerWidth/innerHeight, L=[[1.6,''],[1.7,'-170'],[1.8,'-180'],[1.9,'-190'],[2.0,'-200']]; let b=L[0]; for(const x of L) if(Math.abs(x[0]-a)<Math.abs(b[0]-a)) b=x; return 'images/intro-screen'+b[1]+'.jpg'; })();
-const vid=document.createElement('img'); vid.id='mf-intro-vid'; vid.alt=''; vid.src=SHOT; box.insertBefore(vid, r.domElement.nextSibling);
+const vid=document.createElement('img'); vid.id='mf-intro-vid'; vid.alt=''; box.insertBefore(vid, r.domElement.nextSibling);
 const scrTex=new THREE.CanvasTexture(sc); scrTex.colorSpace=THREE.SRGBColorSpace;
 let vidShown=false;
-function paintScreen(){ if(!heroBitmap) return;
+const chip=document.createElement('div'); chip.id='mf-type-chip'; document.body.appendChild(chip);
+function paintScreen(){ chip.textContent='[ '+typed+'_ ]'; chip.style.display=typed?'block':'none'; }
+function paintScreenOld(){ if(!heroBitmap) return;
   // 截圖比 16:10 寬：照寬度放進螢幕，上下用截圖邊緣的顏色補滿（推進到全螢幕時，補的部分剛好在畫面外）
   const iw=heroBitmap.width, ih=heroBitmap.height, h=Math.min(900,1440*ih/iw), y=(900-h)/2;
   if(y>0.5){ sx.drawImage(heroBitmap,0,0,iw,1,0,0,1440,y+1); sx.drawImage(heroBitmap,0,ih-1,iw,1,0,y+h-1,1440,900-y-h+1); }
@@ -8029,6 +8101,29 @@ function paintScreen(){ if(!heroBitmap) return;
     sx.fillStyle='#FAFAFA'; sx.fillRect(720-w/2-18,100,w+36,58); sx.fillStyle='#3B82F6'; sx.textAlign='center'; sx.textBaseline='middle'; sx.fillText(t,720,131); sx.textAlign='start'; }
   scrTex.needsUpdate=true; }
 const scr=new THREE.Mesh(new THREE.PlaneGeometry(SW,SH),scrM); scr.rotation.x=Math.PI/2; scr.position.set(0,0,LZ+0.04); lid.add(scr);
+// 螢幕挖一個透明的洞（和視窗同比例），真正的首頁從洞裡透出來
+const holeM=new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:0,blending:THREE.NoBlending,fog:false,toneMapped:false});
+const hole=new THREE.Mesh(new THREE.PlaneGeometry(1,1),holeM); hole.rotation.x=Math.PI/2; hole.position.set(0,-0.001,LZ+0.04); lid.add(hole);
+function fitHole(){ const A=innerWidth/innerHeight; if(A>=SW/SH) hole.scale.set(SW,SW/A,1); else hole.scale.set(SH*A,SH,1); }
+fitHole();
+const B=document.body; B.classList.add('mf-live');
+const CN=[[-.5,.5],[.5,.5],[.5,-.5],[-.5,-.5]], pv3=new THREE.Vector3();
+function homo(W,H,P){   // 視窗四角 → 螢幕上的四個點（投影變形）
+  const [x0,y0]=P[0],[x1,y1]=P[1],[x2,y2]=P[2],[x3,y3]=P[3];
+  const dx1=x1-x2,dx2=x3-x2,dx3=x0-x1+x2-x3,dy1=y1-y2,dy2=y3-y2,dy3=y0-y1+y2-y3, den=dx1*dy2-dx2*dy1;
+  const g=(dx3*dy2-dx2*dy3)/den, h=(dx1*dy3-dx3*dy1)/den;
+  const a=x1-x0+g*x1, b=x3-x0+h*x3, d=y1-y0+g*y1, e=y3-y0+h*y3;
+  return `matrix3d(${a/W},${d/W},0,${g/W},${b/H},${e/H},0,${h/H},0,0,1,0,${x0},${y0},0,1)`;
+}
+function syncPage(){
+  if(state.v<0.2){ B.style.visibility='hidden'; return; }
+  B.style.visibility='';
+  scene.updateMatrixWorld(true); cam.updateMatrixWorld();
+  const W=innerWidth,H=innerHeight;
+  const P=CN.map(([x,y])=>{ pv3.set(x,y,0).applyMatrix4(hole.matrixWorld).project(cam); return [(pv3.x+1)/2*W,(1-pv3.y)/2*H]; });
+  B.style.transform=homo(W,H,P);
+}
+function releasePage(){ B.style.transform=''; B.style.visibility=''; B.classList.remove('mf-live'); }
 const lights=[[0x4a78ff,-SW/3],[0xff5aa8,0],[0xffa040,SW/3]].map(([c,x])=>{const l=new THREE.RectAreaLight(c,0,SW/3,SH);l.position.set(x,-0.01,LZ+0.04);l.rotation.x=-Math.PI/2;lid.add(l);return l;});
 const white=new THREE.RectAreaLight(0xffffff,0,SW,SH); white.position.set(0,-0.01,LZ+0.04); white.rotation.x=-Math.PI/2; lid.add(white);
 const rim=new THREE.DirectionalLight(0x8899ff,0.25); rim.position.set(-4,5,-6); scene.add(rim);
@@ -8044,8 +8139,8 @@ function pose(v,zoom,focus=0){
   hinge.rotation.x=-v*112*Math.PI/180;
   const g=Math.max(0,Math.min(1,(v-0.18)/0.55));
   lights.forEach(l=>l.intensity=g*16*(1-zoom*0.6)); white.intensity=g*2.5; well.material.emissiveIntensity=g*0.16; for(const lm of labelMats) lm.opacity=0.15+0.55*g;
-  scrM.color.setScalar(0.1+0.72*g+0.18*zoom);
-  bloom.strength=(0.1+0.22*g)*(1-zoom); bloom.enabled=bloom.strength>0.01;   // 沒有光暈時跳過這道後製
+  scrM.color.setScalar(0.1+0.72*g+0.18*zoom); holeM.opacity=Math.max(0,1-Math.min(1,0.1+0.72*g+0.18*zoom));
+  bloom.enabled=false;   // 光暈後製會把螢幕的透明洞蓋掉：關閉   // 沒有光暈時跳過這道後製
   camA.set(0,lerp(4.6,1.55,v),lerp(3.0,5.4,v)); tgtA.set(0,lerp(0,0.62,v),lerp(0.1,-0.5,v));
   if(focus>0){ const f=ease(focus); camA.lerp(KB_CAM,f); tgtA.lerp(KB_TGT,f); }   // 停在全開時，鏡頭往鍵盤靠近一點
   const k=Math.max(1,1.55/cam.aspect); if(k>1) camA.sub(tgtA).multiplyScalar(k).add(tgtA); scene.fog.density=0.075/k;   // 直式螢幕：鏡頭拉遠，讓整台筆電放得進畫面
@@ -8058,6 +8153,7 @@ function pose(v,zoom,focus=0){
     const z=ease(zoom);
     cam.position.lerpVectors(camA,camB,z); tg.lerpVectors(tgtA,c,z); cam.lookAt(tg);
   } else { cam.position.copy(camA); cam.lookAt(tgtA); }
+  if(!finished) syncPage();
   comp.render();
 }
 
@@ -8070,7 +8166,7 @@ function draw(p){
   hintText.textContent=typing?'[ 點擊鍵盤試試看，也可以直接打字 ]':'[ 向下滾動 ]';
   hint.style.opacity=(p<0.03||typing)?1:0;
   if(!kbOn&&p>0.5&&typed){ typed=''; paintScreen(); }
-  vid.style.opacity=Math.max(0,Math.min(1,(p-0.95)/0.05));
+
   bar.style.width=(p*100)+'%';
   if(p>=0.999 && !finished && !draw.pend){ draw.pend=true; setTimeout(()=>{ draw.pend=false; if(cur>=0.999) end(); },250); }
 }
@@ -8086,15 +8182,15 @@ function onTouchMove(e){ if(ty==null) return; e.preventDefault(); const y=e.touc
 box.addEventListener('wheel',onWheel,{passive:false});
 box.addEventListener('touchstart',onTouchStart,{passive:true});
 box.addEventListener('touchmove',onTouchMove,{passive:false});
-function onResize(){ r.setSize(innerWidth,innerHeight); comp.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); draw(cur); }
+function onResize(){ fitHole(); r.setSize(innerWidth,innerHeight); comp.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); draw(cur); }
 r.domElement.addEventListener('pointerenter',()=>{ if(r.domElement.width!==Math.round(innerWidth*r.getPixelRatio())) onResize(); });
 addEventListener('resize',onResize);
-function end(){ if(finished) return; finished=true; doneAt=performance.now(); skip.style.opacity=0; cleanup(); box.classList.add('is-blink'); if(I.done){ document.documentElement.classList.remove('intro-on'); box.classList.add('is-out'); clearTimeout(I.hideT); I.hideT=setTimeout(()=>{ if(box.classList.contains('is-out')) box.style.display='none'; },750); } else I.finish(); }
+function end(){ if(finished) return; finished=true; doneAt=performance.now(); skip.style.opacity=0; cleanup(); releasePage(); box.style.transition='none'; box.style.display='none'; if(pendingClick){ const a=pendingClick; pendingClick=null; setTimeout(()=>a.click(),80); } if(I.done){ document.documentElement.classList.remove('intro-on'); box.classList.add('is-out'); clearTimeout(I.hideT); I.hideT=setTimeout(()=>{ if(box.classList.contains('is-out')) box.style.display='none'; },750); } else I.finish(); }
 skip.addEventListener('click',()=>{ fast=true; go(1); setTimeout(end,1600); });   // 略過：快速推進，最多 1.6 秒後直接揭開首頁
 
 // ---- 鍵盤互動：點擊／觸控／實體鍵盤 ----
 const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(); let state={v:0,zoom:0}, animRaf=0, actx=null;
-const keyMeshes=keys.map(k=>k.mesh), hitTargets=[...keyMeshes,lidBody,bez,scr];
+const keyMeshes=keys.map(k=>k.mesh), hitTargets=[...keyMeshes,lidBody,bez,hole,scr]; let pendingClick=null;
 // 只要有任何一顆鍵出現在畫面中（且上蓋已經打開到看得到鍵盤），就可以按
 const frustum=new THREE.Frustum(), pv=new THREE.Matrix4(), kbBox=new THREE.Box3();
 function keyboardVisible(){
@@ -8134,8 +8230,18 @@ function animKeys(){
     k.mesh.position.y=k.y0-0.014*d; k.mesh.material.emissiveIntensity=1.6*d; }
   comp.render(); animRaf=busy?requestAnimationFrame(animKeys):0;
 }
-function onPointerDown(e){ if(!canType()) return; const k=hitKey(e); if(k){ e.preventDefault(); press(k); } }
-function onPointerMove(e){ if(e.pointerType!=='mouse') return; r.domElement.style.cursor=(canType()&&hitKey(e))?'pointer':''; }
+// 螢幕上點到的是首頁的哪個元素
+function pageEl(e){ if(state.v<0.6) return null; const cr=r.domElement.getBoundingClientRect(); ptr.set((e.clientX-cr.left)/cr.width*2-1,-((e.clientY-cr.top)/cr.height)*2+1);
+  ray.setFromCamera(ptr,cam); const h=ray.intersectObjects(hitTargets,false)[0]; if(!h||h.object!==hole) return null;
+  box.style.pointerEvents='none'; const el=document.elementFromPoint(e.clientX,e.clientY); box.style.pointerEvents=''; return el; }
+const ACT=el=>el&&(el.closest('#hero-section > .hero-icon')||el.closest('a[href],button'));
+function onPointerDown(e){
+  const pe=ACT(pageEl(e));
+  if(pe){ e.preventDefault();
+    if(pe.matches('.hero-icon')) { pe.click(); return; }        // 物件：直接在螢幕裡切換
+    pendingClick=pe; fast=true; go(1); return; }                // 連結、按鈕：先推進到全螢幕，再執行
+  if(!canType()) return; const k=hitKey(e); if(k){ e.preventDefault(); press(k); } }
+function onPointerMove(e){ if(e.pointerType!=='mouse') return; r.domElement.style.cursor=(ACT(pageEl(e))||(canType()&&hitKey(e)))?'pointer':''; }
 r.domElement.addEventListener('pointerdown',onPointerDown);
 r.domElement.addEventListener('pointermove',onPointerMove);
 // 開場期間攔下鍵盤：網站本身的快捷鍵（例如 F 全螢幕）不會被觸發
@@ -8157,7 +8263,7 @@ const onHome=()=>{ const h=document.documentElement; return h.classList.contains
 function reenter(){
   clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
   finished=false; fast=false; cur=target=1; onResize();   // 隱藏期間視窗大小可能變了（例如進入全螢幕）：先照現在的大小重設畫面與鏡頭
-  draw(1);
+  B.classList.add('mf-live'); draw(1);
   box.style.transition='none'; box.classList.remove('is-out','is-blink'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
   document.documentElement.classList.add('intro-on');
   skip.style.opacity=1;
@@ -8166,15 +8272,13 @@ function reenter(){
 addEventListener('wheel',e=>{ if(!finished || e.deltaY>=0 || performance.now()-doneAt<700 || box.style.display!=='none' && !box.classList.contains('is-out') || !onHome()) return;
   reenter(); const k=e.deltaMode===1?16:e.deltaMode===2?innerHeight:1; go(e.deltaY*k/SPAN()); },{passive:true});
 I.dispose=()=>{ try{ r.dispose(); comp.dispose&&comp.dispose(); if(actx) actx.close(); }catch(e){} };
-new THREE.TextureLoader().load(SHOT,tex=>{
+(()=>{
   if(I.done) return;
-  heroBitmap=tex.image; scrTex.anisotropy=r.capabilities.getMaxAnisotropy(); paintScreen();
-  scrM.map=scrTex; scrM.needsUpdate=true;
-  I.ready=true;
+  I.ready=true; box.style.background='transparent';
   const ld=box.querySelector('.mfi-loading'); ld.style.opacity=0; setTimeout(()=>ld.remove(),450);
   draw(0);
-  if(I.dormant){ I.done=true; finished=true; doneAt=0; cleanup(); }   // 背景準備好：等回到首頁往上滾／往下拉時才出現
-}, undefined, ()=>I.abort());
+  if(I.dormant){ I.done=true; finished=true; doneAt=0; cleanup(); releasePage(); }   // 背景準備好：等回到首頁往上滾／往下拉時才出現
+})();
 draw(0);
     } catch (err) { console.warn('筆電開場載入失敗，改用原本的開場', err); I.abort(); } })();
     </script>
@@ -8189,11 +8293,11 @@ if (I.done) return;
 try { await document.fonts.load('800 100px Syne'); } catch(e) {}
 const box=document.getElementById('mf-intro');
 RectAreaLightUniformsLib.init();
-const r=new THREE.WebGLRenderer({antialias:true});
+const r=new THREE.WebGLRenderer({antialias:true,alpha:true}); r.setClearColor(0x020203,1);
 r.setPixelRatio(Math.min(devicePixelRatio||1,1.75)); r.setSize(innerWidth,innerHeight);
 r.toneMapping=THREE.ACESFilmicToneMapping;
 box.prepend(r.domElement);
-const scene=new THREE.Scene(); scene.background=new THREE.Color(0x020203); scene.fog=new THREE.FogExp2(0x020203,0.16);
+const scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x020203,0.16);
 const pm=new THREE.PMREMGenerator(r); scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; scene.environmentIntensity=0.28;
 const cam=new THREE.PerspectiveCamera(30,innerWidth/innerHeight,0.02,100);
 // ---- iPhone（比例參考 iPhone 15 Pro：71.6 × 146.6 × 8.25 mm）----
@@ -8216,6 +8320,35 @@ const sg=new THREE.ShapeGeometry(rrShape(SW,SH,SR),48);
 {const uv=sg.attributes.uv,p=sg.attributes.position; for(let i=0;i<uv.count;i++){uv.setXY(i,p.getX(i)/SW+0.5,p.getY(i)/SH+0.5);} }
 const scrM=new THREE.MeshBasicMaterial({map:scrTex,toneMapped:false,fog:false}); 
 const scr=new THREE.Mesh(sg,scrM); scr.position.z=PD/2+0.001; phone.add(scr);
+// 螢幕在狀態列下方挖一個透明的洞（和手機瀏覽器畫面同比例），真正的首頁從洞裡透出來
+const SBH=SW*0.14;   // 狀態列高度（和畫布上的狀態列一致）
+const holeM=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,blending:THREE.NoBlending,premultipliedAlpha:true,fog:false,toneMapped:false});
+const hole=new THREE.Mesh(new THREE.BufferGeometry(),holeM); hole.position.z=PD/2+0.0016; hole.visible=false; phone.add(hole);
+let hw=SW, hh=SH-SBH, hcy=0, holeR=-1, hk=1;
+function holeShape(w,h,rad){ const s=new THREE.Shape(), x=-w/2, y=-h/2; s.moveTo(x+rad,y); s.lineTo(x+w-rad,y); s.quadraticCurveTo(x+w,y,x+w,y+rad); s.lineTo(x+w,y+h); s.lineTo(x,y+h); s.lineTo(x,y+rad); s.quadraticCurveTo(x,y,x+rad,y); return s; }
+function fitHole(){ const A=innerWidth/innerHeight, aw=SW, ah=SH-SBH;
+  if(A>=aw/ah){ hw=aw; hh=aw/A; } else { hh=ah; hw=ah*A; }
+  hcy=SH/2-SBH-hh/2; hole.position.y=hcy; holeR=-1; }
+function setHoleR(rad){ if(Math.abs(rad-holeR)<0.002) return; holeR=rad; hole.geometry.dispose(); hole.geometry=new THREE.ShapeGeometry(holeShape(hw,hh,Math.max(0.0001,rad)),12); }
+fitHole(); setHoleR(SR);
+const B=document.body; B.classList.add('mf-live');
+const CN=[[-.5,.5],[.5,.5],[.5,-.5],[-.5,-.5]], pv3=new THREE.Vector3();
+function homo(W,H,P){
+  const [x0,y0]=P[0],[x1,y1]=P[1],[x2,y2]=P[2],[x3,y3]=P[3];
+  const dx1=x1-x2,dx2=x3-x2,dx3=x0-x1+x2-x3,dy1=y1-y2,dy2=y3-y2,dy3=y0-y1+y2-y3, den=dx1*dy2-dx2*dy1;
+  const g=(dx3*dy2-dx2*dy3)/den, h=(dx1*dy3-dx3*dy1)/den;
+  const a=x1-x0+g*x1, b=x3-x0+h*x3, d=y1-y0+g*y1, e=y3-y0+h*y3;
+  return `matrix3d(${a/W},${d/W},0,${g/W},${b/H},${e/H},0,${h/H},0,0,1,0,${x0},${y0},0,1)`;
+}
+function syncPage(home){
+  if(home<=0){ B.style.visibility='hidden'; return; }
+  B.style.visibility='';
+  phone.updateMatrixWorld(true); cam.updateMatrixWorld();
+  const W=innerWidth,H=innerHeight;
+  const P=CN.map(([x,y])=>{ pv3.set(x*hw*hk,hcy+y*hh*hk,hole.position.z).applyMatrix4(phone.matrixWorld).project(cam); return [(pv3.x+1)/2*W,(1-pv3.y)/2*H]; });
+  B.style.transform=homo(W,H,P);
+}
+function releasePage(){ B.style.transform=''; B.style.visibility=''; B.classList.remove('mf-live'); }
 // 推進最後淡成首頁底色：用一層疊在螢幕上的底色面片調透明度，不用每一格重畫貼圖
 const washM=new THREE.MeshBasicMaterial({color:0xFCFCFC,transparent:true,opacity:0,toneMapped:false,fog:false,depthWrite:false});
 const wash=new THREE.Mesh(sg,washM); wash.position.z=PD/2+0.0015; wash.visible=false; phone.add(wash);
@@ -8236,6 +8369,46 @@ const glow=new THREE.RectAreaLight(0xffffff,0,SW,SH); glow.position.z=PD/2+0.01;
 const tint=[[0x4a78ff,-1],[0xffa040,1]].map(([c,s])=>{const l=new THREE.PointLight(c,0,3,2); l.position.set(s*0.9,-0.6,0.6); scene.add(l); return l;});
 const rim=new THREE.DirectionalLight(0x9aa6ff,1.1); rim.position.set(-3,3,-4); scene.add(rim);
 const key=new THREE.DirectionalLight(0xffffff,0.6); key.position.set(3,2,4); scene.add(key);
+const PV='rhu';   // r：輪廓光　h：背後柔光　u：待機 → 喚醒 → iOS 解鎖
+// 輪廓光：從手機後方打三道窄光，邊框亮起細線，手機從背景浮出來（地板不反光，避免下半部發灰）
+if(PV.includes('r')){ const sp=(c,i,x,y,z)=>{ const l=new THREE.SpotLight(c,i,0,0.2,0.5,0); l.position.set(x,y,z); l.target=phone; scene.add(l); };
+  sp(0xbfd0ff,9,-2.2,1.4,-2.0); sp(0xffffff,8,2.2,1.2,-2.0); sp(0xdfe6ff,4,0,2.6,-1.2);
+  floor.material.roughness=1; floor.material.metalness=0; floor.material.color.set(0x050506); floor.material.envMapIntensity=0; }   // 地板不反射輪廓光（避免下半部發灰）
+// 背後柔光：手機正後方一團很淡的藍色光暈
+if(PV.includes('h')){ const hc=document.createElement('canvas'); hc.width=hc.height=512; const hx=hc.getContext('2d'); const g=hx.createRadialGradient(256,256,0,256,256,256); g.addColorStop(0,'rgba(70,110,230,0.30)'); g.addColorStop(0.5,'rgba(50,80,190,0.08)'); g.addColorStop(1,'rgba(30,40,90,0)'); hx.fillStyle=g; hx.fillRect(0,0,512,512);
+  const halo=new THREE.Mesh(new THREE.PlaneGeometry(2.9,2.9),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(hc),transparent:true,depthWrite:false,fog:false,toneMapped:false})); halo.position.set(0,0.05,-1.6); scene.add(halo); }
+const U=PV.includes('u');
+// ---- iOS 解鎖：鎖定畫面（另一層，往上滑走）----
+const lc=document.createElement('canvas'); lc.width=sc.width; lc.height=sc.height; const lx=lc.getContext('2d');
+const lockTex=new THREE.CanvasTexture(lc); lockTex.colorSpace=THREE.SRGBColorSpace; lockTex.anisotropy=8;
+const lockM=new THREE.MeshBasicMaterial({map:lockTex,transparent:true,toneMapped:false,fog:false,depthWrite:false});
+const lock=new THREE.Mesh(sg,lockM); lock.position.z=PD/2+0.002; lock.visible=false; lock.renderOrder=2; phone.add(lock);
+{ const iwW=SW*0.3, ihW=SW*0.09, isl=new THREE.Mesh(new THREE.ShapeGeometry(rrShape(iwW,ihW,ihW/2),24),new THREE.MeshBasicMaterial({color:0x000000,toneMapped:false,fog:false}));
+  isl.position.set(0,SH/2-SW*0.028-ihW/2,PD/2+0.0024); isl.renderOrder=3; isl.visible=U; phone.add(isl); }
+function sbar(c,W,ink){ const cy=W*0.028+W*0.047; c.fillStyle=ink; c.strokeStyle=ink;
+  let x=W*0.695; const bw=12,gap=6,base=cy+17; [14,21,28,35].forEach((h,i)=>{ c.beginPath(); c.roundRect(x+i*(bw+gap),base-h,bw,h,3); c.fill(); });
+  const wx=W*0.806, wy=cy+16; c.lineCap='round'; [[33,9],[21,8.5]].forEach(([r,lw])=>{ c.lineWidth=lw; c.beginPath(); c.arc(wx,wy,r,-Math.PI*0.75,-Math.PI*0.25); c.stroke(); });
+  c.beginPath(); c.moveTo(wx,wy); c.arc(wx,wy,11,-Math.PI*0.75,-Math.PI*0.25); c.closePath(); c.fill();
+  const bx=W*0.856, by=cy-17, bW=74, bH=35; c.lineWidth=3.5; c.globalAlpha*=0.5; c.beginPath(); c.roundRect(bx,by,bW,bH,11); c.stroke(); c.globalAlpha/=0.5; c.beginPath(); c.roundRect(bx+5,by+5,bW-10,bH-10,7); c.fill(); }
+let lockKey='';
+function drawLock(w){
+  const d=new Date(), key=w.toFixed(3)+'|'+d.getMinutes(); if(key===lockKey) return; lockKey=key;
+  const W=lc.width, H=lc.height; lx.clearRect(0,0,W,H); lx.fillStyle='#000'; lx.fillRect(0,0,W,H-3);   // 最下面留透明：往上滑時下方是空的
+  if(w>0){ lx.globalAlpha=w;
+    const g=lx.createRadialGradient(W*0.5,H*1.08,0,W*0.5,H*1.08,H); g.addColorStop(0,'#4f8df7'); g.addColorStop(0.3,'#1e3a8a'); g.addColorStop(0.7,'#0a1130'); g.addColorStop(1,'#03050c'); lx.fillStyle=g; lx.fillRect(0,0,W,H-3);
+    const C=24; for(let y=0;y<H-3;y+=C) for(let x=0;x<W;x+=C){ const r=C*0.32*Math.pow(y/H,2.2); if(r>0.7){ lx.fillStyle='rgba(150,190,255,0.18)'; lx.fillRect(x+C/2-r,y+C/2-r,r*2,r*2); } }   // 網點桌布（越往下越大）
+    sbar(lx,W,'#fff'); lx.globalAlpha=1; }
+  const mix=(a,b)=>'rgb('+a.map((v,k)=>Math.round(v+(b[k]-v)*w)).join(',')+')';
+  const t=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  lx.textAlign='center'; lx.textBaseline='middle';
+  lx.fillStyle=mix([91,96,110],[235,240,255]); lx.font='500 46px -apple-system,"Helvetica Neue",Arial,sans-serif';
+  lx.fillText('星期'+'日一二三四五六'[d.getDay()]+'　'+(d.getMonth()+1)+'月'+d.getDate()+'日',W/2,H*0.17);
+  lx.fillStyle=mix([107,112,128],[255,255,255]); lx.font='600 250px -apple-system,"SF Pro Display","Helvetica Neue",Arial,sans-serif'; lx.fillText(t,W/2,H*0.255);
+  lx.fillStyle=mix([74,78,90],[220,228,245]); lx.font='800 64px Syne, sans-serif'; lx.fillText('MingFly.',W/2,H*(0.9-0.55*w)+0);
+  if(w>0){ lx.globalAlpha=w;
+    lx.fillStyle='rgba(255,255,255,0.75)'; lx.font='500 40px -apple-system,"Helvetica Neue",Arial,sans-serif'; lx.fillText('向上滑動以打開',W/2,H*0.945);
+    lx.fillStyle='#fff'; lx.beginPath(); lx.roundRect(W/2-W*0.18,H*0.978,W*0.36,13,6.5); lx.fill(); lx.globalAlpha=1; }
+  lockTex.needsUpdate=true; }
 
 // 直接繪製（不經後製），螢幕不套色調映射，白色才會是真正的白
 const comp={render:()=>r.render(scene,cam),setSize:()=>{}}; const bloom={strength:0};
@@ -8244,7 +8417,7 @@ const comp={render:()=>r.render(scene,cam),setSize:()=>{}}; const bloom={strengt
 let heroBmp=null;
 // iPhone 狀態列：左邊時間（跟著使用者的時間），右邊訊號、Wi-Fi、電池
 function statusBar(W,SB){
-  const cy=W*0.028+W*0.047, ink='#000';
+  const cy=W*0.028+W*0.047, ink='#fff';
   const d=new Date(), t=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
   sx.fillStyle=ink; sx.font='600 54px -apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif'; sx.textAlign='center'; sx.textBaseline='middle';
   sx.fillText(t,W*0.2,cy+2); sx.textAlign='start';
@@ -8257,15 +8430,15 @@ function statusBar(W,SB){
   sx.beginPath(); sx.moveTo(wx,wy); sx.arc(wx,wy,11,-Math.PI*0.75,-Math.PI*0.25); sx.closePath(); sx.fill();
   // 電池
   const bx=W*0.856, by=cy-17, bW=74, bH=35;
-  sx.lineWidth=3.5; sx.strokeStyle='rgba(0,0,0,.4)'; sx.beginPath(); sx.roundRect(bx,by,bW,bH,11); sx.stroke();
+  sx.lineWidth=3.5; sx.strokeStyle='rgba(255,255,255,.45)'; sx.beginPath(); sx.roundRect(bx,by,bW,bH,11); sx.stroke();
   sx.fillStyle=ink; sx.beginPath(); sx.roundRect(bx+5,by+5,bW-10,bH-10,7); sx.fill();
-  sx.fillStyle='rgba(0,0,0,.4)'; sx.beginPath(); sx.roundRect(bx+bW+4,by+11,5,13,2.5); sx.fill();
+  sx.fillStyle='rgba(255,255,255,.45)'; sx.beginPath(); sx.roundRect(bx+bW+4,by+11,5,13,2.5); sx.fill();
 }
 
 let paintKey='';
 function paint(boot,home,logo=1){
   // 畫面內容沒變就不重畫：重畫並上傳一張 1170px 的貼圖很耗時，是推進時卡頓的主因
-  const key=boot.toFixed(3)+'|'+home.toFixed(3)+'|'+logo.toFixed(3)+'|'+(heroBmp?1:0)+'|'+new Date().getMinutes();
+  const key=boot.toFixed(3)+'|'+home.toFixed(3)+'|'+logo.toFixed(3)+'|'+new Date().getMinutes();
   if(key===paintKey) return; paintKey=key;
   const W=sc.width,H=sc.height;
   sx.fillStyle='#000'; sx.fillRect(0,0,W,H);
@@ -8273,7 +8446,7 @@ function paint(boot,home,logo=1){
   if(boot>0){ sx.globalAlpha=boot; sx.fillStyle='#fff'; sx.fillRect(0,0,W,H);
     sx.globalAlpha=boot*logo; sx.fillStyle='#111'; sx.font='800 150px Syne, sans-serif'; sx.textAlign='center'; sx.textBaseline='middle'; sx.fillText('MingFly.',W/2,H/2); sx.globalAlpha=1; }
   const SB=Math.round(W*0.14);   // 狀態列高度：網頁內容從狀態列下方開始（跟真的 iPhone 一樣）
-  if(home>0 && heroBmp){ sx.globalAlpha=home; sx.fillStyle='#fff'; sx.fillRect(0,0,W,SB); const s=W/heroBmp.width; sx.drawImage(heroBmp,0,SB,W,heroBmp.height*s); statusBar(W,SB); sx.globalAlpha=1; }
+  if(home>0){ sx.globalAlpha=home; sx.fillStyle='#000'; sx.fillRect(0,0,W,H); statusBar(W,SB); sx.globalAlpha=1; }   // 首頁：洞的周圍是黑色，上方是狀態列
   // 動態島（右側有前鏡頭）
   sx.fillStyle='#000'; const iw=W*0.3, ih=W*0.09, ix=W/2-iw/2, iy=W*0.028; sx.beginPath(); sx.roundRect(ix,iy,iw,ih,ih/2); sx.fill();
   sx.fillStyle='#1c1f2e'; sx.beginPath(); sx.arc(ix+iw-ih*0.52,iy+ih/2,ih*0.2,0,Math.PI*2); sx.fill();
@@ -8285,13 +8458,17 @@ const lerp=THREE.MathUtils.lerp, ease=x=>x*x*(3-2*x), cl=(x,a=0,b=1)=>Math.min(b
 const camStart=new THREE.Vector3(), tgt=new THREE.Vector3(), camEnd=new THREE.Vector3(), sp=new THREE.Vector3(), nrm=new THREE.Vector3();
 function pose(p){
   // 0–0.22 轉正（螢幕關著）｜0.22–0.42 開機白畫面｜0.42–0.62 首頁亮起｜0.62–1 推進到螢幕填滿
-  const turn=ease(cl(p/0.3)), boot=ease(cl((p-0.22)/0.12)), logo=1-ease(cl((p-0.40)/0.06)), home=ease(cl((p-0.46)/0.12)), zoom=ease(cl((p-0.62)/0.38));
+  let turn=ease(cl(p/0.3)), boot=ease(cl((p-0.22)/0.12)), logo=1-ease(cl((p-0.40)/0.06)), home=ease(cl((p-0.46)/0.12)), zoom=ease(cl((p-0.62)/0.38));
+  let wake=0, unl=0;
+  if(U){ wake=ease(cl((p-0.13)/0.11)); unl=ease(cl((p-0.27)/0.21)); boot=0; logo=0; home=unl; zoom=ease(cl((p-0.56)/0.44)); }
   phone.rotation.set(lerp(-0.18,0,turn), lerp(-0.85,0,turn), lerp(0.06,0,turn));
   phone.position.y=lerp(-0.05,0,turn);
-  paint(boot,home,logo);
+  if(U){ paint(0,unl>0?1:0,0); drawLock(wake); lock.visible=unl<0.999; lockTex.offset.y=-unl; } else paint(boot,home,logo);
   // 推進到最後：螢幕裡的首頁截圖淡成首頁底色，再揭開真正的首頁
   // （每支手機的瀏覽器高度不同，首頁版面會上下位移，截圖不可能完全對齊；先淡成底色就不會出現兩個畫面疊在一起的落差）
-  washM.opacity=0; wash.visible=false;   // 不再淡成白色：推進到滿版後直接揭開首頁
+  washM.opacity=0; wash.visible=false;
+  hole.visible=home>0; holeM.opacity=1-home; setHoleR(SR*(1-zoom));
+  if(U){ holeM.color.set(0x000000); holeM.opacity=(1-unl)*0.75; hk=lerp(0.88,1,unl); hole.scale.set(hk,hk,1); }   // 推到底時圓角收掉，剛好等於整個畫面
   const on=Math.max(boot,home);
   glow.intensity=on*1.4*(1-zoom*0.7); tint.forEach(l=>l.intensity=home*1.6*(1-zoom));
   bloom.strength=(0.05+0.12*on)*(1-zoom);
@@ -8299,19 +8476,20 @@ function pose(p){
   const fit=(PH*1.12)/(2*Math.tan(THREE.MathUtils.degToRad(cam.fov/2)))*Math.max(1,0.62/cam.aspect);
   camStart.set(0,0.22,fit+0.2); tgt.set(0,-0.02,0);
   if(zoom>0){
-    phone.updateMatrixWorld(true); scr.getWorldPosition(sp); nrm.set(0,0,1).transformDirection(scr.matrixWorld);
+    phone.updateMatrixWorld(true); sp.set(0,hcy,hole.position.z).applyMatrix4(phone.matrixWorld); nrm.set(0,0,1).transformDirection(phone.matrixWorld);
     const t=Math.tan(THREE.MathUtils.degToRad(cam.fov/2));
-    const d=Math.min(SH/(2*t), SW/(2*t*cam.aspect));       // 螢幕剛好蓋滿畫面
+    const d=Math.min(hh/(2*t), hw/(2*t*cam.aspect));       // 洞（首頁）剛好蓋滿畫面
     camEnd.copy(sp).addScaledVector(nrm,d);
     cam.position.lerpVectors(camStart,camEnd,zoom); cam.lookAt(tgt.lerp(sp,zoom));
   } else { cam.position.copy(camStart); cam.lookAt(tgt); }
+  if(!finished) syncPage(home);
   comp.render();
   return {boot,home,zoom};
 }
 
 const hint=box.querySelector('.mfi-hint'), hintText=hint.querySelector('span'), bar=box.querySelector('.mfi-bar'), skip=document.createElement('button')   /* 略過按鈕已移除 */;
 hintText.textContent='[ 向下滑動 ]';
-const img=document.createElement('img'); img.id='mf-intro-vid'; img.alt=''; img.src='images/intro-screen-m.jpg'; img.style.objectPosition='top'; box.insertBefore(img, r.domElement.nextSibling);
+const img=document.createElement('img'); img.id='mf-intro-vid'; img.alt=''; img.style.objectPosition='top'; box.insertBefore(img, r.domElement.nextSibling);
 let cur=0, target=0, raf=0, lastT=0, finished=false, fast=false, doneAt=0;
 function draw(p){
   pose(p);
@@ -8329,13 +8507,22 @@ let ty=null;
 function onTouchStart(e){ ty=e.touches[0].clientY; }
 function onTouchMove(e){ if(ty==null) return; e.preventDefault(); const y=e.touches[0].clientY; go((ty-y)*1.4/SPAN()); ty=y; }
 box.addEventListener('wheel',onWheel,{passive:false});
+let pendingClick=null, tapX=0, tapY=0, tapT=0;
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2();
+function pageEl(x,y){ if(!hole.visible) return null; const cr=r.domElement.getBoundingClientRect(); ptr.set((x-cr.left)/cr.width*2-1,-((y-cr.top)/cr.height)*2+1);
+  ray.setFromCamera(ptr,cam); const h=ray.intersectObjects([hole,body,glass,scr],false)[0]; if(!h||h.object!==hole) return null;
+  box.style.pointerEvents='none'; const el=document.elementFromPoint(x,y); box.style.pointerEvents=''; return el; }
+const ACT=el=>el&&el.closest('a[href],button');
+r.domElement.addEventListener('pointerdown',e=>{ tapX=e.clientX; tapY=e.clientY; tapT=performance.now(); });
+r.domElement.addEventListener('pointerup',e=>{ if(Math.hypot(e.clientX-tapX,e.clientY-tapY)>10 || performance.now()-tapT>500) return;
+  const a=ACT(pageEl(e.clientX,e.clientY)); if(a){ pendingClick=a; fast=true; go(1); } });
 box.addEventListener('touchstart',onTouchStart,{passive:true});
 box.addEventListener('touchmove',onTouchMove,{passive:false});
-function onResize(){ r.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); draw(cur); }
+function onResize(){ fitHole(); r.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); draw(cur); }
 addEventListener('resize',onResize);
 const clock=setInterval(()=>{ if(!finished && box.style.display!=='none') draw(cur); },20000);   // 狀態列時間每 20 秒更新
 function cleanup(){ cancelAnimationFrame(raf); raf=0; lastT=0; removeEventListener('resize',onResize); }
-function end(){ if(finished) return; finished=true; doneAt=performance.now(); skip.style.opacity=0; cleanup();
+function end(){ if(finished) return; finished=true; doneAt=performance.now(); skip.style.opacity=0; cleanup(); releasePage(); box.style.transition='none'; box.style.display='none'; if(pendingClick){ const a=pendingClick; pendingClick=null; setTimeout(()=>a.click(),80); }
   if(I.done){ document.documentElement.classList.remove('intro-on'); box.classList.add('is-out'); clearTimeout(I.hideT); I.hideT=setTimeout(()=>{ if(box.classList.contains('is-out')) box.style.display='none'; },750); } else I.finish(); }
 skip.addEventListener('click',()=>{ fast=true; go(1); setTimeout(end,1600); });
 // 首頁最上方往下拉：回到手機畫面（從螢幕填滿的位置往回倒）
@@ -8343,7 +8530,7 @@ const onHome=()=>{ const h=document.documentElement; return h.classList.contains
   && !h.classList.contains('splash-on') && !(document.getElementById('project-modal')&&!document.getElementById('project-modal').classList.contains('hidden')); };
 function reenter(){
   clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
-  finished=false; fast=false; cur=target=1; onResize();   // 隱藏期間視窗大小可能變了（例如進入全螢幕）：先照現在的大小重設畫面與鏡頭
+  B.classList.add('mf-live'); finished=false; fast=false; cur=target=1; onResize();   // 隱藏期間視窗大小可能變了（例如進入全螢幕）：先照現在的大小重設畫面與鏡頭
   draw(1);
   box.style.transition='none'; box.classList.remove('is-out','is-blink'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
   document.documentElement.classList.add('intro-on');
@@ -8355,13 +8542,13 @@ addEventListener('touchstart',e=>{ hy=canBack()?e.touches[0].clientY:null; },{pa
 addEventListener('touchmove',e=>{ if(hy==null) return; const y=e.touches[0].clientY; if(y-hy>40 && canBack()){ hy=null; reenter(); go(-40*1.4/SPAN()); ty=y; } },{passive:true});
 addEventListener('wheel',e=>{ if(e.deltaY>=0 || !canBack()) return; reenter(); const k=e.deltaMode===1?16:e.deltaMode===2?innerHeight:1; go(e.deltaY*k/SPAN()); },{passive:true});
 I.dispose=()=>{ try{ clearInterval(clock); r.dispose(); }catch(e){} };
-new THREE.TextureLoader().load('images/intro-screen-m.jpg',tex=>{
+(()=>{
   if(I.done) return;
-  heroBmp=tex.image; I.ready=true;
+  I.ready=true; box.style.background='transparent';
   const ld=box.querySelector('.mfi-loading'); ld.style.opacity=0; setTimeout(()=>ld.remove(),450);
   draw(0);
-  if(I.dormant){ I.done=true; finished=true; doneAt=0; cleanup(); }   // 背景準備好：等回到首頁往上滾／往下拉時才出現
-}, undefined, ()=>I.abort());
+  if(I.dormant){ I.done=true; finished=true; doneAt=0; cleanup(); releasePage(); }   // 背景準備好：等回到首頁往上滾／往下拉時才出現
+})();
 draw(0);
     } catch (err) { console.warn('手機開場載入失敗，改用原本的開場', err); I.abort(); } })();
     </script>
