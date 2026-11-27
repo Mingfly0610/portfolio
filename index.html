@@ -8313,7 +8313,8 @@ draw(0);
 <style id="mf-desk-hero-style">
 /* 電腦版首頁：巨型主角。被選中的物件放大在左邊，其他三個縮小排在右下（觀看作品上方）；四個物件地位相同，點誰誰就變主角 */
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  html[data-mf-hero] #hero-section { --b: min(48.6vw, 78vh); --s: min(6.4vw, 10.2vh); --pr: 5vw; --pt: 13.1vh;
+  html[data-mf-hero] #hero-section { --b: min(48.6vw, 78vh); --s: min(6.4vw, 10.2vh); --pr: max(48px, calc((100% - 1280px) / 2 + 48px));   /* 右邊緣跟導覽列「聯絡 Contact」對齊 */
+    --pt: 13.1vh;
     justify-content: flex-end !important; align-items: flex-start !important; padding: var(--pt) var(--pr) 0 0 !important; }
   html[data-mf-hero] #hero-section > .max-w-5xl { position: static !important; max-width: none !important; width: auto !important; margin: 0 !important; text-align: right !important; }
   html[data-mf-hero] #hero-section > .max-w-5xl > * { position: relative; z-index: 5; }
@@ -8326,14 +8327,15 @@ draw(0);
   html[data-mf-hero] #hero-section h1 > .drag-item { position: absolute !important; left: auto !important; right: 5.5em !important; top: -.24em !important; display: block; width: 2.45em !important; margin: 0 !important; rotate: -9deg !important; }
   html[data-mf-hero] #hero-section .max-w-5xl > .hero-hello-mask { text-align: right !important; margin-top: 2.4vh !important; }
   html[data-mf-hero] #hero-hello { text-align: right !important; color: #6b7280 !important; }
-  html[data-mf-hero] #hero-section .max-w-5xl > .pt-6 { position: absolute !important; right: calc(var(--pr) - 10px); bottom: 3.8vh; margin: 0 !important; padding: 0 !important; justify-content: flex-end !important; }
+  html[data-mf-hero] #hero-section .max-w-5xl > .pt-6 { position: absolute !important; right: calc(var(--pr) - 10px); top: calc(var(--row-top, calc(100% - var(--pt) - var(--s))) + var(--s) / 2); translate: 0 -50%; bottom: auto;   /* 觀看作品和小物件同一列、垂直置中 */ margin: 0 !important; padding: 0 !important; justify-content: flex-end !important; }
   html[data-mf-hero] #hero-section > .hero-icon { animation: none !important; position: absolute !important; translate: none !important; transform: none !important; right: auto !important; bottom: auto !important;
     transition: left .6s cubic-bezier(.2,.8,.2,1), top .6s cubic-bezier(.2,.8,.2,1), width .6s cubic-bezier(.2,.8,.2,1), height .6s cubic-bezier(.2,.8,.2,1), rotate .6s cubic-bezier(.2,.8,.2,1) !important; }
-  html[data-mf-hero] #hero-section > .hero-icon[data-slot="big"] { left: -6.25vw !important; top: var(--pt) !important; width: var(--b) !important; height: var(--b) !important; rotate: 6deg !important; z-index: 1 !important; }
-  html[data-mf-hero] #hero-section > .hero-icon[data-slot^="s"] { top: calc(100% - var(--pt) - var(--s)) !important; width: var(--s) !important; height: var(--s) !important; rotate: 0deg !important; z-index: 6 !important; }
-  html[data-mf-hero] #hero-section > .hero-icon[data-slot="s0"] { left: calc(100% - var(--pr) - var(--s) * 3.44) !important; }
-  html[data-mf-hero] #hero-section > .hero-icon[data-slot="s1"] { left: calc(100% - var(--pr) - var(--s) * 2.22) !important; }
-  html[data-mf-hero] #hero-section > .hero-icon[data-slot="s2"] { left: calc(100% - var(--pr) - var(--s)) !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot="big"] { left: -2.5vw !important; top: var(--pt) !important;   /* 主角往右一點，讓 experiences. 壓在上面形成層次 */
+    width: var(--b) !important; height: var(--b) !important; rotate: 0deg !important; z-index: 1 !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot^="s"] { top: var(--row-top, calc(100% - var(--pt) - var(--s))) !important;   /* --row-top：問候語下方（程式量測） */ width: var(--s) !important; height: var(--s) !important; rotate: 0deg !important; z-index: 6 !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot="s0"] { left: calc(100% - var(--pr) + 10px - var(--cta-w, 150px) - var(--s) * 3.99) !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot="s1"] { left: calc(100% - var(--pr) + 10px - var(--cta-w, 150px) - var(--s) * 2.77) !important; }
+  html[data-mf-hero] #hero-section > .hero-icon[data-slot="s2"] { left: calc(100% - var(--pr) + 10px - var(--cta-w, 150px) - var(--s) * 1.55) !important; }   /* 三個小物件排在觀看作品左邊，同一列 */
   /* 鋼筆、繪圖板當主角時，大物件不擋住畫畫 */
   html[data-mf-tool="pen"] #hero-section > .hero-icon[data-slot="big"], html[data-mf-tool="tablet"] #hero-section > .hero-icon[data-slot="big"] { pointer-events: none !important; }
   html[data-mf-hero] #mf-tool-tag { display: none !important; }
@@ -8352,12 +8354,24 @@ draw(0);
     let i = 0;
     ORDER.forEach(k => { const ic = icons.find(el => keyOf(el) === k); if (ic) ic.setAttribute('data-slot', k === hero ? 'big' : 's' + i++); });
   }
+  // 小物件列放在問候語下方固定距離，觀看作品再接在小物件下方（標題字級會隨視窗變，所以用量的）
+  function rowTop() {
+    const sec = document.getElementById('hero-section'), m = sec && sec.querySelector('.max-w-5xl > .hero-hello-mask');
+    if (!sec || !m || !mq.matches) return;
+    const y = m.getBoundingClientRect().bottom - sec.getBoundingClientRect().top;
+    if (y > 0) sec.style.setProperty('--row-top', Math.round(y + innerHeight * 0.06) + 'px');
+    const cta = sec.querySelector('.max-w-5xl > .pt-6'); if (cta && cta.offsetWidth) sec.style.setProperty('--cta-w', cta.offsetWidth + 'px');
+  }
+  addEventListener('resize', rowTop);
+  if (document.fonts) document.fonts.ready.then(rowTop);
   window.__mfHero = () => hero;
   window.__mfSetHero = k => { if (ORDER.includes(k)) { hero = k; layout(); } };
   (function init() {
     const list = [...document.querySelectorAll('#hero-section > .hero-icon')];
     if (list.length !== 4) return setTimeout(init, 300);
-    icons = list; layout();
+    icons = list; layout(); rowTop(); setTimeout(rowTop, 800);
+    const m = document.querySelector('#hero-section .hero-hello-mask'), h = document.querySelector('#hero-section h1');
+    if (window.ResizeObserver) { const ro = new ResizeObserver(rowTop); m && ro.observe(m); h && ro.observe(h); }
   })();
   mq.addEventListener('change', layout);
 })();
