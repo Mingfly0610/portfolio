@@ -841,6 +841,8 @@
     <style id="mf-intro-style">
         #mf-intro { position: fixed; inset: 0; z-index: 2147483000; background: #020203; transition: opacity .7s ease; touch-action: none; overscroll-behavior: contain; }
         #mf-intro.is-out { opacity: 0; pointer-events: none; }
+        #mf-intro.is-blink.is-out { background: #FCFCFC; transition: opacity .35s ease .16s; }   /* 揭開首頁：截圖先淡成底色，再露出實際首頁（不交疊，沒有殘影） */
+        #mf-intro.is-blink.is-out canvas, #mf-intro.is-blink.is-out #mf-intro-vid { opacity: 0 !important; transition: opacity .16s ease; }
         #mf-intro canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
         #mf-intro-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; }
         #mf-intro .mfi-ui { position: absolute; font: 500 13px ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .06em; transition: opacity .4s; }
@@ -3057,6 +3059,9 @@
                 };
                 const waitSplash = () => {
                     if (document.documentElement.classList.contains('splash-on')) return setTimeout(waitSplash, 100);
+                    // 電腦版筆電開場：截圖裡問候語已經在了，揭開後直接顯示，不再播進場（避免和截圖不一樣）
+                    const MI = window.__mfIntro;
+                    if (MI && !MI.dormant && MI.mode !== 'phone' && matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)').matches) { helloProgress = 1; finishHello(); return; }
                     setTimeout(() => (window.__helloFx ? window.__helloFx(heroHello, finishHello, playHello) : playHello()), 800);   // 開場揭開後 0.8 秒出現
                 };
                 waitSplash();
@@ -5580,8 +5585,17 @@
             const HOLD = 2000, FX = 800;   // 每 2 秒切換
             let timer = 0, busy = false;
             // 不再切換成 ASCII：每 3 秒只換藍色字並解碼（年份標籤一起解碼）
+            let introAt = 0;
             function run() {
                 clearTimeout(timer);
+                // 筆電開場期間：藍字固定是 beautiful（和開場截圖一致）；開場結束後先停一下再開始換字
+                const R = document.documentElement, wEl = h1.querySelector('.font-serif');
+                if (R.classList.contains('intro-on')) {
+                    introAt = performance.now();
+                    if (wEl && (wEl.__word || wEl.textContent).trim() !== 'beautiful') { wEl.__job = (wEl.__job || 0) + 1; wEl.__word = 'beautiful'; wEl.style.width = ''; wEl.style.display = ''; wEl.style.whiteSpace = ''; wEl.style.textAlign = ''; wEl.textContent = 'beautiful'; }
+                    timer = setTimeout(run, 300); return;
+                }
+                if (introAt && performance.now() - introAt < 2600) { timer = setTimeout(run, 2600 - (performance.now() - introAt)); return; }
                 swapWord(h1.querySelector('.font-serif'), HERO_WORDS);
                 decodeWord(h1.querySelector('.font-serif'));
                 decodeWord(document.querySelector('#hero-section .drag-item:not(.hero-icon) svg text'));
@@ -6732,6 +6746,40 @@ window.__heroDemo = function (v) {
       const mk = () => { const v = document.createElement('video'); v.muted = true; v.setAttribute('muted',''); v.playsInline = true; v.preload = 'auto';
         v.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none'; document.body.appendChild(v); return v; };
       const vids = [mk(), mk()]; let cur = 0, idx = 0, t0 = performance.now(), clicked = false;
+      // 筆電開場期間與結束後 1.2 秒：螢幕先顯示網點彩色測試條（和開場截圖一致，銜接時不跳畫面），之後作品畫面再從點陣長出來
+      let barsLatch = html.classList.contains('intro-on'), barsUntil = 0, barsCv = null;
+      function barsHold(now) {
+        if (html.classList.contains('intro-on') || window.__monBarsForce) { barsLatch = true; barsUntil = 0; }
+        else if (barsLatch && !barsUntil) barsUntil = now + 1200;
+        if (barsLatch && barsUntil && now >= barsUntil) { barsLatch = false; barsUntil = 0; return false; }
+        if (!barsLatch) return false;
+        const dpr = Math.min(2, devicePixelRatio || 1);
+        const W = Math.round(box.clientWidth * dpr), H = Math.round(box.clientHeight * dpr);
+        if (!W || !maskA) return true;
+        if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+        if (!barsCv || barsCv.width !== W || barsCv.height !== H) barsCv = paintBars(W, H);
+        ctx.clearRect(0, 0, W, H); ctx.drawImage(barsCv, 0, 0);
+        return true;
+      }
+      function paintBars(W, H) {
+        const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+        const s = Math.min(W, H) / 1120, ox = (W - 1120 * s) / 2, oy = (H - 1120 * s) / 2;
+        const TOP = ['#5ff0f0', '#f040f0', '#1020e0', '#f8f070', '#70f060', '#f04030'], LOW = ['#f04030', '#5ff0f0', '#f040f0', '#1020e0', '#f8f070', '#70f060'];
+        const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+        const colorAt = (u, v) => {
+          if (v < 0.68) { if (u > 0.80 && u < 0.92 && v > 0.42 && v < 0.58) return v < 0.5 ? [30, 30, 30] : [220, 220, 220]; return hex(TOP[Math.min(5, Math.floor(u * 6))]); }
+          if (v < 0.80) { const st = [[240, 64, 48], [248, 160, 60], [248, 240, 112], [112, 240, 96], [95, 240, 240], [80, 140, 255]]; const x = u * 5, i = Math.floor(x), f = x - i, A = st[i], B = st[Math.min(5, i + 1)]; return [A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f, A[2] + (B[2] - A[2]) * f]; }
+          return hex(LOW[Math.min(5, Math.floor(u * 6))]);
+        };
+        const x0 = ox + 240 * s, x1 = ox + 910 * s, y0 = oy + 205 * s, y1 = oy + 720 * s, CELL = 7.2 * s, dot = CELL * 0.71;
+        g.fillStyle = '#fcfcfc'; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+        for (let y = y0; y < y1; y += CELL) for (let x = x0; x < x1; x += CELL) {
+          const k = colorAt((x - x0) / (x1 - x0), (y - y0) / (y1 - y0));
+          g.fillStyle = `rgb(${k[0] | 0},${k[1] | 0},${k[2] | 0})`; g.fillRect(x + (CELL - dot) / 2, y + (CELL - dot) / 2, dot, dot);
+        }
+        g.globalCompositeOperation = 'destination-in'; g.drawImage(maskA, ox, oy, 1120 * s, 1120 * s);
+        return c;
+      }
       vids[0].src = list[0]; vids[0].play().catch(()=>{});
       vids[1].src = list[1 % list.length];
       window.__monList = list;
@@ -6771,6 +6819,7 @@ window.__heroDemo = function (v) {
       function frame(now){
         requestAnimationFrame(frame);
         const el = now - t0;
+        if (barsHold(now)) { t0 = now; clicked = false; return; }   // 開場期間：螢幕顯示彩色測試條
         if (el > HOLD) { next(); clicked = false; return; }
         if (!clicked && el > HOLD - FADE - 150) { clicked = true; window.dispatchEvent(new Event('mf:click')); }   // 滑鼠同步按一下
         // 切換前後的縮放：開頭長出來、結尾縮回去
@@ -7966,10 +8015,16 @@ const SW=BW-0.22,SH=SW*900/1440;
 const scrM=new THREE.MeshBasicMaterial({toneMapped:false,fog:false});
 const sc=document.createElement('canvas'); sc.width=1440; sc.height=900; const sx=sc.getContext('2d'); let heroBitmap=null, typed='';
 // 首頁畫面（靜態圖）：筆電螢幕和最後揭開前的畫面都用它
-const vid=document.createElement('img'); vid.id='mf-intro-vid'; vid.alt=''; vid.src='images/intro-screen.jpg'; box.insertBefore(vid, r.domElement.nextSibling);
+// 依視窗比例挑最接近的首頁截圖（1.6／1.7／1.8／1.9／2.0），推進到全螢幕時和實際首頁的排版一致
+const SHOT=(()=>{ const a=innerWidth/innerHeight, L=[[1.6,''],[1.7,'-170'],[1.8,'-180'],[1.9,'-190'],[2.0,'-200']]; let b=L[0]; for(const x of L) if(Math.abs(x[0]-a)<Math.abs(b[0]-a)) b=x; return 'images/intro-screen'+b[1]+'.jpg'; })();
+const vid=document.createElement('img'); vid.id='mf-intro-vid'; vid.alt=''; vid.src=SHOT; box.insertBefore(vid, r.domElement.nextSibling);
 const scrTex=new THREE.CanvasTexture(sc); scrTex.colorSpace=THREE.SRGBColorSpace;
 let vidShown=false;
-function paintScreen(){ if(!heroBitmap) return; sx.drawImage(heroBitmap,0,0,1440,900);
+function paintScreen(){ if(!heroBitmap) return;
+  // 截圖比 16:10 寬：照寬度放進螢幕，上下用截圖邊緣的顏色補滿（推進到全螢幕時，補的部分剛好在畫面外）
+  const iw=heroBitmap.width, ih=heroBitmap.height, h=Math.min(900,1440*ih/iw), y=(900-h)/2;
+  if(y>0.5){ sx.drawImage(heroBitmap,0,0,iw,1,0,0,1440,y+1); sx.drawImage(heroBitmap,0,ih-1,iw,1,0,y+h-1,1440,900-y-h+1); }
+  sx.drawImage(heroBitmap,0,y,1440,h);
   if(typed){ const t='[ '+typed+'_ ]'; sx.font='500 38px ui-monospace,Menlo,monospace'; const w=sx.measureText(t).width;
     sx.fillStyle='#FAFAFA'; sx.fillRect(720-w/2-18,100,w+36,58); sx.fillStyle='#3B82F6'; sx.textAlign='center'; sx.textBaseline='middle'; sx.fillText(t,720,131); sx.textAlign='start'; }
   scrTex.needsUpdate=true; }
@@ -8034,7 +8089,7 @@ box.addEventListener('touchmove',onTouchMove,{passive:false});
 function onResize(){ r.setSize(innerWidth,innerHeight); comp.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); draw(cur); }
 r.domElement.addEventListener('pointerenter',()=>{ if(r.domElement.width!==Math.round(innerWidth*r.getPixelRatio())) onResize(); });
 addEventListener('resize',onResize);
-function end(){ if(finished) return; finished=true; doneAt=performance.now(); skip.style.opacity=0; cleanup(); if(I.done){ document.documentElement.classList.remove('intro-on'); box.classList.add('is-out'); clearTimeout(I.hideT); I.hideT=setTimeout(()=>{ if(box.classList.contains('is-out')) box.style.display='none'; },750); } else I.finish(); }
+function end(){ if(finished) return; finished=true; doneAt=performance.now(); skip.style.opacity=0; cleanup(); box.classList.add('is-blink'); if(I.done){ document.documentElement.classList.remove('intro-on'); box.classList.add('is-out'); clearTimeout(I.hideT); I.hideT=setTimeout(()=>{ if(box.classList.contains('is-out')) box.style.display='none'; },750); } else I.finish(); }
 skip.addEventListener('click',()=>{ fast=true; go(1); setTimeout(end,1600); });   // 略過：快速推進，最多 1.6 秒後直接揭開首頁
 
 // ---- 鍵盤互動：點擊／觸控／實體鍵盤 ----
@@ -8103,7 +8158,7 @@ function reenter(){
   clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
   finished=false; fast=false; cur=target=1; onResize();   // 隱藏期間視窗大小可能變了（例如進入全螢幕）：先照現在的大小重設畫面與鏡頭
   draw(1);
-  box.style.transition='none'; box.classList.remove('is-out'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
+  box.style.transition='none'; box.classList.remove('is-out','is-blink'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
   document.documentElement.classList.add('intro-on');
   skip.style.opacity=1;
   addEventListener('keydown',onKey,true); addEventListener('resize',onResize);
@@ -8111,7 +8166,7 @@ function reenter(){
 addEventListener('wheel',e=>{ if(!finished || e.deltaY>=0 || performance.now()-doneAt<700 || box.style.display!=='none' && !box.classList.contains('is-out') || !onHome()) return;
   reenter(); const k=e.deltaMode===1?16:e.deltaMode===2?innerHeight:1; go(e.deltaY*k/SPAN()); },{passive:true});
 I.dispose=()=>{ try{ r.dispose(); comp.dispose&&comp.dispose(); if(actx) actx.close(); }catch(e){} };
-new THREE.TextureLoader().load('images/intro-screen.jpg',tex=>{
+new THREE.TextureLoader().load(SHOT,tex=>{
   if(I.done) return;
   heroBitmap=tex.image; scrTex.anisotropy=r.capabilities.getMaxAnisotropy(); paintScreen();
   scrM.map=scrTex; scrM.needsUpdate=true;
@@ -8290,7 +8345,7 @@ function reenter(){
   clearTimeout(I.hideT); box.style.display=''; void box.offsetWidth;
   finished=false; fast=false; cur=target=1; onResize();   // 隱藏期間視窗大小可能變了（例如進入全螢幕）：先照現在的大小重設畫面與鏡頭
   draw(1);
-  box.style.transition='none'; box.classList.remove('is-out'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
+  box.style.transition='none'; box.classList.remove('is-out','is-blink'); void box.offsetWidth; requestAnimationFrame(()=>box.style.transition='');   // 回來時直接出現，不和首頁交疊淡入
   document.documentElement.classList.add('intro-on');
   skip.style.opacity=1; addEventListener('resize',onResize);
 }
@@ -8316,7 +8371,8 @@ draw(0);
   html[data-mf-hero] #hero-section { --b: min(48.6vw, 78vh); --s: min(6.4vw, 10.2vh); --pr: max(48px, calc((100% - 1280px) / 2 + 48px));   /* 右邊緣跟導覽列「聯絡 Contact」對齊 */
     --pt: 13.1vh;
     justify-content: flex-end !important; align-items: flex-start !important; padding: var(--pt) var(--pr) 0 0 !important; }
-  html[data-mf-hero] #hero-section > .max-w-5xl { position: static !important; max-width: none !important; width: auto !important; margin: 0 !important; text-align: right !important; }
+  /* 文字區不播淡入（筆電開場揭開時要和截圖一致；淡入的位移也會讓觀看作品跑位） */
+  html[data-mf-hero] #hero-section > .max-w-5xl { animation: none !important; transform: none !important; position: static !important; max-width: none !important; width: auto !important; margin: 0 !important; text-align: right !important; }
   html[data-mf-hero] #hero-section > .max-w-5xl > * { position: relative; z-index: 5; }
   html[data-mf-hero] #hero-section h1 { font-size: min(7.2vw, 11.5vh) !important; line-height: .9 !important; letter-spacing: -.05em !important; text-align: right !important; max-width: none !important; margin: 0 !important; }
   html[data-mf-hero] #hero-section h1 { max-width: 10em !important; margin-left: auto !important; }
@@ -8384,6 +8440,8 @@ draw(0);
   #navbar nav a .nv-zh { font-size: 15px; font-weight: 700; letter-spacing: .08em; line-height: 1; }
   #navbar nav a .nv-en { font: 500 10px/1 "Geist Mono", ui-monospace, Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; color: #9ca3af; transition: color .2s; }
   #navbar nav a:hover .nv-en { color: inherit; }
+  /* 藍底（專案頁）或深色導覽列時，英文改成跟中文一樣的白色 */
+  html.hero-gone[data-view="work"] #navbar nav a .nv-en, #navbar.nav-dark nav a .nv-en, #navbar.nav-curtain nav a .nv-en { color: inherit !important; }
 }
 /* 電腦版首頁：觀看作品、物件提示條的中文微調粗細與字距（字體不變） */
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
